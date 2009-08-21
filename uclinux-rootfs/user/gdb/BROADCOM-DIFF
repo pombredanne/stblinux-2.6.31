@@ -1,0 +1,125 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: gdb-6.8.tar.bz2
+#
+diff -ruNp gdb.orig/gdb/gdbserver/makefile gdb/gdb/gdbserver/makefile
+--- gdb.orig/gdb/gdbserver/makefile	1969-12-31 16:00:00.000000000 -0800
++++ gdb/gdb/gdbserver/makefile	2009-08-07 12:09:19.000000000 -0700
+@@ -0,0 +1,76 @@
++PASSTHRU		:= clean distclean
++
++ifdef CONFIG_USER_GDB
++
++all:
++	make -f Makefile
++
++else
++sinclude $(ROOTDIR)/config.arch
++
++TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
++UCLIBC_INC = ../../uClibc/include
++UCLIBC_LIB = ../../uClibc/lib
++ifneq (,$(findstring linux,$(CROSS)))
++	TARGET=$(CROSS:linux-=linux)
++else
++	ifneq (,$(findstring uclibc,$(CROSS)))
++		TARGET_ARCH ?= $(CROSS:-uclibc-=)
++		TARGET=$(TARGET_ARCH)-linux
++	else
++#		echo "FIXME: Cannot determine target architecture"
++#		exit 99
++	endif
++endif
++
++
++all:
++	if [ ! -e Makefile ]; then \
++	( \
++	AR=$(CROSS)ar						\
++	AS=$(CROSS)as						\
++	LD=$(CROSS)ld						\
++	NM=$(CROSS)nm						\
++	CC=$(CROSS)gcc						\
++	GCC=$(CROSS)gcc						\
++	CXX=$(CROSS)g++						\
++	RANLIB=$(CROSS)-ranlib					\
++	gdb_cv_func_sigsetjmp=yes					\
++	ac_cv_type_uintptr_t=yes					\
++	gt_cv_func_gettext_libintl=yes				\
++	ac_cv_func_dcgettext=yes					\
++	bash_cv_func_strcoll_broken=no				\
++	bash_cv_must_reinstall_sighandlers=no				\
++	bash_cv_func_sigsetjmp=present				\
++	bash_cv_have_mbstate_t=yes					\
++	srv_linux_thread_db=yes					\
++	export STD_INC="$(TOOL_DIR_PREFIX)/$(TARGET)/include"; \
++	export GCC_INC="$(TOOL_DIR_PREFIX)/$(TARGET)/include"; \
++	test -f config.cache && rm -f config.cache; \
++	./configure			\
++		--prefix=/	\
++		--target=$(TARGET)						\
++		--build=i686-pc-linux-gnu						\
++		--host=$(TARGET)						\
++		--disable-nls						\
++		--without-uiout --disable-gdbmi				\
++		--disable-tui --disable-gdbtk --without-x			\
++		--without-included-gettext	\
++	) ; \
++	fi
++	make -f Makefile  CFLAGS+=-L../../../../romfs/lib/
++
++#distclean: clean
++#	-rm config.cache
++#	make -f Makefile distclean
++#	rm Makefile
++
++endif
++
++.PHONY: $(PASSTHRU)
++$(PASSTHRU):
++	make -f Makefile $@
++
++romfs:
++	$(ROMFSINST) -e CONFIG_USER_GDBSERVER_GDBSERVER /bin/gdbserver
++	$(ROMFSINST) -e CONFIG_USER_GDBSERVER_GDBREPLAY /bin/gdbreplay
+diff -ruNp gdb.orig/makefile gdb/makefile
+--- gdb.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ gdb/makefile	2009-08-07 12:09:19.000000000 -0700
+@@ -0,0 +1,36 @@
++include $(ROOTDIR)/config.arch
++
++BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
++
++CC			:= $(MACHINE)-linux-gcc
++STRIP			:= $(MACHINE)-linux-strip
++CFLAGS			:= -Os
++
++export CC CFLAGS
++
++CPPFLAGS		:= -I$(ROOTDIR)/user/bash/lib/termcap
++LDFLAGS			:= -L$(ROOTDIR)/user/bash/lib/termcap
++
++export CPPFLAGS LDFLAGS
++
++.PHONY: all
++all::
++	if [ ! -e Makefile ]; then \
++		./configure --host=$(MACHINE)-linux --disable-nls \
++			--without-included-gettext --without-uiout \
++			--disable-tui --disable-gdbtk --without-x || exit 1 ; \
++	fi
++	$(MAKE) -f Makefile
++
++.PHONY: romfs
++romfs::
++	$(STRIP) gdb/gdb
++	$(ROMFSINST) -e CONFIG_USER_GDB_GDB gdb/gdb /bin/gdb
++
++# These targets must not be passed through to the original Makefile
++.PHONY: $(BOGUS_TARGETS)
++$(BOGUS_TARGETS)::
++
++# Everything else (maybe including clean, distclean) does get passed through
++%:: FORCE
++	$(MAKE) -f Makefile $@

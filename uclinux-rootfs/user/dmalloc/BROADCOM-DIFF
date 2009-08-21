@@ -1,0 +1,59 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: dmalloc-5.5.2.tar.bz2
+#
+diff -ruNp dmalloc.orig/configure dmalloc/configure
+--- dmalloc.orig/configure	2007-05-14 10:26:14.000000000 -0700
++++ dmalloc/configure	2009-08-07 12:09:20.000000000 -0700
+@@ -5306,7 +5306,7 @@ done
+ 
+ echo "$as_me:$LINENO: checking basic-block size" >&5
+ echo $ECHO_N "checking basic-block size... $ECHO_C" >&6
+-ac_cv_page_size=0
++ac_cv_page_size=12
+ if test $ac_cv_page_size = 0; then
+    if test "$cross_compiling" = yes; then
+   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+diff -ruNp dmalloc.orig/makefile dmalloc/makefile
+--- dmalloc.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ dmalloc/makefile	2009-08-07 12:09:20.000000000 -0700
+@@ -0,0 +1,38 @@
++TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
++
++ifneq (,$(findstring linux,$(CROSS)))
++	TARGET=$(CROSS:linux-=linux)
++	TARGET_ARCH ?= $(CROSS:-linux-=)
++else
++	ifneq (,$(findstring uclibc,$(CROSS)))
++		TARGET_ARCH ?= $(CROSS:-uclibc-=)
++		TARGET=$(TARGET_ARCH)-linux
++	else
++		echo "FIXME: Cannot determine target architecture"
++		exit 99
++	endif
++endif
++
++all:
++	# This is optional software, so it may not be cleaned even with a make distclean
++	# and will faile to build if we switch from LE to BE build and vice versa.
++	-test -f Makefile && make -f Makefile distclean
++	-rm -f Makefile config.cache config.h config.status
++	CC=$(CC) LD=$(LD) CFLAGS="$(MY_CFLAGS)" LDFLAGS="$(MY_LDFLAGS)" CXXFLAGS="$(MY_CXXFLAGS)" CPPFLAGS="$(MY_CPPFLAGS)" \
++	VERSION=\"5.5.2\" PACKAGE=\"dmalloc\" \
++		./configure \
++		--target=$(TARGET)		\
++		--host=$(TARGET)	\
++		--build=i386-linux 
++	make -f Makefile
++
++clean:
++	make -f Makefile clean
++
++distclean: clean
++	make -f Makefile distclean
++	-rm -f Makefile config.cache config.h config.status
++
++romfs:
++	$(ROMFSINST) -e CONFIG_USER_DMALLOC_DMALLOC	dmalloc	/bin/dmalloc
++

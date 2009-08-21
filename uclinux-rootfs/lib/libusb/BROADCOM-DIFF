@@ -1,0 +1,27 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: libusb.tar.bz2
+#
+diff -ruNp libusb.orig/makefile libusb/makefile
+--- libusb.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ libusb/makefile	2009-08-07 12:09:16.000000000 -0700
+@@ -0,0 +1,18 @@
++include $(ROOTDIR)/config.arch
++
++all:
++	./configure --host=$(MACHINE)-linux --prefix=$(ROMFSDIR)
++	make -f Makefile SUBDIRS="."
++
++all-% install-% clean-% distclean-%:
++	$(MAKE) -f Makefile $@
++
++clean:
++	make -f Makefile clean SUBDIRS="."
++
++distclean: clean
++	-make -f Makefile distclean SUBDIRS="."
++	rm -f Makefile
++
++romfs:
++	make -f Makefile install SUBDIRS="."

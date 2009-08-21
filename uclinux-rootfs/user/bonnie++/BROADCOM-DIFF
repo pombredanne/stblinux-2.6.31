@@ -1,0 +1,24 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: bonnie++.tar.bz2
+#
+diff -ruNp bonnie++.orig/makefile bonnie++/makefile
+--- bonnie++.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ bonnie++/makefile	2009-08-07 12:09:19.000000000 -0700
+@@ -0,0 +1,15 @@
++include $(ROOTDIR)/config.arch
++
++all:
++	./configure --host=$(MACHINE)-linux
++	make -f Makefile
++
++clean:
++	make -f Makefile clean
++
++distclean: clean
++	make -f Makefile clean
++
++romfs:
++	$(ROMFSINST) -e CONFIG_USER_BONNIEXX_BONNIEXX bonnie++ /bin/bonnie++
++	$(ROMFSINST) -e CONFIG_USER_BONNIEXX_BONNIEXX zcav /bin/bonnie++

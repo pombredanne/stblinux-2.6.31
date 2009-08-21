@@ -1,0 +1,107 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: xfsprogs-2.5.6.tar.bz2
+#
+diff -ruNp xfsprogs.orig/libxfs/makefile xfsprogs/libxfs/makefile
+--- xfsprogs.orig/libxfs/makefile	2007-02-08 11:57:00.000000000 -0800
++++ xfsprogs/libxfs/makefile	2009-08-07 12:09:22.000000000 -0700
+@@ -7,7 +7,8 @@
+ LIBXFS = libxfs.so
+ BUILD_LIBXFS = build/libxfs.a
+ 
+-BUILD_CFLAGS = -I$(ROOTDIR)/$(LINUXDIR)/include -I../include -I.. -I. \
++BUILD_CFLAGS = -I$(LINUXDIR)/include -I../include -I.. -I. \
++	-I$(ROOTDIR)/romfs/usr/include \
+ 	-DHAVE_32BIT_LONG -DHAVE_32BIT_PTR \
+ 	-D _LARGEFILE_SOURCE -D _LARGEFILE64_SOURCE
+ 
+@@ -39,7 +40,9 @@ BUILD_OBJS = $(patsubst %,build/%,$(OBJS
+ 
+ LDSHARED=$(CC) --shared -Wl,-soname,$(LIBXFS)
+ 
+-all: build $(ROOTDIR)/romfs/lib/$(LIBXFS) $(BUILD_LIBXFS)
++# jipeng - remove $(BUILD_LIBXFS) to avoid building host side binary 
++#all: build $(ROOTDIR)/romfs/lib/$(LIBXFS) $(BUILD_LIBXFS)
++all: build $(ROOTDIR)/romfs/lib/$(LIBXFS)
+ 
+ .PHONY:
+ build:
+@@ -62,7 +65,7 @@ $(ROOTDIR)/romfs/lib/$(LIBXFS): $(LIBXFS
+ romfs:
+ 
+ clean:
+-	rm -f $(OBJS) $(LIBXFS) build
++	rm -rf $(OBJS) $(LIBXFS) build
+ 	
+ build/%.o: %.c
+ 	$(BUILD_CC) $(BUILD_CFLAGS) -c -o $@ $<
+diff -ruNp xfsprogs.orig/makefile xfsprogs/makefile
+--- xfsprogs.orig/makefile	2007-02-08 11:57:00.000000000 -0800
++++ xfsprogs/makefile	2009-08-07 12:09:22.000000000 -0700
+@@ -6,19 +6,21 @@
+ TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
+ XFSPROGS_DIR=$(shell pwd)
+ 
+-#CFLAGS += -I$(TOOL_DIR_PREFIX)/mipsel-linux/include/linux/xfs_support/ \
++#CFLAGS += -I$(TOOL_DIR_PREFIX)/mipsel-linux/include/linux/xfs_support/
+ CFLAGS += \
+-		-I$(XFSPROGS_DIR) -I$(XFSPROGS_DIR)/include -I. -I$(ROOTDIR)/romfs/include \
++		-I$(XFSPROGS_DIR) -I$(XFSPROGS_DIR)/include -I. \
++		-I$(ROOTDIR)/user/e2fsprogs/lib \
+ 		-D _LARGEFILE_SOURCE -D _LARGEFILE64_SOURCE \
+ 		-D __USE_LARGEFILE64 -D __USE_FILE_OFFSET64 \
+ 		-DHAVE_BUILDDEFS -DHAVE_32BIT_LONG -DHAVE_32BIT_PTR \
+ 		-DVERSION="\"2.5.6\"" -fPIC
+-LDFLAGS += -L$(ROOTDIR)/romfs/lib
++LDFLAGS += -L$(ROOTDIR)/user/e2fsprogs/lib
+ 
+ .EXPORT_ALL_VARIABLES:
+ 
+ 
+ # THT Took out uuid.  Library now available in romfs/lib:wq
++# jipeng - remove libxfs to avoid building host side utils
+ DIRS =  libdisk libxfs libxlog fsck mkfs repair
+ 
+ all:
+diff -ruNp xfsprogs.orig/mkfs/makefile xfsprogs/mkfs/makefile
+--- xfsprogs.orig/mkfs/makefile	2007-02-08 11:57:00.000000000 -0800
++++ xfsprogs/mkfs/makefile	2009-08-07 12:09:22.000000000 -0700
+@@ -18,8 +18,6 @@ CFLAGS += -I../include -I.. -I. \
+ 		-DVERSION="\"2.5.6\"" \
+ 		-fPIC
+ 		
+-LDADD  = $(ROOTDIR)/romfs/lib/libxfs.so $(ROOTDIR)/romfs/lib/libdisk.so \
+-	 $(ROOTDIR)/romfs/lib/libuuid.so
+ LDLIBS	+= -lxfs -ldisk -luuid
+ LDFLAGS += -L$(ROOTDIR)/romfs/lib
+ 
+@@ -36,7 +34,7 @@ BUILD_MAXTRLIBS = $(BUILD_LIBXFS) $(BUIL
+ 
+ all: $(EXEC)
+ 
+-$(EXEC): $(MAXTRRES).h $(OBJS) $(LDADD)
++$(EXEC): $(MAXTRRES).h $(OBJS)
+ 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+ 
+ # THT: Remove build rule for maxtress.h as some platforms (RHEL) does not have the optional library libuuid installed
+diff -ruNp xfsprogs.orig/repair/makefile xfsprogs/repair/makefile
+--- xfsprogs.orig/repair/makefile	2007-02-08 11:57:00.000000000 -0800
++++ xfsprogs/repair/makefile	2009-08-07 12:09:22.000000000 -0700
+@@ -22,14 +22,12 @@ CFLAGS += -I../include -I.. -I. \
+ 		-DVERSION="\"2.5.6\"" \
+ 		-fPIC
+ 
+-LDADD  = $(ROOTDIR)/romfs/lib/libxfs.so $(ROOTDIR)/romfs/lib/libdisk.so \
+-	 $(ROOTDIR)/romfs/lib/libuuid.so
+-LDFLAGS += -L$(ROOTDIR)/romfs/lib
+ LDLIBS  += -lxfs -lxlog -luuid
++LDFLAGS += -L../libxfs -L../libxlog
+ 
+ all: $(EXEC)
+ 
+-$(EXEC): $(OBJS) $(LDADD)
++$(EXEC): $(OBJS)
+ 	$(CC) $(LDFLAGS) -o $@ $(OBJS)  $(LDLIBS)
+ 
+ romfs:

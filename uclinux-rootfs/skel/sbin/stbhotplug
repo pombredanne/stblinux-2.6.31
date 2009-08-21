@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$1" = "net" ]; then
+	if [ "$ACTION" = "add" ]; then
+		/sbin/ifup $INTERFACE
+	elif [ "$ACTION" = "remove" ]; then
+		/sbin/ifdown $INTERFACE
+	fi
+fi
+
+exec /sbin/mdev "$@"

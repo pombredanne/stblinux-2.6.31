@@ -1,0 +1,56 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: tcpdump-4.0.0.tar.bz2
+#
+diff -ruNp tcpdump.orig/makefile tcpdump/makefile
+--- tcpdump.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ tcpdump/makefile	2009-08-07 12:09:22.000000000 -0700
+@@ -0,0 +1,32 @@
++include $(ROOTDIR)/config.arch
++
++BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
++
++CC			:= $(MACHINE)-linux-gcc
++STRIP			:= $(MACHINE)-linux-strip
++CFLAGS			:= -Os
++
++export CC CFLAGS
++
++.PHONY: all
++all::
++	if [ ! -e Makefile ]; then \
++		ln -sf $(ROOTDIR)/lib/libpcap . ; \
++		./configure --host=$(MACHINE)-linux \
++			--without-crypto --disable-ipv6 \
++			ac_cv_linux_vers=2 || exit 1 ; \
++	fi
++	$(MAKE) -f Makefile
++
++.PHONY: romfs
++romfs::
++	$(STRIP) tcpdump
++	$(ROMFSINST) -e CONFIG_USER_TCPDUMP_TCPDUMP /bin/tcpdump
++
++# These targets must not be passed through to the original Makefile
++.PHONY: $(BOGUS_TARGETS)
++$(BOGUS_TARGETS)::
++
++# Everything else (maybe including clean, distclean) does get passed through
++%:: FORCE
++	$(MAKE) -f Makefile $@
+diff -ruNp tcpdump.orig/print-enc.c tcpdump/print-enc.c
+--- tcpdump.orig/print-enc.c	2008-08-31 19:44:22.000000000 -0700
++++ tcpdump/print-enc.c	2009-08-07 12:09:22.000000000 -0700
+@@ -77,9 +77,11 @@ enc_if_print(const struct pcap_pkthdr *h
+ 	case AF_INET:
+ 		ip_print(gndo, p, length);
+ 		break;
++#ifdef INET6
+ 	case AF_INET6:
+ 		ip6_print(p, length);
+ 		break;
++#endif
+ 	}
+ 
+ out:

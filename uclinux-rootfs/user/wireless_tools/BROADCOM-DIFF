@@ -1,0 +1,32 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+#
+# Original package: wireless_tools.29.tar.bz2
+#
+diff -ruNp wireless_tools.orig/Makefile wireless_tools/Makefile
+--- wireless_tools.orig/Makefile	2007-09-17 16:56:46.000000000 -0700
++++ wireless_tools/Makefile	2009-08-07 12:09:19.000000000 -0700
+@@ -9,7 +9,7 @@ ifndef PREFIX
+ endif
+ 
+ ## Compiler to use (modify this for cross compile).
+-CC = gcc
++# CC = gcc
+ ## Other tools you need to modify for cross compile (static lib only).
+ AR = ar
+ RANLIB = ranlib
+@@ -199,6 +199,14 @@ install-iwmulticall:: iwmulticall
+ 	  ln -f -s iwconfig iwpriv ; \
+ 	  ln -f -s iwconfig iwgetid )
+ 
++romfs:
++	$(ROMFSINST) -e CONFIG_USER_WIRELESS_TOOLS	/bin/iwconfig
++	$(ROMFSINST) -e CONFIG_USER_WIRELESS_TOOLS	/bin/iwlist
++	$(ROMFSINST) -e CONFIG_USER_WIRELESS_TOOLS	/bin/iwpriv
++	$(ROMFSINST) -e CONFIG_USER_WIRELESS_TOOLS	/bin/iwspy
++	$(ROMFSINST) -e CONFIG_USER_WIRELESS_TOOLS	/bin/iwgetid
++	$(ROMFSINST) -e CONFIG_USER_WIRELESS_TOOLS	/lib/libiw.so.29
++
+ clean::
+ 	$(RM_CMD) 
+ 

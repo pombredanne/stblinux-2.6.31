@@ -1,0 +1,38 @@
+diff -ru mtd-utils.orig/Makefile mtd-utils/Makefile
+--- mtd-utils.orig/Makefile	Tue Mar 17 11:12:09 2009
++++ mtd-utils/Makefile	Sat May  9 21:04:21 2009
+@@ -39,7 +39,7 @@
+ 	crc32.o compr_rtime.o mkfs.jffs2.o compr_zlib.o compr_lzo.o \
+ 	compr.o rbtree.o)
+ LDFLAGS_mkfs.jffs2 = $(ZLIBLDFLAGS) $(LZOLDFLAGS)
+-LDLIBS_mkfs.jffs2  = -lz -llzo2
++LDLIBS_mkfs.jffs2  = -Wl,-Bstatic -lz -llzo2 -Wl,-Bdynamic
+ 
+ $(BUILDDIR)/flash_eraseall: $(BUILDDIR)/crc32.o $(BUILDDIR)/flash_eraseall.o
+ 
+diff -ru mtd-utils.orig/mkfs.ubifs/Makefile mtd-utils/mkfs.ubifs/Makefile
+--- mtd-utils.orig/mkfs.ubifs/Makefile	Tue Mar 17 11:12:09 2009
++++ mtd-utils/mkfs.ubifs/Makefile	Sat May  9 21:02:42 2009
+@@ -1,8 +1,9 @@
+ ALL_SOURCES=*.[ch] hashtable/*.[ch]
+ 
+ TARGETS = mkfs.ubifs
++CFLAGS += $(LZOCPPFLAGS)
+ 
+-LDLIBS_mkfs.ubifs = -lz -llzo2 -lm -luuid
++LDLIBS_mkfs.ubifs = $(LZOLDFLAGS) -Wl,-Bstatic -lz -llzo2 -luuid -Wl,-Bdynamic -lm
+ 
+ include ../common.mk
+ 
+diff -ru mtd-utils.orig/ubi-utils/Makefile mtd-utils/ubi-utils/Makefile
+--- mtd-utils.orig/ubi-utils/Makefile	Sat May  9 20:16:36 2009
++++ mtd-utils/ubi-utils/Makefile	Sat May  9 21:02:42 2009
+@@ -4,7 +4,7 @@
+ 
+ KERNELHDR := ../include
+ 
+-SUBDIRS = old-utils
++# SUBDIRS = old-utils
+ 
+ #CFLAGS += -Werror
+ CPPFLAGS += -Iinclude -Isrc -I$(KERNELHDR)
