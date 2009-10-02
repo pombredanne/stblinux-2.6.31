@@ -57,8 +57,8 @@ if [ -e /etc/wl/rtecdc.trx -a -x /bin/bcmdl ]; then
 fi
 [ -e /lib/modules/wl.ko ] && insmod /lib/modules/wl.ko
 
-# rootfs on SATA hard disk
-if [ -e /dev/root -a "`readlink /dev/root`" = "sda1" ]; then
+# rootfs on SATA hard disk (but not sda4-less thumbdrive)
+if [ -e /dev/root -a "`readlink /dev/root`" = "sda1" -a -e /dev/sda4 ]; then
 	mount -a
 	swapon -a
 fi

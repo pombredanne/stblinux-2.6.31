@@ -44,6 +44,26 @@ function find_mtd_partition()
 	return 1
 }
 
+function find_thumbdrive()
+{
+	thumbdrive=""
+	cd /sys/block
+	for x in sd*; do
+		if [ -L $x/device ]; then
+			dev=$(readlink $x/device)
+			if [[ "$dev" == *usb* ]]; then
+				if [ -e ${x}/${x}1 ]; then
+					thumbdrive=${x}1
+				else
+					thumbdrive=${x}
+				fi
+				return 0
+			fi
+		fi
+	done
+	return 1
+}
+
 function get_mtd_attr()
 {
 	arg0=$1
@@ -76,6 +96,54 @@ function check_root()
 		done
 	fi
 }
+
+# create rootfs image at /mnt/hd
+function write_rootfs()
+{
+	type="$1"
+
+	echo ""
+	echo "Writing rootfs..."
+	echo ""
+
+	if [ "$type" = "-linux" ]; then
+		# Linux filesystems
+		cd /mnt/hd
+		mkdir {sys,proc,tmp,dev,mnt} mnt/{hd,flash,usb,nfs}
+		mknod dev/console c 5 1
+
+		cd /
+		for x in *; do
+			if [ ! -e /mnt/hd/$x ]; then
+				cp -a $x /mnt/hd/
+			fi
+		done
+	else
+		# DOS filesystems - no device nodes or symlinks
+		rm -rf /tmp/stage
+		mkdir /tmp/stage
+		cd /tmp/stage
+		mkdir {sys,proc,tmp,dev,mnt} mnt/{hd,flash,usb,nfs}
+
+		cd /
+		for x in *; do
+			if [ ! -e /tmp/stage/$x ]; then
+				ln -s /$x /tmp/stage/
+			fi
+		done
+
+		# erase any old versions present
+		cd /tmp/stage
+		for x in *; do
+			rm -rf /mnt/hd/$x
+		done
+
+		cp -pLR * /mnt/hd/
+	fi
+
+	return 0
+}
+
 
 # Install kernel to flash
 function handle_opt_1()
@@ -179,6 +247,7 @@ function handle_opt_4()
 		ubidetach /dev/ubi_ctrl -d 0
 		cmdline="ubi.mtd=rootfs root=/dev/mtdblock${newpart}"
 	else
+		newpart=$rootfs_part
 		dd if=/tmp/rootfs.img of=$mtd
 		cmdline="root=/dev/mtdblock${rootfs_part}"
 	fi
@@ -210,7 +279,7 @@ function handle_opt_4()
 # Install rootfs to hard drive
 function handle_opt_5()
 {
-	check_root sda
+	check_root ${hdd_dev##*/}
 	echo "Writing partition table..."
 	dd if=/dev/zero of=${hdd_dev} bs=1k count=40960 2> /dev/null
 	cat /etc/partition-lba48.map | sfdisk -fq ${hdd_dev}
@@ -219,24 +288,14 @@ function handle_opt_5()
 	mkfs.ext3 ${hdd_dev}3
 	mkfs.ext3 -N 16384 ${hdd_dev}4
 
-	tune2fs -i 0 ${hdd_dev}1
-	tune2fs -i 0 ${hdd_dev}3
-	tune2fs -i 0 ${hdd_dev}4
+	tune2fs -o journal_data_ordered -i 0 ${hdd_dev}1
+	tune2fs -o journal_data_ordered -i 0 ${hdd_dev}3
+	tune2fs -o journal_data_ordered -i 0 ${hdd_dev}4
 
 	mkswap ${hdd_dev}2
 
 	mount ${hdd_dev}1 /mnt/hd
-	mkdir /mnt/hd/{sys,proc,tmp,dev,mnt}
-	mknod /mnt/hd/dev/console c 5 1
-	mkdir /mnt/hd/mnt/{hd,flash,usb,nfs}
-
-	cd /
-	for x in *; do
-		if [ ! -e /mnt/hd/$x ]; then
-			cp -a $x /mnt/hd/
-		fi
-	done
-
+	write_rootfs -linux
 	umount ${hdd_dev}1
 
 	echo ""
@@ -249,6 +308,89 @@ function handle_opt_5()
 	echo "To mount the filesystem now:"
 	echo ""
 	echo "  mount ${hdd_dev}1 /mnt/hd"
+	echo ""
+	exit 0
+}
+
+# Update rootfs on /dev/sdX1 (don't reformat other partitions)
+function handle_opt_6()
+{
+	check_root ${hdd_dev##*/}
+
+	mkfs.ext3 ${hdd_dev}1
+	tune2fs -i 0 ${hdd_dev}1
+
+	mount ${hdd_dev}1 /mnt/hd
+	write_rootfs -linux
+	umount ${hdd_dev}1
+
+	echo ""
+	echo "Finished refreshing the rootfs."
+	echo ""
+	exit 0
+}
+
+function handle_opt_7()
+{
+	check_root $thumbdrive
+
+	dev=/dev/${thumbdrive}
+
+	mount ${dev} /mnt/hd
+	tftp_fetch $tftphost $tftpdir/vmlinuz-$plat \
+		/mnt/hd/vmlinuz-$plat || exit 1
+	write_rootfs -dos
+	umount ${dev}
+
+	echo ""
+	echo "Finished writing rootfs to USB thumbdrive."
+	echo ""
+	echo "Sample boot command line:"
+	echo ""
+	echo "  boot -z -elf usbdisk0:vmlinuz-$plat 'rootwait root=/dev/$thumbdrive'"
+	echo ""
+	echo "To mount the filesystem now:"
+	echo ""
+	echo "  mount ${dev} /mnt/flash"
+	echo ""
+	exit 0
+}
+
+# Install nonfree drivers
+function handle_opt_8()
+{
+	cd /tmp
+	rm -rf nonfree.tar.bz2 nonfree
+	tftp_fetch $tftphost $tftpdir/nonfree-$plat.tar.bz2 \
+		/tmp/nonfree.tar.bz2 || exit 1
+	tar -jxf nonfree.tar.bz2
+	cd nonfree/*
+	echo ""
+
+	if [ -d moca ]; then
+		if [ -e /bin/mocad ]; then
+			echo "MoCA: already installed, skipping"
+		else
+			mkdir -p /etc/moca
+			cp -f moca/bin/* /bin/
+			cp -f moca/fw/* /etc/moca/
+			echo "MoCA: now installed"
+		fi
+	fi
+
+	if [ -d wlan ]; then
+		if [ -e /bin/wl ]; then
+			echo "WLAN: already installed, skipping"
+		else
+			cp -f wlan/bin/* /bin/
+			cp -f wlan/mod/* /lib/modules/
+			echo "WLAN: now installed"
+		fi
+	fi
+	cd /tmp
+	rm -rf nonfree*
+	sync
+
 	echo ""
 	exit 0
 }
@@ -267,6 +409,7 @@ Options:
 				them over the network
 	-a <selection>		Use SELECTION as the menu item selection,
 				instead of prompting the user
+	-H <disk>		Use hard drive DISK (default sda)
 	<tftpdir>		TFTP server hostname
 	<dir>			Directory (relative path) on TFTP server
 
@@ -277,6 +420,7 @@ Examples:
 	stbutil -a1
 	stbutil -a 1
 	stbutil -d /mnt/usb -a 1
+	stbutil -H sdb
 
 EOF
 	exit 1
@@ -291,7 +435,7 @@ kernel_part=
 flash_type=
 flash_erasesize=
 flash_writesize=
-hdd_dev=
+hdd_dev=/dev/sda
 
 local_dir=
 resp=
@@ -323,7 +467,7 @@ find_mtd_partition kernel kernel_part || true
 
 # parse command line
 
-while getopts "a:d:h" opt; do
+while getopts "a:d:H:h" opt; do
 	case $opt in
 		d)
 			local_dir=$OPTARG
@@ -331,6 +475,13 @@ while getopts "a:d:h" opt; do
 		a)
 			resp=$OPTARG;
 			auto_resp=1
+			;;
+		H)
+			if [ -e /dev/$OPTARG ]; then
+				hdd_dev=/dev/$OPTARG
+			else
+				echo "warning: /dev/$OPTARG does not exist"
+			fi
 			;;
 		h|?)
 			usage
@@ -351,10 +502,13 @@ fi
 
 # construct menu
 
-if [ -e /dev/sda ]; then
-	hdd_dev=/dev/sda
-else
+if [ ! -e $hdd_dev ]; then
+	hdd_dev=""
 	suf5="(not available)"
+fi
+
+if [ ! -e ${hdd_dev}1 ]; then
+	suf6="(not available)"
 fi
 
 [ -z $kernel_part ] && suf1="(not available)"
@@ -368,6 +522,14 @@ fi
 if [ "$flash_type" = "nand" ]; then
 	suf3="(not available)"
 	suf4="(uses UBI)"
+fi
+
+if ! find_thumbdrive; then
+	suf7="(not available)"
+fi
+
+if ! touch /. >& /dev/null; then
+	suf8="(not available)"
 fi
 
 for x in chip_id chip_rev cfe_boardname cpu_name; do
@@ -399,7 +561,10 @@ while :; do
 	echo "2) Install UBIFS rootfs to flash (RW/RO) $suf2"
 	echo "3) Install JFFS2 rootfs to flash (RW/RO) $suf3"
 	echo "4) Install SQUASHFS rootfs to flash (RO) $suf4"
-	echo "5) Install rootfs to hard drive $suf5"
+	echo "5) Format/partition entire HDD, then install rootfs $suf5"
+	echo "6) Update rootfs on first HDD partition $suf6"
+	echo "7) Install kernel/rootfs to USB thumbdrive $suf7"
+	echo "8) Install nonfree drivers $suf8"
 	echo "q) Exit"
 	echo ""
 	echo -n "Selection: "
@@ -412,7 +577,7 @@ while :; do
 	echo ""
 
 	case $resp in
-		[1-5])
+		[1-8])
 			sufname='$'suf${resp}
 			eval suf=$sufname
 			if [[ "$suf" = *"not available"* ]]; then

@@ -31,6 +31,8 @@ if($board =~ m/^9?([0-9]{4,5})([a-z])([0-9])$/) {
 	exit 1;
 }
 
+$combo = $chip.$rev;
+
 if($board =~ m/^97455/) {
 	$chip = "7401";
 } elsif($board =~ m/^97456/) {
@@ -41,12 +43,24 @@ if($board =~ m/^97455/) {
 	$chip = "7405";
 }
 
-if($chip eq "7413") {
-	$chip = "7405";
-	$rev = "d0";
-} elsif($chip eq "7466" || $chip eq "7205" || $chip eq "7206") {
+if($combo eq "7413a0" || $combo eq "7414a0") {
 	$chip = "7405";
 	$rev = "b0";
+} elsif($combo eq "7413b0" || $combo eq "7414b0") {
+	$chip = "7405";
+	$rev = "d0";
+} elsif($chip eq "7466") {
+	$chip = "7405";
+	$rev = "b0";
+} elsif($combo eq "7205a0" || $combo eq "7206a0") {
+	$chip = "7405";
+	$rev = "b0";
+} elsif($combo eq "7205b0" || $combo eq "7206b0") {
+	$chip = "7405";
+	$rev = "d0";
+} elsif($chip eq "7213" || $chip eq "7214") {
+	$chip = "7405";
+	$rev = "d0";
 } elsif($chip eq "7406") {
 	$chip = "7405";
 } elsif($chip eq "7324") {

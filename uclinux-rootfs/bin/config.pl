@@ -130,7 +130,8 @@ sub whitelist_cfg($$)
 					$$cfg{$x} = "n";
 				}
 			} elsif($$cfg{$x} eq "n") {
-				if(defined($$whitelist{$x})) {
+				if(defined($$whitelist{$x}) &&
+						$$whitelist{$x} eq "y") {
 					$$cfg{$x} = "y";
 				}
 			}
@@ -182,7 +183,7 @@ sub get_tgt($)
 		die "no target specified";
 	}
 
-	if($tgt !~ m/^([0-9]+[a-z][0-9])(_be)?(-\S+)?/) {
+	if($tgt !~ m/^([0-9]+[a-z][0-9])(_be)?(-\S+)?$/) {
 		die "invalid target format: $tgt";
 	}
 	($chip, $be, $suffix) = ($1, defined($2) ? 1 : 0,
@@ -239,6 +240,23 @@ sub set_opt($$)
 	write_cfg($file, $file, \%h);
 }
 
+sub test_opt($$)
+{
+	my($file, $settings) = @_;
+	my %h;
+	my $result = 0;
+
+	read_cfg($file, \%h);
+
+	foreach my $key (@$settings) {
+		if(!defined($h{$key}) || ($h{$key} eq 'n')) {
+			$result = 1;
+		}
+	}
+
+	exit $result;
+}
+
 #
 # MAIN
 #
@@ -258,6 +276,10 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	read_cfg($vendor_defaults, \%vendor);
 
 	# basic hardware support
+
+	if(defined($linux{"CONFIG_SMP"})) {
+		$vendor{"CONFIG_USER_AFFINITY"} = "y";
+	}
 
 	if(defined($linux{"CONFIG_BRCM_MOCA"})) {
 		$vendor{"CONFIG_USER_NONFREE_MOCA"} = "y";
@@ -344,6 +366,9 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			override_cfg(\%linux, \%linux_o);
 			def(\%linux, "CONFIG_BRCM_IKOS", "n");
 			def(\%linux, "CONFIG_KGDB", "n");
+
+			# GPL symbol conflicts; binary incompatibilities
+			$vendor{"CONFIG_USER_NONFREE_WLAN"} = "n";
 		} elsif($mod eq "netfilter") {
 
 			# Enable netfilter and iptables
@@ -352,6 +377,20 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 				\%linux_o);
 			override_cfg(\%linux, \%linux_o);
 			$vendor{"CONFIG_USER_IPTABLES_IPTABLES"} = "y";
+		} elsif($mod eq "ipv6") {
+
+			# Enable IPv6
+
+			read_cfg("defaults/override.linux-ipv6",
+				\%linux_o);
+			override_cfg(\%linux, \%linux_o);
+
+			# FIXME: missing dependencies
+			# $vendor{"CONFIG_USER_DHCPCV6_DHCPCV6"} = "y";
+
+			$uclibc{"UCLIBC_HAS_IPV6"} = "y";
+			$busybox{"CONFIG_FEATURE_IPV6"} = "y";
+			$busybox{"CONFIG_PING6"} = "y";
 		} elsif($mod eq "nousb") {
 			$linux{"CONFIG_USB"} = "n";
 		} elsif($mod eq "nomtd") {
@@ -441,11 +480,40 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 		$busybox{"CONFIG_CROSS_COMPILER_PREFIX"} = '"mips-linux-"';
 	}
 
-	# disable nonfree by default if binaries are not available
+	# set nonfree defaults based on what is available
 
-	if(! -d "../nonfree") {
-		$vendor{"CONFIG_USER_NONFREE_MOCA"} = "n";
-		$vendor{"CONFIG_USER_NONFREE_WLAN"} = "n";
+	if(! -d "../nonfree_src" && -d "../../LinuxSupport/nonfree_src") {
+		symlink("../LinuxSupport/nonfree_src", "../nonfree_src");
+	}
+
+	my $lebe = $be ? "_be" : "";
+	if($vendor{'CONFIG_USER_NONFREE_MOCA'} eq "y") {
+		if(-d "../nonfree_src/moca") {
+			# we have source code, so use it
+			$vendor{'CONFIG_USER_NONFREE_MOCA_SRC'} = "y";
+		} elsif(! -d "../nonfree/${chip}${lebe}/moca") {
+			# we have neither sources nor binaries; disable
+			$vendor{'CONFIG_USER_NONFREE_MOCA'} = "n";
+		} else {
+			# precompiled binaries only
+			$vendor{'CONFIG_USER_NONFREE_MOCA_SRC'} = "n";
+		}
+	}
+	if($vendor{'CONFIG_USER_NONFREE_WLAN'} eq "y") {
+		if(-d "../nonfree_src/wlan") {
+			# we have source code, so use it
+			$vendor{'CONFIG_USER_NONFREE_WLAN_SRC'} = "y";
+		} elsif(! -d "../nonfree/${chip}${lebe}/wlan") {
+			# we have neither sources nor binaries; disable
+			$vendor{'CONFIG_USER_NONFREE_WLAN'} = "n";
+		} else {
+			# precompiled binaries only
+			$vendor{'CONFIG_USER_NONFREE_WLAN_SRC'} = "n";
+		}
+		# these drivers are ~6MB - don't build them into the rootfs
+		# unless they are specifically requested
+		$vendor{'CONFIG_USER_NONFREE_WLAN_PCI'} = "n";
+		$vendor{'CONFIG_USER_NONFREE_WLAN_USB'} = "n";
 	}
 
 	# misc
@@ -548,6 +616,14 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	set_opt($uclibc_config, \@ARGV);
 } elsif($cmd eq "vendor") {
 	set_opt($vendor_config, \@ARGV);
+} elsif($cmd eq "test_linux") {
+	test_opt($linux_config, \@ARGV);
+} elsif($cmd eq "test_busybox") {
+	test_opt($busybox_config, \@ARGV);
+} elsif($cmd eq "test_uclibc") {
+	test_opt($uclibc_config, \@ARGV);
+} elsif($cmd eq "test_vendor") {
+	test_opt($vendor_config, \@ARGV);
 } else {
 	die "unrecognized command: $cmd";
 }

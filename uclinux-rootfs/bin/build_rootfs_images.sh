@@ -23,7 +23,21 @@ function make_ubi_img()
 
 	bin/mkfs.ubifs -U -D misc/devtable.txt -r romfs -o tmp/ubifs.img \
 		-m $page -e $leb -c 2047
-	bin/ubinize -o tmp/ubi.img -m $page -p $peb misc/ubinize.cfg
+
+	vol_size=$(du -sm tmp/ubifs.img | cut -f1)
+
+	cat > tmp/ubinize.cfg <<-EOF
+	[ubifs]
+	mode=ubi
+	image=tmp/ubifs.img
+	vol_id=0
+	vol_size=${vol_size}MiB
+	vol_type=dynamic
+	vol_name=rootfs
+	vol_flags=autoresize
+	EOF
+
+	bin/ubinize -o tmp/ubi.img -m $page -p $peb tmp/ubinize.cfg
 
 	mv tmp/ubi.img $out
 	echo "  -> $out"
@@ -64,17 +78,6 @@ chmod 0644 images/squashfs-${TARGET}.img
 echo "  -> images/squashfs-${TARGET}.img"
 echo ""
 
-cat > tmp/ubinize.cfg <<EOF
-[ubifs]
-mode=ubi
-image=tmp/ubifs.img
-vol_id=0
-vol_size=20MiB
-vol_type=dynamic
-vol_name=rootfs
-vol_flags=autoresize
-EOF
-
 # 64k erase / 1B unit size - NOR
 make_ubi_img 64 1
 
@@ -96,9 +99,18 @@ make_jffs2_img 128
 
 echo "Writing NFS rootfs tarball..."
 rm -f tmp/nfsroot.tar images/nfsroot-${TARGET}.tar.bz2
+rm -rf tmp/romfs
+
+mkdir -p tmp/romfs/boot
+cp linux-2.6.x/.config tmp/romfs/boot/config
+cp linux-2.6.x/Module.symvers tmp/romfs/boot/
+cp linux-2.6.x/System.map tmp/romfs/boot/
+cp linux-2.6.x/vmlinux tmp/romfs/boot/
+
 cp misc/devconsole.tar tmp/nfsroot.tar
 chmod u+w tmp/nfsroot.tar
 tar --owner 0 --group 0 -rf tmp/nfsroot.tar romfs/
+tar --owner 0 --group 0 -rf tmp/nfsroot.tar -C tmp romfs/boot/
 bzip2 < tmp/nfsroot.tar > images/nfsroot-${TARGET}.tar.bz2
 echo "  -> images/nfsroot-${TARGET}.tar.bz2"
 

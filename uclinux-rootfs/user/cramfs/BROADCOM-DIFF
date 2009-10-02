@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-08-07
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-09-30
 #
 # Original package: cramfs.tar.bz2
 #
 diff -ruNp cramfs.orig/COPYING cramfs/COPYING
 --- cramfs.orig/COPYING	1969-12-31 16:00:00.000000000 -0800
-+++ cramfs/COPYING	2009-08-07 12:09:22.000000000 -0700
++++ cramfs/COPYING	2009-09-30 15:57:40.000000000 -0700
 @@ -0,0 +1,339 @@
 +		    GNU GENERAL PUBLIC LICENSE
 +		       Version 2, June 1991
@@ -348,14 +348,14 @@ diff -ruNp cramfs.orig/COPYING cramfs/COPYING
 +Public License instead of this License.
 diff -ruNp cramfs.orig/README.Broadcom cramfs/README.Broadcom
 --- cramfs.orig/README.Broadcom	1969-12-31 16:00:00.000000000 -0800
-+++ cramfs/README.Broadcom	2009-08-07 12:09:22.000000000 -0700
++++ cramfs/README.Broadcom	2009-09-30 15:57:40.000000000 -0700
 @@ -0,0 +1,3 @@
 +mkcramfs.c was modified per PR29110 (build cramfs, jffs2 as nonroot).
 +
 +A patch against the original file may be found therein.
 diff -ruNp cramfs.orig/mkcramfs.c cramfs/mkcramfs.c
 --- cramfs.orig/mkcramfs.c	2007-02-08 11:56:50.000000000 -0800
-+++ cramfs/mkcramfs.c	2009-08-07 12:09:22.000000000 -0700
++++ cramfs/mkcramfs.c	2009-09-30 15:57:40.000000000 -0700
 @@ -307,6 +307,9 @@ static unsigned int parse_directory(stru
  		}
  		entry->mode = st.st_mode;

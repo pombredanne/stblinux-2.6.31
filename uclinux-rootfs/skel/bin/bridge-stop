@@ -11,22 +11,22 @@ if ! ifconfig br0 >& /dev/null; then
 fi
 
 echo -n "Killing DHCP clients... "
-killall dhcpcd &> /dev/null
+killall udhcpc &> /dev/null
 usleep 200000
-killall -9 dhcpcd &> /dev/null
+killall -9 udhcpc &> /dev/null
 echo "done"
 
 echo -n "Tearing down the bridge... "
 ifconfig br0 down
 brctl delbr br0
 
-echo -n "Restarting DHCP client on each interface... "
+echo -n "Bringing interfaces back up... "
 for x in $(ls /sys/class/net); do
 	case $x in
 		lo|br*)
 			;;
 		*)
-			dhcpcd -Hd -L /var/run $x &
+			ifup $x
 			;;
 	esac
 done

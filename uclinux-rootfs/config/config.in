@@ -16,7 +16,23 @@ comment 'Broadcom STB Configuration'
 
 bool 'Broadcom power management'	CONFIG_USER_BRCM_PM
 bool 'Broadcom nonfree WLAN drivers'	CONFIG_USER_NONFREE_WLAN
+if [ "$CONFIG_USER_NONFREE_WLAN" = "y" ]; then
+	bool '  Build from source'	CONFIG_USER_NONFREE_WLAN_SRC
+	bool '  Install PCI driver into rootfs'	CONFIG_USER_NONFREE_WLAN_PCI
+	bool '  Install USB driver into rootfs'	CONFIG_USER_NONFREE_WLAN_USB
+fi
 bool 'Broadcom nonfree MoCA drivers'	CONFIG_USER_NONFREE_MOCA
+if [ "$CONFIG_USER_NONFREE_MOCA" = "y" ]; then
+	bool '  Build from source'	CONFIG_USER_NONFREE_MOCA_SRC
+fi
+if [ "$CONFIG_USER_NONFREE_WLAN_SRC" = "y" ]; then
+	# nonfree modules that require Kbuild will change the build order
+	define_bool CONFIG_USER_NONFREE_USES_KBUILD y
+	define_bool CONFIG_USER_NONFREE_SRC y
+fi
+if [ "$CONFIG_USER_NONFREE_MOCA_SRC" = "y" ]; then
+	define_bool CONFIG_USER_NONFREE_SRC y
+fi
 
 endmenu
 
@@ -263,12 +279,15 @@ bool 'dhcpcd-new (1.3.22-p14)'	CONFIG_USER_DHCPCD_NEW_DHCPCD
 bool 'dhcpd'			CONFIG_USER_DHCPD_DHCPD
 bool 'dhcpd(ISC)' 		CONFIG_USER_DHCP_ISC_SERVER_DHCPD
 bool 'dhclient(ISC)' 		CONFIG_USER_DHCP_ISC_CLIENT_DHCP
+bool 'dhcpcv6'			CONFIG_USER_DHCPCV6_DHCPCV6
+bool 'dhcpsv6'			CONFIG_USER_DHCPSV6_DHCPSV6
 bool 'diald'			CONFIG_USER_DIALD_DIALD
 bool 'discard'			CONFIG_USER_DISCARD_DISCARD
 bool 'dmalloc'			CONFIG_USER_DMALLOC_DMALLOC
 bool 'dnsmasq'			CONFIG_USER_DNSMASQ_DNSMASQ
 bool 'ethattach'		CONFIG_USER_ETHATTACH_ETHATTACH
 bool 'epi_ttcp'			CONFIG_USER_EPI_TTCP
+bool 'ethtool'			CONFIG_USER_ETHTOOL
 bool 'ez-ipupdate'		CONFIG_USER_EZIPUPDATE_EZIPUPDATE
 bool 'ftp'			CONFIG_USER_FTP_FTP_FTP
 

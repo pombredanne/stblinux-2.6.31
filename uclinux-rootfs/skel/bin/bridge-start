@@ -10,10 +10,20 @@ if ifconfig br0 >& /dev/null; then
 	exit 1
 fi
 
-echo -n "Killing DHCP clients... "
-killall dhcpcd &> /dev/null
+echo -n "Bringing down network interfaces... "
+for x in $(ls /sys/class/net); do
+	case $x in
+		lo|br*)
+			;;
+		*)
+			ifdown $x
+			;;
+	esac
+done
+
+killall udhcpc &> /dev/null
 usleep 200000
-killall -9 dhcpcd &> /dev/null
+killall -9 udhcpc &> /dev/null
 echo "done"
 
 echo -n "Creating bridge... "
@@ -27,6 +37,7 @@ for x in $(ls /sys/class/net); do
 		lo|br*)
 			;;
 		*)
+			ifconfig $x 0.0.0.0 up
 			brctl addif br0 $x
 			;;
 	esac

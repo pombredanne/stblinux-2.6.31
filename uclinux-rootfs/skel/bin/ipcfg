@@ -5,6 +5,7 @@ function usage()
 	echo "usage: ipcfg <interface> static <ip> <netmask> [ <gateway> ]"
 	echo "       ipcfg <interface> dhcp"
 	echo "       ipcfg <interface> dhcp_ll"
+	echo "       ipcfg <interface> dhcp6"
 	echo "       ipcfg <interface> default"
 	echo "       ipcfg <interface> none"
 	echo ""
@@ -13,6 +14,7 @@ function usage()
 	echo "  static:  Fixed IP address"
 	echo "  dhcp:    DHCP without Link Local"
 	echo "  dhcp_ll: DHCP with Link Local"
+	echo "  dhcp6:   DHCPv6"
 	echo "  default: Use default configuration (typically DHCP)"
 	echo "  none:    Do not attempt to configure the interface"
 	exit 1
@@ -48,6 +50,9 @@ case "$cmd" in
 		echo "zcip $iface /etc/zcip.script" >> $file
 		echo "udhcpc -i $iface:0 -p /tmp/udhcpc.$iface.pid >& /dev/null &" >> $file
 		;;
+	dhcp6)
+		echo "dhcp6c -dDf $iface &" > $file
+		;;
 	default)
 		rm -f $file
 		;;
@@ -60,4 +65,5 @@ case "$cmd" in
 		;;
 esac
 
+sync
 exit 0

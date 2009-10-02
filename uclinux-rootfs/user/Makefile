@@ -91,6 +91,7 @@ dir_$(CONFIG_USER_E2FSPROGS_DEBUGFS_DEBUGFS) += e2fsprogs
 dir_$(CONFIG_USER_ELVISTINY_VI)             += elvis-tiny
 dir_$(CONFIG_USER_EPI_TTCP)                 += epi_ttcp
 dir_$(CONFIG_USER_ETHATTACH_ETHATTACH)      += ethattach
+dir_$(CONFIG_USER_ETHTOOL)					+= ethtool
 dir_$(CONFIG_USER_EZIPUPDATE_EZIPUPDATE)    += ez-ipupdate
 dir_$(CONFIG_USER_FDISK_FDISK)              += fdisk
 dir_$(CONFIG_USER_FILEUTILS_CAT)            += fileutils
