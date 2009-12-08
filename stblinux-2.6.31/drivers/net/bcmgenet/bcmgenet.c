@@ -603,14 +603,16 @@ static void bcmgenet_set_multicast_list(struct net_device * dev)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct dev_mc_list * dmi;
-	int i;
-#define MAX_MC_COUNT	16
+	int i, mc;
+#define MAX_MC_COUNT	16	
 
     TRACE(("%s: bcmgenet_set_multicast_list: %08X\n", dev->name, dev->flags));
 
     /* Promiscous mode */
     if (dev->flags & IFF_PROMISC) {
 		pDevCtrl->umac->cmd |= CMD_PROMISC;   
+		pDevCtrl->umac->mdf_ctrl = 0;
+		return;
     } else {
 		pDevCtrl->umac->cmd &= ~CMD_PROMISC;
     }
@@ -619,23 +621,32 @@ static void bcmgenet_set_multicast_list(struct net_device * dev)
 	if (dev->flags & IFF_ALLMULTI)
 		return;
 	
-	if (dev->mc_count == 0 || dev->mc_count > MAX_MC_COUNT) {
-		/* Disable MDF */
-		pDevCtrl->umac->mdf_ctrl = 0;
-		return;
-	}
 	/* update MDF filter */
 	i = 0;
-	pDevCtrl->umac->mdf_ctrl = 0;
-	for(dmi = dev->mc_list; dmi; dmi = dmi->next) {
-		pDevCtrl->umac->mdf_addr[i] = *(unsigned short *)&dmi->dmi_addr[4];
-		pDevCtrl->umac->mdf_addr[i+1] = *(unsigned long *)&dmi->dmi_addr[0];
-		pDevCtrl->umac->mdf_ctrl |= (1 << i);
+	mc = 0;
+	/* Broadcast */
+	pDevCtrl->umac->mdf_addr[i] = 0xFFFF;
+	pDevCtrl->umac->mdf_addr[i+1] = 0xFFFFFFFF;
+	pDevCtrl->umac->mdf_ctrl |= (1 << (MAX_MC_COUNT - mc));
+	i += 2;
+	mc++;
+	/* Unicast*/
+	pDevCtrl->umac->mdf_addr[i] = (dev->dev_addr[0] << 8) | dev->dev_addr[1];
+	pDevCtrl->umac->mdf_addr[i+1] = dev->dev_addr[2] << 24 | dev->dev_addr[3] << 16 | dev->dev_addr[4] << 8 | dev->dev_addr[5];
+	pDevCtrl->umac->mdf_ctrl |= (1 << (MAX_MC_COUNT - mc));
+	i += 2;
+	mc++;
+	if (dev->mc_count == 0 || dev->mc_count > (MAX_MC_COUNT - 1)) {
+		return;
 	}
-	/* finally, get ourself in*/
-	pDevCtrl->umac->mdf_addr[i] = *(unsigned short*)&dev->dev_addr[4];
-	pDevCtrl->umac->mdf_addr[i+1] = *(unsigned long*)&dev->dev_addr[0];
-	pDevCtrl->umac->mdf_ctrl |= (1 << i);
+	/* Multicast */
+	for(dmi = dev->mc_list; dmi; dmi = dmi->next) {
+		pDevCtrl->umac->mdf_addr[i] = dmi->dmi_addr[0] << 8 | dmi->dmi_addr[1];
+		pDevCtrl->umac->mdf_addr[i+1] = dmi->dmi_addr[2] << 24|dmi->dmi_addr[3] << 16|dmi->dmi_addr[4] << 8|dmi->dmi_addr[5];
+		pDevCtrl->umac->mdf_ctrl |= (1 << (MAX_MC_COUNT - mc));
+		i += 2;
+		mc++;
+	}
 }
 /*
  * Set the hardware MAC address.
@@ -1122,6 +1133,9 @@ static int bcmgenet_poll(struct napi_struct * napi, int budget)
 	bcmgenet_xmit(NULL, pDevCtrl->dev);
 	/* Allocate new SKBs for the BD ring */
 	assign_rx_buffers(pDevCtrl);
+	pDevCtrl->rxDma->rDmaRings[DMA_RING_DESC_INDEX].rdma_consumer_index += work_done;
+	pDevCtrl->rxDma->rDmaRings[DMA_RING_DESC_INDEX].rdma_read_pointer += (work_done << 1);
+	pDevCtrl->rxDma->rDmaRings[DMA_RING_DESC_INDEX].rdma_read_pointer &= ((TOTAL_DESC << 1)-1);
 	if(work_done < budget)
 	{
 		napi_complete(napi);
@@ -1557,14 +1571,12 @@ static unsigned int bcmgenet_desc_rx(void *ptr, unsigned int budget)
 		else
 			read_ptr++;
 		
-		pDevCtrl->rxDma->rDmaRings[DMA_RING_DESC_INDEX].rdma_consumer_index += 1;
-		pDevCtrl->rxDma->rDmaRings[DMA_RING_DESC_INDEX].rdma_read_pointer += 2;
-		
 		if(unlikely(!(dmaFlag & DMA_EOP) || !(dmaFlag & DMA_SOP)) )
 		{
 			printk(KERN_WARNING "Droping fragmented packet!\n");
 			dev->stats.rx_dropped++;
 			dev->stats.rx_errors++;
+			dev_kfree_skb_any(cb->skb);
 			continue;
 		}
 		/* report errors */
@@ -1936,7 +1948,11 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
 		pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer = dma_start;
 		pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer = dma_start;
 		if(!(pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+		{
 			pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+			if(dev->needed_headroom < 64)
+				dev->needed_headroom += 64;
+		}
 		if(dma_enable)
 			pDevCtrl->txDma->tdma_ctrl |= DMA_EN;
 	}
@@ -2007,6 +2023,13 @@ int bcmgenet_uninit_ringbuf(struct net_device * dev, int direction, unsigned int
 		/*release resources */
 		cb = pDevCtrl->txRingCBs[index];
 		kfree(cb);
+		/* if all rings are disabled and tx csum offloading is off, disable TSB */
+		if(!(pDevCtrl->txDma->tdma_ctrl & (0xFFFF << 1)) && !(dev->features & NETIF_F_IP_CSUM))
+		{
+			pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+			if(dev->needed_headroom > 64)
+				dev->needed_headroom -= 64;
+		}
 		if(dma_enable)
 			pDevCtrl->rxDma->rdma_ctrl |= DMA_EN;
 	}
@@ -2472,9 +2495,13 @@ static int bcmgenet_set_tx_csum(struct net_device * dev, u32 val)
 	if(val == 0) {
 		dev->features &= ~NETIF_F_IP_CSUM;
 		pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+		if(dev->needed_headroom > 64)
+			dev->needed_headroom -= 64;
 	}else {
 		dev->features |= NETIF_F_IP_CSUM;
 		pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+		if(dev->needed_headroom < 64)
+			dev->needed_headroom += 64;
 	}
 	spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 	return 0;

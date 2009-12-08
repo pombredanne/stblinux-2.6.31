@@ -875,19 +875,9 @@ asmlinkage void do_cpu(struct pt_regs *regs)
 	int status;
 	unsigned long __maybe_unused flags;
 
-#if !defined(CONFIG_BCM7420B0)
 	die_if_kernel("do_cpu invoked from kernel context!", regs);
 
 	cpid = (regs->cp0_cause >> CAUSEB_CE) & 3;
-#else
-	/* this MIPS generates bogus FPU exceptions */
-	cpid = (regs->cp0_cause >> CAUSEB_CE) & 3;
-	if (unlikely(!user_mode(regs))) {
-		if (cpid == 1)
-			return;
-		die("do_cpu invoked from kernel context!", regs);
-	}
-#endif
 
 	switch (cpid) {
 	case 0:
@@ -1262,6 +1252,10 @@ unsigned long ebase;
 unsigned long exception_handlers[32];
 unsigned long vi_handlers[64];
 
+#ifdef CONFIG_BRCMSTB
+EXPORT_SYMBOL(ebase);
+#endif
+
 /*
  * As a side effect of the way this is implemented we're limited
  * to interrupt handlers in the address range from
@@ -1519,7 +1513,11 @@ void __cpuinit per_cpu_trap_init(void)
 	change_c0_status(ST0_CU|ST0_MX|ST0_RE|ST0_FR|ST0_BEV|ST0_TS|ST0_KX|ST0_SX|ST0_UX,
 			 status_set);
 
+#if defined(CONFIG_BMIPS5000)
+	if (1) {
+#else
 	if (cpu_has_mips_r2) {
+#endif
 		unsigned int enable = 0x0000000f | cpu_hwrena_impl_bits;
 
 		if (!noulri && cpu_has_userlocal)

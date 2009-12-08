@@ -876,6 +876,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
 	case PRID_IMP_BMIPS5000:
 		c->cputype = CPU_BMIPS5000;
 		__cpu_name[cpu] = "Broadcom BMIPS5000";
+		c->options |= MIPS_CPU_ULRI;
 		break;
 #else
 	case PRID_IMP_BCM3302:

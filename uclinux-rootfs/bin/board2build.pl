@@ -18,7 +18,12 @@ if(! defined($board)) {
 }
 
 $board =~ tr/A-Z/a-z/;
+
 $board =~ s/7420dvr2/7420/;
+$board =~ s/7420dbs/7420/;
+$board =~ s/7420cb([^0-9])/7420$1/;
+$board =~ s/7420c([^0-9])/7420$1/;
+$board =~ s/7410c([^0-9])/7410$1/;
 
 if($board =~ m/^9?([0-9]{4,5})([a-z])([0-9])$/) {
 	$chip = $1;
@@ -43,7 +48,10 @@ if($board =~ m/^97455/) {
 	$chip = "7405";
 }
 
-if($combo eq "7413a0" || $combo eq "7414a0") {
+if($chip eq "3549" || $chip eq "3556") {
+	$chip = "3548";
+	$rev = "b0";
+} elsif($combo eq "7413a0" || $combo eq "7414a0") {
 	$chip = "7405";
 	$rev = "b0";
 } elsif($combo eq "7413b0" || $combo eq "7414b0") {
@@ -71,6 +79,8 @@ if($combo eq "7413a0" || $combo eq "7414a0") {
 	$chip = "7403";
 } elsif($chip eq "7410") {
 	$chip = "7420";
+} elsif($chip eq "7208") {
+	$chip = "7468";
 } elsif($chip eq "7119" || $chip eq "7019" || $chip eq "7116" ||
 		$chip eq "7117") {
 	$chip = "7125";

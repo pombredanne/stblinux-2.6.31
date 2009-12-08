@@ -51,6 +51,16 @@ $busybox_config = "user/busybox/.config";
 $vendor_config = "config/.config";
 $arch_config = "config.arch";
 
+%defsuf = (
+	"7118"	=> "-docsis",
+	"7125"	=> "-docsis",
+	"7400"	=> "-docsis",
+	"7401"	=> "-docsis",
+	"7403"	=> "-docsis",
+	"7405"	=> "-docsis",
+	"7420"	=> "-docsis",
+);
+
 $tgt = $chip = $be = $suffix = $linux_defaults = "";
 
 sub read_cfg($$)
@@ -285,8 +295,18 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 		$vendor{"CONFIG_USER_NONFREE_MOCA"} = "y";
 	}
 
-	if(defined($linux{"CONFIG_BRCM_PM"})) {
+	if(defined($linux{"CONFIG_BRCM_PM"}) ||
+			defined($linux{"CONFIG_BRCM_CPU_DIV"})) {
 		$vendor{"CONFIG_USER_BRCM_PM"} = "y";
+	}
+
+	# set default modifiers for each chip
+
+	my $shortchip = $chip;
+	$shortchip =~ s/[^0-9].*//;
+
+	if(defined($defsuf{$shortchip})) {
+		$suffix = $defsuf{$shortchip}.$suffix;
 	}
 
 	# allow stacking more than one modifier (e.g. -small-nohdd-nousb)
@@ -391,6 +411,12 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$uclibc{"UCLIBC_HAS_IPV6"} = "y";
 			$busybox{"CONFIG_FEATURE_IPV6"} = "y";
 			$busybox{"CONFIG_PING6"} = "y";
+		} elsif($mod eq "docsis") {
+
+			# enable tftp server for DOCSIS firmware download
+
+			$busybox{"CONFIG_UDPSVD"} = "y";
+			$busybox{"CONFIG_TFTPD"} = "y";
 		} elsif($mod eq "nousb") {
 			$linux{"CONFIG_USB"} = "n";
 		} elsif($mod eq "nomtd") {

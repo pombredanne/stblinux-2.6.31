@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.31-1.0
-# Fri Sep 11 18:04:20 2009
+# Linux kernel version: 2.6.31-1.1
+# Tue Nov 10 11:49:40 2009
 #
 CONFIG_MIPS=y
 
@@ -69,12 +69,13 @@ CONFIG_BCM7125A0=y
 # CONFIG_BCM7403A0 is not set
 # CONFIG_BCM7405B0 is not set
 # CONFIG_BCM7405D0 is not set
+# CONFIG_BCM7408A0 is not set
 # CONFIG_BCM7420B0 is not set
 # CONFIG_BCM7440B0 is not set
 # CONFIG_BCM7468A0 is not set
 # CONFIG_BCM7550A0 is not set
 # CONFIG_BCM7601B0 is not set
-# CONFIG_BCM7630A0 is not set
+# CONFIG_BCM7630B0 is not set
 # CONFIG_BCM7635A0 is not set
 
 #
@@ -110,6 +111,8 @@ CONFIG_SATA_BRCMSTB=y
 CONFIG_BRCM_USB=y
 # CONFIG_BRCM_OVERRIDE_USB is not set
 CONFIG_CSRC_WKTMR=y
+# CONFIG_CSRC_R4K is not set
+# CONFIG_CSRC_UPG is not set
 
 #
 # Miscellaneous options
@@ -140,6 +143,7 @@ CONFIG_BRCM_HAS_NAND=y
 CONFIG_BRCM_HAS_EDU=y
 CONFIG_BRCM_HAS_SPI=y
 CONFIG_BRCM_HAS_WKTMR=y
+CONFIG_BRCM_CPU_DIV=y
 CONFIG_BRCM_PLATFORM_DEFAULTS=y
 CONFIG_BCM7125=y
 CONFIG_RWSEM_GENERIC_SPINLOCK=y

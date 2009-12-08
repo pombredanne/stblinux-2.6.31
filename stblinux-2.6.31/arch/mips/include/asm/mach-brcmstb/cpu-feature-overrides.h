@@ -52,8 +52,8 @@
 #define cpu_has_mips32r2		0
 #define cpu_has_mips64r1		0
 #define cpu_has_mips64r2		0
-#define cpu_dcache_line_size()		64
-#define cpu_icache_line_size()		32
+#define cpu_dcache_line_size()		32
+#define cpu_icache_line_size()		64
 #define cpu_scache_line_size()		128
 
 #elif defined(CONFIG_MTI_24K) || defined(CONFIG_MTI_34K)

@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-09-30
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-12-04
 #
 # Original package: popt-1.6.tar.bz2
 #
 diff -ruNp popt.orig/intl/Makefile.in popt/intl/Makefile.in
 --- popt.orig/intl/Makefile.in	2007-02-08 11:56:22.000000000 -0800
-+++ popt/intl/Makefile.in	2009-09-30 15:57:39.000000000 -0700
++++ popt/intl/Makefile.in	2009-12-04 18:30:12.000000000 -0800
 @@ -54,7 +54,7 @@ CPPFLAGS = @CPPFLAGS@
  CFLAGS = @CFLAGS@
  LDFLAGS = @LDFLAGS@

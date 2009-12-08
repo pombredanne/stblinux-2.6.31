@@ -218,7 +218,7 @@ static void bcm97xxx_rx_chars(struct uart_port *port)
 		 * out of the main execution path
 		 */
 		if (unlikely(status & BCM_RXSTAT_ERR)) {
-			if (ch == '\0' && (status & BCM_RXSTAT_ERR) == BCM_RXSTAT_ERR) {
+			if (ch == '\0' && (status & BCM_RXSTAT_ERR) == BCM_RXSTAT_FE) {
 				status &= ~(BCM_RXSTAT_ERR);	/* ignore side-effect */
 				port->icount.brk++;
 				if (uart_handle_break(port))

@@ -21,6 +21,7 @@
 #include <asm/war.h>
 #include <asm/page.h>
 #include <asm/thread_info.h>
+#include <asm/isadep.h>
 
 #define PANIC_PIC(msg)					\
 		.set push;				\
@@ -452,7 +453,11 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	BUILD_HANDLER dbe be cli silent			/* #7  */
 	BUILD_HANDLER bp bp sti silent			/* #9  */
 	BUILD_HANDLER ri ri sti silent			/* #10 */
+#if defined(CONFIG_BCM7420B0)
+	BUILD_HANDLER cpu_real cpu sti silent		/* #11 */
+#else
 	BUILD_HANDLER cpu cpu sti silent		/* #11 */
+#endif
 	BUILD_HANDLER ov ov sti silent			/* #12 */
 	BUILD_HANDLER tr tr sti silent			/* #13 */
 	BUILD_HANDLER fpe fpe fpe silent		/* #15 */
@@ -470,6 +475,24 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	BUILD_HANDLER mt mt sti silent			/* #25 */
 	BUILD_HANDLER dsp dsp sti silent		/* #26 */
 	BUILD_HANDLER reserved reserved sti verbose	/* others */
+
+#if defined(CONFIG_BCM7420B0)
+	.align	5
+	NESTED(handle_cpu, PT_SIZE, sp)
+	/* kernel mode exception fixup */
+	mfc0	k0, CP0_STATUS
+	li	k1, KU_MASK
+	and	k0, k1
+	li	k1, KU_USER
+	beq	k0, k1, handle_cpu_real
+	mfc0	k0, CP0_CAUSE
+	srl	k0, CAUSEB_CE
+	andi	k0, 0x3
+	li	k1, 1
+	bne	k0, k1, handle_cpu_real
+	eret
+	END(handle_cpu)
+#endif
 
 	.align	5
 	LEAF(handle_ri_rdhwr_vivt)

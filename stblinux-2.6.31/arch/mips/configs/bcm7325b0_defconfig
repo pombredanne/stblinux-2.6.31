@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.31-1.0
-# Fri Sep 11 18:04:21 2009
+# Linux kernel version: 2.6.31-1.1
+# Tue Nov 10 11:49:41 2009
 #
 CONFIG_MIPS=y
 
@@ -69,12 +69,13 @@ CONFIG_BCM7325B0=y
 # CONFIG_BCM7403A0 is not set
 # CONFIG_BCM7405B0 is not set
 # CONFIG_BCM7405D0 is not set
+# CONFIG_BCM7408A0 is not set
 # CONFIG_BCM7420B0 is not set
 # CONFIG_BCM7440B0 is not set
 # CONFIG_BCM7468A0 is not set
 # CONFIG_BCM7550A0 is not set
 # CONFIG_BCM7601B0 is not set
-# CONFIG_BCM7630A0 is not set
+# CONFIG_BCM7630B0 is not set
 # CONFIG_BCM7635A0 is not set
 
 #
@@ -92,6 +93,9 @@ CONFIG_BCMEMAC=y
 # CONFIG_BCMEMAC_EXTMII is not set
 CONFIG_BRCM_USB=y
 # CONFIG_BRCM_OVERRIDE_USB is not set
+# CONFIG_CSRC_WKTMR is not set
+CONFIG_CSRC_R4K=y
+# CONFIG_CSRC_UPG is not set
 
 #
 # Miscellaneous options
@@ -134,7 +138,6 @@ CONFIG_BOOT_RAW=y
 CONFIG_CEVT_R4K_LIB=y
 CONFIG_CEVT_R4K=y
 CONFIG_CSRC_R4K_LIB=y
-CONFIG_CSRC_R4K=y
 CONFIG_CFE=y
 CONFIG_DMA_NONCOHERENT=y
 CONFIG_DMA_NEED_PCI_MAP_STATE=y

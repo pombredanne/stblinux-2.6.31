@@ -34,6 +34,12 @@ foreach my $x (split(/:/, $path)) {
 			exit 0;
 		}
 		if($add == 0) {
+			if(($x !~ m/crosstools_hf-/) &&
+			   ($x !~ m/stbgcc-/)) {
+				   # user has renamed the toolchain - assume
+				   # they know what they are doing
+				   exit 0;
+			}
 			print "\n";
 			print "WARNING: using toolchain binaries in:\n$x\n\n";
 			print "The recommended toolchain for this release is:\n";

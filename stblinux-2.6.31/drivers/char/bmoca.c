@@ -46,28 +46,25 @@
 #include <asm/io.h>
 
 #define DRV_VERSION		0x00040000
-#define DRV_BUILD_NUMBER	0x20090901
+#define DRV_BUILD_NUMBER	0x20091006
 
-#if defined(CONFIG_MIPS_BRCM97XXX) || defined(CONFIG_BRCMSTB)
-#define M2M_64_WAR		0
-#define M2M_RD_WAR		1
+#if defined(CONFIG_BRCMSTB)
 #define MOCA6816		0
 #define NATIVE			1
 #include <linux/bmoca.h>
 #elif defined(DSL_MOCA)
-#define M2M_64_WAR		1
-#define M2M_RD_WAR		0
 #define MOCA6816		1
 #define NATIVE			1
 #include "bmoca.h"
 #include <linux/netdevice.h>
 #include <boardparms.h>
+#else
+#define MOCA6816		1
+#define NATIVE			1
+#include <linux/bmoca.h>
 #endif
 
-#if defined(CONFIG_MIPS_BRCM97XXX)
-#include <asm/brcmstb/common/brcmstb.h>
-#include <asm/brcmstb/common/brcm-pm.h>
-#elif defined(CONFIG_BRCMSTB)
+#if defined(CONFIG_BRCMSTB)
 #include <asm/brcmstb/brcmstb.h>
 #endif
 
@@ -86,6 +83,7 @@
 #define OFF_GP0			0x000a1418
 #define OFF_GP1			0x000a141c
 #define OFF_RINGBELL		0x000a1404
+#define OFF_TEST_MUX_SEL	0x000a142c
 #else
 #define OFF_SW_RESET		0x000a2040
 #define OFF_LED_CTRL		0x000a204c
@@ -124,6 +122,7 @@
 #define NUM_HOST_MSG		8
 
 #define FW_CHUNK_SIZE		4096
+#define MAX_BL_CHUNKS		8
 #define MAX_FW_PAGES		((DATA_MEM_SIZE >> PAGE_SHIFT) + 1)
 #define MAX_LAB_PRINTF		104
 
@@ -204,6 +203,17 @@ struct moca_priv_data {
 	int			continuous_power_tx_mode;
 };
 
+#define MOCA_FW_MAGIC		0x4d6f4341
+
+struct moca_fw_hdr {
+	uint32_t		jump[2];
+	uint32_t		res0[2];
+	uint32_t		magic;
+	uint32_t		hw_rev;
+	uint32_t		bl_chunks;
+	uint32_t		res1;
+};
+
 /* support for multiple MoCA devices */
 #define NUM_MINORS		8
 static struct moca_priv_data *minor_tbl[NUM_MINORS];
@@ -211,12 +221,6 @@ static struct class *moca_class;
 
 /* multiple 3450s are allowed to share one I2C controller */
 static DEFINE_MUTEX(moca_i2c_mutex);
-
-#if M2M_RD_WAR
-static int pio = 1;
-module_param(pio, int, 0444);
-MODULE_PARM_DESC(pio, "Use PIO instead of DMA: 0/1/2/3 = none/read/write/both");
-#endif
 
 /* character major device number */
 #define MOCA_MAJOR		234
@@ -259,6 +263,24 @@ static inline struct page *sg_page(struct scatterlist *sg)
 	return sg->page;
 }
 #endif
+
+static inline int moca_range_ok(unsigned long offset, unsigned long len)
+{
+	if(offset >= OFF_CNTL_MEM) {
+		if((offset >= CNTL_MEM_END) ||
+			((offset + len) > CNTL_MEM_END) ||
+			((offset + len) < offset))
+			return(-EINVAL);
+	} else {
+		if((offset >= DATA_MEM_END) ||
+			((offset + len) > DATA_MEM_END) ||
+			((offset + len) < offset))
+			return(-EINVAL);
+	}
+	if(!len || (len & 0x03))
+		return(-EINVAL);
+	return(0);
+}
 
 #ifdef CONFIG_BRCM_MOCA_BUILTIN_FW
 #error Not supported in this version
@@ -386,29 +408,6 @@ static void moca_m2m_xfer(struct moca_priv_data *priv,
 {
 	u32 status;
 
-#if M2M_RD_WAR
-	u32 len = ctl & 0x7ffff, i;
-
-	if ((ctl & M2M_WRITE) == M2M_WRITE && (pio & 2)) {
-		src = (u32)UNCAC_ADDR(phys_to_virt(src));
-		for (i = 0; i < len; i += 4)
-			MOCA_WR(priv->base + dst + OFF_DATA_MEM + i,
-				be32_to_cpu(DEV_RD(src + i)));
-		mb();
-		return;
-	} else if ((ctl & M2M_READ) == M2M_READ && (pio & 1)) {
-		dst = (u32)UNCAC_ADDR(phys_to_virt(dst));
-		for (i = 0; i < len; i += 4)
-			DEV_WR(dst + i, cpu_to_be32(
-				MOCA_RD(priv->base + src +
-				OFF_DATA_MEM + i)));
-		mb();
-		return;
-	}
-#endif
-
-	/* DMA */
-
 	MOCA_WR(priv->base + OFF_M2M_SRC, src);
 	MOCA_WR(priv->base + OFF_M2M_DST, dst);
 	MOCA_WR(priv->base + OFF_M2M_STATUS, 0);
@@ -433,8 +432,7 @@ static void moca_write_mem(struct moca_priv_data *priv,
 {
 	dma_addr_t pa;
 
-	if((dst_offset >= CNTL_MEM_END) ||
-		((dst_offset + len) > CNTL_MEM_END)) {
+	if(moca_range_ok(dst_offset, len) < 0) {
 		printk(KERN_WARNING "%s: copy past end of cntl memory: %08x\n",
 			__FUNCTION__, dst_offset);
 		return;
@@ -449,18 +447,17 @@ static void moca_write_mem(struct moca_priv_data *priv,
 static void moca_read_mem(struct moca_priv_data *priv,
 	void *dst, u32 src_offset, unsigned int len)
 {
-	dma_addr_t pa;
+	int i;
 
-	if((src_offset >= CNTL_MEM_END) ||
-		((src_offset + len) > CNTL_MEM_END)) {
+	if(moca_range_ok(src_offset, len) < 0) {
 		printk(KERN_WARNING "%s: copy past end of cntl memory: %08x\n",
 			__FUNCTION__, src_offset);
 		return;
 	}
 
-	pa = dma_map_single(&priv->pdev->dev, dst, len, DMA_FROM_DEVICE);
-	moca_m2m_xfer(priv, (u32)pa, src_offset + OFF_DATA_MEM, len | M2M_READ);
-	dma_unmap_single(&priv->pdev->dev, pa, len, DMA_FROM_DEVICE);
+	for(i = 0; i < len; i += 4)
+		DEV_WR(dst + i, cpu_to_be32(
+			MOCA_RD(priv->base + src_offset + OFF_DATA_MEM + i)));
 }
 
 static void moca_write_sg(struct moca_priv_data *priv,
@@ -481,7 +478,7 @@ static void moca_write_sg(struct moca_priv_data *priv,
 	dma_unmap_sg(&priv->pdev->dev, sg, nents, DMA_TO_DEVICE);
 }
 
-static void moca_read_sg(struct moca_priv_data *priv,
+static inline void moca_read_sg(struct moca_priv_data *priv,
 	u32 src_offset, struct scatterlist *sg, int nents)
 {
 	int j;
@@ -515,23 +512,12 @@ static int moca_get_pages(struct moca_priv_data *priv, unsigned long addr,
 	unsigned int pages, chunk_size;
 	int ret, i;
 
-	if((addr & 3) || (size & 3) || (moca_addr & 3))
+	if(addr & 3)
 		return(-EINVAL);
 	if((size <= 0) || (size > DATA_MEM_SIZE))
 		return(-EINVAL);
-	if(moca_addr >= OFF_CNTL_MEM) {
-		if((moca_addr >= CNTL_MEM_END) ||
-			((moca_addr + size) > CNTL_MEM_END))
-			return(-EINVAL);
-	} else {
-		if((moca_addr >= DATA_MEM_END) ||
-			((moca_addr + size) > DATA_MEM_END))
-			return(-EINVAL);
-	}
-#if M2M_64_WAR
-	if(((addr & 7) != (moca_addr & 7)) || (size < 32))
+	if(moca_range_ok(moca_addr, size) < 0)
 		return(-EINVAL);
-#endif
 
 	pages = ((addr & ~PAGE_MASK) + size + PAGE_SIZE - 1) >> PAGE_SHIFT;
 
@@ -567,42 +553,37 @@ static int moca_get_pages(struct moca_priv_data *priv, unsigned long addr,
 	return(ret);
 }
 
-static int moca_write_img(struct moca_priv_data *priv, struct moca_xfer * x)
+static int moca_write_img(struct moca_priv_data *priv, struct moca_xfer *x)
 {
 	int pages, i, ret = -EINVAL;
-	uint32_t magic;
+	struct moca_fw_hdr hdr;
+	u32 bl_chunks;
+
+	if(copy_from_user(&hdr, (void __user *)(unsigned long)x->buf,
+			sizeof(hdr)))
+		return(-EFAULT);
+
+	bl_chunks = be32_to_cpu(hdr.bl_chunks);
+	if(!bl_chunks || (bl_chunks > MAX_BL_CHUNKS))
+		bl_chunks = 1;
 
 	pages = moca_get_pages(priv, (unsigned long)x->buf, x->len, 0, 0);
 	if(pages < 0)
 		return(pages);
-	if(pages < 3)
+	if(pages < (bl_chunks + 2))
 		goto out;
 
 	/* host must use FW_CHUNK_SIZE MMU pages (for now) */
 	BUG_ON(FW_CHUNK_SIZE != PAGE_SIZE);
 
-	if (copy_from_user(&magic, (void __user *)(uintptr_t)x->buf + 16, 4)) {
-		ret = -EFAULT;
-		goto out;
-	}
-
-	if (be32_to_cpu(magic) != 0x4d6f4341) {
-		/* copy entire image */
-		moca_write_sg(priv, 0, &priv->fw_sg[0], pages);
-		moca_start_mips(priv);
-		moca_enable_irq(priv);
-		ret = 0;
-		goto out;
-	}
-
 	/* write the first two chunks, then start the MIPS */
-	moca_write_sg(priv, 0, &priv->fw_sg[0], 2);
+	moca_write_sg(priv, 0, &priv->fw_sg[0], bl_chunks + 1);
 	moca_enable_irq(priv);
 	moca_start_mips(priv);
 	ret = 0;
 
 	/* wait for an ACK, then write each successive chunk */
-	for(i = 2; i < pages; i++) {
+	for(i = bl_chunks + 1; i < pages; i++) {
 		if(wait_for_completion_timeout(&priv->chunk_complete,
 				1000 * M2M_TIMEOUT_MS) <= 0) {
 			moca_disable_irq(priv);
@@ -611,7 +592,8 @@ static int moca_write_img(struct moca_priv_data *priv, struct moca_xfer * x)
 			ret = -EIO;
 			break;
 		}
-		moca_write_sg(priv, FW_CHUNK_SIZE, &priv->fw_sg[i], 1);
+		moca_write_sg(priv, OFF_DATA_MEM + FW_CHUNK_SIZE * bl_chunks,
+			&priv->fw_sg[i], 1);
 	}
 
 out:
@@ -758,20 +740,7 @@ static int moca_recvmsg(struct moca_priv_data *priv, uintptr_t offset,
 		u32 str_addr = be32_to_cpu(m->data[2]) & 0x1fffffff;
 
 		m->len = 8 + str_len;
-#if M2M_64_WAR
-		if(str_addr & 0x7) {
-			int i, offset = (str_addr & 0x7) >> 2;
-			moca_read_mem(priv, &m->data[4], str_addr & ~0x7,
-				MAX_LAB_PRINTF + 12);
-			for(i = 0; i < (str_len >> 2); i++)
-				data = m->data[2 + i] = m->data[4 + offset + i];
-		} else {
-			moca_read_mem(priv, &m->data[2], str_addr,
-				MAX_LAB_PRINTF);
-		}
-#else
 		moca_read_mem(priv, &m->data[2], str_addr, str_len);
-#endif
 
 		m->data[1] = cpu_to_be32((MOCA_IE_DRV_PRINTF << 16) +
 			m->len - 8);
@@ -1145,18 +1114,21 @@ static int moca_ioctl_readmem(struct moca_priv_data *priv,
 	unsigned long xfer_uaddr)
 {
 	struct moca_xfer x;
-	int pages;
+	uintptr_t i, src;
+	u32 *dst;
 
 	if(copy_from_user(&x, (void __user *)xfer_uaddr, sizeof(x)))
 		return(-EFAULT);
 	
-	pages = moca_get_pages(priv,
-		(unsigned long)x.buf, x.len, x.moca_addr, 1);
-	if(pages < 0)
-		return(pages);
+	if(moca_range_ok(x.moca_addr, x.len) < 0)
+		return(-EINVAL);
 
-	moca_read_sg(priv, x.moca_addr, priv->fw_sg, pages);
-	moca_put_pages(priv, pages);
+	src = (uintptr_t)priv->base + x.moca_addr;
+	dst = (void *)(unsigned long)x.buf;
+
+	for(i = 0; i < x.len; i += 4, src += 4, dst++)
+		if(put_user(cpu_to_be32(MOCA_RD(src)), dst))
+			return(-EFAULT);
 
 	return(0);
 }
@@ -1290,21 +1262,30 @@ static ssize_t moca_file_read(struct file *file, char __user *buf,
 		 * a backlog, clear it out
 		 */
 		mutex_lock(&priv->dev_mutex);
-		if(priv->assert_pending)
+		if(priv->assert_pending) {
 			if(moca_recvmsg(priv, CORE_REQ_OFFSET, CORE_REQ_SIZE,
 				0) != -ENOMEM)
 				priv->assert_pending = 0;
+			else
+				printk(KERN_WARNING "%s: moca_recvmsg assert failed\n", __FUNCTION__);
+		}
 		if(priv->wdt_pending)
 			if(moca_wdt(priv) != -ENOMEM)
 				priv->wdt_pending = 0;
-		if(priv->core_req_pending)
+		if(priv->core_req_pending) {
 			if(moca_recvmsg(priv, CORE_REQ_OFFSET,
 				CORE_REQ_SIZE, CORE_RESP_OFFSET) != -ENOMEM)
 				priv->core_req_pending = 0;
-		if(priv->host_resp_pending)
+			else
+				printk(KERN_WARNING "%s: moca_recvmsg core_req failed\n", __FUNCTION__);
+		}
+		if(priv->host_resp_pending) {
 			if(moca_recvmsg(priv, HOST_RESP_OFFSET,
 				HOST_RESP_SIZE, 0) != -ENOMEM)
 				priv->host_resp_pending = 0;
+			else
+				printk(KERN_WARNING "%s: moca_recvmsg host_resp failed\n", __FUNCTION__);
+		}
 		mutex_unlock(&priv->dev_mutex);
 	}
 
@@ -1545,6 +1526,7 @@ static int moca_init(void)
 	int ret;
 #if MOCA6816
 	moca_read_mac_addr(NULL, &moca_data.macaddr_hi, &moca_data.macaddr_lo);
+	moca_data.hw_rev = MOCA_RD(0x10000000);
 	platform_device_register(&moca_plat_dev);
 #endif
 	memset(minor_tbl, 0, sizeof(minor_tbl));

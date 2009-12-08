@@ -44,6 +44,7 @@ int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 	unsigned int cache);
 void brcm_sync_for_cpu(unsigned long addr, size_t size,
 	enum dma_data_direction dir);
+unsigned long brcm_fixup_ticks(unsigned long delta);
 
 /***********************************************************************
  * BSP External API
@@ -89,6 +90,22 @@ extern struct proto udpv6_prot;
 
 /* for performance tuning */
 extern void (*cpu_wait)(void);
+
+/* for power management interrupts */
+extern unsigned long ebase;
+
+/***********************************************************************
+ * Driver->BSP callbacks
+ ***********************************************************************/
+
+void brcm_pm_enet_add(int dev_id, resource_size_t base_addr);
+void brcm_pm_enet_remove(int dev_id, resource_size_t base_addr);
+void brcm_pm_moca_add(void);
+void brcm_pm_moca_remove(void);
+void brcm_pm_usb_add(void);
+void brcm_pm_usb_remove(void);
+void brcm_pm_sata_add(void);
+void brcm_pm_sata_remove(void);
 
 #endif /* __KERNEL__ */
 

@@ -99,15 +99,15 @@ typedef struct pegasus {
 	struct urb		*ctrl_urb, *rx_urb, *tx_urb, *intr_urb;
 	struct sk_buff		*rx_pool[RX_SKBS];
 	struct sk_buff		*rx_skb;
+	struct usb_ctrlrequest	dr;
 	wait_queue_head_t	ctrl_wait;
 	spinlock_t		rx_pool_lock;
 	int			chip;
+	unsigned char		intr_buff[8];
+	__u8			tx_buff[PEGASUS_MTU];
+	__u8			eth_regs[4];
 	__u8			phy;
 	__u8			gpio_res;
-	struct usb_ctrlrequest	dr ____cacheline_aligned;
-	unsigned char		intr_buff[8] ____cacheline_aligned;
-	__u8			tx_buff[PEGASUS_MTU] ____cacheline_aligned;
-	__u8			eth_regs[4] ____cacheline_aligned;
 } pegasus_t;
 
 

@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-09-30
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-12-04
 #
 # Original package: hdparm.tar.bz2
 #
 diff -ruNp hdparm.orig/LICENSE.TXT hdparm/LICENSE.TXT
 --- hdparm.orig/LICENSE.TXT	1969-12-31 16:00:00.000000000 -0800
-+++ hdparm/LICENSE.TXT	2009-09-30 15:57:39.000000000 -0700
++++ hdparm/LICENSE.TXT	2009-12-04 18:30:12.000000000 -0800
 @@ -0,0 +1,9 @@
 +BSD-Style Open Source License:
 +
@@ -18,7 +18,7 @@ diff -ruNp hdparm.orig/LICENSE.TXT hdparm/LICENSE.TXT
 +Mark Lord (mlord@pobox.com)
 diff -ruNp hdparm.orig/hdparm.lsm hdparm/hdparm.lsm
 --- hdparm.orig/hdparm.lsm	1969-12-31 16:00:00.000000000 -0800
-+++ hdparm/hdparm.lsm	2009-09-30 15:57:39.000000000 -0700
++++ hdparm/hdparm.lsm	2009-12-04 18:30:12.000000000 -0800
 @@ -0,0 +1,62 @@
 +Begin4
 +Title:		hdparm
@@ -84,7 +84,7 @@ diff -ruNp hdparm.orig/hdparm.lsm hdparm/hdparm.lsm
 +End
 diff -ruNp hdparm.orig/makefile hdparm/makefile
 --- hdparm.orig/makefile	2007-04-03 18:40:51.000000000 -0700
-+++ hdparm/makefile	2009-09-30 15:57:39.000000000 -0700
++++ hdparm/makefile	2009-12-04 18:30:12.000000000 -0800
 @@ -5,7 +5,7 @@
  #
  

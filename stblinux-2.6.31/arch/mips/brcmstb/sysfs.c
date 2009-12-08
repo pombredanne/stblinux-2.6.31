@@ -66,6 +66,12 @@ static ssize_t show_cpu_name(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%s\n", __cpu_name[0]);
 }
 
+static ssize_t show_cpu_khz(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%ld\n", brcm_adj_cpu_khz);
+}
+
 static ssize_t show_bmem(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -251,6 +257,7 @@ static struct device_attribute brcmstb_attr_list[] = {
 	__ATTR(chip_id, 0444, show_chip_id, NULL),
 	__ATTR(chip_rev, 0444, show_chip_rev, NULL),
 	__ATTR(cpu_name, 0444, show_cpu_name, NULL),
+	__ATTR(cpu_khz, 0444, show_cpu_khz, NULL),
 	__ATTR(cp0_config_regs, 0444, show_cp0_config_regs, NULL),
 	__ATTR(ocap_partition, 0444, show_ocap_partition, NULL),
 	__ATTR(cfe_boardname, 0444, show_cfe_boardname, NULL),
@@ -271,6 +278,26 @@ static struct device_attribute brcmstb_attr_list[] = {
 #elif defined(CONFIG_BRCM_ZSCM_L2)
 	__ATTR(zscm_regs, 0444, show_zscm_regs, NULL),
 #endif
+#if defined(CONFIG_BRCM_CPU_DIV)
+	__ATTR(cpu_div, 0644, brcm_pm_show_cpu_div, brcm_pm_store_cpu_div),
+#endif
+#if defined(CONFIG_BRCM_CPU_PLL)
+	__ATTR(cpu_pll, 0644, brcm_pm_show_cpu_pll, brcm_pm_store_cpu_pll),
+#endif
+#if defined(CONFIG_BRCM_PM)
+#if defined(CONFIG_BRCM_HAS_EMAC_0) || defined(CONFIG_BRCM_HAS_GENET)
+	__ATTR(enet_power, 0444, brcm_pm_show_enet_power, NULL),
+#endif
+#if defined(CONFIG_BRCM_HAS_MOCA)
+	__ATTR(moca_power, 0444, brcm_pm_show_moca_power, NULL),
+#endif
+#if defined(CONFIG_BRCM_HAS_SATA)
+	__ATTR(sata_power, 0644, brcm_pm_show_sata_power,
+		brcm_pm_store_sata_power),
+#endif
+	__ATTR(usb_power, 0644, brcm_pm_show_usb_power,
+		brcm_pm_store_usb_power),
+#endif /* defined(CONFIG_BRCM_PM) */
 	__ATTR_NULL,
 };
 

@@ -48,7 +48,7 @@ case "$cmd" in
 	dhcp_ll)
 		echo "ifconfig $iface 0.0.0.0 up" > $file
 		echo "zcip $iface /etc/zcip.script" >> $file
-		echo "udhcpc -i $iface:0 -p /tmp/udhcpc.$iface.pid >& /dev/null &" >> $file
+		echo "udhcpc -i $iface -p /tmp/udhcpc.$iface.pid >& /dev/null &" >> $file
 		;;
 	dhcp6)
 		echo "dhcp6c -dDf $iface &" > $file

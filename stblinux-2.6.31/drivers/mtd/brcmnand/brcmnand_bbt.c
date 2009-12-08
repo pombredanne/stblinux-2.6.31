@@ -455,7 +455,7 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 		if (check_short_pattern(buf, bd))
 			return 1;
 
-		offs += (dir * mtd->writesize);
+		offs += ((int64_t)dir * mtd->writesize);
 	}
 	return 0;
 }
@@ -713,7 +713,7 @@ DEBUG(MTD_DEBUG_LEVEL3, "-->%s\n", __FUNCTION__);
 		nrchips = 1;
 	}
 	
-PRINTK("numblocks=%d, nrchips=%d\n", numblocks, nrchips);
+PRINTK("numblocks=%lld, nrchips=%d\n", numblocks, nrchips);
 
 	/* Loop through the chips */
 	for (; chip < nrchips; chip++) {

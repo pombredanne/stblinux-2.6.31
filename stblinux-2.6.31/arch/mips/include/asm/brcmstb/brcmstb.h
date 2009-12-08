@@ -18,17 +18,22 @@
 #ifndef _ASM_BRCMSTB_BRCMSTB_H
 #define _ASM_BRCMSTB_BRCMSTB_H
 
+#if !defined(__ASSEMBLY__)
+
 #include <linux/autoconf.h>
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/smp.h>
 #include <linux/if_ether.h>
+#include <linux/device.h>
 
 #include <asm/addrspace.h>
 #include <asm/mipsregs.h>
 #include <asm/setup.h>
 #include <asm/brcmstb/brcmapi.h>
 #include <irq.h>
+
+#endif
 
 /***********************************************************************
  * BCHP header lists
@@ -52,6 +57,7 @@
 #include <asm/brcmstb/35130a0/bchp_wktmr.h>
 
 #elif defined(CONFIG_BCM3548B0)
+#include <asm/brcmstb/3548b0/bchp_clkgen.h>
 #include <asm/brcmstb/3548b0/bchp_common.h>
 #include <asm/brcmstb/3548b0/bchp_ebi.h>
 #include <asm/brcmstb/3548b0/bchp_edu.h>
@@ -397,6 +403,33 @@
 #include <asm/brcmstb/7405d0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7405d0/bchp_usb_ohci1.h>
 
+#elif defined(CONFIG_BCM7408A0)
+#include <asm/brcmstb/7408a0/bchp_bspi.h>
+#include <asm/brcmstb/7408a0/bchp_bspi_raf.h>
+#include <asm/brcmstb/7408a0/bchp_clk.h>
+#include <asm/brcmstb/7408a0/bchp_common.h>
+#include <asm/brcmstb/7408a0/bchp_ebi.h>
+#include <asm/brcmstb/7408a0/bchp_hif_cpu_intr1.h>
+#include <asm/brcmstb/7408a0/bchp_hif_cpu_tp1_intr1.h>
+#include <asm/brcmstb/7408a0/bchp_hif_intr2.h>
+#include <asm/brcmstb/7408a0/bchp_hif_mspi.h>
+#include <asm/brcmstb/7408a0/bchp_hif_spi_intr2.h>
+#include <asm/brcmstb/7408a0/bchp_hif_top_ctrl.h>
+#include <asm/brcmstb/7408a0/bchp_irq0.h>
+#include <asm/brcmstb/7408a0/bchp_irq1.h>
+#include <asm/brcmstb/7408a0/bchp_memc_ddr_0.h>
+#include <asm/brcmstb/7408a0/bchp_moca_hostmisc.h>
+#include <asm/brcmstb/7408a0/bchp_nand.h>
+#include <asm/brcmstb/7408a0/bchp_sun_top_ctrl.h>
+#include <asm/brcmstb/7408a0/bchp_timer.h>
+#include <asm/brcmstb/7408a0/bchp_uarta.h>
+#include <asm/brcmstb/7408a0/bchp_uartb.h>
+#include <asm/brcmstb/7408a0/bchp_uartc.h>
+#include <asm/brcmstb/7408a0/bchp_usb_ctrl.h>
+#include <asm/brcmstb/7408a0/bchp_usb_ehci.h>
+#include <asm/brcmstb/7408a0/bchp_usb_ohci.h>
+#include <asm/brcmstb/7408a0/bchp_wktmr.h>
+
 #elif defined(CONFIG_BCM7420B0)
 #include <asm/brcmstb/7420b0/bchp_bspi.h>
 #include <asm/brcmstb/7420b0/bchp_bspi_raf.h>
@@ -466,9 +499,12 @@
 #include <asm/brcmstb/7468a0/bchp_wktmr.h>
 
 #elif defined(CONFIG_BCM7550A0)
+#include <asm/brcmstb/7550a0/bchp_bspi.h>
 #include <asm/brcmstb/7550a0/bchp_common.h>
 #include <asm/brcmstb/7550a0/bchp_ebi.h>
 #include <asm/brcmstb/7550a0/bchp_hif_cpu_intr1.h>
+#include <asm/brcmstb/7550a0/bchp_hif_mspi.h>
+#include <asm/brcmstb/7550a0/bchp_hif_spi_intr2.h>
 #include <asm/brcmstb/7550a0/bchp_irq0.h>
 #include <asm/brcmstb/7550a0/bchp_irq1.h>
 #include <asm/brcmstb/7550a0/bchp_memc_ddr_0.h>
@@ -481,6 +517,7 @@
 #include <asm/brcmstb/7550a0/bchp_usb_ctrl.h>
 #include <asm/brcmstb/7550a0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7550a0/bchp_usb_ohci.h>
+#include <asm/brcmstb/7550a0/bchp_vcxo_ctl_config_fsm.h>
 #include <asm/brcmstb/7550a0/bchp_wktmr.h>
 
 #elif defined(CONFIG_BCM7601B0)
@@ -508,6 +545,26 @@
 #include <asm/brcmstb/7601b0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7601b0/bchp_usb_ohci.h>
 
+#elif defined(CONFIG_BCM7630B0)
+#include <asm/brcmstb/7630b0/bchp_clk.h>
+#include <asm/brcmstb/7630b0/bchp_common.h>
+#include <asm/brcmstb/7630b0/bchp_ebi.h>
+#include <asm/brcmstb/7630b0/bchp_edu.h>
+#include <asm/brcmstb/7630b0/bchp_hif_cpu_intr1.h>
+#include <asm/brcmstb/7630b0/bchp_hif_intr2.h>
+#include <asm/brcmstb/7630b0/bchp_irq0.h>
+#include <asm/brcmstb/7630b0/bchp_irq1.h>
+#include <asm/brcmstb/7630b0/bchp_nand.h>
+#include <asm/brcmstb/7630b0/bchp_sdio.h>
+#include <asm/brcmstb/7630b0/bchp_sun_top_ctrl.h>
+#include <asm/brcmstb/7630b0/bchp_timer.h>
+#include <asm/brcmstb/7630b0/bchp_uarta.h>
+#include <asm/brcmstb/7630b0/bchp_uartb.h>
+#include <asm/brcmstb/7630b0/bchp_uartc.h>
+#include <asm/brcmstb/7630b0/bchp_usb_ctrl.h>
+#include <asm/brcmstb/7630b0/bchp_usb_ehci.h>
+#include <asm/brcmstb/7630b0/bchp_usb_ohci.h>
+
 #elif defined(CONFIG_BCM7635A0)
 #include <asm/brcmstb/7635a0/bchp_clk.h>
 #include <asm/brcmstb/7635a0/bchp_common.h>
@@ -531,6 +588,8 @@
 #include <asm/brcmstb/7635a0/bchp_vcxo_ctl_misc.h>
 
 #endif
+
+#if !defined(__ASSEMBLY__)
 
 /***********************************************************************
  * Register access macros - sample usage:
@@ -592,6 +651,7 @@ extern int brcm_enet_no_mdio;
 extern int brcm_smp_enabled;
 extern int brcm_emac_1_enabled;
 extern int brcm_moca_enabled;
+extern int brcm_usb_enabled;
 
 extern unsigned long brcm_mtd_rootfs_start;
 extern unsigned long brcm_mtd_rootfs_len;
@@ -657,6 +717,7 @@ struct brcmspi_platform_data {
 #define BRCM_IRQ_EHCI_1		BRCM_L1_IRQ(W1, USB_EHCI_1)
 #define BRCM_IRQ_OHCI_0		BRCM_L1_IRQ(W1, USB_OHCI_0)
 #define BRCM_IRQ_OHCI_1		BRCM_L1_IRQ(W1, USB_OHCI_1)
+#define BRCM_IRQ_PM		BRCM_L1_IRQ(W1, PM)
 #define BRCM_IRQ_MOCA		BRCM_L1_IRQ(W2, MOCA_INTR)
 #define BRCM_IRQ_EMAC_1		BRCM_L1_IRQ(W2, ENET_EMAC1)
 #define BRCM_IRQ_GENET_0_B	BRCM_L1_IRQ(W2, GENET_0_B)
@@ -741,17 +802,16 @@ struct brcmspi_platform_data {
 	BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_OHCI_CPU_INTR_SHIFT
 #endif
 
-#ifndef BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_UPG_UART1_CPU_INTR_SHIFT
-#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_UPG_UART1_CPU_INTR_SHIFT \
-	BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_UPG_UART1_CPU_INTR_SHIFT
-#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_UPG_UART2_CPU_INTR_SHIFT \
-	BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_UPG_UART2_CPU_INTR_SHIFT
+#if defined(BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_UPG_UART1_CPU_INTR_SHIFT)
+#undef BRCM_IRQ_UARTB
+#undef BRCM_IRQ_UARTC
+#define BRCM_IRQ_UARTB		BRCM_L1_IRQ(W0, UPG_UART1)
+#define BRCM_IRQ_UARTC		BRCM_L1_IRQ(W0, UPG_UART2)
 #endif
 
-/* 7125, 7550 */
-#ifndef BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_HIF_SPI_CPU_INTR_SHIFT
-#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_HIF_SPI_CPU_INTR_SHIFT \
-	BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_HIF_SPI_CPU_INTR_SHIFT
+#if defined(BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_HIF_SPI_CPU_INTR_SHIFT)
+#undef BRCM_IRQ_HIF_SPI
+#define BRCM_IRQ_HIF_SPI	BRCM_L1_IRQ(W0, HIF_SPI)
 #endif
 
 #ifdef BCHP_ENET_TOP_REG_START
@@ -813,13 +873,42 @@ void __init brcm_early_pcie_setup(void);
 
 void __init cfe_die(char *fmt, ...);
 
-int brcm_alloc_macaddr(u8 *buf);
+ssize_t brcm_pm_show_cpu_div(struct device *dev,
+	struct device_attribute *attr, char *buf);
+ssize_t brcm_pm_store_cpu_div(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count);
+ssize_t brcm_pm_show_cpu_pll(struct device *dev,
+	struct device_attribute *attr, char *buf);
+ssize_t brcm_pm_store_cpu_pll(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count);
+
+ssize_t brcm_pm_show_enet_power(struct device *dev,
+	struct device_attribute *attr, char *buf);
+ssize_t brcm_pm_show_moca_power(struct device *dev,
+	struct device_attribute *attr, char *buf);
+ssize_t brcm_pm_show_usb_power(struct device *dev,
+	struct device_attribute *attr, char *buf);
+ssize_t brcm_pm_store_usb_power(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count);
+ssize_t brcm_pm_show_sata_power(struct device *dev,
+	struct device_attribute *attr, char *buf);
+ssize_t brcm_pm_store_sata_power(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count);
+
+void brcm_irq_standby_enter(int wake_irq);
+void brcm_irq_standby_exit(void);
+
+asmlinkage void brcm_pm_standby(int icache_linesz, unsigned long ebase);
+asmlinkage void brcm_pm_irq(void);
 
 extern unsigned long brcm_dram0_size_mb;
 extern struct plat_smp_ops brcmstb_smp_ops;
 
 extern atomic_t brcm_unaligned_fp_count;
 extern atomic_t brcm_rdhwr_count;		/* excludes rdhwr fastpath */
+
+extern unsigned long brcm_cpu_khz;
+extern unsigned long brcm_adj_cpu_khz;
 
 #if defined(CONFIG_BRCM_HAS_WKTMR)
 
@@ -855,8 +944,8 @@ unsigned long wktmr_elapsed(struct wktmr_time *t);
 #define read_c0_brcm_cmt_local()	__read_32bit_c0_register($22, 3)
 #define write_c0_brcm_cmt_local(val)	__write_32bit_c0_register($22, 3, val)
 
-#define read_c0_brcm_config_1()		__read_32bit_c0_register($22, 4)
-#define write_c0_brcm_config_1(val)	__write_32bit_c0_register($22, 4, val)
+#define read_c0_brcm_config_1()		__read_32bit_c0_register($22, 5)
+#define write_c0_brcm_config_1(val)	__write_32bit_c0_register($22, 5, val)
 
 #define read_c0_brcm_cbr()		__read_32bit_c0_register($22, 6)
 #define write_c0_brcm_cbr(val)		__write_32bit_c0_register($22, 6, val)
@@ -946,5 +1035,7 @@ __BUILD_SET_C0(brcm_sleepcount)
 #define write_c0_ddatalo(val)	__write_32bit_c0_register($28, 3, val)
 
 #endif
+
+#endif /* !defined(__ASSEMBLY__) */
 
 #endif /* _ASM_BRCMSTB_BRCMSTB_H */

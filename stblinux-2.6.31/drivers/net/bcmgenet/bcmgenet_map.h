@@ -177,7 +177,7 @@ typedef struct uniMacRegs {
 	unsigned long mpd_ctrl;				/* (0x620) RW Magic packet control */
 	unsigned long mpd_pw_ms;			/* (0x624) RW Magic packet password 47:32*/
 	unsigned long mpd_pw_ls;			/* (0x628) RW Magic packet password 31:0*/
-	unsigned long unused8[5];
+	unsigned long unused8[9];
 	unsigned long mdf_ctrl;				/* (0x650) RW MAC DA filter control*/
 	unsigned long mdf_addr[34];			/* (0x654 - 0x6d8) Desination MAC address registers */
 

@@ -18,7 +18,6 @@
 #include <linux/ctype.h>
 #include <linux/autoconf.h>
 #include <linux/init.h>
-#include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
@@ -29,10 +28,7 @@
 #include <linux/mtd/mtd.h>
 
 #include <asm/bootinfo.h>
-#include <asm/pgtable-32.h>
-#include <asm/tlbflush.h>
 #include <asm/brcmstb/brcmstb.h>
-#include <asm/r4kcache.h>
 #include <asm/fw/cfe/cfe_api.h>
 #include <asm/fw/cfe/cfe_error.h>
 
@@ -341,10 +337,11 @@ void __init prom_init(void)
 			"root=ubi0:rootfs");
 
 	printk("Options: sata=%d enet=%d emac_1=%d no_mdio=%d docsis=%d "
-		"pci=%d smp=%d moca=%d\n",
+		"pci=%d smp=%d moca=%d usb=%d\n",
 		brcm_sata_enabled, brcm_enet_enabled, brcm_emac_1_enabled,
 		brcm_enet_no_mdio, brcm_docsis_platform,
-		brcm_pci_enabled, brcm_smp_enabled, brcm_moca_enabled);
+		brcm_pci_enabled, brcm_smp_enabled, brcm_moca_enabled,
+		brcm_usb_enabled);
 
 	bchip_early_setup();
 
@@ -354,8 +351,12 @@ void __init prom_init(void)
 	if (brcm_dram0_size_mb > BRCM_MAX_LOWER_MB) {
 		unsigned long upper_mb = brcm_dram0_size_mb - BRCM_MAX_LOWER_MB;
 
-		if (upper_mb > BRCM_MAX_UPPER_MB)
+		if (upper_mb > BRCM_MAX_UPPER_MB) {
+			printk(KERN_WARNING "Reducing system memory to "
+				"%d MB due to kernel configuration\n",
+				BRCM_MAX_LOWER_MB + BRCM_MAX_UPPER_MB);
 			upper_mb = BRCM_MAX_UPPER_MB;
+		}
 
 		brcm_upper_tlb_setup();
 		add_memory_region(0, BRCM_MAX_LOWER_MB << 20, BOOT_MEM_RAM);
@@ -365,8 +366,8 @@ void __init prom_init(void)
 	}
 #else
 	if(brcm_dram0_size_mb > BRCM_MAX_LOWER_MB) {
-		printk("BRCM_UPPER_MEMORY is off; reducing memory to %d MB\n",
-			BRCM_MAX_LOWER_MB);
+		printk(KERN_WARNING "BRCM_UPPER_MEMORY is off; reducing memory "
+			"to %d MB\n", BRCM_MAX_LOWER_MB);
 		brcm_dram0_size_mb = BRCM_MAX_LOWER_MB;
 	}
 	add_memory_region(0, brcm_dram0_size_mb << 20, BOOT_MEM_RAM);
@@ -378,84 +379,8 @@ void __init prom_init(void)
 }
 
 /***********************************************************************
- * Hooks for upper memory support and SMP TP1 boot
+ * Vector relocation for SMP TP1 boot
  ***********************************************************************/
-
-#define UNIQUE_ENTRYHI(idx) (CKSEG0 + ((idx) << (PAGE_SHIFT + 1)))
-#define ENTRYLO_CACHED(paddr) \
-	(((paddr & PAGE_MASK) | \
-	       (_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
-		_CACHE_CACHABLE_NONCOHERENT)) >> 6)
-
-#define ENTRYLO_UNCACHED(paddr) \
-	(((paddr & PAGE_MASK) | \
-	       (_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
-		_CACHE_UNCACHED)) >> 6)
-
-extern void tlb_init(void);
-extern void build_tlb_refill_handler(void);
-
-void brcm_tlb_init(void)
-{
-#ifdef CONFIG_BRCM_UPPER_MEMORY
-	if (smp_processor_id() == 0) {
-		tlb_init();
-		add_wired_entry(ENTRYLO_CACHED(UPPERMEM_START),
-			ENTRYLO_UNCACHED(UPPERMEM_START), CAC_BASE_UPPER,
-			PM_256M);
-	} else {
-		/* bypass tlb_init() / probe_tlb() for secondary CPU */
-		cpu_data[smp_processor_id()].tlbsize = cpu_data[0].tlbsize;
-		build_tlb_refill_handler();
-	}
-#else
-	tlb_init();
-#endif
-}
-
-/*
- * Initialize upper memory TLB entries
- *
- * On TP1 this must happen before we set up $sp/$gp .  It is always
- * possible for stacks, task_structs, thread_info's, and other
- * important structures to be allocated out of upper memory so
- * this happens early on.
- */
-asmlinkage __cpuinit void brcm_upper_tlb_setup(void)
-{
-#ifdef CONFIG_BRCM_UPPER_MEMORY
-	int i, tlbsz;
-
-	/* Flush TLB.  local_flush_tlb_all() is not available yet. */
-	write_c0_entrylo0(0);
-	write_c0_entrylo1(0);
-	write_c0_pagemask(PM_DEFAULT_MASK);
-	write_c0_wired(0);
-
-	tlbsz = (read_c0_config1() >> 25) & 0x3f;
-	for (i = 0; i <= tlbsz; i++) {
-		write_c0_entryhi(UNIQUE_ENTRYHI(i));
-		write_c0_index(i);
-		mtc0_tlbw_hazard();
-		tlb_write_indexed();
-		tlbw_use_hazard();
-	}
-
-	/* Create cached/uncached TLB entries */
-	write_c0_entrylo0(ENTRYLO_CACHED(UPPERMEM_START));
-	write_c0_entrylo1(ENTRYLO_UNCACHED(UPPERMEM_START));
-	write_c0_entryhi(CAC_BASE_UPPER);
-	write_c0_pagemask(PM_256M);
-
-	write_c0_index(0);
-	write_c0_wired(1);
-	mtc0_tlbw_hazard();
-	tlb_write_indexed();
-	tlbw_use_hazard();
-
-	write_c0_pagemask(PM_DEFAULT_MASK);
-#endif
-}
 
 unsigned long brcm_setup_ebase(void)
 {

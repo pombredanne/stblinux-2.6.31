@@ -7293,7 +7293,7 @@ brcmnand_validate_cs(struct mtd_info *mtd )
  * This will not be a problem, since in order to boot with NAND on CSn (n != 0), the board
  * must be strapped for NOR.
  */
-static unsigned int 
+static unsigned int __maybe_unused
 get_rom_size(unsigned long* outp_cs0Base)
 {
 	volatile unsigned long strap_ebi_rom_size, sun_top_ctrl_strap_value;
@@ -7311,8 +7311,8 @@ get_rom_size(unsigned long* outp_cs0Base)
 	romSize = 512<<10; /* 512K */
 	*outp_cs0Base = 0x1FC00000;
 	return romSize;
-#elif defined(CONFIG_BCM3548)
-	printk("FIXME: no strap option for rom size on 3548\n");
+#elif !defined(CONFIG_BRCM_HAS_NOR)
+	printk("FIXME: no strap option for rom size on 3548/7408\n");
 	BUG();
 #else
 #error "Don't know how to find the ROM size"
@@ -7371,6 +7371,7 @@ static void brcmnand_prepare_reboot_priv(struct mtd_info *mtd)
 		this = brcmnand_get_device_exclusive();
 	}
 
+#if	0	/* jipeng - avoid undefined variable error in 7408A0 */
 	// PR41560: Handle boot from NOR but open NAND flash for access in Linux
 	//if (!is_bootrom_nand()) {
 	if (0) {
@@ -7455,6 +7456,7 @@ static void brcmnand_prepare_reboot_priv(struct mtd_info *mtd)
 		// The CFE will straighten out everything.
 		return;
 	}
+#endif	/* 0 */
 		
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_1_0
 	// Otherwise if NAND is on CS0, turn off direct access before rebooting

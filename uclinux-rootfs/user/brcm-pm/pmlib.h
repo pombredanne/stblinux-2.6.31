@@ -62,13 +62,18 @@ struct brcm_pm_state
 {
 	int usb_status;		/* 1=on, 0=off */
 	int enet_status;	/* 1=on, 0=off */
+	int moca_status;	/* 1=on, 0=off */
 	int sata_status;	/* 1=on, 0=off */
 	int tp1_status;		/* 1=on, 0=off */
 
-	int cpu_base;		/* base frequency, in Hz */
+	int cpu_base;		/* current base frequency, in Hz */
 	int cpu_divisor;	/* 1, 2, 4, or 8 */
+	int cpu_pll;		/* 0=normal, >0 = power save modes */
 
 	int ddr_timeout;	/* 0=no PM, >0 = timeout for self-refresh */
+
+	int standby;		/* write 1 to enter passive standby */
+	int irw_halt;		/* write 1 to shut down using IRW mode */
 };
 
 struct brcm_pm_cfg

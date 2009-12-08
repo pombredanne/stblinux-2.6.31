@@ -76,13 +76,16 @@ struct brcm_pm_priv
 #define BUF_SIZE	64
 #define MAX_ARGS	16
 
-#define SYS_USB_STAT	"/sys/devices/platform/brcm-pm/usb"
-#define SYS_ENET_STAT	"/sys/devices/platform/brcm-pm/enet"
-#define SYS_SATA_STAT	"/sys/devices/platform/brcm-pm/sata"
-#define SYS_DDR_STAT	"/sys/devices/platform/brcm-pm/ddr"
+#define SYS_USB_STAT	"/sys/devices/platform/brcmstb/usb_power"
+#define SYS_ENET_STAT	"/sys/devices/platform/brcmstb/enet_power"
+#define SYS_MOCA_STAT	"/sys/devices/platform/brcmstb/moca_power"
+#define SYS_SATA_STAT	"/sys/devices/platform/brcmstb/sata_power"
+#define SYS_DDR_STAT	"/sys/devices/platform/brcmstb/ddr_timeout"
 #define SYS_TP1_STAT	"/sys/devices/system/cpu/cpu1/online"
-#define SYS_BASE_FREQ	"/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
-#define SYS_CUR_FREQ	"/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
+#define SYS_CPU_KHZ	"/sys/devices/platform/brcmstb/cpu_khz"
+#define SYS_CPU_PLL	"/sys/devices/platform/brcmstb/cpu_pll"
+#define SYS_CPU_DIV	"/sys/devices/platform/brcmstb/cpu_div"
+#define SYS_STANDBY	"/sys/power/state"
 #define DHCPCD_PID0_A	"/var/run/dhcpcd-eth0.pid"
 #define DHCPCD_PID0_B	"/var/run/dhcpcd-eth0.pid.bak"
 #define DHCPCD_PID1_A	"/var/run/dhcpcd-eth1.pid"
@@ -90,6 +93,7 @@ struct brcm_pm_priv
 #define DHCPCD_PATH	"/bin/dhcpcd"
 #define IFCONFIG_PATH	"/bin/ifconfig"
 #define HDPARM_PATH	"/sbin/hdparm"
+#define HALT_PATH	"/sbin/halt"
 #define SATA_RESCAN_GLOB "/sys/class/scsi_host/host*/scan"
 #define SATA_DEVICE_GLOB "/sys/class/scsi_device/*/device/block:*"
 #define SATA_DELETE_GLOB "/sys/class/scsi_device/*/device/delete"
@@ -219,11 +223,12 @@ void *brcm_pm_init(void)
 	if(! ctx)
 		goto bad;
 
-	if(sysfs_get(SYS_BASE_FREQ,
+	/* this is the current PLL frequency going into the CPU */
+	if(sysfs_get(SYS_CPU_KHZ,
 		(unsigned int *)&ctx->last_state.cpu_base) != 0)
 	{
 		/* cpufreq not supported on this platform */
-		ctx->last_state.cpu_base = 0;
+		ctx->last_state.cpu_base = BRCM_PM_UNDEF;
 	}
 	
 	if(brcm_pm_get_status(ctx, &ctx->last_state) != 0)
@@ -263,7 +268,6 @@ int brcm_pm_set_cfg(void *vctx, struct brcm_pm_cfg *cfg)
 int brcm_pm_get_status(void *vctx, struct brcm_pm_state *st)
 {
 	struct brcm_pm_priv *ctx = vctx;
-	int tmp;
 
 	/* read status from /proc */
 
@@ -272,6 +276,9 @@ int brcm_pm_get_status(void *vctx, struct brcm_pm_state *st)
 	}
 	if(sysfs_get(SYS_ENET_STAT, (unsigned int *)&st->enet_status) != 0) {
 		st->enet_status = BRCM_PM_UNDEF;
+	}
+	if(sysfs_get(SYS_MOCA_STAT, (unsigned int *)&st->moca_status) != 0) {
+		st->moca_status = BRCM_PM_UNDEF;
 	}
 	if(sysfs_get(SYS_SATA_STAT, (unsigned int *)&st->sata_status) != 0) {
 		st->sata_status = BRCM_PM_UNDEF;
@@ -282,21 +289,18 @@ int brcm_pm_get_status(void *vctx, struct brcm_pm_state *st)
 	if(sysfs_get(SYS_TP1_STAT, (unsigned int *)&st->tp1_status) != 0) {
 		st->tp1_status = BRCM_PM_UNDEF;
 	}
-
-	if(ctx->last_state.cpu_base)
-	{
-		if((sysfs_get(SYS_CUR_FREQ, (unsigned int *)&tmp) != 0) ||
-		   (tmp == 0))
-		{
-			return(-1);
-		}
-		
-		st->cpu_base = ctx->last_state.cpu_base;
-		st->cpu_divisor = st->cpu_base / tmp;
-	} else {
-		st->cpu_base = 0;
-		st->cpu_divisor = -1;
+	if(sysfs_get(SYS_CPU_KHZ, (unsigned int *)&st->cpu_base) != 0) {
+		st->cpu_base = BRCM_PM_UNDEF;
 	}
+	if(sysfs_get(SYS_CPU_DIV, (unsigned int *)&st->cpu_divisor) != 0) {
+		st->cpu_divisor = BRCM_PM_UNDEF;
+	}
+	if(sysfs_get(SYS_CPU_PLL, (unsigned int *)&st->cpu_pll) != 0) {
+		st->cpu_pll = BRCM_PM_UNDEF;
+	}
+
+	st->standby = 0;
+	st->irw_halt = 0;
 
 	if(st != &ctx->last_state)
 		memcpy(&ctx->last_state, st, sizeof(*st));
@@ -441,21 +445,29 @@ int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
 
 	if(CHANGED(cpu_divisor))
 	{
-		if(! st->cpu_divisor || ! ctx->last_state.cpu_base)
-		{
-			ret |= -1;
-		} else {
-			unsigned int freq;
+		ret |= sysfs_set(SYS_CPU_DIV, st->cpu_divisor);
+	}
 
-			freq = ctx->last_state.cpu_base / st->cpu_divisor;
-			ret |= sysfs_set(SYS_CUR_FREQ, freq);
-		}
-		ctx->last_state.cpu_divisor = st->cpu_divisor;
+	if(CHANGED(cpu_pll))
+	{
+		ret |= sysfs_set(SYS_CPU_PLL, st->cpu_pll);
 	}
 
 	if(CHANGED(ddr_timeout))
 	{
 		ret |= sysfs_set(SYS_DDR_STAT, st->ddr_timeout);
+	}
+
+	if(CHANGED(standby))
+	{
+		if (st->standby == 1)
+			ret |= sysfs_set_string(SYS_STANDBY, "standby");
+	}
+
+	if(CHANGED(irw_halt))
+	{
+		if (st->irw_halt == 1)
+			ret |= run(HALT_PATH, NULL);
 	}
 
 #undef CHANGED

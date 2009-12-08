@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-09-30
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-12-04
 #
 # Original package: busybox-1.11.1.tar.bz2
 #
 diff -ruNp busybox.orig/Makefile.custom busybox/Makefile.custom
 --- busybox.orig/Makefile.custom	2008-06-25 05:51:33.000000000 -0700
-+++ busybox/Makefile.custom	2009-09-30 15:57:36.000000000 -0700
++++ busybox/Makefile.custom	2009-12-04 18:30:08.000000000 -0800
 @@ -23,6 +23,7 @@ ifeq ($(CONFIG_INSTALL_SH_APPLET_SCRIPT_
  INSTALL_OPTS:= --scriptwrapper
  endif
@@ -16,7 +16,7 @@ diff -ruNp busybox.orig/Makefile.custom busybox/Makefile.custom
  		$(SHELL) $< $(CONFIG_PREFIX) $(INSTALL_OPTS)
 diff -ruNp busybox.orig/networking/tftp.c busybox/networking/tftp.c
 --- busybox.orig/networking/tftp.c	2008-06-25 05:51:14.000000000 -0700
-+++ busybox/networking/tftp.c	2009-09-30 15:57:36.000000000 -0700
++++ busybox/networking/tftp.c	2009-12-04 18:30:08.000000000 -0800
 @@ -245,7 +245,7 @@ static int tftp_protocol(
  	if (!(option_mask32 & TFTPD_OPT)) {
  		local_fd = CMD_GET(option_mask32) ? STDOUT_FILENO : STDIN_FILENO;

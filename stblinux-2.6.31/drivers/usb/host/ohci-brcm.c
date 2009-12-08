@@ -119,6 +119,10 @@ static int ohci_hcd_brcm_probe(struct platform_device *pdev)
 	if (usb_disabled())
 		return -ENODEV;
 
+#ifdef CONFIG_BRCM_PM
+	brcm_pm_usb_add();
+#endif
+
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		err("platform_get_resource error.");
@@ -144,8 +148,8 @@ static int ohci_hcd_brcm_probe(struct platform_device *pdev)
 	ret = usb_add_hcd(hcd, irq, IRQF_DISABLED);
 	if (ret != 0) {
 		err("Failed to add hcd");
-		usb_put_hcd(hcd);
 		iounmap(hcd->regs);
+		usb_put_hcd(hcd);
 		return ret;
 	}
 
@@ -157,8 +161,8 @@ static int ohci_hcd_brcm_remove(struct platform_device *pdev)
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
 
 	usb_remove_hcd(hcd);
-	usb_put_hcd(hcd);
 	iounmap(hcd->regs);
+	usb_put_hcd(hcd);
 
 	return 0;
 }

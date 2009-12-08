@@ -41,6 +41,7 @@ int brcm_pcie_enabled = 0;
 int brcm_smp_enabled = 0;
 int brcm_emac_1_enabled = 0;
 int brcm_moca_enabled = 0;
+int brcm_usb_enabled = 0;
 
 /* synchronize writes to shared registers */
 DEFINE_SPINLOCK(brcm_magnum_spinlock);
@@ -91,77 +92,102 @@ int __init bchip_strap_ram_size(void)
 #endif
 }
 
-#define COMPAT_FLOOR(chip, rev) do { \
-	u32 kernel_chip_id = 0x ## chip; \
+#define ALT_CHIP_ID(chip, rev) do { \
+	u32 arg_id = 0x ## chip; \
 	const u8 rev_name[] = #rev; \
-	u32 min_rev_id = ((rev_name[0] - 'a') << 4) | (rev_name[1] - '0'); \
-	u32 chip_id = BRCM_CHIP_ID(); \
-	if(chip_id != kernel_chip_id) \
-		cfe_die("PANIC: BCM" #chip " kernel cannot boot on " \
-			"BCM%04x chip.\n", chip_id); \
-	if(BRCM_CHIP_REV() < min_rev_id) \
-		cfe_die("PANIC: This kernel requires BCM" #chip " rev >= " \
-			#rev " (P%02x)\n", min_rev_id + 0x10); \
+	u32 arg_rev = ((rev_name[0] - 'a') << 4) | (rev_name[1] - '0'); \
+	if (!kernel_chip_id && arg_id == chip_id) { \
+		kernel_chip_id = arg_id; \
+		kernel_chip_rev = arg_rev; \
+	} \
 	} while(0)
 
-#define CHIP_ID() (BDEV_RD(BCHP_SUN_TOP_CTRL_PROD_REVISION) >> 16)
+#define MAIN_CHIP_ID(chip, rev) do { \
+	u32 arg_id = 0x ## chip; \
+	const u8 rev_name[] = #rev; \
+	u32 arg_rev = ((rev_name[0] - 'a') << 4) | (rev_name[1] - '0'); \
+	if (!kernel_chip_id) { \
+		kernel_chip_id = arg_id; \
+		kernel_chip_rev = arg_rev; \
+	} \
+	} while(0)
 
 /*
  * NOTE: This is a quick sanity test to catch known incompatibilities and
  * obvious chip ID mismatches.  It is not comprehensive.  Higher revs may
  * or may not maintain software compatibility.
+ *
+ * MAIN_CHIP_ID() must always be the final entry.
  */
 
 void __init bchip_check_compat(void)
 {
+	u32 chip_id = BRCM_CHIP_ID(), chip_rev = BRCM_CHIP_REV();
+	u32 kernel_chip_id = 0, kernel_chip_rev = 0;
+
 #if   defined(CONFIG_BCM3548)
-	if (CHIP_ID() == 0x3556)
-		COMPAT_FLOOR(3556, b0);
-	else
-		COMPAT_FLOOR(3548, b0);
+	ALT_CHIP_ID(3556, b0);
+	MAIN_CHIP_ID(3548, b0);
 #elif defined(CONFIG_BCM3563)
-	COMPAT_FLOOR(3563, c0);
-#elif defined(CONFIG_BCM35130)
-	COMPAT_FLOOR(35130, a0);
+	MAIN_CHIP_ID(3563, c0);
+#elif defined(CONFIG_BCM35230)
+	MAIN_CHIP_ID(35230, a0);
 #elif defined(CONFIG_BCM7118)
-	COMPAT_FLOOR(7118, c0);
+	ALT_CHIP_ID(7018, c0);
+	MAIN_CHIP_ID(7118, c0);
 #elif defined(CONFIG_BCM7125)
-	COMPAT_FLOOR(7125, a0);
+	ALT_CHIP_ID(7019, a0);
+	ALT_CHIP_ID(7025, a0);
+	ALT_CHIP_ID(7116, a0);
+	ALT_CHIP_ID(7119, a0);
+	MAIN_CHIP_ID(7125, a0);
 #elif defined(CONFIG_BCM7325)
-	COMPAT_FLOOR(7325, b0);
+	ALT_CHIP_ID(7324, b0);
+	MAIN_CHIP_ID(7325, b0);
 #elif defined(CONFIG_BCM7335)
-	COMPAT_FLOOR(7335, b0);
+	MAIN_CHIP_ID(7335, b0);
 #elif defined(CONFIG_BCM7340)
-	COMPAT_FLOOR(7340, a0);
+	ALT_CHIP_ID(7350, a0);
+	MAIN_CHIP_ID(7340, a0);
 #elif defined(CONFIG_BCM7342)
-	COMPAT_FLOOR(7342, a0);
+	ALT_CHIP_ID(7352, a0);
+	MAIN_CHIP_ID(7342, a0);
 #elif defined(CONFIG_BCM7400)
-	COMPAT_FLOOR(7400, d0);
+	MAIN_CHIP_ID(7400, d0);
 #elif defined(CONFIG_BCM7401)
-	COMPAT_FLOOR(7401, c1);			// for EBI bugfix
+	MAIN_CHIP_ID(7401, c1);			// for EBI bugfix
 #elif defined(CONFIG_BCM7403)
-	COMPAT_FLOOR(7403, a1);			// for EBI bugfix
-#elif defined(CONFIG_BCM7405B0)
-	if (CHIP_ID() == 0x7405)
-		COMPAT_FLOOR(7405, b0);
-	else
-		COMPAT_FLOOR(7413, a0);
-#elif defined(CONFIG_BCM7405D0)
-	COMPAT_FLOOR(7413, b0);
+	MAIN_CHIP_ID(7403, a1);			// for EBI bugfix
+#elif defined(CONFIG_BCM7405)
+	ALT_CHIP_ID(7413, a0);
+	MAIN_CHIP_ID(7405, b0);
 #elif defined(CONFIG_BCM7420B0)
-	if (CHIP_ID() == 0x7410)
-		COMPAT_FLOOR(7410, b0);
-	else
-		COMPAT_FLOOR(7420, b0);
+	ALT_CHIP_ID(3320, b0);
+	ALT_CHIP_ID(7220, b0);
+	ALT_CHIP_ID(7410, b0);
+	MAIN_CHIP_ID(7420, b0);
 #elif defined(CONFIG_BCM7468)
-	COMPAT_FLOOR(7468, a0);
+	MAIN_CHIP_ID(7468, a0);
 #elif defined(CONFIG_BCM7550)
-	COMPAT_FLOOR(7550, a0);
+	MAIN_CHIP_ID(7550, a0);
 #elif defined(CONFIG_BCM7601)
-	COMPAT_FLOOR(7443, b0);
+	MAIN_CHIP_ID(7443, b0);
+#elif defined(CONFIG_BCM7630)
+	MAIN_CHIP_ID(7630, b0);
 #elif defined(CONFIG_BCM7635)
-	COMPAT_FLOOR(7635, a0);
+	MAIN_CHIP_ID(7635, a0);
 #endif
+	if (!kernel_chip_id)
+		return;
+
+	if (chip_id != kernel_chip_id)
+		cfe_die("PANIC: BCM%04x kernel cannot boot on "
+			"BCM%04x chip.\n", kernel_chip_id, chip_id);
+
+	if (chip_rev < kernel_chip_rev)
+		cfe_die("PANIC: This kernel requires BCM%04x rev >= %02X "
+			"(P%02x)\n", kernel_chip_id,
+			kernel_chip_rev + 0xa0, kernel_chip_rev + 0x10);
 }
 
 /***********************************************************************
@@ -263,7 +289,7 @@ void __init bchip_moca_init(void)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_SW_RESET, moca_sw_reset, 0);
 	BDEV_WR_F_RB(MOCA_HOSTMISC_SW_RESET, moca_enet_reset, 0);
 #if   defined(CONFIG_BCM7420)
-	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, M3DIV, 11);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, M4DIV, 11);
 #elif defined(CONFIG_BCM7340)
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_MISC1_CTRL, M2DIV_PLLMOCA, 11);
 #elif defined(CONFIG_BCM7342)
@@ -308,6 +334,7 @@ void __init bchip_set_features(void)
 #if defined(CONFIG_BRCM_HAS_MOCA)
 	brcm_moca_enabled = 1;
 #endif
+	brcm_usb_enabled = 1;
 
 	/* now remove any features disabled in hardware */
 
@@ -352,6 +379,18 @@ void __init bchip_set_features(void)
 	if (BDEV_RD_F(SUN_TOP_CTRL_OTP_OPTION_STATUS_0,
 			otp_option_sata_disable) == 1)
 		brcm_sata_enabled = 0;
+#endif
+
+#ifdef BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_enet_disable_MASK
+	if (BDEV_RD_F(SUN_TOP_CTRL_OTP_OPTION_STATUS_0,
+			otp_option_enet_disable) == 1)
+		brcm_enet_enabled = 0;
+#endif
+
+#ifdef BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_usb_disable_MASK
+	if (BDEV_RD_F(SUN_TOP_CTRL_OTP_OPTION_STATUS_0,
+			otp_option_usb_disable) == 1)
+		brcm_usb_enabled = 0;
 #endif
 
 #ifdef BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_moca_disable_MASK

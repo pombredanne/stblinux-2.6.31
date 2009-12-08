@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Tue Jun 16 18:21:06 2009
- *                 MD5 Checksum         0f387059459f17a873897dedc818d822
+ * Date:           Generated on         Wed Sep 16 17:55:42 2009
+ *                 MD5 Checksum         228c7b550eb3625a2f3616cd7ba6884e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,9 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7342/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/6   6/16/09 7:38p darnstein
- * PR54876: update from RDB.
+ * Hydra_Software_Devel/7   9/16/09 7:47p albertl
+ * SW7468-3: Fixed 4 byte offset due to change in script, updated to match
+ * RDB.
  *
  ***************************************************************************/
 
@@ -1029,7 +1030,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1048,7 +1049,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1067,7 +1068,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

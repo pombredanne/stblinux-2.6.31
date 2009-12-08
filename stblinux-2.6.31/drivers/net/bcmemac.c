@@ -216,7 +216,7 @@ static void bcmemac_mdio_write(struct net_device *dev, int addr, int reg,
 
 static int bcmemac_phy_init(BcmEnet_devctrl * pDevCtrl, int phy_id)
 {
-	int i;
+	unsigned int i;
 
 	pDevCtrl->emac->mdioFreq = EMAC_MII_PRE_EN | EMAC_MDC;
 
@@ -230,7 +230,8 @@ static int bcmemac_phy_init(BcmEnet_devctrl * pDevCtrl, int phy_id)
 			if (data != 0x0000 && data != 0xffff)
 				break;
 
-			if (i++ >= 31)
+			i = (i + 1) & 0x1f;
+			if (i == 1)
 				return -ENODEV;
 		}
 		phy_id = i;
@@ -853,8 +854,13 @@ static int bcmemac_enet_poll(struct napi_struct *napi, int budget)
 	reclaimed = bcmemac_xmit_check(pDevCtrl->dev);
 
 	if ((work_done < budget) && !reclaimed) {
+		unsigned long flags;
+
 		napi_complete(napi);
+
+		spin_lock_irqsave(&pDevCtrl->lock, flags);
 		pDevCtrl->dmaRegs->enet_iudma_r5k_irq_msk |= R5K_IUDMA_IRQ;
+		spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 	}
 
 	return work_done;
@@ -867,17 +873,20 @@ static int bcmemac_enet_poll(struct napi_struct *napi, int budget)
 static irqreturn_t bcmemac_net_isr(int irq, void *dev_id)
 {
 	BcmEnet_devctrl *pDevCtrl = dev_id;
+	unsigned long flags;
 
 	/*
 	 * Disable IRQ and use NAPI polling loop.  IRQ will be re-enabled
 	 * after all packets are processed.
 	 */
 	if (likely(pDevCtrl->dmaRegs->enet_iudma_r5k_irq_sts & R5K_IUDMA_IRQ)) {
-		if (likely(napi_schedule_prep(&pDevCtrl->napi))) {
-			pDevCtrl->dmaRegs->enet_iudma_r5k_irq_msk &=
-				~R5K_IUDMA_IRQ;
+		spin_lock_irqsave(&pDevCtrl->lock, flags);
+		pDevCtrl->dmaRegs->enet_iudma_r5k_irq_msk &=
+			~R5K_IUDMA_IRQ;
+		spin_unlock_irqrestore(&pDevCtrl->lock, flags);
+
+		if (likely(napi_schedule_prep(&pDevCtrl->napi)))
 			__napi_schedule(&pDevCtrl->napi);
-		}
 	}
 
 	if (unlikely(pDevCtrl->emac->intStatus & EMAC_MDIO_INT)) {
@@ -1557,6 +1566,10 @@ static int __devinit bcmemac_drv_probe(struct platform_device *pdev)
 		printk(KERN_WARNING DRV_NAME ": can't request memory\n");
 		return -ENODEV;
 	}
+
+#ifdef CONFIG_BRCM_PM
+	brcm_pm_enet_add(pdev->id, res->start);
+#endif
 
 	dev = alloc_etherdev(sizeof(*pDevCtrl));
 	if (!dev) {

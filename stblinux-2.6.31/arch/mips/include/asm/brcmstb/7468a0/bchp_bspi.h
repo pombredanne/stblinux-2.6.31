@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Sep 11 15:17:44 2009
- *                 MD5 Checksum         28ccc088d2e0d46a201227480642615e
+ * Date:           Generated on         Fri Sep 11 19:42:40 2009
+ *                 MD5 Checksum         957f01e03a68c1766fd2e8ad6484f5f9
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7468/rdb/a0/bchp_bspi.h $
+ * 
+ * Hydra_Software_Devel/1   9/14/09 4:03p albertl
+ * SW7468-3: Initial revision.
  *
  ***************************************************************************/
 

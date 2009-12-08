@@ -354,8 +354,8 @@ distclean:
 		$(MAKE) -C lib distclean clean ; \
 		$(MAKE) -C user distclean clean ; \
 		$(MAKE) -C $(LINUXDIR) mrproper ; \
-		$(MAKE) -C config clean ; \
 		$(MAKE) $(MAKEOPTS) nonfree_clean ; \
+		$(MAKE) -C config clean ; \
 	fi
 	rm -rf romfs tmp
 	rm -f $(CONFIG_CONFIG) $(ARCH_CONFIG) .target

@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-09-30
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-12-04
 #
 # Original package: procps-3.2.8.tar.bz2
 #
 diff -ruNp procps.orig/makefile procps/makefile
 --- procps.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ procps/makefile	2009-09-30 15:57:39.000000000 -0700
++++ procps/makefile	2009-12-04 18:30:12.000000000 -0800
 @@ -0,0 +1,56 @@
 +#
 +# General settings
@@ -63,3 +63,47 @@ diff -ruNp procps.orig/makefile procps/makefile
 +# Everything else (maybe including clean, distclean) does get passed through
 +%:: FORCE
 +	$(MAKE) -f Makefile $@
+diff -ruNp procps.orig/proc/sysinfo.c procps/proc/sysinfo.c
+--- procps.orig/proc/sysinfo.c	2008-03-23 21:33:43.000000000 -0700
++++ procps/proc/sysinfo.c	2009-12-04 18:30:12.000000000 -0800
+@@ -219,7 +219,40 @@ static void init_libproc(void){
+   // appears to have a non-SMP kernel on a 2-way SMP box.
+   // _SC_NPROCESSORS_CONF returns 2, resulting in HZ=512
+   // _SC_NPROCESSORS_ONLN returns 1, which should work OK
++#if 1
++// jipeng - replace sysconf() since it always return 1 on SMP system in uClibc
++//	 Here we parse /proc/stat to get number of active CPUs
++#define	MAX_NUM_OF_CPUS		8
++
++	{
++		int fd;
++		int i;
++		char buff[BUFFSIZE];
++		const char* b;
++		char	cpus[4] = "cpu ";
++
++		buff[BUFFSIZE-1] = 0;
++		fd = open("/proc/stat", O_RDONLY, 0);
++		if(fd == -1)
++		{
++			perror("/proc/stat");
++			exit(EXIT_FAILURE);
++		}
++	
++		read(fd,buff,BUFFSIZE-1);
++		for (i = 0; i < MAX_NUM_OF_CPUS; i++) {
++			cpus[3] = '0' + i;
++			b = strstr(buff, cpus);
++			if(!b)
++			break;
++		}
++		smp_num_cpus = i;
++		close(fd);
++	}
++#else
+   smp_num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
++#endif
++
+   if(smp_num_cpus<1) smp_num_cpus=1; /* SPARC glibc is buggy */
+ 
+   if(linux_version_code > LINUX_VERSION(2, 4, 0)){ 

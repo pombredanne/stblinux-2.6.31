@@ -84,6 +84,9 @@ make_ubi_img 64 1
 # 128k erase / 1B unit size - NOR
 make_ubi_img 128 1
 
+# 256k erase / 1B unit size - NOR
+make_ubi_img 256 1
+
 # 16k erase / 512B page - small NAND
 make_ubi_img 16 512
 
@@ -93,9 +96,10 @@ make_ubi_img 128 2048
 # 512k erase / 4096B page - large NAND
 make_ubi_img 512 4096
 
-# jffs2 NOR images for 64k, 128k erase sizes
+# jffs2 NOR images for 64k, 128k, 256k erase sizes
 make_jffs2_img 64
 make_jffs2_img 128
+make_jffs2_img 256
 
 echo "Writing NFS rootfs tarball..."
 rm -f tmp/nfsroot.tar images/nfsroot-${TARGET}.tar.bz2

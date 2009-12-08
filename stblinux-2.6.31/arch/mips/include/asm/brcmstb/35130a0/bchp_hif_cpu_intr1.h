@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 19 16:01:13 2009
- *                 MD5 Checksum         7522ed2665a468a83266ee0dd2a5966d
+ * Date:           Generated on         Mon Sep 28 15:52:35 2009
+ *                 MD5 Checksum         5e5a8f3ee928ae34a9cfd2e4061ddd90
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35130/rdb/a0/bchp_hif_cpu_intr1.h $
  * 
- * Hydra_Software_Devel/2   6/22/09 5:42p albertl
- * PR53796: Updated to match RDB.
+ * Hydra_Software_Devel/1   9/28/09 8:43p albertl
+ * SW35230-1: Added back 35130 header files.
  *
  ***************************************************************************/
 

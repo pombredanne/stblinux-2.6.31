@@ -41,34 +41,46 @@ static int next_cpu[NR_IRQS] = { [0 ... NR_IRQS-1] = 0 };
 
 #define TP0_BASE BCHP_HIF_CPU_INTR1_REG_START
 #define TP1_BASE BCHP_HIF_CPU_TP1_INTR1_REG_START
-#define L1_WR_ALL(reg, val) do { \
-	L1_WR(TP0_BASE, reg, val); \
-	L1_WR(TP1_BASE, reg, val); \
+#define L1_WR_ALL(word, reg, val) do { \
+	L1_WR_##word(TP0_BASE, reg, val); \
+	if (cpu_online(1)) \
+		L1_WR_##word(TP1_BASE, reg, val); \
 	} while(0)
 
 #else
 
 #define TP0_BASE BCHP_HIF_CPU_INTR1_REG_START
 #define TP1_BASE TP0_BASE
-#define L1_WR_ALL(reg, val) do { L1_WR(TP0_BASE, reg, val); } while(0)
+#define L1_WR_ALL(word, reg, val) do { \
+	L1_WR_##word(TP0_BASE, reg, val); \
+	} while(0)
 
 #define NEXT_CPU(irq) 0
 #endif
 
-#define L1_RD(base, reg) BDEV_RD((base) + BCHP_HIF_CPU_INTR1_INTR_##reg - \
-	BCHP_HIF_CPU_INTR1_REG_START)
+#define L1_REG(base, off) ((base) + (off) - BCHP_HIF_CPU_INTR1_REG_START)
 
-#define L1_WR(base, reg, val) do { \
-	unsigned long addr = (base) + BCHP_HIF_CPU_INTR1_INTR_##reg - \
-		BCHP_HIF_CPU_INTR1_REG_START; \
-	BDEV_WR(addr, val); \
-	BDEV_RD(addr); \
-	} while(0)
+#define L1_RD_W0(base, reg) \
+	BDEV_RD(L1_REG(base, BCHP_HIF_CPU_INTR1_INTR_W0_##reg))
+#define L1_RD_W1(base, reg) \
+	BDEV_RD(L1_REG(base, BCHP_HIF_CPU_INTR1_INTR_W1_##reg))
+
+#define L1_WR_W0(base, reg, val) \
+	BDEV_WR_RB(L1_REG(base, BCHP_HIF_CPU_INTR1_INTR_W0_##reg), val)
+#define L1_WR_W1(base, reg, val) \
+	BDEV_WR_RB(L1_REG(base, BCHP_HIF_CPU_INTR1_INTR_W1_##reg), val)
 
 #if defined(BCHP_HIF_CPU_INTR1_INTR_W2_STATUS)
-#define L1_IRQS		96
-#elif defined(BCHP_HIF_CPU_INTR1_INTR_W1_STATUS)
-#define L1_IRQS		64
+
+#define L1_RD_W2(base, reg) \
+	BDEV_RD(L1_REG(base, BCHP_HIF_CPU_INTR1_INTR_W2_##reg))
+#define L1_WR_W2(base, reg, val) \
+	BDEV_WR_RB(L1_REG(base, BCHP_HIF_CPU_INTR1_INTR_W2_##reg), val)
+
+#else
+/* nop on chips with only 64 L1 interrupts */
+#define L1_RD_W2(base, reg)	0
+#define L1_WR_W2(base, reg, val) do { } while(0)
 #endif
 
 /*
@@ -86,17 +98,15 @@ static void brcm_intc_enable(unsigned int irq)
 
 	if (irq > 0 && irq <= 32) {
 		shift = irq - 1;
-		L1_WR(base, W0_MASK_CLEAR, (1UL << shift));
+		L1_WR_W0(base, MASK_CLEAR, (1UL << shift));
 	} else if (irq > 32 && irq <= 32+32) {
 		shift = irq - 32 - 1;
-		L1_WR(base, W1_MASK_CLEAR, (1UL << shift));
+		L1_WR_W1(base, MASK_CLEAR, (1UL << shift));
 	}
-#if L1_IRQS > 64
 	else if (irq > 64 && irq <= 32+32+32) {
 		shift = irq - 64 - 1;
-		L1_WR(base, W2_MASK_CLEAR, (1UL << shift));
+		L1_WR_W2(base, MASK_CLEAR, (1UL << shift));
 	}
-#endif
 	else
 		BUG();
 }
@@ -107,17 +117,15 @@ static void brcm_intc_disable(unsigned int irq)
 
 	if (irq > 0 && irq <= 32) {
 		shift = irq - 1;
-		L1_WR_ALL(W0_MASK_SET, (1UL << shift));
+		L1_WR_ALL(W0, MASK_SET, (1UL << shift));
 	} else if (irq > 32 && irq <= 32+32) {
 		shift = irq - 32 -1;
-		L1_WR_ALL(W1_MASK_SET, (1UL << shift));
+		L1_WR_ALL(W1, MASK_SET, (1UL << shift));
 	}
-#if L1_IRQS > 64
 	else if (irq > 64 && irq <= 32+32+32) {
 		shift = irq - 64 -1;
-		L1_WR_ALL(W2_MASK_SET, (1UL << shift));
+		L1_WR_ALL(W2, MASK_SET, (1UL << shift));
 	}
-#endif
 	else
 		BUG();
 }
@@ -133,12 +141,12 @@ static int brcm_intc_set_affinity(unsigned int irq, const struct cpumask *dest)
 		shift = irq - 1;
 
 		if(cpu_isset(0, *dest)) {
-			L1_WR(TP1_BASE, W0_MASK_SET, (1UL << shift));
-			L1_WR(TP0_BASE, W0_MASK_CLEAR, (1UL << shift));
+			L1_WR_W0(TP1_BASE, MASK_SET, (1UL << shift));
+			L1_WR_W0(TP0_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 0;
 		} else {
-			L1_WR(TP0_BASE, W0_MASK_SET, (1UL << shift));
-			L1_WR(TP1_BASE, W0_MASK_CLEAR, (1UL << shift));
+			L1_WR_W0(TP0_BASE, MASK_SET, (1UL << shift));
+			L1_WR_W0(TP1_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 1;
 		}
 	} else if (irq > 32 && irq <= 64) {
@@ -146,31 +154,29 @@ static int brcm_intc_set_affinity(unsigned int irq, const struct cpumask *dest)
 		next_cpu[irq] = 0;
 
 		if(cpu_isset(0, *dest)) {
-			L1_WR(TP1_BASE, W1_MASK_SET, (1UL << shift));
-			L1_WR(TP0_BASE, W1_MASK_CLEAR, (1UL << shift));
+			L1_WR_W1(TP1_BASE, MASK_SET, (1UL << shift));
+			L1_WR_W1(TP0_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 0;
 		} else {
-			L1_WR(TP0_BASE, W1_MASK_SET, (1UL << shift));
-			L1_WR(TP1_BASE, W1_MASK_CLEAR, (1UL << shift));
+			L1_WR_W1(TP0_BASE, MASK_SET, (1UL << shift));
+			L1_WR_W1(TP1_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 1;
 		}
 	}
-#if L1_IRQS > 64
 	else if (irq > 64 && irq <= 96) {
 		shift = irq - 64 - 1;
 		next_cpu[irq] = 0;
 
 		if(cpu_isset(0, *dest)) {
-			L1_WR(TP1_BASE, W2_MASK_SET, (1UL << shift));
-			L1_WR(TP0_BASE, W2_MASK_CLEAR, (1UL << shift));
+			L1_WR_W2(TP1_BASE, MASK_SET, (1UL << shift));
+			L1_WR_W2(TP0_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 0;
 		} else {
-			L1_WR(TP0_BASE, W2_MASK_SET, (1UL << shift));
-			L1_WR(TP1_BASE, W2_MASK_CLEAR, (1UL << shift));
+			L1_WR_W2(TP0_BASE, MASK_SET, (1UL << shift));
+			L1_WR_W2(TP1_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 1;
 		}
 	}
-#endif
 	local_irq_restore(flags);
 	return 0;
 }
@@ -212,19 +218,17 @@ static void flip_tp(int irq)
 	if(cpumask_test_cpu(tp ^ 1, irq_desc[irq].affinity)) {
 		next_cpu[irq] = tp ^ 1;
 		if(irq >= 1 && irq <= 32) {
-			L1_WR(local_lev1, W0_MASK_SET, mask);
-			L1_WR(remote_lev1, W0_MASK_CLEAR, mask);
+			L1_WR_W0(local_lev1, MASK_SET, mask);
+			L1_WR_W0(remote_lev1, MASK_CLEAR, mask);
 		}
 		if(irq >= 33 && irq <= 64) {
-			L1_WR(local_lev1, W1_MASK_SET, mask);
-			L1_WR(remote_lev1, W1_MASK_CLEAR, mask);
+			L1_WR_W1(local_lev1, MASK_SET, mask);
+			L1_WR_W1(remote_lev1, MASK_CLEAR, mask);
 		}
-#if L1_IRQS > 64
 		if(irq >= 65 && irq <= 96) {
-			L1_WR(local_lev1, W2_MASK_SET, mask);
-			L1_WR(remote_lev1, W2_MASK_CLEAR, mask);
+			L1_WR_W2(local_lev1, MASK_SET, mask);
+			L1_WR_W2(remote_lev1, MASK_CLEAR, mask);
 		}
-#endif
 	}
 #endif /* CONFIG_SMP */
 }
@@ -233,29 +237,27 @@ static void brcm_intc_dispatch(struct pt_regs *regs, unsigned long base)
 {
 	u32 pend, shift;
 
-	pend = L1_RD(base, W0_STATUS) & ~L1_RD(base, W0_MASK_STATUS);
+	pend = L1_RD_W0(base, STATUS) & ~L1_RD_W0(base, MASK_STATUS);
 	while((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		do_IRQ(shift);
 		flip_tp(shift);
 	}
 
-	pend = L1_RD(base, W1_STATUS) & ~L1_RD(base, W1_MASK_STATUS);
+	pend = L1_RD_W1(base, STATUS) & ~L1_RD_W1(base, MASK_STATUS);
 	while((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		shift += 32;
 		do_IRQ(shift);
 		flip_tp(shift);
 	}
-#if L1_IRQS > 64
-	pend = L1_RD(base, W2_STATUS) & ~L1_RD(base, W2_MASK_STATUS);
+	pend = L1_RD_W2(base, STATUS) & ~L1_RD_W2(base, MASK_STATUS);
 	while((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		shift += 64;
 		do_IRQ(shift);
 		flip_tp(shift);
 	}
-#endif
 }
 
 /* IRQ2 = L1 interrupt for TP0 */
@@ -336,11 +338,9 @@ void __init arch_init_irq(void)
 
 	mips_cpu_irq_init();
 
-	L1_WR_ALL(W0_MASK_SET, 0xffffffff);
-	L1_WR_ALL(W1_MASK_SET, 0xffffffff);
-#if L1_IRQS > 64
-	L1_WR_ALL(W2_MASK_SET, 0xffffffff);
-#endif
+	L1_WR_ALL(W0, MASK_SET, 0xffffffff);
+	L1_WR_ALL(W1, MASK_SET, 0xffffffff);
+	L1_WR_ALL(W2, MASK_SET, 0xffffffff);
 	
 	clear_c0_status(ST0_IE | ST0_IM);
 
@@ -372,7 +372,7 @@ void __init arch_init_irq(void)
 	/* 7405 style - shared with L2 */
 	BDEV_WR(BCHP_IRQ0_IRQEN, BCHP_IRQ0_IRQEN_uarta_irqen_MASK
 		| BCHP_IRQ0_IRQEN_uartb_irqen_MASK
-#ifdef CONFIG_BRCM_HAS_UARTC
+#if defined(BCHP_IRQ0_UART_IRQEN_uartc_MASK)
 		| BCHP_IRQ0_IRQEN_uartc_irqen_MASK
 #endif
 		);
@@ -426,4 +426,40 @@ asmlinkage void plat_irq_dispatch(struct pt_regs *regs)
 		else
 			do_IRQ(MIPS_CPU_IRQ_BASE + shift);
 	}
+}
+
+/***********************************************************************
+ * Power management
+ ***********************************************************************/
+
+static unsigned long brcm_irq_state[3];
+
+void brcm_irq_standby_enter(int wake_irq)
+{
+	/* save the current state, then mask everything */
+	brcm_irq_state[0] = L1_RD_W0(TP0_BASE, MASK_STATUS);
+	L1_WR_W0(TP0_BASE, MASK_SET, 0xffffffff);
+	brcm_irq_state[1] = L1_RD_W1(TP0_BASE, MASK_STATUS);
+	L1_WR_W1(TP0_BASE, MASK_SET, 0xffffffff);
+	brcm_irq_state[2] = L1_RD_W2(TP0_BASE, MASK_STATUS);
+	L1_WR_W2(TP0_BASE, MASK_SET, 0xffffffff);
+
+	/* unmask the wakeup IRQ */
+	if (wake_irq > 0 && wake_irq <= 32)
+		L1_WR_W0(TP0_BASE, MASK_CLEAR, 1 << (wake_irq - 1));
+	else if (wake_irq > 32 && wake_irq <= 64)
+		L1_WR_W1(TP0_BASE, MASK_CLEAR, 1 << (wake_irq - 33));
+	else if (wake_irq > 64 && wake_irq <= 96)
+		L1_WR_W2(TP0_BASE, MASK_CLEAR, 1 << (wake_irq - 65));
+}
+
+void brcm_irq_standby_exit(void)
+{
+	/* restore the saved L1 state */
+	L1_WR_W0(TP0_BASE, MASK_SET, 0xffffffff);
+	L1_WR_W0(TP0_BASE, MASK_CLEAR, ~brcm_irq_state[0]);
+	L1_WR_W1(TP0_BASE, MASK_SET, 0xffffffff);
+	L1_WR_W1(TP0_BASE, MASK_CLEAR, ~brcm_irq_state[1]);
+	L1_WR_W2(TP0_BASE, MASK_SET, 0xffffffff);
+	L1_WR_W2(TP0_BASE, MASK_CLEAR, ~brcm_irq_state[2]);
 }

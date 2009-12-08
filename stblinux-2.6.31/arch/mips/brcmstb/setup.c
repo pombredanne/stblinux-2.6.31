@@ -53,8 +53,6 @@
 #include <linux/mtd/physmap.h>
 #include <linux/mtd/map.h>
 
-#define LINUX_MIN_MEM		64
-
 /***********************************************************************
  * Platform device setup
  ***********************************************************************/
@@ -336,6 +334,7 @@ static struct moca_platform_data moca_data = {
 	.bcm3450_i2c_addr =	0x70,
 };
 
+#if	defined(BCHP_MOCA_MOCAM2M_REG_END)
 static struct resource moca_resources[] = {
 	[0] = {
 		.start		= BPHYSADDR(BCHP_DATA_MEM_REG_START),
@@ -348,6 +347,15 @@ static struct resource moca_resources[] = {
 		.flags		= IORESOURCE_IRQ,
 	},
 };
+#else
+static struct resource moca_resources[] = {
+	[0] = {
+		.start		= BRCM_IRQ_MOCA,
+		.end		= BRCM_IRQ_MOCA,
+		.flags		= IORESOURCE_IRQ,
+	},
+};
+#endif
 
 static struct platform_device moca_plat_dev = {
 	.name			= "bmoca",
@@ -415,25 +423,27 @@ static int __init platform_devices_setup(void)
 
 	/* USB controllers */
 
-	bchip_usb_init();
+	if (brcm_usb_enabled) {
+		bchip_usb_init();
 #if defined(BCHP_USB_EHCI_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB0)
-	platform_device_register(&brcm_ehci0_device);
+		platform_device_register(&brcm_ehci0_device);
 #endif
 #if defined(BCHP_USB_EHCI1_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB1)
-	platform_device_register(&brcm_ehci1_device);
+		platform_device_register(&brcm_ehci1_device);
 #endif
 #if defined(BCHP_USB_EHCI2_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB2)
-	platform_device_register(&brcm_ehci2_device);
+		platform_device_register(&brcm_ehci2_device);
 #endif
 #if defined(BCHP_USB_OHCI_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB0)
-	platform_device_register(&brcm_ohci0_device);
+		platform_device_register(&brcm_ohci0_device);
 #endif
 #if defined(BCHP_USB_OHCI1_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB1)
-	platform_device_register(&brcm_ohci1_device);
+		platform_device_register(&brcm_ohci1_device);
 #endif
 #if defined(BCHP_USB_OHCI2_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB2)
-	platform_device_register(&brcm_ohci2_device);
+		platform_device_register(&brcm_ohci2_device);
 #endif
+	}
 
 	/* Network interfaces */
 
@@ -527,37 +537,8 @@ static int __init brcm_setup_spi_flash(int cs, int bus_num, int nr_parts,
 	if (!pdata)
 		return -ENOMEM;
 
-#if 0
-		pdata->nr_parts = nr_parts;
-		pdata->parts = parts;
-#else
-		/* XXX HACK: need to handle address inversion on SPI flash */
-		if (nr_parts) {
-			pdata->nr_parts = 4;
-			pdata->parts = kzalloc(sizeof(struct mtd_partition) *
-				pdata->nr_parts, GFP_KERNEL);
-			if (!pdata->parts) {
-				kfree(pdata);
-				return -ENOMEM;
-			}
-
-			pdata->parts[0].name = "rootfs";
-			pdata->parts[0].offset = 0x00400000;
-			pdata->parts[0].size = 0x00c00000;
-
-			pdata->parts[1].name = "entire_flash";
-			pdata->parts[1].offset = 0;
-			pdata->parts[1].size = MTDPART_SIZ_FULL;
-
-			pdata->parts[2].name = "kernel";
-			pdata->parts[2].offset = 0x80000;
-			pdata->parts[2].size = 13 * 256 * 1024;
-
-			pdata->parts[3].name = "cfe";
-			pdata->parts[3].offset = 0x00000000;
-			pdata->parts[3].size = 0x80000;
-		}
-#endif
+	pdata->nr_parts = nr_parts;
+	pdata->parts = parts;
 
 	memset(&board_info, 0, sizeof(board_info));
 
@@ -756,7 +737,7 @@ static int __init brcmstb_mtd_setup(void)
 			if (primary == -1 && primary_type == cs_info[i].type)
 				primary = i;
 		}
-		if (first == -1)
+		if (first == -1 && cs_info[i].type != TYPE_NONE)
 			first = i;
 	}
 
@@ -820,238 +801,6 @@ __setup("nandcs", nandcs_setup);
 #endif /* defined(CONFIG_BRCM_FLASH) */
 
 /***********************************************************************
- * BMEM (reserved A/V buffer memory) support
- ***********************************************************************/
-
-#define MAX_BMEM_REGIONS	4
-
-struct bmem_region {
-	unsigned long		addr;
-	unsigned long		size;
-};
-
-static struct bmem_region bmem_regions[MAX_BMEM_REGIONS];
-static unsigned int n_bmem_regions = 0;
-static unsigned int bmem_disabled = 0;
-
-/*
- * Parses command line for bmem= options
- */
-static int __init bmem_setup(char *str)
-{
-	unsigned long addr = 0, size;
-	unsigned long lower_mem_bytes;
-	char *orig_str = str;
-
-	lower_mem_bytes = (brcm_dram0_size_mb > BRCM_MAX_LOWER_MB) ?
-		(BRCM_MAX_LOWER_MB << 20) : (brcm_dram0_size_mb << 20);
-
-	size = (unsigned long)memparse(str, &str);
-	if (*str == '@')
-		addr = (unsigned long)memparse(str + 1, &str);
-	
-	if ((size > lower_mem_bytes) || (addr > 0x80000000)) {
-		printk(KERN_WARNING "bmem: argument '%s' "
-			"is out of range, ignoring\n", orig_str);
-		return 0;
-	}
-	
-	if (size == 0) {
-		printk(KERN_INFO "bmem: disabling reserved memory\n");
-		bmem_disabled = 1;
-		return 0;
-	}
-
-	if ((addr & ~PAGE_MASK) || (size & ~PAGE_MASK)) {
-		printk(KERN_WARNING "bmem: ignoring invalid range '%s' "
-			"(is it missing an 'M' suffix?)\n", orig_str);
-		return 0;
-	}
-
-	if (addr == 0) {
-		/*
-		 * default: bmem=xxM allocates xx megabytes at the end of
-		 * lower memory
-		 */
-		if (size >= lower_mem_bytes) {
-			printk(KERN_WARNING "bmem: '%s' is larger than "
-				"lower memory (%lu MB), ignoring\n",
-				orig_str, brcm_dram0_size_mb);
-			return 0;
-		}
-		addr = lower_mem_bytes - size;
-	}
-
-	if (n_bmem_regions == MAX_BMEM_REGIONS) {
-		printk(KERN_WARNING "bmem: too many regions, "
-			"ignoring extras\n");
-		return 0;
-	}
-
-	bmem_regions[n_bmem_regions].addr = addr;
-	bmem_regions[n_bmem_regions].size = size;
-	n_bmem_regions++;
-
-	return 0;
-}
-
-early_param("bmem", bmem_setup);
-
-/*
- * Returns index if the supplied range falls entirely within a bmem region
- */
-int bmem_find_region(unsigned long addr, unsigned long size)
-{
-	int i;
-
-	for (i = 0; i < n_bmem_regions; i++) {
-		if ((addr >= bmem_regions[i].addr) &&
-		    ((addr + size) <=
-			(bmem_regions[i].addr + bmem_regions[i].size))) {
-			return(i);
-		}
-	}
-	return -ENOENT;
-}
-EXPORT_SYMBOL(bmem_find_region);
-
-/*
- * Looks up the bmem region by index, and fills in addr/size if it exists.
- * Returns 0 on success, <0 on failure.
- */
-int bmem_region_info(int idx, unsigned long *addr, unsigned long *size)
-{
-	if ((unsigned int)idx >= n_bmem_regions)
-		return -ENOENT;
-
-	*addr = bmem_regions[idx].addr;
-	*size = bmem_regions[idx].size;
-	return 0;
-}
-EXPORT_SYMBOL(bmem_region_info);
-
-/*
- * Invokes free_bootmem(), but truncates ranges where necessary to
- * avoid releasing the bmem region(s) back to the VM
- */
-void __init brcm_free_bootmem(unsigned long addr, unsigned long size)
-{
-	/*
-	 * Default: (no valid bmem= options specified)
-	 *
-	 * Lower memory is the first 256MB of system RAM.
-	 * bmem gets all but (LINUX_MIN_MEM) megabytes of lower memory.
-	 * Linux gets all upper and high memory (if present).
-	 *
-	 * Options:
-	 *
-	 * Define one or more custom bmem regions, e.g.:
-	 *   bmem=128M (128MB region at the end of lower memory)
-	 *   bmem=128M@64M (128MB hole at 64MB mark)
-	 *   bmem=16M@64M bmem=4M@128M bmem=16M@200M (multiple holes)
-	 *
-	 * Disable bmem; give all system RAM to the Linux VM:
-	 *   bmem=0
-	 *
-	 * Overlapping or invalid regions will usually be silently dropped.
-	 * If you are doing something tricky, watch the boot messages to
-	 * make sure it turns out the way you intended.
-	 */
-	if (bmem_disabled) {
-		n_bmem_regions = 0;
-	} else {
-		if (n_bmem_regions == 0 &&
-		    (brcm_dram0_size_mb > LINUX_MIN_MEM)) {
-			n_bmem_regions = 1;
-			bmem_regions[0].addr = LINUX_MIN_MEM << 20;
-			bmem_regions[0].size =
-				(((brcm_dram0_size_mb <= BRCM_MAX_LOWER_MB) ?
-				  brcm_dram0_size_mb : BRCM_MAX_LOWER_MB) -
-				 LINUX_MIN_MEM) << 20;
-		}
-	}
-
-	while (size) {
-		unsigned long chunksize = size;
-		int i;
-		struct bmem_region *r = NULL;
-
-		/*
-		 * Find the first bmem region (if any) that fits entirely
-		 * within the current bootmem address range.
-		 */
-		for (i = 0; i < n_bmem_regions; i++) {
-			if ((bmem_regions[i].addr >= addr) &&
-			    ((bmem_regions[i].addr + bmem_regions[i].size) <=
-			     (addr + size))) {
-				if (!r || (r->addr > bmem_regions[i].addr))
-					r = &bmem_regions[i];
-			}
-		}
-
-		/*
-		 * Skip over every bmem region; call free_bootmem() for
-		 * every Linux region.  A Linux region is created for
-		 * each chunk of the memory map that is not reserved
-		 * for bmem.
-		 */
-		if (r) {
-			if (addr == r->addr) {
-				printk(KERN_INFO "bmem: adding %lu MB "
-					"RESERVED region at %lu MB "
-					"(0x%08lx@0x%08lx)\n",
-					r->size >> 20, r->addr >> 20,
-					r->size, r->addr);
-				chunksize = r->size;
-				goto skip;
-			} else {
-				BUG_ON(addr > r->addr);
-				chunksize = r->addr - addr;
-			}
-		}
-		BUG_ON(chunksize > size);
-
-		printk(KERN_DEBUG "bmem: adding %lu MB LINUX region at %lu MB "
-			"(0x%08lx@0x%08lx)\n", chunksize >> 20, addr >> 20,
-			chunksize, addr);
-		free_bootmem(addr, chunksize);
-
-skip:
-		addr += chunksize;
-		size -= chunksize;
-	}
-}
-
-/*
- * Create /proc/iomem entries for bmem
- */
-static int __init bmem_region_setup(void)
-{
-	int i;
-
-	for (i = 0; i < n_bmem_regions; i++) {
-		struct resource *r;
-		char *name;
-
-		r = kzalloc(sizeof(*r), GFP_KERNEL);
-		name = kzalloc(16, GFP_KERNEL);
-		if (! r || ! name)
-			break;
-
-		sprintf(name, "bmem.%d", i);
-		r->start = bmem_regions[i].addr;
-		r->end = bmem_regions[i].addr + bmem_regions[i].size - 1;
-		r->flags = IORESOURCE_MEM;
-		r->name = name;
-
-		insert_resource(&iomem_resource, r);
-	}
-	return 0;
-}
-
-arch_initcall(bmem_region_setup);
-
-/***********************************************************************
  * Miscellaneous platform-specific functions
  ***********************************************************************/
 
@@ -1075,6 +824,10 @@ static void brcm_machine_restart(char *command)
 
 static void brcm_machine_halt(void)
 {
+#ifdef CONFIG_BRCM_IRW_HALT
+	/* ultra low power standby - on wakeup, system will restart */
+	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 1);
+#endif
 	while (1) { }
 }
 

@@ -22,4 +22,4 @@ clean:
 distclean: clean
 
 romfs:
-	$(ROMFSINST) -e CONFIG_BRCM_PM pmtest /bin/pmtest
+	$(ROMFSINST) -e CONFIG_USER_BRCM_PM pmtest /bin/pmtest

@@ -22,8 +22,38 @@
 #include <asm/time.h>
 #include <asm/brcmstb/brcmstb.h>
 
+/* MIPS clock measured at boot time.  Value is not changed by PM. */
+unsigned long brcm_cpu_khz;
+
 /* Sampling period for MIPS calibration.  50 = 1/50 of a second. */
 #define SAMPLE_PERIOD		50
+
+/***********************************************************************
+ * UPG clocksource
+ ***********************************************************************/
+
+static cycle_t upg_cs_read(struct clocksource *cs)
+{
+	return BDEV_RD_F(TIMER_TIMER3_STAT, COUNTER_VAL);
+}
+
+static struct clocksource clocksource_upg = {
+	.name		= "upg",
+	.read		= upg_cs_read,
+	.mask		= CLOCKSOURCE_MASK(30),
+	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
+};
+
+static inline void __init init_upg_clocksource(void)
+{
+	BDEV_WR_RB(BCHP_TIMER_TIMER3_CTRL, 0);
+	BDEV_WR_F_RB(TIMER_TIMER_IS, TMR3TO, 1);
+	BDEV_WR_RB(BCHP_TIMER_TIMER3_CTRL, 0xbfffffff);
+
+	clocksource_upg.rating = 250;
+	clocksource_set_clock(&clocksource_upg, 27000000);
+	clocksource_register(&clocksource_upg);
+}
 
 #ifdef CONFIG_BRCM_HAS_WKTMR
 
@@ -106,7 +136,7 @@ static __init unsigned long brcm_mips_freq(void)
 #else /* CONFIG_BRCM_HAS_WKTMR */
 
 /*
- * MIPS frequency calibration (UPG TIMER0)
+ * MIPS frequency calibration (UPG TIMER3)
  */
 
 static __init unsigned long brcm_mips_freq(void)
@@ -114,10 +144,8 @@ static __init unsigned long brcm_mips_freq(void)
 	unsigned long ret;
 
 	/* reset countdown timer */
-	BDEV_WR(BCHP_TIMER_TIMER0_CTRL, 0);
-	BDEV_RD(BCHP_TIMER_TIMER0_CTRL);
-	BDEV_WR(BCHP_TIMER_TIMER_IS, 0x1);
-	BDEV_RD(BCHP_TIMER_TIMER_IS);
+	BDEV_WR_RB(BCHP_TIMER_TIMER3_CTRL, 0);
+	BDEV_WR_F_RB(TIMER_TIMER_IS, TMR3TO, 1);
 
 	/* set up for countdown */
 	BDEV_WR(BCHP_TIMER_TIMER0_CTRL, 0xc0000000 |
@@ -145,17 +173,20 @@ void __init plat_time_init(void)
 	printk(KERN_DEBUG "Measuring MIPS counter frequency...\n");
 	mips_hpt_frequency = brcm_mips_freq();
 	khz = mips_hpt_frequency / 1000;
-
-	printk(KERN_INFO "Detected MIPS clock frequency: %u MHz "
-		"(%u.%03u MHz counter)\n",
 #ifdef CONFIG_BMIPS5000
-		mips_hpt_frequency * 8 / 1000000,
+	brcm_cpu_khz = mips_hpt_frequency * 8 / 1000;
 #else
-		mips_hpt_frequency * 2 / 1000000,
+	brcm_cpu_khz = mips_hpt_frequency * 2 / 1000;
 #endif
+
+	printk(KERN_INFO "Detected MIPS clock frequency: %lu MHz "
+		"(%u.%03u MHz counter)\n", brcm_cpu_khz / 1000,
 		khz / 1000, khz % 1000);
 
 #ifdef CONFIG_CSRC_WKTMR
 	init_wktmr_clocksource();
+#endif
+#ifdef CONFIG_CSRC_UPG
+	init_upg_clocksource();
 #endif
 }

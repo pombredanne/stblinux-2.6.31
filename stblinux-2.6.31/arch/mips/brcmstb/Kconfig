@@ -36,6 +36,7 @@ config BCM3548B0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
 
 config BCM35130A0
 	bool "35130 Ax"
@@ -288,6 +289,20 @@ config BCM7405D0
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_UPPER_MEMORY
 
+config BCM7408A0
+	bool "7408 Ax"
+	select BRCM_PLATFORM_DEFAULTS
+	select BCM7408
+	select BMIPS4380
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_MOCA
+	select BRCM_HAS_NAND_MAJOR_3
+	select BRCM_HAS_NAND_MINOR_4
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+
 config BCM7420B0
 	bool "7420 Bx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -352,10 +367,14 @@ config BCM7550A0
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_EMAC_0
+	select BCMEMAC_EXTMII
 	#select BRCM_HAS_NAND_MAJOR_3
 	#select BRCM_HAS_NAND_MINOR_4
 	select BRCM_HAS_SPI
 	select BRCM_HAS_WKTMR
+	select BRCM_IRW_HALT
+	select BRCM_CPU_PLL
+	select BRCM_HAS_PM
 
 config BCM7601B0
 	bool "7601 Bx"
@@ -373,8 +392,8 @@ config BCM7601B0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_DVD
 
-config BCM7630A0
-	bool "7630 Ax"
+config BCM7630B0
+	bool "7630 Bx"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7630
 	select MTI_24K
@@ -388,7 +407,6 @@ config BCM7630A0
 	select BRCM_HAS_NAND_MINOR_4
 	select BRCM_HAS_EDU
 	select BRCM_HAS_SDIO
-	select BRCM_HAS_WKTMR
 	select BRCM_HAS_DVD
 
 config BCM7635A0
@@ -485,7 +503,7 @@ config BRCM_CONSOLE_DEVICE
 
 config BRCM_FLASH
 	bool "Enable onboard flash devices"
-	depends on (BRCM_HAS_NOR || BRCM_HAS_NAND) && !BRCM_IKOS
+	depends on (BRCM_HAS_NOR || BRCM_HAS_NAND || BRCM_HAS_SPI) && !BRCM_IKOS
 	default y
 	help
 	  Say Y to enable NOR/ROM, NAND, and SPI flash devices.  The EBI
@@ -745,13 +763,49 @@ config MMC_SDHCI_BRCM
 	  If unsure, say Y.
 
 
-config CSRC_WKTMR
-	bool "WKTMR clocksource"
-	depends on BRCM_HAS_WKTMR
+config BRCM_PM
+	bool "Power management for onchip peripherals"
+	depends on BRCM_HAS_PM
 	default y
 	help
-	  Say Y to use the 27Mhz "WKTMR" clocksource.  This should
-	  usually be left enabled.
+	  Say Y to enable power management (clock gating) for onchip
+	  peripherals like USB, ENET/GENET, MoCA, and SATA.
+
+
+choice
+	prompt "System clocksource"
+	depends on BRCMSTB
+	default CSRC_R4K if !SMP && !BRCM_CPU_DIV
+	default CSRC_WKTMR if BRCM_HAS_WKTMR
+	default CSRC_UPG
+	help
+	  The clocksource is used to maintain the real-time clock and
+	  calculate delays.
+
+config CSRC_WKTMR
+	bool "WKTMR"
+	depends on BRCM_HAS_WKTMR
+	help
+	  Say Y to use the 27Mhz "WKTMR" clocksource.  This is usually
+	  the best choice.
+
+config CSRC_R4K
+	bool "CP0 COUNT/COMPARE"
+	depends on !BRCM_CPU_DIV
+	help
+	  Say Y to use the CP0 COUNT/COMPARE timer.  This should not be
+	  used in SMP mode because each CPU (TP) has its own independent
+	  counter which is not coherent with the other TP's counter.
+
+config CSRC_UPG
+	bool "UPG TIMER3"
+	help
+	  Say Y to use the 27Mhz UPG TIMER3 as the system clocksource.
+	  On most older chips with no WKTMR, this is the best
+	  choice.  However, this timer will be owned by the kernel
+	  so applications will not be able to use it.
+
+endchoice
 
 
 #####################################################################
@@ -864,15 +918,18 @@ config BRCM_IKOS_DEBUG
 config BMIPS3300
 	bool
 	select SYS_HAS_CPU_MIPS32_R1
+	select BRCM_CPU_DIV
 
 config BMIPS4380
 	bool
 	select SYS_HAS_CPU_MIPS32_R1
+	select BRCM_CPU_DIV
 	select SYS_SUPPORTS_SMP
 
 config BMIPS5000
 	bool
 	select SYS_HAS_CPU_MIPS32_R1
+	select BRCM_CPU_DIV
 	select BRCM_ZSCM_L2
 	select SYS_SUPPORTS_SMP
 
@@ -1087,7 +1144,26 @@ config BRCM_ZSCM_L2
 	bool
 	select MIPS_CPU_SCACHE
 
+# PM: adjustable CPU clock divisor
+config BRCM_CPU_DIV
+	bool
+
+# PM: adjustable CPU clock PLL input frequency
+config BRCM_CPU_PLL
+	bool
+
+# PM: low power "halt" state with IR wakeup
+config BRCM_IRW_HALT
+	bool
+
+# PM: clock gating for USB, ENET/GENET, MoCA, SATA
+config BRCM_HAS_PM
+	bool
+
 config BRCM_HAS_UPPER_MEMORY
+	bool
+
+config BRCM_HAS_STANDBY
 	bool
 
 config BRCM_PLATFORM_DEFAULTS
@@ -1101,7 +1177,6 @@ config BRCM_PLATFORM_DEFAULTS
 	select IRQ_CPU
 	select SYS_SUPPORTS_KGDB
 	select CEVT_R4K
-	select CSRC_R4K if !SMP
 	select BOOT_RAW
 	select CFE
 	select WEAK_ORDERING
@@ -1157,6 +1232,9 @@ config BCM7403
 	bool
 
 config BCM7405
+	bool
+
+config BCM7408
 	bool
 
 config BCM7420
