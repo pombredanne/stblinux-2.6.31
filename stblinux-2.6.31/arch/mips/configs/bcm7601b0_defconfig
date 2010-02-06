@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.31-1.1
-# Tue Nov 10 11:49:52 2009
+# Linux kernel version: 2.6.31-1.2
+# Tue Nov 24 16:23:54 2009
 #
 CONFIG_MIPS=y
 
@@ -54,16 +54,19 @@ CONFIG_BRCMSTB=y
 #
 # CONFIG_BRCM_LEGACY is not set
 # CONFIG_BCM3548B0 is not set
-# CONFIG_BCM35130A0 is not set
+# CONFIG_BCM35230A0 is not set
 # CONFIG_BCM3563C0 is not set
 # CONFIG_BCM7038C0 is not set
 # CONFIG_BCM7118C0 is not set
 # CONFIG_BCM7125A0 is not set
+# CONFIG_BCM7125C0 is not set
 # CONFIG_BCM7325B0 is not set
 # CONFIG_BCM7335B0 is not set
 # CONFIG_BCM7336A0 is not set
 # CONFIG_BCM7340A0 is not set
+# CONFIG_BCM7340B0 is not set
 # CONFIG_BCM7342A0 is not set
+# CONFIG_BCM7342B0 is not set
 # CONFIG_BCM7400E0 is not set
 # CONFIG_BCM7401C0 is not set
 # CONFIG_BCM7403A0 is not set
@@ -71,6 +74,7 @@ CONFIG_BRCMSTB=y
 # CONFIG_BCM7405D0 is not set
 # CONFIG_BCM7408A0 is not set
 # CONFIG_BCM7420B0 is not set
+# CONFIG_BCM7420C0 is not set
 # CONFIG_BCM7440B0 is not set
 # CONFIG_BCM7468A0 is not set
 # CONFIG_BCM7550A0 is not set

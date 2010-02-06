@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-12-04
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-02-05
 #
 # Original package: hotplug-2004_09_23.tar.bz2
 #
 diff -ruNp hotplug.orig/COPYING hotplug/COPYING
 --- hotplug.orig/COPYING	1969-12-31 16:00:00.000000000 -0800
-+++ hotplug/COPYING	2009-12-04 18:30:13.000000000 -0800
++++ hotplug/COPYING	2010-02-05 12:10:29.000000000 -0800
 @@ -0,0 +1,339 @@
 +		    GNU GENERAL PUBLIC LICENSE
 +		       Version 2, June 1991
@@ -348,7 +348,7 @@ diff -ruNp hotplug.orig/COPYING hotplug/COPYING
 +Public License instead of this License.
 diff -ruNp hotplug.orig/Makefile.brcm hotplug/Makefile.brcm
 --- hotplug.orig/Makefile.brcm	1969-12-31 16:00:00.000000000 -0800
-+++ hotplug/Makefile.brcm	2009-12-04 18:30:13.000000000 -0800
++++ hotplug/Makefile.brcm	2010-02-05 12:10:29.000000000 -0800
 @@ -0,0 +1,97 @@
 +# $Id: Makefile,v 1.16 2004/09/23 17:46:57 kroah Exp $
 +
@@ -449,7 +449,7 @@ diff -ruNp hotplug.orig/Makefile.brcm hotplug/Makefile.brcm
 +	$(INSTALL) -d -m 700 $(prefix)/var/run/usb
 diff -ruNp hotplug.orig/makefile hotplug/makefile
 --- hotplug.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ hotplug/makefile	2009-12-04 18:30:13.000000000 -0800
++++ hotplug/makefile	2010-02-05 12:10:29.000000000 -0800
 @@ -0,0 +1,11 @@
 +#
 +# This is makefile used by Broadcom's Reference Linux distribution to copy proper files from this package into rootfs on target

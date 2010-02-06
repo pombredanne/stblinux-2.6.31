@@ -127,14 +127,15 @@ struct nand_oobfree {
 	__u32 length;
 };
 
-#define MTD_MAX_OOBFREE_ENTRIES	8
+#define MTD_MAX_OOBFREE_ENTRIES	16
+#define MTD_MAX_ECCPOS_ENTRIES	218	// Was 64 for SLC
 /*
  * ECC layout control structure. Exported to userspace for
  * diagnosis and to allow creation of raw images
  */
 struct nand_ecclayout {
 	__u32 eccbytes;
-	__u32 eccpos[64];
+	__u32 eccpos[MTD_MAX_ECCPOS_ENTRIES];
 	__u32 oobavail;
 	struct nand_oobfree oobfree[MTD_MAX_OOBFREE_ENTRIES];
 };

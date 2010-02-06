@@ -715,13 +715,6 @@ static void bcmspi_hw_init(struct bcmspi_priv *priv)
 
 	priv->bspi_enabled = 1;
 	bcmspi_disable_bspi(priv);
-
-	/* enable L2 UPG SPI interrupt */
-#ifdef BCHP_IRQ0_SPI_IRQEN
-	BDEV_SET(BCHP_IRQ0_SPI_IRQEN, BCHP_IRQ0_SPI_IRQEN_spi_MASK);
-#else
-	BDEV_SET(BCHP_IRQ0_IRQEN, BCHP_IRQ0_IRQEN_spi_irqen_MASK);
-#endif
 }
 
 static void bcmspi_hw_uninit(struct bcmspi_priv *priv)

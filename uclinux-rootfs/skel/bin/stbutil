@@ -8,11 +8,11 @@ function tftp_fetch()
 		if [ -e $local_dir/$2 ]; then
 			cp $local_dir/$2 $3
 			return 0
-		elif [ -e $local_dir/${2#*/} ]; then
-			cp $local_dir/${2#*/} $3
+		elif [ -e $local_dir/${2##*/} ]; then
+			cp $local_dir/${2##*/} $3
 			return 0
 		else
-			echo "ERROR: can't find ${2#*/} in $local_dir"
+			echo "ERROR: can't find ${2##*/} in $local_dir"
 			exit 1
 		fi
 	fi
@@ -235,6 +235,10 @@ function handle_opt_4()
 		imgsize=$(du -k /tmp/rootfs.img | sed 's/[ \t].*//')
 		ubiformat $mtd --yes
 		ubiattach /dev/ubi_ctrl -m $rootfs_part -d 0
+		# NOTE: ubiattach may run asynchronously
+		while [ ! -e /dev/ubi0 ]; do
+			sleep 1
+		done
 		ubimkvol /dev/ubi0 -N squashfs -s ${imgsize}KiB
 		if ! find_mtd_partition squashfs newpart; then
 			echo "ERROR: can't find new squashfs partition"

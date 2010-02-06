@@ -69,6 +69,9 @@ if($chip eq "3549" || $chip eq "3556") {
 } elsif($chip eq "7213" || $chip eq "7214") {
 	$chip = "7405";
 	$rev = "d0";
+} elsif($chip eq "7336") {
+	$chip = "7335";
+	$rev = "b0";
 } elsif($chip eq "7406") {
 	$chip = "7405";
 } elsif($chip eq "7324") {
@@ -84,6 +87,10 @@ if($chip eq "3549" || $chip eq "3556") {
 } elsif($chip eq "7119" || $chip eq "7019" || $chip eq "7116" ||
 		$chip eq "7117") {
 	$chip = "7125";
+}
+
+if($chip eq "7125" && $rev eq "b0") {
+	$rev = "a0";
 }
 
 print "${chip}${rev}\n";

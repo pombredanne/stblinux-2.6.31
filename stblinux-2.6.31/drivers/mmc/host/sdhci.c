@@ -23,10 +23,6 @@
 
 #include <linux/mmc/host.h>
 
-#ifdef CONFIG_BRCM_HAS_SDIO
-#include <asm/brcmstb/brcmstb.h>
-#endif
-
 #include "sdhci.h"
 
 #define DRIVER_NAME "sdhci"
@@ -504,6 +500,15 @@ static int sdhci_adma_table_pre(struct sdhci_host *host,
 
 	desc[1] = 0x00;
 	desc[0] = 0x03; /* nop, end, valid */
+#ifdef CONFIG_BRCM_HAS_SDIO
+	/* 
+         * the above approach does not work with BRCM's controller, for which
+         * the "nop" bit has higher priority than "end" bit. we roll back and
+         * set the "end" bit on the last valid "trans" descriptor.
+         */
+	desc -= 8;
+	desc[0] = 0x23;
+#endif
 
 	/*
 	 * Resync align buffer as we might have changed it.
@@ -1499,12 +1504,6 @@ static irqreturn_t sdhci_irq(int irq, void *dev_id)
 	struct sdhci_host* host = dev_id;
 	u32 intmask;
 	int cardint = 0;
-
-#ifdef CONFIG_BRCM_HAS_SDIO
-	if (!HIF_TEST_IRQ(SDIO))
-		return IRQ_NONE;
-	HIF_ACK_IRQ(SDIO);
-#endif
 
 	spin_lock(&host->lock);
 

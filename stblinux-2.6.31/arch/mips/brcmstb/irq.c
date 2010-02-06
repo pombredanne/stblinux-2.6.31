@@ -368,7 +368,7 @@ void __init arch_init_irq(void)
 		BCHP_IRQ0_UART_IRQEN_uartb_MASK |
 		BCHP_IRQ0_UART_IRQEN_uartc_MASK);
 	BDEV_WR(BCHP_IRQ0_IRQEN, 0);
-#else
+#elif defined(BCHP_IRQ0_IRQEN_uarta_irqen_MASK)
 	/* 7405 style - shared with L2 */
 	BDEV_WR(BCHP_IRQ0_IRQEN, BCHP_IRQ0_IRQEN_uarta_irqen_MASK
 		| BCHP_IRQ0_IRQEN_uartb_irqen_MASK

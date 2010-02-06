@@ -334,11 +334,10 @@ static struct moca_platform_data moca_data = {
 	.bcm3450_i2c_addr =	0x70,
 };
 
-#if	defined(BCHP_MOCA_MOCAM2M_REG_END)
 static struct resource moca_resources[] = {
 	[0] = {
 		.start		= BPHYSADDR(BCHP_DATA_MEM_REG_START),
-		.end		= BPHYSADDR(BCHP_MOCA_MOCAM2M_REG_END) + 3,
+		.end		= BPHYSADDR(BCHP_MOCA_HOSTMISC_MMP_REG_END) + 3,
 		.flags		= IORESOURCE_MEM,
 	},
 	[1] = {
@@ -347,15 +346,6 @@ static struct resource moca_resources[] = {
 		.flags		= IORESOURCE_IRQ,
 	},
 };
-#else
-static struct resource moca_resources[] = {
-	[0] = {
-		.start		= BRCM_IRQ_MOCA,
-		.end		= BRCM_IRQ_MOCA,
-		.flags		= IORESOURCE_IRQ,
-	},
-};
-#endif
 
 static struct platform_device moca_plat_dev = {
 	.name			= "bmoca",
@@ -485,11 +475,17 @@ static int __init platform_devices_setup(void)
 		moca_data.hw_rev =
 			BDEV_RD(BCHP_SUN_TOP_CTRL_PROD_REVISION) + 0xa0;
 		moca_data.rf_band = brcm_moca_rf_band;
-		platform_device_register(&moca_plat_dev);
+
+		if (brcm_moca_i2c_base == 0)
+			printk(KERN_WARNING
+				"error: bmoca I2C base addr is not set\n");
+		else
+			platform_device_register(&moca_plat_dev);
 	}
 #endif
 
 #if defined(CONFIG_BRCM_HAS_SDIO)
+	bchip_sdio_init();
 	platform_device_register(&sdio_plat_dev);
 #endif
 
@@ -596,6 +592,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 	case TYPE_NOR: {
 		struct physmap_flash_data pdata;
 		struct resource res;
+		static int nor_id = 0;
 
 		memset(&res, 0, sizeof(res));
 		memset(&pdata, 0, sizeof(pdata));
@@ -608,7 +605,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 		res.end = cs_info[cs].start + cs_info[cs].len - 1;
 		res.flags = IORESOURCE_MEM;
 
-		pdev = platform_device_alloc("physmap-flash", 0);
+		pdev = platform_device_alloc("physmap-flash", nor_id++);
 		if (!pdev ||
 		    platform_device_add_resources(pdev, &res, 1) ||
 		    platform_device_add_data(pdev, &pdata, sizeof(pdata)) ||
@@ -826,6 +823,7 @@ static void brcm_machine_halt(void)
 {
 #ifdef CONFIG_BRCM_IRW_HALT
 	/* ultra low power standby - on wakeup, system will restart */
+	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 0);
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 1);
 #endif
 	while (1) { }

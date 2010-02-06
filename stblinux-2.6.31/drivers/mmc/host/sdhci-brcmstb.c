@@ -32,6 +32,16 @@
 
 #define DRV_NAME		"sdhci-brcm"
 
+#ifdef CONFIG_CPU_BIG_ENDIAN
+#define SWIZZLE8(x)		((x) ^ 3)
+#define SWIZZLE16(x)		((x) ^ 2)
+#else
+#define SWIZZLE8(x)		(x)
+#define SWIZZLE16(x)		(x)
+#endif
+
+#if defined(CONFIG_BCM7635)
+
 #define SDIO_READ_WAR(host)	do { \
 	rmb(); \
 	__raw_readl(host->ioaddr + 0x44); \
@@ -75,19 +85,46 @@ static u8 sdhci_brcm_readb(struct sdhci_host *host, int reg)
 	return ret;
 }
 
+#else
+
+static u32 sdhci_brcm_readl(struct sdhci_host *host, int reg)
+{
+	return __raw_readl(host->ioaddr + reg);
+}
+
+static u16 sdhci_brcm_readw(struct sdhci_host *host, int reg)
+{
+	return __raw_readw(host->ioaddr + SWIZZLE16(reg));
+}
+
+static u8 sdhci_brcm_readb(struct sdhci_host *host, int reg)
+{
+	return __raw_readb(host->ioaddr + SWIZZLE8(reg));
+}
+
+#endif
+
 static void sdhci_brcm_writel(struct sdhci_host *host, u32 val, int reg)
 {
+	if (unlikely(reg == SDHCI_INT_STATUS)) {
+		__raw_writel(val, host->ioaddr + reg);
+		HIF_ACK_IRQ(SDIO);
+		val = __raw_readl(host->ioaddr + reg);
+		if (unlikely(val != 0))
+			HIF_TRIGGER_IRQ(SDIO);
+		return;
+	}
 	__raw_writel(val, host->ioaddr + reg);
 }
 
 static void sdhci_brcm_writew(struct sdhci_host *host, u16 val, int reg)
 {
-	__raw_writew(val, host->ioaddr + reg);
+	__raw_writew(val, host->ioaddr + SWIZZLE16(reg));
 }
 
 static void sdhci_brcm_writeb(struct sdhci_host *host, u8 val, int reg)
 {
-	__raw_writeb(val, host->ioaddr + reg);
+	__raw_writeb(val, host->ioaddr + SWIZZLE8(reg));
 }
 
 static struct sdhci_ops sdhci_brcm_ops = {
@@ -128,7 +165,11 @@ static int __devinit sdhci_brcm_probe(struct platform_device *pdev)
 	host->hw_name = DRV_NAME;
 	host->ops = &sdhci_brcm_ops;
 	host->flags = 0;
+#if defined(CONFIG_BCM7635)
 	host->quirks = SDHCI_QUIRK_BROKEN_ADMA | SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+#else
+	host->quirks = SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+#endif
 	host->irq = ires->start;
 	host->ioaddr = ioremap(mres->start, mres_size);
 

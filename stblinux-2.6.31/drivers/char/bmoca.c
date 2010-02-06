@@ -46,21 +46,19 @@
 #include <asm/io.h>
 
 #define DRV_VERSION		0x00040000
-#define DRV_BUILD_NUMBER	0x20091006
+#define DRV_BUILD_NUMBER	0x20091215
 
 #if defined(CONFIG_BRCMSTB)
 #define MOCA6816		0
-#define NATIVE			1
 #include <linux/bmoca.h>
 #elif defined(DSL_MOCA)
 #define MOCA6816		1
-#define NATIVE			1
 #include "bmoca.h"
 #include <linux/netdevice.h>
 #include <boardparms.h>
+#include <bcm3450.h>
 #else
 #define MOCA6816		1
-#define NATIVE			1
 #include <linux/bmoca.h>
 #endif
 
@@ -189,6 +187,7 @@ struct moca_priv_data {
 	spinlock_t		list_lock;
 	struct mutex		dev_mutex;
 	struct mutex		copy_mutex;
+	struct mutex		moca_i2c_mutex;
 	int			host_mbx_busy;
 	int			host_resp_pending;
 	int			core_req_pending;
@@ -201,6 +200,7 @@ struct moca_priv_data {
 	int			refcount;
 	unsigned long		start_time;
 	int			continuous_power_tx_mode;
+	dma_addr_t		tpcapBufPhys;
 };
 
 #define MOCA_FW_MAGIC		0x4d6f4341
@@ -214,13 +214,22 @@ struct moca_fw_hdr {
 	uint32_t		res1;
 };
 
+struct bsc_regs {
+	u32			chip_address;
+	u32			data_in[8];
+	u32			cnt_reg;
+	u32			ctl_reg;
+	u32			iic_enable;
+	u32			data_out[8];
+	u32			ctlhi_reg;
+	u32			scl_param;
+};
+
+
 /* support for multiple MoCA devices */
 #define NUM_MINORS		8
 static struct moca_priv_data *minor_tbl[NUM_MINORS];
 static struct class *moca_class;
-
-/* multiple 3450s are allowed to share one I2C controller */
-static DEFINE_MUTEX(moca_i2c_mutex);
 
 /* character major device number */
 #define MOCA_MAJOR		234
@@ -250,9 +259,12 @@ static DEFINE_MUTEX(moca_i2c_mutex);
 	MOCA_WR(x, MOCA_RD(x) & ~(y)); \
 } while(0)
 
+static void moca_3450_write_i2c(struct moca_priv_data *priv, u8 addr, u32 data);
+static u32 moca_3450_read_i2c(struct moca_priv_data *priv, u8 addr);
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 23)
 static inline void sg_set_page(struct scatterlist *sg, struct page *page,
-			       unsigned int len, unsigned int offset)
+				   unsigned int len, unsigned int offset)
 {
 	sg->page = page;
 	sg->length = len;
@@ -316,9 +328,18 @@ static void moca_hw_reset(struct moca_priv_data *priv)
 	MOCA_RD(priv->base + OFF_L2_CLEAR);
 
 	/* assert resets */
-	MOCA_SET(priv->base + OFF_SW_RESET, ~((1 << 3) | (1 << 7)));
-	MOCA_UNSET(priv->base + OFF_SW_RESET, (1 << 7));
+
+    // reset cpu first
+	MOCA_SET(priv->base + OFF_SW_RESET, 1);
 	MOCA_RD(priv->base + OFF_SW_RESET);
+
+	udelay(20);
+
+	// reset everything else
+	MOCA_SET(priv->base + OFF_SW_RESET, ~(1 << 3));
+	MOCA_RD(priv->base + OFF_SW_RESET);
+    
+    udelay(20);
 }
 
 /* called any time we start/restart/stop MoCA */
@@ -334,9 +355,12 @@ static void moca_hw_init(struct moca_priv_data *priv, int action)
 	moca_hw_reset(priv);
 	udelay(1);
 
-	/* deassert moca_sys_reset */
-	MOCA_UNSET(priv->base + OFF_SW_RESET, (1 << 1));
-	MOCA_RD(priv->base + OFF_SW_RESET);
+	if (action == MOCA_ENABLE)
+	{
+		/* deassert moca_sys_reset */
+		MOCA_UNSET(priv->base + OFF_SW_RESET, (1 << 1) | (1 << 7));
+		MOCA_RD(priv->base + OFF_SW_RESET);
+	}
 
 	/* clear junk out of GP0/GP1 */
 	MOCA_WR(priv->base + OFF_GP0, 0xffffffff);
@@ -496,6 +520,9 @@ static inline void moca_read_sg(struct moca_priv_data *priv,
 
 	dma_unmap_sg(&priv->pdev->dev, sg, nents, DMA_FROM_DEVICE);
 }
+
+#define moca_3450_write moca_3450_write_i2c
+#define moca_3450_read moca_3450_read_i2c
 #endif
 
 static void moca_put_pages(struct moca_priv_data *priv, int pages)
@@ -716,11 +743,11 @@ static int moca_recvmsg(struct moca_priv_data *priv, uintptr_t offset,
 				rw++;
 			}
 		}
-
 		if(data & 3) {
 			msg = "IE is not a multiple of 4 bytes";
 			goto bad;
 		}
+
 		w += ((data & 0xffff) >> 2);
 
 		if(w > max_size) {
@@ -745,6 +772,22 @@ static int moca_recvmsg(struct moca_priv_data *priv, uintptr_t offset,
 		m->data[1] = cpu_to_be32((MOCA_IE_DRV_PRINTF << 16) +
 			m->len - 8);
 	}
+
+#ifdef DSL_MOCA
+	/* check for link state trap */
+	if( ((be32_to_cpu(m->data[0]) & 0xff0000ff) == 0x09000001) &&
+		 (be32_to_cpu(m->data[1]) == 0x60030004) )
+	{
+		if ( 1 == m->data[2] )
+		{
+			MOCA_WR8(0xb0e0005d, 0x4b);
+		}
+		else
+		{
+			MOCA_WR8(0xb0e0005d, 0x40);
+		}
+	}
+#endif
 
 	if(reply_offset) {
 		if(moca_irq_status(priv, NO_FLUSH_IRQ) & M2H_ASSERT) {
@@ -806,7 +849,19 @@ static int moca_sendmsg(struct moca_priv_data *priv)
 	ml = moca_detach_head(priv, &priv->host_msg_pend_list);
 	if(ml == NULL)
 		return(-EAGAIN);
-	m = list_entry(ml, struct moca_host_msg, chain);
+	m = list_entry(ml, struct moca_host_msg, chain);   
+
+#if !defined(CONFIG_BRCMSTB)
+	if ((cpu_to_be32(m->data[1]) & 0xFFFF0000) == 0x21050000)
+	{
+		if (!priv->tpcapBufPhys)
+			priv->tpcapBufPhys = dma_map_single(&priv->pdev->dev, kmalloc(1024*1024, GFP_DMA|GFP_KERNEL), 1024*1024, DMA_FROM_DEVICE);
+		
+		printk("Allocated Physical Address 0x%8x for TPCAP buffer\n", priv->tpcapBufPhys);
+
+//		m->data[2] = cpu_to_be32(priv->tpcapBufPhys);
+	}
+#endif
 	
 	moca_write_mem(priv, priv->mbx_offset + HOST_REQ_OFFSET,
 		m->data, m->len);
@@ -865,7 +920,22 @@ static void moca_work_handler(void *arg)
 	int ret, stopped = 0;
 
 	if(mask & M2H_DMA)
+	{
+		mask &= ~M2H_DMA;
 		complete(&priv->copy_complete);
+	}
+
+	if(mask & M2H_NEXTCHUNK)
+	{
+		mask &= ~M2H_NEXTCHUNK;
+		complete(&priv->chunk_complete);
+	}
+
+	if (0 == mask)
+	{
+		moca_enable_irq(priv);
+		return;
+	}
 
 	if((mask & (M2H_REQ | M2H_RESP)) && priv->mbx_offset == -1) {
 		uintptr_t base = MOCA_RD(priv->base + OFF_GP0) & 0x1fffffff;
@@ -931,23 +1001,30 @@ static irqreturn_t moca_interrupt(int irq, void *arg, struct pt_regs *regs)
 #endif
 {
 	struct moca_priv_data *priv = arg;
-#if NATIVE
-	u32 mask = moca_irq_status(priv, FLUSH_DMA_ONLY);
 
-	/* need to handle DMA completions ASAP */
-	if(mask & M2H_DMA) {
-		complete(&priv->copy_complete);
-		mask &= ~M2H_DMA;
-	}
-	if(mask & M2H_NEXTCHUNK) {
-		complete(&priv->chunk_complete);
-		mask &= ~M2H_NEXTCHUNK;
-	}
+#if MOCA6816
+	struct moca_platform_data *pd = (struct moca_platform_data *)priv->pdev->dev.platform_data;
 
-	if(!mask)
-		return(IRQ_HANDLED);
+   /* if the driver is for an external chip then the work funciton needs to run, otherwsie
+      a few interrutps nca be handled here */
+	if ( 0 == pd->useSpi )
 #endif
+	{
+		u32 mask = moca_irq_status(priv, FLUSH_DMA_ONLY);
 
+		/* need to handle DMA completions ASAP */
+		if(mask & M2H_DMA) {
+			complete(&priv->copy_complete);
+			mask &= ~M2H_DMA;
+		}
+		if(mask & M2H_NEXTCHUNK) {	
+			complete(&priv->chunk_complete);
+			mask &= ~M2H_NEXTCHUNK;
+		}
+
+		if(!mask)
+			return(IRQ_HANDLED);
+	}
 	moca_disable_irq(priv);
 	schedule_work(&priv->work);
 	return(IRQ_HANDLED);
@@ -956,17 +1033,6 @@ static irqreturn_t moca_interrupt(int irq, void *arg, struct pt_regs *regs)
 /*
  * BCM3450 ACCESS VIA I2C
  */
-
-struct bsc_regs {
-	u32			chip_address;
-	u32			data_in[8];
-	u32			cnt_reg;
-	u32			ctl_reg;
-	u32			iic_enable;
-	u32			data_out[8];
-	u32			ctlhi_reg;
-	u32			scl_param;
-};
 
 static int moca_3450_wait(struct moca_priv_data *priv)
 {
@@ -994,7 +1060,7 @@ static int moca_3450_wait(struct moca_priv_data *priv)
 	} while(1);
 }
 
-static void moca_3450_write(struct moca_priv_data *priv, u8 addr, u32 data)
+static void moca_3450_write_i2c(struct moca_priv_data *priv, u8 addr, u32 data)
 {
 	volatile struct bsc_regs *bsc = priv->i2c_base;
 	struct moca_platform_data *pd = priv->pdev->dev.platform_data;
@@ -1011,7 +1077,7 @@ static void moca_3450_write(struct moca_priv_data *priv, u8 addr, u32 data)
 	moca_3450_wait(priv);
 }
 
-static u32 moca_3450_read(struct moca_priv_data *priv, u8 addr)
+static u32 moca_3450_read_i2c(struct moca_priv_data *priv, u8 addr)
 {
 	volatile struct bsc_regs *bsc = priv->i2c_base;
 	struct moca_platform_data *pd = priv->pdev->dev.platform_data;
@@ -1030,6 +1096,7 @@ static u32 moca_3450_read(struct moca_priv_data *priv, u8 addr)
 		return(0xffffffff);
 }
 
+
 #define BCM3450_CHIP_ID		0x00
 #define BCM3450_CHIP_REV	0x04
 #define BCM3450_PACNTL		0x18
@@ -1039,7 +1106,7 @@ static void moca_3450_init(struct moca_priv_data *priv, int action)
 {
 	u32 data;
 
-	mutex_lock(&moca_i2c_mutex);
+	mutex_lock(&priv->moca_i2c_mutex);
 
 	if (action == MOCA_ENABLE) 
 	{
@@ -1072,7 +1139,7 @@ static void moca_3450_init(struct moca_priv_data *priv, int action)
 		data = moca_3450_read(priv, BCM3450_MISC);
 		moca_3450_write(priv, BCM3450_MISC, data | 0x8000);
 	}
-	mutex_unlock(&moca_i2c_mutex);
+	mutex_unlock(&priv->moca_i2c_mutex);
 }
 
 /*
@@ -1119,7 +1186,7 @@ static int moca_ioctl_readmem(struct moca_priv_data *priv,
 
 	if(copy_from_user(&x, (void __user *)xfer_uaddr, sizeof(x)))
 		return(-EFAULT);
-	
+
 	if(moca_range_ok(x.moca_addr, x.len) < 0)
 		return(-EINVAL);
 
@@ -1166,12 +1233,21 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 	struct moca_priv_data *priv = file->private_data;
 	struct moca_start     start;
 	long ret = -ENOTTY;
+#if MOCA6816
+	struct moca_platform_data *pd = priv->pdev->dev.platform_data;
+#endif
 
 	mutex_lock(&priv->dev_mutex);
 	switch(cmd) {
 		case MOCA_IOCTL_START:
 			ret = 0;
 
+#if MOCA6816
+			/* When MoCA is configured as WAN interface it will get a new MAC 
+			   also reset the link state in the switch */
+			moca_read_mac_addr(priv, &pd->macaddr_hi, &pd->macaddr_lo);
+			MOCA_WR8(0xb0e0005d, 0x40);
+#endif
 			if(copy_from_user(&start, (void __user *)arg,
 					sizeof(start)))
 				ret = -EFAULT;
@@ -1189,6 +1265,10 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 			}
 			break;
 		case MOCA_IOCTL_STOP:
+#if MOCA6816
+			/* reset the link state in the switch */
+			MOCA_WR8(0xb0e0005d, 0x40);
+#endif
 			moca_msg_reset(priv);
 			moca_3450_init(priv, MOCA_DISABLE);
 			moca_hw_init(priv, MOCA_DISABLE);
@@ -1415,6 +1495,7 @@ static int moca_probe(struct platform_device *pdev)
 	spin_lock_init(&priv->list_lock);
 	mutex_init(&priv->dev_mutex);
 	mutex_init(&priv->copy_mutex);
+	mutex_init(&priv->moca_i2c_mutex);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
 	INIT_WORK(&priv->work, moca_work_handler);
 #else
@@ -1448,6 +1529,11 @@ static int moca_probe(struct platform_device *pdev)
 	priv->i2c_base = ioremap(pd->bcm3450_i2c_base, sizeof(struct bsc_regs));
 
 	/* leave core in reset until we get an ioctl */
+#if MOCA6816
+    moca_read_mac_addr(priv, &pd->macaddr_hi, &pd->macaddr_lo);
+    hw_specific_init(priv);
+#endif
+
 	moca_hw_reset(priv);
 
 	if(request_irq(priv->irq, moca_interrupt, 0, "moca", priv) < 0) {
@@ -1524,10 +1610,9 @@ static struct platform_driver moca_plat_drv = {
 static int moca_init(void)
 {
 	int ret;
-#if MOCA6816
-	moca_read_mac_addr(NULL, &moca_data.macaddr_hi, &moca_data.macaddr_lo);
-	moca_data.hw_rev = MOCA_RD(0x10000000);
-	platform_device_register(&moca_plat_dev);
+#ifdef DSL_MOCA
+	unsigned char portInfo6829 = 0;
+	int           retVal;
 #endif
 	memset(minor_tbl, 0, sizeof(minor_tbl));
 	ret = register_chrdev(MOCA_MAJOR, MOCA_CLASS, &moca_fops);
@@ -1541,14 +1626,42 @@ static int moca_init(void)
 		ret = PTR_ERR(moca_class);
 		goto bad2;
 	}
+#if MOCA6816
+	platform_device_register(&moca_plat_dev);
+#endif
+
+#ifdef DSL_MOCA
+	retVal = BpGet6829PortInfo(&portInfo6829);
+	if (retVal != BP_SUCCESS)
+	{
+		printk(KERN_ERR "bmoca: can't read board params\n");
+		portInfo6829 = 0;
+		goto bad3;
+	}
+	if ( portInfo6829 )
+	{
+		platform_device_register(&moca1_plat_dev);
+	}
+#endif
 	ret = platform_driver_register(&moca_plat_drv);
 	if(ret < 0) {
 		printk(KERN_ERR "bmoca: can't register platform_driver\n");
 		goto bad3;
 	}
+
 	return(0);
 
 bad3:
+#if MOCA6816
+	platform_device_unregister(&moca_plat_dev);
+
+#ifdef DSL_MOCA
+	if ( portInfo6829 )
+	{
+		platform_device_unregister(&moca1_plat_dev);
+	}
+#endif
+#endif
 	class_destroy(moca_class);
 bad2:
 	unregister_chrdev(MOCA_MAJOR, MOCA_CLASS);
@@ -1558,11 +1671,28 @@ bad:
 
 static void moca_exit(void)
 {
+#ifdef DSL_MOCA
+	unsigned char portInfo6829 = 0;
+	int retVal;
+#endif
 	class_destroy(moca_class);
 	unregister_chrdev(MOCA_MAJOR, MOCA_CLASS);
 	platform_driver_unregister(&moca_plat_drv);
-#if MOCA6816
+#ifdef DSL_MOCA
 	platform_device_unregister(&moca_plat_dev);
+#endif
+
+#ifdef DSL_MOCA
+	retVal = BpGet6829PortInfo(&portInfo6829);
+	if (retVal != BP_SUCCESS)
+	{
+		printk(KERN_ERR "bmoca: can't read board params\n");
+		portInfo6829 = 0;
+	}
+	if ( portInfo6829 )
+	{
+		platform_device_unregister(&moca1_plat_dev);
+	}
 #endif
 }
 

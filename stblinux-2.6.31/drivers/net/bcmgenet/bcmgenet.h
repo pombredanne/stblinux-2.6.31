@@ -79,6 +79,10 @@ typedef struct BcmEnet_devctrl {
 	volatile GrBridgeRegs *grb;			/* Grb */
 	volatile ExtRegs    *ext;			/* Extention register */
 	volatile unsigned long *hfb;		/* HFB registers */
+#ifdef CONFIG_BRCM_HAS_GENET2
+	volatile tbufRegs *tbuf;			/* New register group for GENET2 */
+	volatile hfbRegs  *hfbReg;			/* New register group for GENET2 */
+#endif
 
     /* transmit variables */
     volatile tDmaRegs *txDma;			/* location of transmit DMA register set */
@@ -125,5 +129,35 @@ typedef struct BcmEnet_devctrl {
 #else
 #define TRACE(x)
 #endif
+
+/* These macros are defined to deal with register map change between GENET1.1 and GENET2.
+ * Only those currently being used by driver are defined. 
+ * and I absolutely HATE it !!!!
+ */
+#ifdef CONFIG_BRCM_HAS_GENET2
+
+#define GENET_TBUF_CTRL(pdev)			(pdev->tbuf->tbuf_ctrl)
+#define GENET_TBUF_ENDIAN_CTRL(pdev)	(pdev->tbuf->tbuf_endian_ctrl)
+#define GENET_TBUF_FLUSH_CTRL(pdev)		(pdev->sys->tbuf_flush_ctrl)
+#define GENET_RBUF_FLUSH_CTRL(pdev)		(pdev->sys->rbuf_flush_ctrl)
+#define GENET_RGMII_OOB_CTRL(pdev)		(pdev->ext->rgmii_oob_ctrl)
+#define GENET_RGMII_IB_STATUS(pdev)		(pdev->ext->rgmii_ib_status)
+#define GENET_RGMII_LED_STATUS(pdev)	(pdev->ext->rgmii_led_ctrl)
+#define GENET_HFB_CTRL(pdev)			(pdev->hfbReg->hfb_ctrl)
+#define GENET_HFB_FLTR_LEN(pdev, i)		(pdev->hfbReg->hfb_fltr_len[i])
+
+#else
+
+#define GENET_TBUF_CTRL(pdev)			(pdev->rbuf->tbuf_ctrl)
+#define GENET_TBUF_ENDIAN_CTRL(pdev)	(pdev->rbuf->tbuf_endian_ctrl)
+#define GENET_TBUF_FLUSH_CTRL(pdev)		(pdev->rbuf->tbuf_flush_ctrl)
+#define GENET_RBUF_FLUSH_CTRL(pdev)		(pdev->rbuf->rbuf_flush_ctrl)
+#define GENET_RGMII_OOB_CTRL(pdev)		(pdev->rbuf->rgmii_oob_ctrl)
+#define GENET_RGMII_IB_STATUS(pdev)		(pdev->rbuf->rgmii_ib_status)
+#define GENET_RGMII_LED_STATUS(pdev)	(pdev->rbuf->rgmii_led_ctrl)
+#define GENET_HFB_CTRL(pdev)			(pdev->rbuf->rbuf_hfb_ctrl)
+#define GENET_HFB_FLTR_LEN(pdev, i)		(pdev->rbuf->rbuf_fltr_len[i])
+
+#endif	/* CONFIG_BRCM_HAS_GENET2 */
 
 #endif /* __BCMGENET_H__ */

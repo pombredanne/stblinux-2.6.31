@@ -28,6 +28,7 @@
 #include <linux/mtd/mtd.h>
 
 #include <asm/bootinfo.h>
+#include <asm/r4kcache.h>
 #include <asm/brcmstb/brcmstb.h>
 #include <asm/fw/cfe/cfe_api.h>
 #include <asm/fw/cfe/cfe_error.h>
@@ -414,6 +415,32 @@ unsigned long brcm_setup_ebase(void)
 
 	write_c0_brcm_bootvec(0xa0080000);
 	write_c0_ebase(ebase);
+#elif defined(CONFIG_BCM7550A0)
+	unsigned long addr;
+
+	ebase = 0x8027c000;
+
+	for (addr = 0x80000000; addr < 0x80000900; addr += 4)
+		DEV_WR(addr, 0xffffffff);
+
+#define JMPOFFSET(x)		(((ebase + (x)) >> 2) & ~0xf8000000)
+
+	DEV_WR(0x80000000, 0x287b000f);
+	DEV_WR(0x80000004, 0x08000000 + JMPOFFSET(0x000));
+	DEV_WR(0x80000008, 0x3b7b07c0);
+
+	DEV_WR(0x80000180, 0x287b000f);
+	DEV_WR(0x80000184, 0x08000000 + JMPOFFSET(0x180));
+	DEV_WR(0x80000188, 0x3b7b07c0);
+
+	DEV_WR(0x80000200, 0x287b000f);
+	DEV_WR(0x80000204, 0x08000000 + JMPOFFSET(0x200));
+	DEV_WR(0x80000208, 0x3b7b07c0);
+
+	for (addr = 0x80000000; addr < 0x80000900; addr += 16) {
+		flush_dcache_line(addr);
+		flush_icache_line(addr);
+	}
 #endif
 	return ebase;
 }

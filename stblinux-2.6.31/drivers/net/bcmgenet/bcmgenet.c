@@ -492,10 +492,12 @@ static int bcmgenet_open(struct net_device * dev)
 	pDevCtrl->txDma->tdma_ctrl &= ~(1 << (DMA_RING_DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN);
 	pDevCtrl->rxDma->rdma_ctrl &= ~(1 << (DMA_RING_DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN);
 	pDevCtrl->umac->tx_flush = 1;
-	pDevCtrl->rbuf->rbuf_flush_ctrl = 1;
+	//pDevCtrl->rbuf->rbuf_flush_ctrl = 1;
+	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 1;
 	udelay(10);
 	pDevCtrl->umac->tx_flush = 0;
-	pDevCtrl->rbuf->rbuf_flush_ctrl = 0;
+	//pDevCtrl->rbuf->rbuf_flush_ctrl = 0;
+	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 0;
 
 	/* reset dma, start from begainning of the ring. */
     init_edma(pDevCtrl);
@@ -871,7 +873,8 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 	 * If 64 byte status block enabled, must make sure skb has
 	 * enough headroom for us to insert 64B status block.
 	 */
-	if(pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN)
+	//if(pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN)
+	if(GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN)
 	{
 		if(likely(skb_headroom(skb) < 64)) {
 			/*TODO: does the kernel free the original SKB ? */
@@ -895,7 +898,8 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 	if(write_ptr == (TOTAL_DESC - 1)) write_ptr = 0;
 	else write_ptr++;
 	
-	if((skb->ip_summed  == CHECKSUM_PARTIAL) && (pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+	//if((skb->ip_summed  == CHECKSUM_PARTIAL) && (pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+	if((skb->ip_summed  == CHECKSUM_PARTIAL) && (GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN))
 	{
 		u16 offset;
 		offset = skb->csum_start - skb_headroom(skb) - 64;
@@ -1075,7 +1079,8 @@ static int __maybe_unused bcmgenet_ring_xmit(struct sk_buff * skb, struct net_de
 		BUG();
 	}
 	Status = (StatusBlock *)skb->head;
-	if((skb->ip_summed  == CHECKSUM_PARTIAL) && (pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+	//if((skb->ip_summed  == CHECKSUM_PARTIAL) && (pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+	if((skb->ip_summed  == CHECKSUM_PARTIAL) && (GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN))
 	{
 		u16 offset;
 		offset = skb->csum_start - skb_headroom(skb) - 64;
@@ -1204,6 +1209,7 @@ static void bcmgenet_irq_task(struct work_struct * work)
 		pDevCtrl->irq0_stat &= ~UMAC_IRQ_LINK_UP;
 		
 		if (!(pDevCtrl->umac->cmd & CMD_AUTO_CONFIG)) {
+			printk(KERN_CRIT "Auto config phy\n");
 			mii_setup(pDevCtrl->dev);
 		}
 		if(!netif_carrier_ok(pDevCtrl->dev))
@@ -1947,9 +1953,11 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
 		pDevCtrl->txDma->tDmaRings[index].tdma_flow_period = ENET_MAX_MTU_SIZE << 16;
 		pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer = dma_start;
 		pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer = dma_start;
-		if(!(pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+		//if(!(pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+		if(!(GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN))
 		{
-			pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+			//pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+			GENET_TBUF_CTRL(pDevCtrl) |= RBUF_64B_EN;
 			if(dev->needed_headroom < 64)
 				dev->needed_headroom += 64;
 		}
@@ -2026,7 +2034,8 @@ int bcmgenet_uninit_ringbuf(struct net_device * dev, int direction, unsigned int
 		/* if all rings are disabled and tx csum offloading is off, disable TSB */
 		if(!(pDevCtrl->txDma->tdma_ctrl & (0xFFFF << 1)) && !(dev->features & NETIF_F_IP_CSUM))
 		{
-			pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+			//pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+			GENET_TBUF_CTRL(pDevCtrl) &= ~RBUF_64B_EN;
 			if(dev->needed_headroom > 64)
 				dev->needed_headroom -= 64;
 		}
@@ -2064,6 +2073,10 @@ static int bcmgenet_init_dev(BcmEnet_devctrl *pDevCtrl)
 	pDevCtrl->hfb = (unsigned long*)(pDevCtrl->dev->base_addr + UMAC_HFB_OFFSET);
 	pDevCtrl->txDma = (tDmaRegs *)(pDevCtrl->dev->base_addr + UMAC_TDMA_REG_OFFSET + 2*TOTAL_DESC*sizeof(unsigned long));
 	pDevCtrl->rxDma = (rDmaRegs *)(pDevCtrl->dev->base_addr + UMAC_RDMA_REG_OFFSET + 2*TOTAL_DESC*sizeof(unsigned long));
+#ifdef CONFIG_BRCM_HAS_GENET2
+	pDevCtrl->tbuf = (tbufRegs *)(pDevCtrl->dev->base_addr + UMAC_TBUF_REG_OFFSET);
+	pDevCtrl->hfbReg = (hfbRegs *)(pDevCtrl->dev->base_addr + UMAC_HFB_REG_OFFSET);
+#endif
 
     pDevCtrl->rxBds = (DmaDesc *) (pDevCtrl->dev->base_addr + UMAC_RDMA_REG_OFFSET);
     pDevCtrl->txBds = (DmaDesc *) (pDevCtrl->dev->base_addr + UMAC_TDMA_REG_OFFSET);
@@ -2198,12 +2211,14 @@ static void bcmgenet_uninit_dev(BcmEnet_devctrl *pDevCtrl)
 int bcmgenet_update_hfb(struct net_device *dev, unsigned int *data, int len, int user)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
-	volatile rbufRegs * rbuf = pDevCtrl->rbuf;
+	//volatile rbufRegs * rbuf = pDevCtrl->rbuf;
 	int filter, offset, count;
 	unsigned int * tmp;
 	
 	TRACE(("Updating HFB len=0x%d\n", len));
-	if(rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
+	//if(rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
+	if(GENET_HFB_CTRL(pDevCtrl) & RBUF_HFB_256B)
+	{
 		if (len > 256)
 			return -EINVAL;
 		count = 8;
@@ -2216,7 +2231,8 @@ int bcmgenet_update_hfb(struct net_device *dev, unsigned int *data, int len, int
 	}
 	/* find next unused filter */
 	for (filter = 0; filter < count; filter++) {
-		if(!((rbuf->rbuf_hfb_ctrl >> (filter + RBUF_HFB_FILTER_EN_SHIFT)) & 0X1))
+		//if(!((rbuf->rbuf_hfb_ctrl >> (filter + RBUF_HFB_FILTER_EN_SHIFT)) & 0X1))
+		if(!((GENET_HFB_CTRL(pDevCtrl) >> (filter + RBUF_HFB_FILTER_EN_SHIFT)) & 0x01))
 			break;
 	}
 	if(filter == count) {
@@ -2255,10 +2271,12 @@ int bcmgenet_update_hfb(struct net_device *dev, unsigned int *data, int len, int
 	}
 
 	/* set the filter length*/
-	rbuf->rbuf_fltr_len[3-(filter>>2)] |= (len*2 << (RBUF_FLTR_LEN_SHIFT * (filter&0x03)) );
+	//rbuf->rbuf_fltr_len[3-(filter>>2)] |= (len*2 << (RBUF_FLTR_LEN_SHIFT * (filter&0x03)) );
+	GENET_HFB_FLTR_LEN(pDevCtrl, 3-(filter>>2)) |= (len*2 << (RBUF_FLTR_LEN_SHIFT * (filter&0x03)) );
 	
 	/*enable this filter.*/
-	rbuf->rbuf_hfb_ctrl |= (1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
+	//rbuf->rbuf_hfb_ctrl |= (1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
+	GENET_HFB_CTRL(pDevCtrl) |= (1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
 
 	return filter;
 	
@@ -2270,14 +2288,15 @@ static int bcmgenet_read_hfb(struct net_device * dev, struct acpi_data * u_data)
 {
 	int filter, offset, count, len;
 	BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
-	volatile rbufRegs *rbuf = pDevCtrl->rbuf;
+	//volatile rbufRegs *rbuf = pDevCtrl->rbuf;
 
 	if(get_user(filter, &(u_data->fltr_index)) ) {
 		printk(KERN_ERR "Failed to get user data\n");
 		return -EFAULT;
 	}
 	
-	if(rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
+	//if(rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
+	if(GENET_HFB_CTRL(pDevCtrl) & RBUF_HFB_256B){
 		count = 8;
 		offset = 256;
 	}else {
@@ -2288,13 +2307,15 @@ static int bcmgenet_read_hfb(struct net_device * dev, struct acpi_data * u_data)
 		return -EINVAL;
 	
 	/* see if this filter is enabled, if not, return length 0 */
-	if ((rbuf->rbuf_hfb_ctrl & (1 << (filter + RBUF_HFB_FILTER_EN_SHIFT)) ) == 0) {
+	//if ((rbuf->rbuf_hfb_ctrl & (1 << (filter + RBUF_HFB_FILTER_EN_SHIFT)) ) == 0) {
+	if ((GENET_HFB_CTRL(pDevCtrl) & (1 << (filter + RBUF_HFB_FILTER_EN_SHIFT)) ) == 0) {
 		len = 0;
 		put_user(len , &u_data->count);
 		return 0;
 	}
 	/* check the filter length, in bytes */
-	len = RBUF_FLTR_LEN_MASK & (rbuf->rbuf_fltr_len[filter>>2] >> (RBUF_FLTR_LEN_SHIFT * (filter & 0x3)) );
+	//len = RBUF_FLTR_LEN_MASK & (rbuf->rbuf_fltr_len[filter>>2] >> (RBUF_FLTR_LEN_SHIFT * (filter & 0x3)) );
+	len = RBUF_FLTR_LEN_MASK & (GENET_HFB_FLTR_LEN(pDevCtrl, filter>>2) >> (RBUF_FLTR_LEN_SHIFT * (filter & 0x3)) );
 	if( u_data->count < len)
 		return -EINVAL;
 	/* copy pattern data */
@@ -2312,21 +2333,26 @@ static inline void bcmgenet_clear_hfb(BcmEnet_devctrl * pDevCtrl, int filter)
 {
 	int offset;
 
-	if(pDevCtrl->rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
+	//if(pDevCtrl->rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
+	if(GENET_HFB_CTRL(pDevCtrl) & RBUF_HFB_256B) {
 		offset = 256;
 	}else {
 		offset = 128;
 	}
 	if (filter == CLEAR_ALL_HFB)
 	{
-		pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~(0xffff << (RBUF_HFB_FILTER_EN_SHIFT));
-		pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_HFB_EN;
+		//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~(0xffff << (RBUF_HFB_FILTER_EN_SHIFT));
+		//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_HFB_EN;
+		GENET_HFB_CTRL(pDevCtrl) &= ~(0xffff << (RBUF_HFB_FILTER_EN_SHIFT));
+		GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_HFB_EN;
 	}else 
 	{
 		/* disable this filter */
-		pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~(1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
+		//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~(1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
+		GENET_HFB_CTRL(pDevCtrl) &= ~(1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
 		/* clear filter length register */
-		pDevCtrl->rbuf->rbuf_fltr_len[3-(filter>>2)] &= ~(0xff << (RBUF_FLTR_LEN_SHIFT * (filter & 0x03)) );
+		//pDevCtrl->rbuf->rbuf_fltr_len[3-(filter>>2)] &= ~(0xff << (RBUF_FLTR_LEN_SHIFT * (filter & 0x03)) );
+		GENET_HFB_FLTR_LEN(pDevCtrl,(3-(filter>>2))) &= ~(0xff << (RBUF_FLTR_LEN_SHIFT * (filter & 0x03)) );
 	}
 	
 }
@@ -2409,7 +2435,8 @@ static int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 			printk(KERN_ERR "%s: Unable to update HFB\n", __FUNCTION__);
 			return -EFAULT;
 		} 
-		pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_HFB_EN;
+		//pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_HFB_EN;
+		GENET_HFB_CTRL(pDevCtrl) |= RBUF_HFB_EN;
 	}
 	if(wol->wolopts & WAKE_MAGICSECURE)
 	{
@@ -2494,12 +2521,14 @@ static int bcmgenet_set_tx_csum(struct net_device * dev, u32 val)
     spin_lock_irqsave(&pDevCtrl->lock, flags);
 	if(val == 0) {
 		dev->features &= ~NETIF_F_IP_CSUM;
-		pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+		//pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+		GENET_TBUF_CTRL(pDevCtrl) &= ~RBUF_64B_EN;
 		if(dev->needed_headroom > 64)
 			dev->needed_headroom -= 64;
 	}else {
 		dev->features |= NETIF_F_IP_CSUM;
-		pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+		//pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+		GENET_TBUF_CTRL(pDevCtrl) |= RBUF_64B_EN;
 		if(dev->needed_headroom < 64)
 			dev->needed_headroom += 64;
 	}
@@ -2570,7 +2599,8 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 			/* PHY bug , disble DLL only for now */
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DOWN_DLL;
 			//	EXT_PWR_DOWN_PHY ;
-			pDevCtrl->rbuf->rgmii_oob_ctrl &= ~RGMII_MODE_EN;
+			//pDevCtrl->rbuf->rgmii_oob_ctrl &= ~RGMII_MODE_EN;
+			GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~RGMII_MODE_EN;
 			bcmgenet_disable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_MAGIC:
@@ -2592,12 +2622,14 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 			pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_HFB_MM | UMAC_IRQ_HFB_SM;
 			break;
 		case GENET_POWER_WOL_ACPI:
-			pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_ACPI_EN;
+			//pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_ACPI_EN;
+			GENET_HFB_CTRL(pDevCtrl) |= RBUF_ACPI_EN;
 			while(!(pDevCtrl->rbuf->rbuf_status & RBUF_STATUS_WOL)) {
 				retries++;
 				if(retries > 5) {
 					printk(KERN_CRIT "bcmumac_power_down polling wol mode timeout\n");
-					pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_ACPI_EN;
+					//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_ACPI_EN;
+					GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_ACPI_EN;
 					return;
 				}
 				udelay(100);
@@ -2629,9 +2661,11 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			 * If ACPI is enabled at the same time, disable it, since 
 			 * we have been waken up.
 			 */
-			if( !(pDevCtrl->rbuf->rbuf_hfb_ctrl & RBUF_ACPI_EN))
+			//if( !(pDevCtrl->rbuf->rbuf_hfb_ctrl & RBUF_ACPI_EN))
+			if( !(GENET_HFB_CTRL(pDevCtrl) & RBUF_ACPI_EN))
 			{
-				pDevCtrl->rbuf->rbuf_hfb_ctrl &= RBUF_ACPI_EN;
+				//pDevCtrl->rbuf->rbuf_hfb_ctrl &= RBUF_ACPI_EN;
+				GENET_HFB_CTRL(pDevCtrl) &= RBUF_ACPI_EN;
 				bcmgenet_enable_clocks(pDevCtrl, GENET_POWER_WOL_ACPI);
 				/* Stop monitoring ACPI interrupts */
 				pDevCtrl->intrl2_0->cpu_mask_set |= (UMAC_IRQ_HFB_SM | UMAC_IRQ_HFB_MM);
@@ -2640,7 +2674,8 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			//bcmgenet_enable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_ACPI:
-			pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_ACPI_EN;
+			//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_ACPI_EN;
+			GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_ACPI_EN;
 			/* 
 			 * If Magic packet is enabled at the same time, disable it, 
 			 */

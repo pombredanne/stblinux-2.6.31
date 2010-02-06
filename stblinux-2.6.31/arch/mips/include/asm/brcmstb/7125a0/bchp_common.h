@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed Sep 16 19:40:33 2009
- *                 MD5 Checksum         86a83372d32b924935b14b664733717a
+ * Date:           Generated on         Tue Nov 24 14:09:39 2009
+ *                 MD5 Checksum         372537deddebf37bd08ec1c27c39a411
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,11 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/6   9/16/09 8:48p albertl
- * SW7125-1: Updated to match RDB.
- * 
- * Hydra_Software_Devel/6   9/16/09 8:41p albertl
- * SW7125-1: Updated to match RDB.
+ * Hydra_Software_Devel/7   11/24/09 4:55p darnstein
+ * SW7125-130: integrate recent changes in RDB for 7125-A0.
  *
  ***************************************************************************/
 
@@ -400,8 +397,6 @@
 #define BCHP_ICAP_REG_END                                  0x004065fc
 #define BCHP_KBD1_REG_START                                0x00406600
 #define BCHP_KBD1_REG_END                                  0x0040663c
-#define BCHP_KBD2_REG_START                                0x00406640
-#define BCHP_KBD2_REG_END                                  0x0040667c
 #define BCHP_GIO_REG_START                                 0x00406700
 #define BCHP_GIO_REG_END                                   0x0040677c
 #define BCHP_IRQ0_REG_START                                0x00406780
@@ -1028,10 +1023,8 @@
 #define BCHP_PER_TIMER_REG_END                             0x04e000f4
 #define BCHP_GPIO_REG_START                                0x04e00100
 #define BCHP_GPIO_REG_END                                  0x04e00198
-#define BCHP_UART0_REG_START                               0x04e00200
-#define BCHP_UART0_REG_END                                 0x04e00214
-#define BCHP_UART1_REG_START                               0x04e00220
-#define BCHP_UART1_REG_END                                 0x04e00234
+#define BCHP_UART_REG_START                                0x04e00200
+#define BCHP_UART_REG_END                                  0x04e00214
 #define BCHP_I2C_REG_START                                 0x04e00e00
 #define BCHP_I2C_REG_END                                   0x04e00e54
 #define BCHP_LED_REG_START                                 0x04e00f00

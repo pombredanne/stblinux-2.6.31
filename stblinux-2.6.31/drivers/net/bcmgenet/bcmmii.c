@@ -80,7 +80,6 @@ void mii_write(struct net_device *dev, int phy_id, int location, int val)
 int mii_probe(struct net_device * dev, int phy_id)
 {
 	BcmEnet_devctrl * pDevCtrl = netdev_priv(dev);
-	volatile rbufRegs * rbuf = pDevCtrl->rbuf;
 	int i;
 
 	if(phy_id == BRCM_PHY_ID_AUTO)
@@ -88,7 +87,7 @@ int mii_probe(struct net_device * dev, int phy_id)
 		/* 
 	 	 * Enable RGMII to interface external PHY, disable internal 10/100 MII.
 	 	 */
-		rbuf->rgmii_oob_ctrl |= RGMII_MODE_EN;
+		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
 		/* Power down EPHY */
 		pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY | EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
 
@@ -116,7 +115,6 @@ void mii_setup(struct net_device *dev)
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd ;
 	volatile uniMacRegs * umac = pDevCtrl->umac;
-	volatile rbufRegs * rbuf = pDevCtrl->rbuf;
 
 	TRACE(("%s: %s\n", __FUNCTION__, netif_carrier_ok(pDevCtrl->dev)? "netif_carrier_on":"netif_carrier_off"));
 	if(pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
@@ -147,8 +145,8 @@ void mii_setup(struct net_device *dev)
 	 */
 	if(pDevCtrl->phyType != BRCM_PHY_TYPE_EXT_GMII_IBS)
 	{
-		rbuf->rgmii_oob_ctrl &= ~OOB_DISABLE;
-		rbuf->rgmii_oob_ctrl |= RGMII_LINK;
+		GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~OOB_DISABLE;
+		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_LINK;
 		if(ecmd.duplex == DUPLEX_FULL)
 			umac->cmd &= ~CMD_HD_EN;
 		else
@@ -190,10 +188,8 @@ int mii_init(struct net_device *dev)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
     volatile uniMacRegs *umac;
-	volatile rbufRegs * rbuf;
 
     umac = pDevCtrl->umac;
-	rbuf = pDevCtrl->rbuf;
 	pDevCtrl->mii.phy_id = pDevCtrl->phyAddr;
 	pDevCtrl->mii.phy_id_mask = 0x1f;
 	pDevCtrl->mii.reg_num_mask = 0x1f;
@@ -214,17 +210,17 @@ int mii_init(struct net_device *dev)
 			printk(KERN_INFO "Config EPHY through MDIO\n");
             break;
 		case BRCM_PHY_TYPE_EXT_GMII:
-			rbuf->rgmii_oob_ctrl |= RGMII_MODE_EN;
-			rbuf->rgmii_oob_ctrl |= (1 << 16);	/* Don't shift tx clock by 90 degree */
+			GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
+			GENET_RGMII_OOB_CTRL(pDevCtrl) |= (1 << 16);	/* Don't shift tx clock by 90 degree */
 			pDevCtrl->mii.supports_gmii = 1;
 			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
 			printk(KERN_INFO "Config GPHY through MDIO\n");
             break;
 		case BRCM_PHY_TYPE_EXT_GMII_IBS:
-			rbuf->rgmii_oob_ctrl |= RGMII_MODE_EN;
-			rbuf->rgmii_oob_ctrl |= (1 << 16);
+			GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
+			GENET_RGMII_OOB_CTRL(pDevCtrl) |= (1 << 16);
 			/* Use in-band signaling for auto config.*/
-			rbuf->rgmii_oob_ctrl |= OOB_DISABLE;
+			GENET_RGMII_OOB_CTRL(pDevCtrl) |= OOB_DISABLE;
 			umac->cmd |= CMD_AUTO_CONFIG;
 			pDevCtrl->mii.supports_gmii = 1;
 			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;

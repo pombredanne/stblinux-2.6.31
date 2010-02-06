@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2009-12-04
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-02-05
 #
 # Original package: freetype.tar.bz2
 #
 diff -ruNp freetype.orig/makefile freetype/makefile
 --- freetype.orig/makefile	2007-02-08 11:56:07.000000000 -0800
-+++ freetype/makefile	2009-12-04 18:30:03.000000000 -0800
++++ freetype/makefile	2010-02-05 12:10:23.000000000 -0800
 @@ -1,5 +1,6 @@
  default:
  	make LDFLAGS='$(filter-out -Wl, $(LDFLAGS))' \
