@@ -1,13 +1,13 @@
 /* vms-misc.c -- Miscellaneous functions for VAX (openVMS/VAX) and
    EVAX (openVMS/Alpha) files.
-   Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005
-   Free Software Foundation, Inc.
+   Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+   2007, 2008  Free Software Foundation, Inc.
 
    Written by Klaus K"ampf (kkaempf@rmi.de)
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -17,14 +17,15 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #if __STDC__
 #include <stdarg.h>
 #endif
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 
@@ -348,7 +349,7 @@ _bfd_vms_get_record (bfd * abfd)
 
       if (PRIV (rec_length) > PRIV (buf_size))
 	{
-	  PRIV (vms_buf) = bfd_realloc (vms_buf,
+	  PRIV (vms_buf) = bfd_realloc_or_free (vms_buf,
 					(bfd_size_type) PRIV (rec_length));
 	  vms_buf = PRIV (vms_buf);
 	  if (vms_buf == 0)
@@ -690,12 +691,17 @@ _bfd_vms_output_flush (bfd * abfd)
 
   if (PRIV (push_level) == 0)
     {
+      if (0
 #ifndef VMS
-	/* Write length first, see FF_FOREIGN in the input routines.  */
-      fwrite (PRIV (output_buf) + 2, 2, 1, (FILE *) abfd->iostream);
+	  /* Write length first, see FF_FOREIGN in the input routines.  */
+	  || fwrite (PRIV (output_buf) + 2, 2, 1,
+		     (FILE *) abfd->iostream) != 1
 #endif
-      fwrite (PRIV (output_buf), (size_t) real_size, 1,
-	      (FILE *) abfd->iostream);
+	  || (real_size != 0
+	      && fwrite (PRIV (output_buf), (size_t) real_size, 1,
+			 (FILE *) abfd->iostream) != 1))
+	/* FIXME: Return error status.  */
+	abort ();
 
       PRIV (output_size) = 0;
     }
@@ -869,7 +875,7 @@ hash_string (const char *ptr)
 char *
 _bfd_vms_length_hash_symbol (bfd * abfd, const char *in, int maxlen)
 {
-  long int result;
+  unsigned long result;
   int in_len;
   char *new_name;
   const char *old_name;

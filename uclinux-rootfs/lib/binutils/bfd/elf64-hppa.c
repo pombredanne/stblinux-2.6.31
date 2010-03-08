@@ -1,12 +1,12 @@
 /* Support for HPPA 64-bit ELF
-   Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -16,16 +16,43 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
-#include "alloca-conf.h"
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "elf-bfd.h"
 #include "elf/hppa.h"
 #include "libhppa.h"
 #include "elf64-hppa.h"
+
+/* This is the code recommended in the autoconf documentation, almost
+   verbatim.  */
+#ifndef __GNUC__
+# if HAVE_ALLOCA_H
+#  include <alloca.h>
+# else
+#  ifdef _AIX
+/* Indented so that pre-ansi C compilers will ignore it, rather than
+   choke on it.  Some versions of AIX require this to be the first
+   thing in the file.  */
+ #pragma alloca
+#  else
+#   ifndef alloca /* predefined by HP cc +Olibcalls */
+#    if !defined (__STDC__) && !defined (__hpux)
+extern char *alloca ();
+#    else
+extern void *alloca ();
+#    endif /* __STDC__, __hpux */
+#   endif /* alloca */
+#  endif /* _AIX */
+# endif /* HAVE_ALLOCA_H */
+#else
+extern void *alloca (size_t);
+#endif /* __GNUC__ */
+
+
 #define ARCH_SIZE	       64
 
 #define PLT_ENTRY_SIZE 0x10
@@ -487,7 +514,7 @@ get_dyn_name (abfd, h, rel, pbuf, plen)
     {
       nlen = sprintf (buf, "%x:%lx",
 		      sec->id & 0xffffffff,
-		      (long) ELF64_R_SYM (rel->r_info));
+		      (unsigned long) ELF64_R_SYM (rel->r_info));
       if (rel->r_addend)
 	{
 	  buf[nlen++] = '+';
@@ -598,7 +625,7 @@ elf64_hppa_check_relocs (abfd, info, sec, relocs)
   asection *dlt, *plt, *stubs;
   char *buf;
   size_t buf_len;
-  int sec_symndx;
+  unsigned int sec_symndx;
 
   if (info->relocatable)
     return TRUE;
@@ -650,7 +677,8 @@ elf64_hppa_check_relocs (abfd, info, sec, relocs)
       isymend = local_syms + symtab_hdr->sh_info;
       for (isym = local_syms; isym < isymend; isym++)
 	{
-	  if (isym->st_shndx > highest_shndx)
+	  if (isym->st_shndx > highest_shndx
+	      && isym->st_shndx < SHN_LORESERVE)
 	    highest_shndx = isym->st_shndx;
 	}
 
@@ -696,10 +724,13 @@ elf64_hppa_check_relocs (abfd, info, sec, relocs)
 
       /* If we did not find a section symbol for this section, then
 	 something went terribly wrong above.  */
-      if (sec_symndx == -1)
+      if (sec_symndx == SHN_BAD)
 	return FALSE;
 
-      sec_symndx = hppa_info->section_syms[sec_symndx];
+      if (sec_symndx < SHN_LORESERVE)
+	sec_symndx = hppa_info->section_syms[sec_symndx];
+      else
+	sec_symndx = 0;
     }
   else
     sec_symndx = 0;
@@ -1144,7 +1175,8 @@ allocate_global_data_opd (dyn_h, data)
 	      && (h == NULL || (h->dynindx == -1)))
 	    {
 	      bfd *owner;
-	      owner = (h ? h->root.u.def.section->owner : dyn_h->owner);
+	      /* PR 6511: Default to using the dynamic symbol table.  */
+	      owner = (dyn_h->owner ? dyn_h->owner: h->root.u.def.section->owner);
 
 	      if (!bfd_elf_link_record_local_dynamic_symbol
 		    (x->info, owner, dyn_h->sym_indx))
@@ -2166,11 +2198,12 @@ elf64_hppa_finalize_opd (dyn_h, data)
 	  strcpy (new_name + 1, h->root.root.string);
 
 	  nh = elf_link_hash_lookup (elf_hash_table (info),
-				     new_name, FALSE, FALSE, FALSE);
-
+				     new_name, TRUE, TRUE, FALSE);
+ 
 	  /* All we really want from the new symbol is its dynamic
 	     symbol index.  */
-	  dynindx = nh->dynindx;
+	  if (nh)
+	    dynindx = nh->dynindx;
 	}
 
       rel.r_addend = 0;
@@ -2773,6 +2806,7 @@ const struct elf_size_info hppa64_elf_size_info =
   ELFCLASS64, EV_CURRENT,
   bfd_elf64_write_out_phdrs,
   bfd_elf64_write_shdrs_and_ehdr,
+  bfd_elf64_checksum_contents,
   bfd_elf64_write_relocs,
   bfd_elf64_swap_symbol_in,
   bfd_elf64_swap_symbol_out,
@@ -2796,6 +2830,7 @@ const struct elf_size_info hppa64_elf_size_info =
 #define ELF_OSABI			ELFOSABI_HPUX
 
 #define bfd_elf64_bfd_reloc_type_lookup elf_hppa_reloc_type_lookup
+#define bfd_elf64_bfd_reloc_name_lookup elf_hppa_reloc_name_lookup
 #define bfd_elf64_bfd_is_local_label_name       elf_hppa_is_local_label_name
 #define elf_info_to_howto		elf_hppa_info_to_howto
 #define elf_info_to_howto_rel		elf_hppa_info_to_howto_rel

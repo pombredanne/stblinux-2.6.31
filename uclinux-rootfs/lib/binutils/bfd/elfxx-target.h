@@ -1,12 +1,12 @@
 /* Target definitions for NN-bit ELF
    Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-   2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+   2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -16,7 +16,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
+
 
 /* This structure contains everything that BFD knows about a target.
    It includes things like its byte order, name, what routines to call
@@ -103,6 +105,9 @@
 #ifndef elf_backend_want_p_paddr_set_to_zero
 #define elf_backend_want_p_paddr_set_to_zero 0
 #endif
+#ifndef elf_backend_default_execstack
+#define elf_backend_default_execstack 1
+#endif
 
 #define bfd_elfNN_bfd_debug_info_start	bfd_void
 #define bfd_elfNN_bfd_debug_info_end	bfd_void
@@ -127,11 +132,17 @@
 #ifndef elf_backend_want_got_sym
 #define elf_backend_want_got_sym 1
 #endif
+#ifndef elf_backend_gc_keep
+#define elf_backend_gc_keep		_bfd_elf_gc_keep
+#endif
 #ifndef elf_backend_gc_mark_dynamic_ref
 #define elf_backend_gc_mark_dynamic_ref	bfd_elf_gc_mark_dynamic_ref_symbol
 #endif
 #ifndef elf_backend_gc_mark_hook
 #define elf_backend_gc_mark_hook	_bfd_elf_gc_mark_hook
+#endif
+#ifndef elf_backend_gc_mark_extra_sections
+#define elf_backend_gc_mark_extra_sections	NULL
 #endif
 #ifndef elf_backend_gc_sweep_hook
 #define elf_backend_gc_sweep_hook	NULL
@@ -258,7 +269,7 @@
 #endif
 
 #ifndef bfd_elfNN_mkobject
-#define bfd_elfNN_mkobject bfd_elf_mkobject
+#define bfd_elfNN_mkobject bfd_elf_make_generic_object
 #endif
 
 #ifndef bfd_elfNN_mkcorefile
@@ -290,16 +301,23 @@
 #endif
 
 #ifndef ELF_MAXPAGESIZE
-  #error ELF_MAXPAGESIZE is not defined
+# error ELF_MAXPAGESIZE is not defined
 #define ELF_MAXPAGESIZE 1
-#endif
-
-#ifndef ELF_MINPAGESIZE
-#define ELF_MINPAGESIZE ELF_MAXPAGESIZE
 #endif
 
 #ifndef ELF_COMMONPAGESIZE
 #define ELF_COMMONPAGESIZE ELF_MAXPAGESIZE
+#endif
+
+#ifndef ELF_MINPAGESIZE
+#define ELF_MINPAGESIZE ELF_COMMONPAGESIZE
+#endif
+
+#if ELF_COMMONPAGESIZE > ELF_MAXPAGESIZE
+# error ELF_COMMONPAGESIZE > ELF_MAXPAGESIZE
+#endif
+#if ELF_MINPAGESIZE > ELF_COMMONPAGESIZE
+# error ELF_MINPAGESIZE > ELF_COMMONPAGESIZE
 #endif
 
 #ifndef ELF_DYNAMIC_SEC_FLAGS
@@ -320,7 +338,7 @@
 #define elf_backend_sym_is_global	0
 #endif
 #ifndef elf_backend_object_p
-#define elf_backend_object_p		_bfd_elf_check_osabi
+#define elf_backend_object_p		0
 #endif
 #ifndef elf_backend_symbol_processing
 #define elf_backend_symbol_processing	0
@@ -369,6 +387,9 @@
 #endif
 #ifndef elf_backend_omit_section_dynsym
 #define elf_backend_omit_section_dynsym _bfd_elf_link_omit_section_dynsym
+#endif
+#ifndef elf_backend_relocs_compatible
+#define elf_backend_relocs_compatible _bfd_elf_default_relocs_compatible
 #endif
 #ifndef elf_backend_check_relocs
 #define elf_backend_check_relocs	0
@@ -425,6 +446,18 @@
 #ifndef elf_backend_got_header_size
 #define elf_backend_got_header_size	0
 #endif
+#ifndef elf_backend_obj_attrs_vendor
+#define elf_backend_obj_attrs_vendor		NULL
+#endif
+#ifndef elf_backend_obj_attrs_section
+#define elf_backend_obj_attrs_section		NULL
+#endif
+#ifndef elf_backend_obj_attrs_arg_type
+#define elf_backend_obj_attrs_arg_type		NULL
+#endif
+#ifndef elf_backend_obj_attrs_section_type
+#define elf_backend_obj_attrs_section_type		SHT_GNU_ATTRIBUTES
+#endif
 #ifndef elf_backend_post_process_headers
 #define elf_backend_post_process_headers	NULL
 #endif
@@ -449,6 +482,9 @@
 #ifndef elf_backend_merge_symbol_attribute
 #define elf_backend_merge_symbol_attribute	NULL
 #endif
+#ifndef elf_backend_get_target_dtag
+#define elf_backend_get_target_dtag		NULL
+#endif
 #ifndef elf_backend_ignore_undef_symbol
 #define elf_backend_ignore_undef_symbol		NULL
 #endif
@@ -464,11 +500,8 @@
 #ifndef elf_backend_grok_psinfo
 #define elf_backend_grok_psinfo			NULL
 #endif
-#ifndef elf_backend_sprintf_vma
-#define elf_backend_sprintf_vma			_bfd_elf_sprintf_vma
-#endif
-#ifndef elf_backend_fprintf_vma
-#define elf_backend_fprintf_vma			_bfd_elf_fprintf_vma
+#ifndef elf_backend_write_core_note
+#define elf_backend_write_core_note		NULL
 #endif
 #ifndef elf_backend_reloc_type_class
 #define elf_backend_reloc_type_class		_bfd_elf_reloc_type_class
@@ -521,6 +554,9 @@
 #endif
 #ifndef elf_backend_default_use_rela_p
 #define elf_backend_default_use_rela_p !USE_REL
+#endif
+#ifndef elf_backend_rela_plts_and_copies_p
+#define elf_backend_rela_plts_and_copies_p elf_backend_default_use_rela_p
 #endif
 
 #ifndef elf_backend_rela_normal
@@ -578,9 +614,12 @@
 #define elf_backend_hash_symbol _bfd_elf_hash_symbol
 #endif
 
+#ifndef elf_backend_is_function_type
+#define elf_backend_is_function_type _bfd_elf_is_function_type
+#endif
+
 extern const struct elf_size_info _bfd_elfNN_size_info;
 
-#ifndef INCLUDED_TARGET_FILE
 static struct elf_backend_data elfNN_bed =
 {
   ELF_ARCH,			/* arch */
@@ -610,6 +649,7 @@ static struct elf_backend_data elfNN_bed =
   elf_backend_link_output_symbol_hook,
   elf_backend_create_dynamic_sections,
   elf_backend_omit_section_dynsym,
+  elf_backend_relocs_compatible,
   elf_backend_check_relocs,
   elf_backend_check_directives,
   elf_backend_as_needed_cleanup,
@@ -625,8 +665,10 @@ static struct elf_backend_data elfNN_bed =
   elf_backend_additional_program_headers,
   elf_backend_modify_segment_map,
   elf_backend_modify_program_headers,
+  elf_backend_gc_keep,
   elf_backend_gc_mark_dynamic_ref,
   elf_backend_gc_mark_hook,
+  elf_backend_gc_mark_extra_sections,
   elf_backend_gc_sweep_hook,
   elf_backend_post_process_headers,
   elf_backend_print_symbol_all,
@@ -636,13 +678,13 @@ static struct elf_backend_data elfNN_bed =
   elf_backend_hide_symbol,
   elf_backend_fixup_symbol,
   elf_backend_merge_symbol_attribute,
+  elf_backend_get_target_dtag,
   elf_backend_ignore_undef_symbol,
   elf_backend_emit_relocs,
   elf_backend_count_relocs,
   elf_backend_grok_prstatus,
   elf_backend_grok_psinfo,
-  elf_backend_sprintf_vma,
-  elf_backend_fprintf_vma,
+  elf_backend_write_core_note,
   elf_backend_reloc_type_class,
   elf_backend_discard_info,
   elf_backend_ignore_discarded_relocs,
@@ -662,6 +704,7 @@ static struct elf_backend_data elfNN_bed =
   elf_backend_common_section,
   elf_backend_merge_symbol,
   elf_backend_hash_symbol,
+  elf_backend_is_function_type,
   elf_backend_link_order_error_handler,
   elf_backend_relplt_name,
   ELF_MACHINE_ALT1,
@@ -669,11 +712,16 @@ static struct elf_backend_data elfNN_bed =
   &elf_backend_size_info,
   elf_backend_special_sections,
   elf_backend_got_header_size,
+  elf_backend_obj_attrs_vendor,
+  elf_backend_obj_attrs_section,
+  elf_backend_obj_attrs_arg_type,
+  elf_backend_obj_attrs_section_type,
   elf_backend_collect,
   elf_backend_type_change_ok,
   elf_backend_may_use_rel_p,
   elf_backend_may_use_rela_p,
   elf_backend_default_use_rela_p,
+  elf_backend_rela_plts_and_copies_p,
   elf_backend_rela_normal,
   elf_backend_sign_extend_vma,
   elf_backend_want_got_plt,
@@ -685,9 +733,9 @@ static struct elf_backend_data elfNN_bed =
   elf_backend_can_refcount,
   elf_backend_want_got_sym,
   elf_backend_want_dynbss,
-  elf_backend_want_p_paddr_set_to_zero
+  elf_backend_want_p_paddr_set_to_zero,
+  elf_backend_default_execstack
 };
-#endif
 
 /* Forward declaration for use when initialising alternative_target field.  */
 #ifdef TARGET_LITTLE_SYM

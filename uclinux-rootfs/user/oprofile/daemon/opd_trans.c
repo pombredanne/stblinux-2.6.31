@@ -194,7 +194,7 @@ static void code_cookie_switch(struct transient * trans)
 	if (vmisc) {
 		char const * name = verbose_cookie(trans->cookie);
 		verbprintf(vmisc, "COOKIE_SWITCH to cookie %s(%llx)\n",
-		           name, trans->cookie);
+			   name, trans->cookie);
 	}
 }
 
@@ -246,11 +246,11 @@ static void code_xen_enter(struct transient * trans)
 	verbprintf(vmisc, "XEN_ENTER_SWITCH to xen\n");
 	trans->in_kernel = 1;
 	trans->current = NULL;
-	/* subtlety: we must keep trans->cookie cached, even though it's 
-	 * meaningless for Xen - we won't necessarily get a cookie switch 
-	 * on Xen exit. See comments in opd_sfile.c. It seems that we can 
-	 * get away with in_kernel = 1 as long as we supply the correct 
-	 * Xen image, and its address range in startup find_kernel_image 
+	/* subtlety: we must keep trans->cookie cached, even though it's
+	 * meaningless for Xen - we won't necessarily get a cookie switch
+	 * on Xen exit. See comments in opd_sfile.c. It seems that we can
+	 * get away with in_kernel = 1 as long as we supply the correct
+	 * Xen image, and its address range in startup find_kernel_image
 	 * is modified to look in the Xen image also
 	 */
 }
@@ -258,21 +258,31 @@ static void code_xen_enter(struct transient * trans)
 extern void code_spu_profiling(struct transient * trans);
 extern void code_spu_ctx_switch(struct transient * trans);
 
+extern void code_ibs_fetch_sample(struct transient * trans);
+extern void code_ibs_op_sample(struct transient * trans);
+
 handler_t handlers[LAST_CODE + 1] = {
 	&code_unknown,
 	&code_ctx_switch,
 	&code_cpu_switch,
 	&code_cookie_switch,
 	&code_kernel_enter,
- 	&code_user_enter,
+	&code_user_enter,
 	&code_module_loaded,
 	/* tgid handled differently */
 	&code_unknown,
 	&code_trace_begin,
 	&code_unknown,
- 	&code_xen_enter,
+	&code_xen_enter,
+#if defined(__powerpc__)
 	&code_spu_profiling,
 	&code_spu_ctx_switch,
+#else
+	&code_unknown,
+	&code_unknown,
+#endif
+	&code_ibs_fetch_sample,
+	&code_ibs_op_sample,
 };
 
 extern void (*special_processor)(struct transient *);
@@ -296,7 +306,8 @@ void opd_process_samples(char const * buffer, size_t count)
 		.cpu = -1,
 		.tid = -1,
 		.embedded_offset = UNUSED_EMBEDDED_OFFSET,
-		.tgid = -1
+		.tgid = -1,
+		.ext = NULL
 	};
 
 	/* FIXME: was uint64_t but it can't compile on alpha where uint64_t

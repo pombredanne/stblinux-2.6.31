@@ -1,13 +1,13 @@
 /* COFF specific linker code.
    Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-   2004, 2005, 2006 Free Software Foundation, Inc.
+   2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
    Written by Ian Lance Taylor, Cygnus Support.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -17,12 +17,13 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 /* This file contains the COFF backend linker code.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 #include "coff/internal.h"
@@ -301,6 +302,11 @@ coff_link_add_symbols (bfd *abfd,
   bfd_byte *esym_end;
   bfd_size_type amt;
 
+  symcount = obj_raw_syment_count (abfd);
+
+  if (symcount == 0)
+    return TRUE;		/* Nothing to do.  */
+
   /* Keep the symbols during this function, in case the linker needs
      to read the generic symbols in order to report an error message.  */
   keep_syms = obj_coff_keep_syms (abfd);
@@ -311,13 +317,11 @@ coff_link_add_symbols (bfd *abfd,
   else
     default_copy = TRUE;
 
-  symcount = obj_raw_syment_count (abfd);
-
   /* We keep a list of the linker hash table entries that correspond
      to particular symbols.  */
   amt = symcount * sizeof (struct coff_link_hash_entry *);
   sym_hash = bfd_zalloc (abfd, amt);
-  if (sym_hash == NULL && symcount != 0)
+  if (sym_hash == NULL)
     goto error_return;
   obj_coff_sym_hashes (abfd) = sym_hash;
 
@@ -478,7 +482,7 @@ coff_link_add_symbols (bfd *abfd,
 	    (*sym_hash)->root.u.c.p->alignment_power
 	      = bfd_coff_default_section_alignment_power (abfd);
 
-	  if (info->hash->creator->flavour == bfd_get_flavour (abfd))
+	  if (bfd_get_flavour (info->output_bfd) == bfd_get_flavour (abfd))
 	    {
 	      /* If we don't have any symbol information currently in
                  the hash table, or if we are looking at a symbol
@@ -570,7 +574,7 @@ coff_link_add_symbols (bfd *abfd,
      optimize the handling of any .stab/.stabstr sections.  */
   if (! info->relocatable
       && ! info->traditional_format
-      && info->hash->creator->flavour == bfd_get_flavour (abfd)
+      && bfd_get_flavour (info->output_bfd) == bfd_get_flavour (abfd)
       && (info->strip != strip_all && info->strip != strip_debugger))
     {
       asection *stabstr;

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:28:21 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_uarta.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:58p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,23 +43,23 @@
 #define BCHP_UARTA_H__
 
 /***************************************************************************
- *UARTA
+ *UARTA - UART A
  ***************************************************************************/
-#define BCHP_UARTA_RBR                           0x00406b00
-#define BCHP_UARTA_THR                           0x00406b00
-#define BCHP_UARTA_DLH                           0x00406b04
-#define BCHP_UARTA_DLL                           0x00406b00
-#define BCHP_UARTA_IER                           0x00406b04
-#define BCHP_UARTA_IIR                           0x00406b08
-#define BCHP_UARTA_FCR                           0x00406b08
-#define BCHP_UARTA_LCR                           0x00406b0c
-#define BCHP_UARTA_MCR                           0x00406b10
-#define BCHP_UARTA_LSR                           0x00406b14
-#define BCHP_UARTA_MSR                           0x00406b18
-#define BCHP_UARTA_SCR                           0x00406b1c
+#define BCHP_UARTA_RBR                           0x00406b00 /* Receive Buffer Register */
+#define BCHP_UARTA_THR                           0x00406b00 /* Transmit Holding Register */
+#define BCHP_UARTA_DLH                           0x00406b04 /* Divisor Latch High */
+#define BCHP_UARTA_DLL                           0x00406b00 /* Divisor Latch Low */
+#define BCHP_UARTA_IER                           0x00406b04 /* Interrupt Enable Register */
+#define BCHP_UARTA_IIR                           0x00406b08 /* Interrupt Identity Register */
+#define BCHP_UARTA_FCR                           0x00406b08 /* FIFO Control Register */
+#define BCHP_UARTA_LCR                           0x00406b0c /* Line Control Register */
+#define BCHP_UARTA_MCR                           0x00406b10 /* Modem Control Register */
+#define BCHP_UARTA_LSR                           0x00406b14 /* Line Status Register */
+#define BCHP_UARTA_MSR                           0x00406b18 /* Modem Status Register */
+#define BCHP_UARTA_SCR                           0x00406b1c /* Scratchpad Register */
 
 /***************************************************************************
- *RBR
+ *RBR - Receive Buffer Register
  ***************************************************************************/
 /* UARTA :: RBR :: reserved0 [31:08] */
 #define BCHP_UARTA_RBR_reserved0_MASK                              0xffffff00
@@ -67,7 +70,7 @@
 #define BCHP_UARTA_RBR_RBR_SHIFT                                   0
 
 /***************************************************************************
- *THR
+ *THR - Transmit Holding Register
  ***************************************************************************/
 /* UARTA :: THR :: reserved0 [31:08] */
 #define BCHP_UARTA_THR_reserved0_MASK                              0xffffff00
@@ -78,7 +81,7 @@
 #define BCHP_UARTA_THR_THR_SHIFT                                   0
 
 /***************************************************************************
- *DLH
+ *DLH - Divisor Latch High
  ***************************************************************************/
 /* UARTA :: DLH :: reserved0 [31:08] */
 #define BCHP_UARTA_DLH_reserved0_MASK                              0xffffff00
@@ -89,7 +92,7 @@
 #define BCHP_UARTA_DLH_DLH_SHIFT                                   0
 
 /***************************************************************************
- *DLL
+ *DLL - Divisor Latch Low
  ***************************************************************************/
 /* UARTA :: DLL :: reserved0 [31:08] */
 #define BCHP_UARTA_DLL_reserved0_MASK                              0xffffff00
@@ -100,7 +103,7 @@
 #define BCHP_UARTA_DLL_DLL_SHIFT                                   0
 
 /***************************************************************************
- *IER
+ *IER - Interrupt Enable Register
  ***************************************************************************/
 /* UARTA :: IER :: reserved0 [31:08] */
 #define BCHP_UARTA_IER_reserved0_MASK                              0xffffff00
@@ -131,7 +134,7 @@
 #define BCHP_UARTA_IER_ERBFI_SHIFT                                 0
 
 /***************************************************************************
- *IIR
+ *IIR - Interrupt Identity Register
  ***************************************************************************/
 /* UARTA :: IIR :: reserved0 [31:08] */
 #define BCHP_UARTA_IIR_reserved0_MASK                              0xffffff00
@@ -150,7 +153,7 @@
 #define BCHP_UARTA_IIR_IID_SHIFT                                   0
 
 /***************************************************************************
- *FCR
+ *FCR - FIFO Control Register
  ***************************************************************************/
 /* UARTA :: FCR :: reserved0 [31:08] */
 #define BCHP_UARTA_FCR_reserved0_MASK                              0xffffff00
@@ -181,7 +184,7 @@
 #define BCHP_UARTA_FCR_FIFOE_SHIFT                                 0
 
 /***************************************************************************
- *LCR
+ *LCR - Line Control Register
  ***************************************************************************/
 /* UARTA :: LCR :: reserved0 [31:08] */
 #define BCHP_UARTA_LCR_reserved0_MASK                              0xffffff00
@@ -216,7 +219,7 @@
 #define BCHP_UARTA_LCR_DLS_SHIFT                                   0
 
 /***************************************************************************
- *MCR
+ *MCR - Modem Control Register
  ***************************************************************************/
 /* UARTA :: MCR :: reserved0 [31:07] */
 #define BCHP_UARTA_MCR_reserved0_MASK                              0xffffff80
@@ -251,7 +254,7 @@
 #define BCHP_UARTA_MCR_DTR_SHIFT                                   0
 
 /***************************************************************************
- *LSR
+ *LSR - Line Status Register
  ***************************************************************************/
 /* UARTA :: LSR :: reserved0 [31:08] */
 #define BCHP_UARTA_LSR_reserved0_MASK                              0xffffff00
@@ -290,7 +293,7 @@
 #define BCHP_UARTA_LSR_DR_SHIFT                                    0
 
 /***************************************************************************
- *MSR
+ *MSR - Modem Status Register
  ***************************************************************************/
 /* UARTA :: MSR :: reserved0 [31:08] */
 #define BCHP_UARTA_MSR_reserved0_MASK                              0xffffff00
@@ -329,7 +332,7 @@
 #define BCHP_UARTA_MSR_DCTS_SHIFT                                  0
 
 /***************************************************************************
- *SCR
+ *SCR - Scratchpad Register
  ***************************************************************************/
 /* UARTA :: SCR :: reserved0 [31:08] */
 #define BCHP_UARTA_SCR_reserved0_MASK                              0xffffff00

@@ -36,7 +36,7 @@ STRIP     = $(STRIPTOOL)
 #GCCLIB    = $(shell $(CC) -print-search-dirs | grep install | cut -d" " -f2)
 GCC_INC_SUFFIX=$(shell $(CC) -print-search-dirs | sed -ne "s,install: *.*\(/lib/gcc-lib/.*\),\1,gp")
 GCCTOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
-GCCLIB = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)/lib
+GCCLIB = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)-uclibc/lib
 
 UCLINUX_BUILD_SET = 0					# have we set a special config below
 

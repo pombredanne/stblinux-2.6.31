@@ -1,5 +1,5 @@
 /* tc-score.c -- Assembler for Score
-   Copyright 2006 Free Software Foundation, Inc.
+   Copyright 2006, 2007 Free Software Foundation, Inc.
    Contributed by:
    Mei Ligang (ligang@sunnorth.com.cn)
    Pei-Lin Tsai (pltsai@sunplus.com)
@@ -8,7 +8,7 @@
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -181,11 +181,6 @@ struct score_it dependency_vector[SCORE7_PIPELINE];
 /* Relax will need some padding for alignment.  */
 #define RELAX_PAD_BYTE 3
 
-/* Number of littlenums required to hold an extended precision number.  For md_atof.  */
-#define NUM_FLOAT_VALS 8
-#define MAX_LITTLENUMS 6
-LITTLENUM_TYPE fp_values[NUM_FLOAT_VALS][MAX_LITTLENUMS];
-
 /* Structure for a hash table entry for a register.  */
 struct reg_entry
 {
@@ -281,7 +276,6 @@ static void do_rdrsrs (char *);
 static void do_rdsi16 (char *);
 static void do_rdrssi14 (char *);
 static void do_sub_rdsi16 (char *);
-static void do_sub_rdi16 (char *);
 static void do_sub_rdrssi14 (char *);
 static void do_rdrsi5 (char *);
 static void do_rdrsi14 (char *);
@@ -365,8 +359,6 @@ static const struct asm_opcode score_insns[] =
   {"addei!",    0x6000    , 0x7087,     0x02000001, Rd_I4,                do16_rdi4},
   {"subi",      0x02000000, 0x3e0e0001, 0x8000,     Rd_SI16,              do_sub_rdsi16},
   {"subi.c",    0x02000001, 0x3e0e0001, 0x8000,     Rd_SI16,              do_sub_rdsi16},
-  {"subis",     0x0a000000, 0x3e0e0001, 0x8000,     Rd_SI16,              do_sub_rdi16},
-  {"subis.c",   0x0a000001, 0x3e0e0001, 0x8000,     Rd_SI16,              do_sub_rdi16},
   {"subri",     0x10000000, 0x3e000001, 0x8000,     Rd_Rs_SI14,           do_sub_rdrssi14},
   {"subri.c",   0x10000001, 0x3e000001, 0x8000,     Rd_Rs_SI14,           do_sub_rdrssi14},
   {"and",       0x00000020, 0x3e0003ff, 0x8000,     Rd_Rs_Rs,             do_rdrsrs},
@@ -796,6 +788,7 @@ int next_literal_pool_place = 0;
 int lit_pool_num = 1;
 symbolS *current_poolP = NULL;
 
+
 static int
 end_of_line (char *str)
 {
@@ -1014,7 +1007,7 @@ my_get_expression (expressionS * ep, char **str)
 /* Check if an immediate is valid.  If so, convert it to the right format.  */
 
 static int
-validate_immediate (int val, unsigned int data_type)
+validate_immediate (int val, unsigned int data_type, int hex_p)
 {
   switch (data_type)
     {
@@ -1042,8 +1035,47 @@ validate_immediate (int val, unsigned int data_type)
       return val;
       break;
 
+    case _SIMM14:
+      if (hex_p == 1)
+        {
+          if (!(val >= -0x2000 && val <= 0x3fff))
+            {
+              return (int) FAIL;
+            }
+        }
+      else
+        {
+          if (!(val >= -8192 && val <= 8191))
+            {
+              return (int) FAIL;
+            }
+        }
+
+      return val;
+      break;
+
+    case _SIMM16_NEG:
+      if (hex_p == 1)
+        {
+          if (!(val >= -0x7fff && val <= 0xffff && val != 0x8000))
+            {
+              return (int) FAIL;
+            }
+        }
+      else
+        {
+          if (!(val >= -32767 && val <= 32768))
+            {
+              return (int) FAIL;
+            }
+        }
+
+      val = -val;
+      return val;
+      break;
+
     default:
-      if (data_type == _SIMM14_NEG || data_type == _SIMM16_NEG || data_type == _IMM16_NEG)
+      if (data_type == _SIMM14_NEG || data_type == _IMM16_NEG)
 	val = -val;
 
       if (score_df_range[data_type].range[0] <= val
@@ -1068,6 +1100,9 @@ data_op2 (char **str, int shift, enum score_data_type data_type)
   skip_whitespace (*str);
   inst.error = NULL;
   dataptr = * str;
+
+  /* Set hex_p to zero.  */
+  int hex_p = 0;
 
   while ((*dataptr != '\0') && (*dataptr != '|') && (cnt <= MAX_LITERAL_POOL_SIZE))     /* 0x7c = ='|' */
     {
@@ -1104,23 +1139,30 @@ data_op2 (char **str, int shift, enum score_data_type data_type)
         }
       dataptr = (char *)data_exp;
 
-      if ((*dataptr == '0') && (*(dataptr + 1) == 'x')
-          && (data_type != _SIMM16_LA)
-          && (data_type != _VALUE_HI16)
-          && (data_type != _VALUE_LO16)
-          && (data_type != _IMM16)
-          && (data_type != _IMM15)
-          && (data_type != _IMM14)
-          && (data_type != _IMM4)
-          && (data_type != _IMM5)
-          && (data_type != _IMM8)
-          && (data_type != _IMM5_RSHIFT_1)
-          && (data_type != _IMM5_RSHIFT_2)
-          && (data_type != _SIMM14_NEG)
-          && (data_type != _IMM10_RSHIFT_2)
-          && (data_type != _GP_IMM15))
+      if ((dataptr != NULL)
+          && (((strstr (dataptr, "0x")) != NULL)
+              || ((strstr (dataptr, "0X")) != NULL)))
         {
-          data_type += 24;
+          hex_p = 1;
+          if ((data_type != _SIMM16_LA)
+              && (data_type != _VALUE_HI16)
+              && (data_type != _VALUE_LO16)
+              && (data_type != _IMM16)
+              && (data_type != _IMM15)
+              && (data_type != _IMM14)
+              && (data_type != _IMM4)
+              && (data_type != _IMM5)
+              && (data_type != _IMM8)
+              && (data_type != _IMM5_RSHIFT_1)
+              && (data_type != _IMM5_RSHIFT_2)
+              && (data_type != _SIMM14)
+              && (data_type != _SIMM14_NEG)
+              && (data_type != _SIMM16_NEG)
+              && (data_type != _IMM10_RSHIFT_2)
+              && (data_type != _GP_IMM15))
+            {
+              data_type += 24;
+            }
         }
 
       if ((inst.reloc.exp.X_add_number == 0)
@@ -1194,7 +1236,7 @@ data_op2 (char **str, int shift, enum score_data_type data_type)
 
       if (data_type == _SIMM16_LA && inst.reloc.exp.X_unsigned == 1)
         {
-          value = validate_immediate (inst.reloc.exp.X_add_number, _SIMM16_LA_POS);
+          value = validate_immediate (inst.reloc.exp.X_add_number, _SIMM16_LA_POS, hex_p);
           if (value == (int) FAIL)       /* for advance to check if this is ldis */
             if ((inst.reloc.exp.X_add_number & 0xffff) == 0)
               {
@@ -1205,7 +1247,7 @@ data_op2 (char **str, int shift, enum score_data_type data_type)
         }
       else
         {
-          value = validate_immediate (inst.reloc.exp.X_add_number, data_type);
+          value = validate_immediate (inst.reloc.exp.X_add_number, data_type, hex_p);
         }
 
       if (value == (int) FAIL)
@@ -1311,19 +1353,6 @@ do_sub_rdsi16 (char *str)
   if (reg_required_here (&str, 20, REG_TYPE_SCORE) != (int) FAIL
       && skip_past_comma (&str) != (int) FAIL
       && data_op2 (&str, 1, _SIMM16_NEG) != (int) FAIL)
-    end_of_line (str);
-}
-
-/* Handle subis/subis.c.  */
-
-static void
-do_sub_rdi16 (char *str)
-{
-  skip_whitespace (str);
-
-  if (reg_required_here (&str, 20, REG_TYPE_SCORE) != (int) FAIL
-      && skip_past_comma (&str) != (int) FAIL
-      && data_op2 (&str, 1, _IMM16_NEG) != (int) FAIL)
     end_of_line (str);
 }
 
@@ -2603,7 +2632,7 @@ exp_ldst_offset (char **str, int shift, unsigned int data_type)
       if (value == (int) FAIL)
 	return (int) FAIL;
 
-      value = validate_immediate (inst.reloc.exp.X_add_number, data_type);
+      value = validate_immediate (inst.reloc.exp.X_add_number, data_type, 0);
       if (value == (int) FAIL)
         {
           if (data_type < 30)
@@ -2746,7 +2775,7 @@ do_ldst_insn (char *str)
                     }
 
                   pre_inc = 1;
-                  value = validate_immediate (inst.reloc.exp.X_add_number, _SIMM12);
+                  value = validate_immediate (inst.reloc.exp.X_add_number, _SIMM12, 0);
                   value &= (1 << score_df_range[_SIMM12].bits) - 1;
                   ldst_idx = inst.instruction & OPC_PSEUDOLDST_MASK;
                   inst.instruction &= ~OPC_PSEUDOLDST_MASK;
@@ -2886,7 +2915,7 @@ do_ldst_insn (char *str)
                   data_type += 24;
                 }
 
-              value = validate_immediate (inst.reloc.exp.X_add_number, data_type);
+              value = validate_immediate (inst.reloc.exp.X_add_number, data_type, 0);
               if (value == (int) FAIL)
                 {
                   if (data_type < 30)
@@ -4250,7 +4279,7 @@ do_macro_ldst_label (char *str)
   absolute_value = backup_str;
   inst.type = Rd_rvalueRs_SI15;
   if ((my_get_expression (&inst.reloc.exp, &backup_str) == (int) FAIL)
-      || (validate_immediate (inst.reloc.exp.X_add_number, _VALUE) == (int) FAIL)
+      || (validate_immediate (inst.reloc.exp.X_add_number, _VALUE, 0) == (int) FAIL)
       || (end_of_line (backup_str) == (int) FAIL))
     {
       return;
@@ -4670,75 +4699,10 @@ md_chars_to_number (char *buf, int n)
   return result;
 }
 
-/* Turn a string in input_line_pointer into a floating point constant
-   of type TYPE, and store the appropriate bytes in *LITP.  The number
-   of LITTLENUMS emitted is stored in *SIZEP.  An error message is
-   returned, or NULL on OK.
-
-   Note that fp constants aren't represent in the normal way on the ARM.
-   In big endian mode, things are as expected.  However, in little endian
-   mode fp constants are big-endian word-wise, and little-endian byte-wise
-   within the words.  For example, (double) 1.1 in big endian mode is
-   the byte sequence 3f f1 99 99 99 99 99 9a, and in little endian mode is
-   the byte sequence 99 99 f1 3f 9a 99 99 99.  */
-
 char *
 md_atof (int type, char *litP, int *sizeP)
 {
-  int prec;
-  LITTLENUM_TYPE words[MAX_LITTLENUMS];
-  char *t;
-  int i;
-
-  switch (type)
-    {
-    case 'f':
-    case 'F':
-    case 's':
-    case 'S':
-      prec = 2;
-      break;
-    case 'd':
-    case 'D':
-    case 'r':
-    case 'R':
-      prec = 4;
-      break;
-    case 'x':
-    case 'X':
-    case 'p':
-    case 'P':
-      prec = 6;
-      break;
-    default:
-      *sizeP = 0;
-      return _("bad call to MD_ATOF()");
-    }
-
-  t = atof_ieee (input_line_pointer, type, words);
-  if (t)
-    input_line_pointer = t;
-  *sizeP = prec * 2;
-
-  if (target_big_endian)
-    {
-      for (i = 0; i < prec; i++)
-        {
-          md_number_to_chars (litP, (valueT) words[i], 2);
-          litP += 2;
-        }
-    }
-  else
-    {
-      for (i = 0; i < prec; i += 2)
-        {
-          md_number_to_chars (litP, (valueT) words[i + 1], 2);
-          md_number_to_chars (litP + 2, (valueT) words[i], 2);
-          litP += 4;
-        }
-    }
-
-  return 0;
+  return ieee_md_atof (type, litP, sizeP, target_big_endian);
 }
 
 /* Return true if the given symbol should be considered local for PIC.  */

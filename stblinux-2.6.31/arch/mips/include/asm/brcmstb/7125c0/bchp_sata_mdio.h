@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:13:12 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_sata_mdio.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:42p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,36 +43,36 @@
 #define BCHP_SATA_MDIO_H__
 
 /***************************************************************************
- *SATA_MDIO
+ *SATA_MDIO - MDIO Address mapping
  ***************************************************************************/
-#define BCHP_SATA_MDIO_PLL_CTRL_0_REG            0x1a0a00
-#define BCHP_SATA_MDIO_PLL_CTRL_1_REG            0x1a0a02
-#define BCHP_SATA_MDIO_PLL_CTRL_2_REG            0x1a0a04
-#define BCHP_SATA_MDIO_PLL_CTRL_3_REG            0x1a0a06
-#define BCHP_SATA_MDIO_MISC_CTRL_1_REG           0x1a0a08
-#define BCHP_SATA_MDIO_TB_CTRL_REG               0x1a0a0a
-#define BCHP_SATA_MDIO_MISC_CTRL_2_REG           0x1a0a0c
-#define BCHP_SATA_MDIO_PORT_SELECT_REG           0x1a0a0e
-#define BCHP_SATA_MDIO_PORT_RX_CTRL_0_REG        0x1a0a10
-#define BCHP_SATA_MDIO_PORT_RX_CTRL_1_REG        0x1a0a12
-#define BCHP_SATA_MDIO_PORT_RX_CTRL_2_REG        0x1a0a1c
-#define BCHP_SATA_MDIO_PORT_RX_CTRL_3_REG        0x1a0a1e
-#define BCHP_SATA_MDIO_PORT_TX_CTRL_0_REG        0x1a0a14
-#define BCHP_SATA_MDIO_PORT_PRBS_CTRL_REG        0x1a0a16
-#define BCHP_SATA_MDIO_PORT_PRBS_STAT_REG        0x1a0a18
-#define BCHP_SATA_MDIO_PORT_DIG_CTRL_REG         0x1a0a1a
-#define BCHP_SATA_MDIO_PORT_TX_CTRL_1_REG        0x1a0a20
-#define BCHP_SATA_MDIO_PORT_TX_CTRL_2_REG        0x1a0a22
-#define BCHP_SATA_MDIO_PLL_CTRL_4_REG            0x1a0a24
-#define BCHP_SATA_MDIO_PLL_CTRL_5_REG            0x1a0a26
-#define BCHP_SATA_MDIO_PLL_CTRL_6_REG            0x1a0a28
-#define BCHP_SATA_MDIO_PLL_CTRL_7_REG            0x1a0a2a
-#define BCHP_SATA_MDIO_PLL_STAT_0_REG            0x1a0a36
-#define BCHP_SATA_MDIO_PLL_STAT_1_REG            0x1a0a38
-#define BCHP_SATA_MDIO_CORE_ID                   0x1a0a3e
+#define BCHP_SATA_MDIO_PLL_CTRL_0_REG            0x1a0a00 /* PLL_CTRL_0_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_1_REG            0x1a0a02 /* PLL_CTRL_1_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_2_REG            0x1a0a04 /* PLL_CTRL_2_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_3_REG            0x1a0a06 /* PLL_CTRL_3_REG */
+#define BCHP_SATA_MDIO_MISC_CTRL_1_REG           0x1a0a08 /* MISC_CTRL_1_REG */
+#define BCHP_SATA_MDIO_TB_CTRL_REG               0x1a0a0a /* TB_CTRL_REG */
+#define BCHP_SATA_MDIO_MISC_CTRL_2_REG           0x1a0a0c /* MISC_CTRL_2_REG */
+#define BCHP_SATA_MDIO_PORT_SELECT_REG           0x1a0a0e /* PORT_SELECT_REG */
+#define BCHP_SATA_MDIO_PORT_RX_CTRL_0_REG        0x1a0a10 /* PORT_RX_CTRL_0_REG */
+#define BCHP_SATA_MDIO_PORT_RX_CTRL_1_REG        0x1a0a12 /* PORT_RX_CTRL_1_REG */
+#define BCHP_SATA_MDIO_PORT_RX_CTRL_2_REG        0x1a0a1c /* PORT_RX_CTRL_2_REG */
+#define BCHP_SATA_MDIO_PORT_RX_CTRL_3_REG        0x1a0a1e /* PORT_RX_CTRL_3_REG */
+#define BCHP_SATA_MDIO_PORT_TX_CTRL_0_REG        0x1a0a14 /* PORT_TX_CTRL_0_REG */
+#define BCHP_SATA_MDIO_PORT_PRBS_CTRL_REG        0x1a0a16 /* PORT_PRBS_CTRL_REG */
+#define BCHP_SATA_MDIO_PORT_PRBS_STAT_REG        0x1a0a18 /* PORT_PRBS_STAT_REG */
+#define BCHP_SATA_MDIO_PORT_DIG_CTRL_REG         0x1a0a1a /* PORT_DIG_CTRL_REG */
+#define BCHP_SATA_MDIO_PORT_TX_CTRL_1_REG        0x1a0a20 /* PORT_TX_CTRL_1_REG */
+#define BCHP_SATA_MDIO_PORT_TX_CTRL_2_REG        0x1a0a22 /* PORT_TX_Control_2_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_4_REG            0x1a0a24 /* PLL_CTRL_4_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_5_REG            0x1a0a26 /* PLL_CTRL_5_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_6_REG            0x1a0a28 /* PLL_CTRL_6_REG */
+#define BCHP_SATA_MDIO_PLL_CTRL_7_REG            0x1a0a2a /* PLL_CTRL_7_REG */
+#define BCHP_SATA_MDIO_PLL_STAT_0_REG            0x1a0a36 /* PLL_STAT_0_REG */
+#define BCHP_SATA_MDIO_PLL_STAT_1_REG            0x1a0a38 /* PLL_STAT_1_REG */
+#define BCHP_SATA_MDIO_CORE_ID                   0x1a0a3e /* CORE_ID */
 
 /***************************************************************************
- *PLL_CTRL_0_REG
+ *PLL_CTRL_0_REG - PLL_CTRL_0_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_0_REG :: VCO_OUTPUT_SWING [15:14] */
 #define BCHP_SATA_MDIO_PLL_CTRL_0_REG_VCO_OUTPUT_SWING_MASK        0xc000
@@ -116,7 +119,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_0_REG_PLL_PWRDN_SHIFT              0
 
 /***************************************************************************
- *PLL_CTRL_1_REG
+ *PLL_CTRL_1_REG - PLL_CTRL_1_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_1_REG :: CTAT_ADJ [15:15] */
 #define BCHP_SATA_MDIO_PLL_CTRL_1_REG_CTAT_ADJ_MASK                0x8000
@@ -139,7 +142,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_1_REG_reserved0_SHIFT              0
 
 /***************************************************************************
- *PLL_CTRL_2_REG
+ *PLL_CTRL_2_REG - PLL_CTRL_2_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_2_REG :: INREF_BUFFBIAS [15:13] */
 #define BCHP_SATA_MDIO_PLL_CTRL_2_REG_INREF_BUFFBIAS_MASK          0xe000
@@ -174,7 +177,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_2_REG_CTAT_ADJ_SHIFT               0
 
 /***************************************************************************
- *PLL_CTRL_3_REG
+ *PLL_CTRL_3_REG - PLL_CTRL_3_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_3_REG :: PLL_TEST_CTRL_2 [15:14] */
 #define BCHP_SATA_MDIO_PLL_CTRL_3_REG_PLL_TEST_CTRL_2_MASK         0xc000
@@ -201,7 +204,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_3_REG_PLL_VCOBIAS_CURR_SHIFT       0
 
 /***************************************************************************
- *MISC_CTRL_1_REG
+ *MISC_CTRL_1_REG - MISC_CTRL_1_REG
  ***************************************************************************/
 /* SATA_MDIO :: MISC_CTRL_1_REG :: reserved0 [15:09] */
 #define BCHP_SATA_MDIO_MISC_CTRL_1_REG_reserved0_MASK              0xfe00
@@ -228,7 +231,7 @@
 #define BCHP_SATA_MDIO_MISC_CTRL_1_REG_ANALOG_PWRN_SHIFT           0
 
 /***************************************************************************
- *TB_CTRL_REG
+ *TB_CTRL_REG - TB_CTRL_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: TB_CTRL_REG :: MDIO_FUNC_SPACE :: reserved0 [15:00] */
@@ -253,7 +256,7 @@
 #define BCHP_SATA_MDIO_TB_CTRL_REG_MDIO_TEST_SPACE_TEST_MUX_SEL_SHIFT 0
 
 /***************************************************************************
- *MISC_CTRL_2_REG
+ *MISC_CTRL_2_REG - MISC_CTRL_2_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: MISC_CTRL_2_REG :: MDIO_FUNC_SPACE :: reserved0 [15:10] */
@@ -294,7 +297,7 @@
 #define BCHP_SATA_MDIO_MISC_CTRL_2_REG_MDIO_TEST_SPACE_SEL_LF_FOR_TB_SHIFT 0
 
 /***************************************************************************
- *PORT_SELECT_REG
+ *PORT_SELECT_REG - PORT_SELECT_REG
  ***************************************************************************/
 /* SATA_MDIO :: PORT_SELECT_REG :: FREQ_LOCK [15:15] */
 #define BCHP_SATA_MDIO_PORT_SELECT_REG_FREQ_LOCK_MASK              0x8000
@@ -313,7 +316,7 @@
 #define BCHP_SATA_MDIO_PORT_SELECT_REG_SEL_PORT0_SHIFT             0
 
 /***************************************************************************
- *PORT_RX_CTRL_0_REG
+ *PORT_RX_CTRL_0_REG - PORT_RX_CTRL_0_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_RX_CTRL_0_REG :: MDIO_FUNC_SPACE :: SIG_DETECT_BIAS [15:14] */
@@ -386,7 +389,7 @@
 #define BCHP_SATA_MDIO_PORT_RX_CTRL_0_REG_MDIO_TEST_SPACE_RAM_WR_ADDR_SHIFT 0
 
 /***************************************************************************
- *PORT_RX_CTRL_1_REG
+ *PORT_RX_CTRL_1_REG - PORT_RX_CTRL_1_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_RX_CTRL_1_REG :: MDIO_FUNC_SPACE :: SSC_MOD_FREQ [15:15] */
@@ -427,7 +430,7 @@
 #define BCHP_SATA_MDIO_PORT_RX_CTRL_1_REG_MDIO_TEST_SPACE_RAM_WR_DATA_SHIFT 0
 
 /***************************************************************************
- *PORT_RX_CTRL_2_REG
+ *PORT_RX_CTRL_2_REG - PORT_RX_CTRL_2_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_RX_CTRL_2_REG :: MDIO_FUNC_SPACE :: EQ_LEVEL [15:13] */
@@ -456,7 +459,7 @@
 #define BCHP_SATA_MDIO_PORT_RX_CTRL_2_REG_MDIO_TEST_SPACE_reserved0_SHIFT 0
 
 /***************************************************************************
- *PORT_RX_CTRL_3_REG
+ *PORT_RX_CTRL_3_REG - PORT_RX_CTRL_3_REG
  ***************************************************************************/
 /* SATA_MDIO :: PORT_RX_CTRL_3_REG :: PROP_BW [15:14] */
 #define BCHP_SATA_MDIO_PORT_RX_CTRL_3_REG_PROP_BW_MASK             0xc000
@@ -499,7 +502,7 @@
 #define BCHP_SATA_MDIO_PORT_RX_CTRL_3_REG_reserved0_SHIFT          0
 
 /***************************************************************************
- *PORT_TX_CTRL_0_REG
+ *PORT_TX_CTRL_0_REG - PORT_TX_CTRL_0_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_TX_CTRL_0_REG :: MDIO_FUNC_SPACE :: CLK_DIV_5_BUFF_BIAS [15:15] */
@@ -608,7 +611,7 @@
 #define BCHP_SATA_MDIO_PORT_TX_CTRL_0_REG_MDIO_TEST_SPACE_CJ_EN_BIT_SHIFT 0
 
 /***************************************************************************
- *PORT_PRBS_CTRL_REG
+ *PORT_PRBS_CTRL_REG - PORT_PRBS_CTRL_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_PRBS_CTRL_REG :: MDIO_FUNC_SPACE :: reserved0 [15:06] */
@@ -641,7 +644,7 @@
 #define BCHP_SATA_MDIO_PORT_PRBS_CTRL_REG_MDIO_TEST_SPACE_CJ_TRAIN_PAT_L_SHIFT 0
 
 /***************************************************************************
- *PORT_PRBS_STAT_REG
+ *PORT_PRBS_STAT_REG - PORT_PRBS_STAT_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_PRBS_STAT_REG :: MDIO_FUNC_SPACE :: PRBS_LOCK [15:15] */
@@ -662,7 +665,7 @@
 #define BCHP_SATA_MDIO_PORT_PRBS_STAT_REG_MDIO_TEST_SPACE_CJ_TRAIN_PAT_H_SHIFT 0
 
 /***************************************************************************
- *PORT_DIG_CTRL_REG
+ *PORT_DIG_CTRL_REG - PORT_DIG_CTRL_REG
  ***************************************************************************/
 /* union - case MDIO_FUNC_SPACE [15:00] */
 /* SATA_MDIO :: PORT_DIG_CTRL_REG :: MDIO_FUNC_SPACE :: RESET_TXDSKEW_FIFO [15:15] */
@@ -747,7 +750,7 @@
 #define BCHP_SATA_MDIO_PORT_DIG_CTRL_REG_MDIO_TEST_SPACE_CJ_NUM_TRAIN_PAT_SHIFT 0
 
 /***************************************************************************
- *PORT_TX_CTRL_1_REG
+ *PORT_TX_CTRL_1_REG - PORT_TX_CTRL_1_REG
  ***************************************************************************/
 /* SATA_MDIO :: PORT_TX_CTRL_1_REG :: PRE_DRV_BIAS [15:14] */
 #define BCHP_SATA_MDIO_PORT_TX_CTRL_1_REG_PRE_DRV_BIAS_MASK        0xc000
@@ -774,7 +777,7 @@
 #define BCHP_SATA_MDIO_PORT_TX_CTRL_1_REG_CLK_DIV_5_BUFF_BIAS_SHIFT 0
 
 /***************************************************************************
- *PORT_TX_CTRL_2_REG
+ *PORT_TX_CTRL_2_REG - PORT_TX_Control_2_REG
  ***************************************************************************/
 /* SATA_MDIO :: PORT_TX_CTRL_2_REG :: PRE_EMPH_LEVEL [15:12] */
 #define BCHP_SATA_MDIO_PORT_TX_CTRL_2_REG_PRE_EMPH_LEVEL_MASK      0xf000
@@ -797,7 +800,7 @@
 #define BCHP_SATA_MDIO_PORT_TX_CTRL_2_REG_PRE_DRV_BIAS_SHIFT       0
 
 /***************************************************************************
- *PLL_CTRL_4_REG
+ *PLL_CTRL_4_REG - PLL_CTRL_4_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_4_REG :: reserved0 [15:15] */
 #define BCHP_SATA_MDIO_PLL_CTRL_4_REG_reserved0_MASK               0x8000
@@ -848,7 +851,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_4_REG_FORCED_VCO_RANGE_SHIFT       0
 
 /***************************************************************************
- *PLL_CTRL_5_REG
+ *PLL_CTRL_5_REG - PLL_CTRL_5_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_5_REG :: reserved0 [15:15] */
 #define BCHP_SATA_MDIO_PLL_CTRL_5_REG_reserved0_MASK               0x8000
@@ -899,7 +902,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_5_REG_FORCE_FREQLOCK_SHIFT         0
 
 /***************************************************************************
- *PLL_CTRL_6_REG
+ *PLL_CTRL_6_REG - PLL_CTRL_6_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_6_REG :: MDIO_RES_VAL [15:08] */
 #define BCHP_SATA_MDIO_PLL_CTRL_6_REG_MDIO_RES_VAL_MASK            0xff00
@@ -910,7 +913,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_6_REG_MDIO_WIN_VAL_SHIFT           0
 
 /***************************************************************************
- *PLL_CTRL_7_REG
+ *PLL_CTRL_7_REG - PLL_CTRL_7_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_CTRL_7_REG :: reserved0 [15:04] */
 #define BCHP_SATA_MDIO_PLL_CTRL_7_REG_reserved0_MASK               0xfff0
@@ -925,7 +928,7 @@
 #define BCHP_SATA_MDIO_PLL_CTRL_7_REG_reserved1_SHIFT              0
 
 /***************************************************************************
- *PLL_STAT_0_REG
+ *PLL_STAT_0_REG - PLL_STAT_0_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_STAT_0_REG :: VCO_RANGE_CTL_BITS [15:12] */
 #define BCHP_SATA_MDIO_PLL_STAT_0_REG_VCO_RANGE_CTL_BITS_MASK      0xf000
@@ -948,7 +951,7 @@
 #define BCHP_SATA_MDIO_PLL_STAT_0_REG_reserved1_SHIFT              0
 
 /***************************************************************************
- *PLL_STAT_1_REG
+ *PLL_STAT_1_REG - PLL_STAT_1_REG
  ***************************************************************************/
 /* SATA_MDIO :: PLL_STAT_1_REG :: reserved0 [15:15] */
 #define BCHP_SATA_MDIO_PLL_STAT_1_REG_reserved0_MASK               0x8000
@@ -987,7 +990,7 @@
 #define BCHP_SATA_MDIO_PLL_STAT_1_REG_PLL_RANGE_SHIFT              0
 
 /***************************************************************************
- *CORE_ID
+ *CORE_ID - CORE_ID
  ***************************************************************************/
 /* SATA_MDIO :: CORE_ID :: CORE_ID [15:00] */
 #define BCHP_SATA_MDIO_CORE_ID_CORE_ID_MASK                        0xffff

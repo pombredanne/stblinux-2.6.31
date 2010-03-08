@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:41:06 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_memc_ddr_0.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:50p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,52 +43,52 @@
 #define BCHP_MEMC_DDR_0_H__
 
 /***************************************************************************
- *MEMC_DDR_0
+ *MEMC_DDR_0 - Memory Controller Sequencer (DDR Param/Control) Registers 0
  ***************************************************************************/
-#define BCHP_MEMC_DDR_0_CNTRLR_CONFIG            0x003b2000
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL          0x003b2004
-#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS         0x003b2008
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0              0x003b200c
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1              0x003b2010
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2              0x003b2014
-#define BCHP_MEMC_DDR_0_DRAM_MODE_3              0x003b2018
-#define BCHP_MEMC_DDR_0_PPD_CONFIG               0x003b201c
-#define BCHP_MEMC_DDR_0_SRPD_CONFIG              0x003b2020
-#define BCHP_MEMC_DDR_0_SSPD_CMD                 0x003b2024
-#define BCHP_MEMC_DDR_0_POWER_DOWN_STATUS        0x003b2028
-#define BCHP_MEMC_DDR_0_WARM_BOOT                0x003b202c
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_0            0x003b2030
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_1            0x003b2034
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_2            0x003b2038
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_3            0x003b203c
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_4            0x003b2040
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_5            0x003b2044
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ         0x003b2048
-#define BCHP_MEMC_DDR_0_CNTRLR_SM_TIMEOUT        0x003b204c
-#define BCHP_MEMC_DDR_0_BANK_STATUS              0x003b2050
-#define BCHP_MEMC_DDR_0_STAT_CONTROL             0x003b2054
-#define BCHP_MEMC_DDR_0_STAT_TIMER               0x003b2058
-#define BCHP_MEMC_DDR_0_STAT_IDLE                0x003b205c
-#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE            0x003b2060
-#define BCHP_MEMC_DDR_0_STAT_CAS                 0x003b2064
-#define BCHP_MEMC_DDR_0_STAT_MAX_CAS             0x003b2068
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE       0x003b206c
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE   0x003b2070
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE   0x003b2074
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS       0x003b2078
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS   0x003b207c
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS   0x003b2080
-#define BCHP_MEMC_DDR_0_STAT_PERF                0x003b2084
-#define BCHP_MEMC_DDR_0_STAT_MAX_PERF            0x003b2088
-#define BCHP_MEMC_DDR_0_TESTER_LATENCY           0x003b208c
-#define BCHP_MEMC_DDR_0_DTPM_BYTE0               0x003b2090
-#define BCHP_MEMC_DDR_0_DTPM_BYTE1               0x003b2094
-#define BCHP_MEMC_DDR_0_DTPM_BYTE2               0x003b2098
-#define BCHP_MEMC_DDR_0_DTPM_BYTE3               0x003b209c
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD   0x003b20a0
+#define BCHP_MEMC_DDR_0_CNTRLR_CONFIG            0x003b2000 /* Memory Controller Mode-Configuration Register. */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL          0x003b2004 /* Dram iniitialization control */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS         0x003b2008 /* Dram iniitialization status */
+#define BCHP_MEMC_DDR_0_DRAM_MODE_0              0x003b200c /* Dram Mode0 register */
+#define BCHP_MEMC_DDR_0_DRAM_MODE_1              0x003b2010 /* Dram Mode1 register */
+#define BCHP_MEMC_DDR_0_DRAM_MODE_2              0x003b2014 /* Dram Mode2 register */
+#define BCHP_MEMC_DDR_0_DRAM_MODE_3              0x003b2018 /* Dram Mode3 register */
+#define BCHP_MEMC_DDR_0_PPD_CONFIG               0x003b201c /* Precharge power down mode configuration register */
+#define BCHP_MEMC_DDR_0_SRPD_CONFIG              0x003b2020 /* Self-refresh power down mode configuration register */
+#define BCHP_MEMC_DDR_0_SSPD_CMD                 0x003b2024 /* Software standby power down mode */
+#define BCHP_MEMC_DDR_0_POWER_DOWN_STATUS        0x003b2028 /* Power down status */
+#define BCHP_MEMC_DDR_0_WARM_BOOT                0x003b202c /* Warm boot control registers */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_0            0x003b2030 /* DDR-SDRAM Timing Register. */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_1            0x003b2034 /* DDR-SDRAM Timing Register. */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_2            0x003b2038 /* Read to Write & write to read timing register */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_3            0x003b203c /* DDR-SDRAM Timing Register. */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_4            0x003b2040 /* DDR-SDRAM Timing Register. */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_5            0x003b2044 /* DDR-SDRAM Timing Register. */
+#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ         0x003b2048 /* Memory Controller Sequencer Enable */
+#define BCHP_MEMC_DDR_0_CNTRLR_SM_TIMEOUT        0x003b204c /* Memory Controller , state machine timeout register. */
+#define BCHP_MEMC_DDR_0_BANK_STATUS              0x003b2050 /* Memory Controller, Bank Status Register. */
+#define BCHP_MEMC_DDR_0_STAT_CONTROL             0x003b2054 /* Statistics Control register */
+#define BCHP_MEMC_DDR_0_STAT_TIMER               0x003b2058 /* Statistics Timer */
+#define BCHP_MEMC_DDR_0_STAT_IDLE                0x003b205c /* Idle Cycle Count Register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE            0x003b2060 /* Maximum idle cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_CAS                 0x003b2064 /* CAS Count Register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CAS             0x003b2068 /* Maximum CAS cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE       0x003b206c /* Service Cycle Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE   0x003b2070 /* Maximum service cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE   0x003b2074 /* Minimum service cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS       0x003b2078 /* Service Transaction Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS   0x003b207c /* Maximum service Transaction count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS   0x003b2080 /* Minimum service cycle Transaction register. */
+#define BCHP_MEMC_DDR_0_STAT_PERF                0x003b2084 /* Performance Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_PERF            0x003b2088 /* Maximum performance count register. */
+#define BCHP_MEMC_DDR_0_TESTER_LATENCY           0x003b208c /* Memory Controller, Tester Latency Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE0               0x003b2090 /* Memory Controller, DATA_PINMAP_BYTE0_SEL Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE1               0x003b2094 /* Memory Controller, DATA_PINMAP_BYTE1_SEL Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE2               0x003b2098 /* Memory Controller, DATA_PINMAP_BYTE2_SEL Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE3               0x003b209c /* Memory Controller, DATA_PINMAP_BYTE3_SEL Register. */
+#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD   0x003b20a0 /* Memory Controller, DDR3 DRAM reset Register. */
 
 /***************************************************************************
- *CNTRLR_CONFIG
+ *CNTRLR_CONFIG - Memory Controller Mode-Configuration Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: CNTRLR_CONFIG :: reserved0 [31:03] */
 #define BCHP_MEMC_DDR_0_CNTRLR_CONFIG_reserved0_MASK               0xfffffff8
@@ -96,7 +99,7 @@
 #define BCHP_MEMC_DDR_0_CNTRLR_CONFIG_DEVICE_TECH_SHIFT            0
 
 /***************************************************************************
- *DRAM_INIT_CNTRL
+ *DRAM_INIT_CNTRL - Dram iniitialization control
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: reserved0 [31:03] */
 #define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved0_MASK             0xfffffff8
@@ -117,7 +120,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_DDR3_INIT_MODE_SHIFT       0
 
 /***************************************************************************
- *DRAM_INIT_STATUS
+ *DRAM_INIT_STATUS - Dram iniitialization status
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_INIT_STATUS :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_reserved0_MASK            0xfffffffe
@@ -128,7 +131,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_INIT_DONE_SHIFT           0
 
 /***************************************************************************
- *DRAM_MODE_0
+ *DRAM_MODE_0 - Dram Mode0 register
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_MODE_0 :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_reserved0_MASK                 0xffff0000
@@ -201,7 +204,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR3_BL_SHIFT                  0
 
 /***************************************************************************
- *DRAM_MODE_1
+ *DRAM_MODE_1 - Dram Mode1 register
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_MODE_1 :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR_0_DRAM_MODE_1_reserved0_MASK                 0xffff0000
@@ -314,7 +317,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR3_DLL_EN_DISABLE            1
 
 /***************************************************************************
- *DRAM_MODE_2
+ *DRAM_MODE_2 - Dram Mode2 register
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_MODE_2 :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR_0_DRAM_MODE_2_reserved0_MASK                 0xffff0000
@@ -379,7 +382,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR3_PASR_SHIFT                0
 
 /***************************************************************************
- *DRAM_MODE_3
+ *DRAM_MODE_3 - Dram Mode3 register
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_MODE_3 :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR_0_DRAM_MODE_3_reserved0_MASK                 0xffff0000
@@ -404,7 +407,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_3_DDR3_MPR_LOC_SHIFT             0
 
 /***************************************************************************
- *PPD_CONFIG
+ *PPD_CONFIG - Precharge power down mode configuration register
  ***************************************************************************/
 /* MEMC_DDR_0 :: PPD_CONFIG :: reserved0 [31:13] */
 #define BCHP_MEMC_DDR_0_PPD_CONFIG_reserved0_MASK                  0xffffe000
@@ -419,7 +422,7 @@
 #define BCHP_MEMC_DDR_0_PPD_CONFIG_INACT_COUNT_SHIFT               0
 
 /***************************************************************************
- *SRPD_CONFIG
+ *SRPD_CONFIG - Self-refresh power down mode configuration register
  ***************************************************************************/
 /* MEMC_DDR_0 :: SRPD_CONFIG :: reserved0 [31:17] */
 #define BCHP_MEMC_DDR_0_SRPD_CONFIG_reserved0_MASK                 0xfffe0000
@@ -434,7 +437,7 @@
 #define BCHP_MEMC_DDR_0_SRPD_CONFIG_INACT_COUNT_SHIFT              0
 
 /***************************************************************************
- *SSPD_CMD
+ *SSPD_CMD - Software standby power down mode
  ***************************************************************************/
 /* MEMC_DDR_0 :: SSPD_CMD :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR_0_SSPD_CMD_reserved0_MASK                    0xfffffffe
@@ -445,7 +448,7 @@
 #define BCHP_MEMC_DDR_0_SSPD_CMD_SSPD_SHIFT                        0
 
 /***************************************************************************
- *POWER_DOWN_STATUS
+ *POWER_DOWN_STATUS - Power down status
  ***************************************************************************/
 /* MEMC_DDR_0 :: POWER_DOWN_STATUS :: reserved0 [31:03] */
 #define BCHP_MEMC_DDR_0_POWER_DOWN_STATUS_reserved0_MASK           0xfffffff8
@@ -464,7 +467,7 @@
 #define BCHP_MEMC_DDR_0_POWER_DOWN_STATUS_PPD_SHIFT                0
 
 /***************************************************************************
- *WARM_BOOT
+ *WARM_BOOT - Warm boot control registers
  ***************************************************************************/
 /* MEMC_DDR_0 :: WARM_BOOT :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR_0_WARM_BOOT_reserved0_MASK                   0xfffffffe
@@ -475,7 +478,7 @@
 #define BCHP_MEMC_DDR_0_WARM_BOOT_WARM_BOOT_SHIFT                  0
 
 /***************************************************************************
- *DRAM_TIMING_0
+ *DRAM_TIMING_0 - DDR-SDRAM Timing Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_TIMING_0 :: reserved0 [31:31] */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_0_reserved0_MASK               0x80000000
@@ -510,7 +513,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_0_reserved3_SHIFT              0
 
 /***************************************************************************
- *DRAM_TIMING_1
+ *DRAM_TIMING_1 - DDR-SDRAM Timing Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_TIMING_1 :: reserved0 [31:09] */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_1_reserved0_MASK               0xfffffe00
@@ -529,7 +532,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_1_TRTP_NOP_SHIFT               0
 
 /***************************************************************************
- *DRAM_TIMING_2
+ *DRAM_TIMING_2 - Read to Write & write to read timing register
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_TIMING_2 :: reserved0 [31:10] */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_2_reserved0_MASK               0xfffffc00
@@ -544,7 +547,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_2_RD2WR_NOP_SHIFT              0
 
 /***************************************************************************
- *DRAM_TIMING_3
+ *DRAM_TIMING_3 - DDR-SDRAM Timing Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_TIMING_3 :: CKE_ASSETION_DELAY [31:23] */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_3_CKE_ASSETION_DELAY_MASK      0xff800000
@@ -563,7 +566,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_3_DLL_LOCK_DELAY_SHIFT         0
 
 /***************************************************************************
- *DRAM_TIMING_4
+ *DRAM_TIMING_4 - DDR-SDRAM Timing Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_TIMING_4 :: reserved0 [31:28] */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_4_reserved0_MASK               0xf0000000
@@ -586,7 +589,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_4_ZQCALIB_DELAY_SHIFT          0
 
 /***************************************************************************
- *DRAM_TIMING_5
+ *DRAM_TIMING_5 - DDR-SDRAM Timing Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_TIMING_5 :: reserved0 [31:18] */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_5_reserved0_MASK               0xfffc0000
@@ -605,7 +608,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_5_SELFREF_EXIT_DELAY_SHIFT     0
 
 /***************************************************************************
- *CNTRLR_START_SEQ
+ *CNTRLR_START_SEQ - Memory Controller Sequencer Enable
  ***************************************************************************/
 /* MEMC_DDR_0 :: CNTRLR_START_SEQ :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_reserved0_MASK            0xfffffffe
@@ -616,7 +619,7 @@
 #define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_START_SEQ_SHIFT           0
 
 /***************************************************************************
- *CNTRLR_SM_TIMEOUT
+ *CNTRLR_SM_TIMEOUT - Memory Controller , state machine timeout register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: CNTRLR_SM_TIMEOUT :: reserved0 [31:17] */
 #define BCHP_MEMC_DDR_0_CNTRLR_SM_TIMEOUT_reserved0_MASK           0xfffe0000
@@ -631,7 +634,7 @@
 #define BCHP_MEMC_DDR_0_CNTRLR_SM_TIMEOUT_COUNT_SHIFT              0
 
 /***************************************************************************
- *BANK_STATUS
+ *BANK_STATUS - Memory Controller, Bank Status Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: BANK_STATUS :: reserved0 [31:08] */
 #define BCHP_MEMC_DDR_0_BANK_STATUS_reserved0_MASK                 0xffffff00
@@ -670,7 +673,7 @@
 #define BCHP_MEMC_DDR_0_BANK_STATUS_BANK0_STATUS_SHIFT             0
 
 /***************************************************************************
- *STAT_CONTROL
+ *STAT_CONTROL - Statistics Control register
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_CONTROL :: reserved0 [31:11] */
 #define BCHP_MEMC_DDR_0_STAT_CONTROL_reserved0_MASK                0xfffff800
@@ -705,98 +708,98 @@
 #define BCHP_MEMC_DDR_0_STAT_CONTROL_CLIENT_ID_SHIFT               0
 
 /***************************************************************************
- *STAT_TIMER
+ *STAT_TIMER - Statistics Timer
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_TIMER :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_TIMER_COUNT_MASK                      0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_TIMER_COUNT_SHIFT                     0
 
 /***************************************************************************
- *STAT_IDLE
+ *STAT_IDLE - Idle Cycle Count Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_IDLE :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_IDLE_COUNT_MASK                       0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_IDLE_COUNT_SHIFT                      0
 
 /***************************************************************************
- *STAT_MAX_IDLE
+ *STAT_MAX_IDLE - Maximum idle cycle count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MAX_IDLE :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_COUNT_MASK                   0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_COUNT_SHIFT                  0
 
 /***************************************************************************
- *STAT_CAS
+ *STAT_CAS - CAS Count Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_CAS :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_CAS_COUNT_MASK                        0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_CAS_COUNT_SHIFT                       0
 
 /***************************************************************************
- *STAT_MAX_CAS
+ *STAT_MAX_CAS - Maximum CAS cycle count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MAX_CAS :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MAX_CAS_COUNT_MASK                    0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MAX_CAS_COUNT_SHIFT                   0
 
 /***************************************************************************
- *STAT_SERVICE_CYCLE
+ *STAT_SERVICE_CYCLE - Service Cycle Count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_SERVICE_CYCLE :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE_COUNT_MASK              0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE_COUNT_SHIFT             0
 
 /***************************************************************************
- *STAT_MAX_SERVICE_CYCLE
+ *STAT_MAX_SERVICE_CYCLE - Maximum service cycle count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MAX_SERVICE_CYCLE :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE_COUNT_MASK          0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE_COUNT_SHIFT         0
 
 /***************************************************************************
- *STAT_MIN_SERVICE_CYCLE
+ *STAT_MIN_SERVICE_CYCLE - Minimum service cycle count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MIN_SERVICE_CYCLE :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE_COUNT_MASK          0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE_COUNT_SHIFT         0
 
 /***************************************************************************
- *STAT_SERVICE_TRANS
+ *STAT_SERVICE_TRANS - Service Transaction Count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_SERVICE_TRANS :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS_COUNT_MASK              0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS_COUNT_SHIFT             0
 
 /***************************************************************************
- *STAT_MAX_SERVICE_TRANS
+ *STAT_MAX_SERVICE_TRANS - Maximum service Transaction count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MAX_SERVICE_TRANS :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS_COUNT_MASK          0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS_COUNT_SHIFT         0
 
 /***************************************************************************
- *STAT_MIN_SERVICE_TRANS
+ *STAT_MIN_SERVICE_TRANS - Minimum service cycle Transaction register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MIN_SERVICE_TRANS :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS_COUNT_MASK          0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS_COUNT_SHIFT         0
 
 /***************************************************************************
- *STAT_PERF
+ *STAT_PERF - Performance Count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_PERF :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_PERF_COUNT_MASK                       0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_PERF_COUNT_SHIFT                      0
 
 /***************************************************************************
- *STAT_MAX_PERF
+ *STAT_MAX_PERF - Maximum performance count register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: STAT_MAX_PERF :: COUNT [31:00] */
 #define BCHP_MEMC_DDR_0_STAT_MAX_PERF_COUNT_MASK                   0xffffffff
 #define BCHP_MEMC_DDR_0_STAT_MAX_PERF_COUNT_SHIFT                  0
 
 /***************************************************************************
- *TESTER_LATENCY
+ *TESTER_LATENCY - Memory Controller, Tester Latency Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: TESTER_LATENCY :: reserved0 [31:07] */
 #define BCHP_MEMC_DDR_0_TESTER_LATENCY_reserved0_MASK              0xffffff80
@@ -807,7 +810,7 @@
 #define BCHP_MEMC_DDR_0_TESTER_LATENCY_TLATENCY_SEL_SHIFT          0
 
 /***************************************************************************
- *DTPM_BYTE0
+ *DTPM_BYTE0 - Memory Controller, DATA_PINMAP_BYTE0_SEL Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DTPM_BYTE0 :: reserved0 [31:31] */
 #define BCHP_MEMC_DDR_0_DTPM_BYTE0_reserved0_MASK                  0x80000000
@@ -874,7 +877,7 @@
 #define BCHP_MEMC_DDR_0_DTPM_BYTE0_DT_0_SEL_SHIFT                  0
 
 /***************************************************************************
- *DTPM_BYTE1
+ *DTPM_BYTE1 - Memory Controller, DATA_PINMAP_BYTE1_SEL Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DTPM_BYTE1 :: reserved0 [31:31] */
 #define BCHP_MEMC_DDR_0_DTPM_BYTE1_reserved0_MASK                  0x80000000
@@ -941,7 +944,7 @@
 #define BCHP_MEMC_DDR_0_DTPM_BYTE1_DT_0_SEL_SHIFT                  0
 
 /***************************************************************************
- *DTPM_BYTE2
+ *DTPM_BYTE2 - Memory Controller, DATA_PINMAP_BYTE2_SEL Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DTPM_BYTE2 :: reserved0 [31:31] */
 #define BCHP_MEMC_DDR_0_DTPM_BYTE2_reserved0_MASK                  0x80000000
@@ -1008,7 +1011,7 @@
 #define BCHP_MEMC_DDR_0_DTPM_BYTE2_DT_0_SEL_SHIFT                  0
 
 /***************************************************************************
- *DTPM_BYTE3
+ *DTPM_BYTE3 - Memory Controller, DATA_PINMAP_BYTE3_SEL Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DTPM_BYTE3 :: reserved0 [31:31] */
 #define BCHP_MEMC_DDR_0_DTPM_BYTE3_reserved0_MASK                  0x80000000
@@ -1075,7 +1078,7 @@
 #define BCHP_MEMC_DDR_0_DTPM_BYTE3_DT_0_SEL_SHIFT                  0
 
 /***************************************************************************
- *DRAM_DDR3_RESET_PERIOD
+ *DRAM_DDR3_RESET_PERIOD - Memory Controller, DDR3 DRAM reset Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: DRAM_DDR3_RESET_PERIOD :: reserved0 [31:20] */
 #define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_reserved0_MASK      0xfff00000

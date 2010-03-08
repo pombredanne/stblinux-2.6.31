@@ -1,12 +1,12 @@
 /* spu.c -- Assembler for the IBM Synergistic Processing Unit (SPU)
 
-   Copyright 2006 Free Software Foundation, Inc.
+   Copyright 2006, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -22,7 +22,6 @@
 #include "as.h"
 #include "safe-ctype.h"
 #include "subsegs.h"
-#include "opcode/spu.h"
 #include "dwarf2dbg.h" 
 
 const struct spu_opcode spu_opcodes[] = {
@@ -45,16 +44,16 @@ struct spu_insn
   unsigned int opcode;
   expressionS exp[MAX_RELOCS];
   int reloc_arg[MAX_RELOCS];
-  int flag[MAX_RELOCS];
+  bfd_reloc_code_real_type reloc[MAX_RELOCS];
   enum spu_insns tag;
 };
 
 static const char *get_imm (const char *param, struct spu_insn *insn, int arg);
 static const char *get_reg (const char *param, struct spu_insn *insn, int arg,
 			    int accept_expr);
-
 static int calcop (struct spu_opcode *format, const char *param,
 		   struct spu_insn *insn);
+static void spu_cons (int);
 
 extern char *myname;
 static struct hash_control *op_hash = NULL;
@@ -83,21 +82,24 @@ const char FLT_CHARS[] = "dDfF";
 const pseudo_typeS md_pseudo_table[] =
 {
   {"align", s_align_ptwo, 4},
+  {"bss", s_lcomm_bytes, 1},
   {"def", s_set, 0},
   {"dfloat", float_cons, 'd'},
   {"ffloat", float_cons, 'f'},
   {"global", s_globl, 0},
   {"half", cons, 2},
-  {"bss", s_lcomm_bytes, 1},
-  {"string", stringer, 1},
-  {"word", cons, 4},
+  {"int", spu_cons, 4},
+  {"long", spu_cons, 4},
+  {"quad", spu_cons, 8},
+  {"string", stringer, 8 + 1},
+  {"word", spu_cons, 4},
   /* Force set to be treated as an instruction.  */
   {"set", NULL, 0},
   {".set", s_set, 0},
   /* Likewise for eqv.  */
   {"eqv", NULL, 0},
   {".eqv", s_set, -1},
-  {"file", (void (*) PARAMS ((int))) dwarf2_directive_file, 0 }, 
+  {"file", (void (*) (int)) dwarf2_directive_file, 0 }, 
   {"loc", dwarf2_directive_loc, 0}, 
   {0,0,0}
 };
@@ -118,7 +120,8 @@ md_begin (void)
     {
       /* hash each mnemonic and record its position */
 
-      retval = hash_insert (op_hash, spu_opcodes[i].mnemonic, (PTR)&spu_opcodes[i]);
+      retval = hash_insert (op_hash, spu_opcodes[i].mnemonic,
+			    (void *) &spu_opcodes[i]);
 
       if (retval != NULL && strcmp (retval, "exists") != 0)
 	as_fatal (_("Can't hash instruction '%s':%s"),
@@ -301,7 +304,7 @@ md_assemble (char *op)
 	  insn.exp[i].X_add_number = 0;
 	  insn.exp[i].X_op = O_illegal;
 	  insn.reloc_arg[i] = -1;
-	  insn.flag[i] = 0;
+	  insn.reloc[i] = BFD_RELOC_NONE;
 	}
       insn.opcode = format->opcode;
       insn.tag = (enum spu_insns) (format - spu_opcodes);
@@ -350,23 +353,21 @@ md_assemble (char *op)
     if (insn.reloc_arg[i] >= 0) 
       {
         fixS *fixP;
-        bfd_reloc_code_real_type reloc = arg_encode[insn.reloc_arg[i]].reloc;
+        bfd_reloc_code_real_type reloc = insn.reloc[i];
 	int pcrel = 0;
-        if (reloc == BFD_RELOC_SPU_PCREL9a
+
+	if (reloc == BFD_RELOC_SPU_PCREL9a
 	    || reloc == BFD_RELOC_SPU_PCREL9b
-            || reloc == BFD_RELOC_SPU_PCREL16)
+	    || reloc == BFD_RELOC_SPU_PCREL16)
 	  pcrel = 1;
-	if (insn.flag[i] & 1)
-	  reloc = BFD_RELOC_SPU_HI16;
-	else if (insn.flag[i] & 2)
-	  reloc = BFD_RELOC_SPU_LO16;
 	fixP = fix_new_exp (frag_now,
 			    thisfrag - frag_now->fr_literal,
 			    4,
 			    &insn.exp[i],
 			    pcrel,
 			    reloc);
-	fixP->tc_fix_data = insn.reloc_arg[i];
+	fixP->tc_fix_data.arg_format = insn.reloc_arg[i];
+	fixP->tc_fix_data.insn_tag = insn.tag;
       }
   dwarf2_emit_insn (4);
 }
@@ -390,7 +391,7 @@ calcop (struct spu_opcode *format, const char *param, struct spu_insn *insn)
       if (arg < A_P)
         param = get_reg (param, insn, arg, 1);
       else if (arg > A_P)
-        param = get_imm (param, insn,  arg);
+        param = get_imm (param, insn, arg);
       else if (arg == A_P)
 	{
 	  paren++;
@@ -585,30 +586,30 @@ get_imm (const char *param, struct spu_insn *insn, int arg)
   int low = 0, high = 0;
   int reloc_i = insn->reloc_arg[0] >= 0 ? 1 : 0;
 
-  if (strncmp (param, "%lo(", 4) == 0)
+  if (strncasecmp (param, "%lo(", 4) == 0)
     {
       param += 3;
       low = 1;
       as_warn (_("Using old style, %%lo(expr), please change to PPC style, expr@l."));
     }
-  else if (strncmp (param, "%hi(", 4) == 0)
+  else if (strncasecmp (param, "%hi(", 4) == 0)
     {
       param += 3;
       high = 1;
       as_warn (_("Using old style, %%hi(expr), please change to PPC style, expr@h."));
     }
-  else if (strncmp (param, "%pic(", 5) == 0)
+  else if (strncasecmp (param, "%pic(", 5) == 0)
     {
       /* Currently we expect %pic(expr) == expr, so do nothing here.
-       * i.e. for code loaded at address 0 $toc will be 0.  */
+	 i.e. for code loaded at address 0 $toc will be 0.  */
       param += 4;
     }
       
   if (*param == '$')
     {
       /* Symbols can start with $, but if this symbol matches a register
-       * name, it's probably a mistake.   The only way to avoid this
-       * warning is to rename the symbol.  */
+	 name, it's probably a mistake.  The only way to avoid this
+	 warning is to rename the symbol.  */
       struct spu_insn tmp_insn;
       const char *np = get_reg (param, &tmp_insn, arg, 0);
 
@@ -623,7 +624,7 @@ get_imm (const char *param, struct spu_insn *insn, int arg)
   input_line_pointer = save_ptr;
 
   /* Similar to ppc_elf_suffix in tc-ppc.c.  We have so few cases to
-   * handle we do it inlined here. */
+     handle we do it inlined here. */
   if (param[0] == '@' && !ISALNUM (param[2]) && param[2] != '@')
     {
       if (param[1] == 'h' || param[1] == 'H')
@@ -638,10 +639,10 @@ get_imm (const char *param, struct spu_insn *insn, int arg)
 	}
     }
 
-  val = insn->exp[reloc_i].X_add_number;
-
   if (insn->exp[reloc_i].X_op == O_constant)
     {
+      val = insn->exp[reloc_i].X_add_number;
+
       if (emulate_apuasm)
 	{
 	  /* Convert the value to a format we expect. */ 
@@ -684,76 +685,25 @@ get_imm (const char *param, struct spu_insn *insn, int arg)
       insn->opcode |= (((val >> arg_encode[arg].rshift)
 			& ((1 << arg_encode[arg].size) - 1))
 		       << arg_encode[arg].pos);
-      insn->reloc_arg[reloc_i] = -1;
-      insn->flag[reloc_i] = 0;
     }
   else
     {
       insn->reloc_arg[reloc_i] = arg;
       if (high)
-	insn->flag[reloc_i] |= 1;
-      if (low)
-	insn->flag[reloc_i] |= 2;
+	insn->reloc[reloc_i] = BFD_RELOC_SPU_HI16;
+      else if (low)
+	insn->reloc[reloc_i] = BFD_RELOC_SPU_LO16;
+      else
+	insn->reloc[reloc_i] = arg_encode[arg].reloc;
     }
 
   return param;
 }
 
-#define MAX_LITTLENUMS 6
-
-/* Turn a string in input_line_pointer into a floating point constant of type
-   type, and store the appropriate bytes in *litP.  The number of LITTLENUMS
-   emitted is stored in *sizeP .  An error message is returned, or NULL on OK.
- */
 char *
 md_atof (int type, char *litP, int *sizeP)
 {
-  int prec;
-  LITTLENUM_TYPE words[MAX_LITTLENUMS];
-  LITTLENUM_TYPE *wordP;
-  char *t;
-
-  switch (type)
-    {
-    case 'f':
-    case 'F':
-    case 's':
-    case 'S':
-      prec = 2;
-      break;
-
-    case 'd':
-    case 'D':
-    case 'r':
-    case 'R':
-      prec = 4;
-      break;
-
-    case 'x':
-    case 'X':
-      prec = 6;
-      break;
-
-    case 'p':
-    case 'P':
-      prec = 6;
-      break;
-
-    default:
-      *sizeP = 0;
-      return _("Bad call to MD_ATOF()");
-    }
-  t = atof_ieee (input_line_pointer, type, words);
-  if (t)
-    input_line_pointer = t;
-
-  *sizeP = prec * sizeof (LITTLENUM_TYPE);
-  for (wordP = words; prec--;)
-    {
-      md_number_to_chars (litP, (long) (*wordP++), sizeof (LITTLENUM_TYPE));
-      litP += sizeof (LITTLENUM_TYPE);
-    }
-  return 0;
+  return ieee_md_atof (type, litP, sizeP, TRUE);
 }
 
 #ifndef WORKING_DOT_WORD
@@ -802,6 +752,53 @@ md_create_long_jump (char *ptr,
 }
 #endif
 
+/* Support @ppu on symbols referenced in .int/.long/.word/.quad.  */
+static void
+spu_cons (int nbytes)
+{
+  expressionS exp;
+
+  if (is_it_end_of_statement ())
+    {
+      demand_empty_rest_of_line ();
+      return;
+    }
+
+  do
+    {
+      deferred_expression (&exp);
+      if ((exp.X_op == O_symbol
+	   || exp.X_op == O_constant)
+	  && strncasecmp (input_line_pointer, "@ppu", 4) == 0)
+	{
+	  char *p = frag_more (nbytes);
+	  enum bfd_reloc_code_real reloc;
+
+	  /* Check for identifier@suffix+constant.  */
+	  input_line_pointer += 4;
+	  if (*input_line_pointer == '-' || *input_line_pointer == '+')
+	    {
+	      expressionS new_exp;
+
+	      expression (&new_exp);
+	      if (new_exp.X_op == O_constant)
+		exp.X_add_number += new_exp.X_add_number;
+	    }
+
+	  reloc = nbytes == 4 ? BFD_RELOC_SPU_PPU32 : BFD_RELOC_SPU_PPU64;
+	  fix_new_exp (frag_now, p - frag_now->fr_literal, nbytes,
+		       &exp, 0, reloc);
+	}
+      else
+	emit_expr (&exp, nbytes);
+    }
+  while (*input_line_pointer++ == ',');
+
+  /* Put terminator back into stream.  */
+  input_line_pointer--;
+  demand_empty_rest_of_line ();
+}
+
 int
 md_estimate_size_before_relax (fragS *fragP ATTRIBUTE_UNUSED,
 			       segT segment_type ATTRIBUTE_UNUSED)
@@ -823,6 +820,8 @@ tc_gen_reloc (asection *seg ATTRIBUTE_UNUSED, fixS *fixp)
     *reloc->sym_ptr_ptr = symbol_get_bfdsym (fixp->fx_addsy);
   else if (fixp->fx_subsy)
     *reloc->sym_ptr_ptr = symbol_get_bfdsym (fixp->fx_subsy);
+  else
+    abort ();
   reloc->address = fixp->fx_frag->fr_address + fixp->fx_where;
   reloc->howto = bfd_reloc_type_lookup (stdoutput, fixp->fx_r_type);
   if (reloc->howto == (reloc_howto_type *) NULL)
@@ -937,14 +936,18 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)
 
   fixP->fx_addnumber = val;
 
+  if (fixP->fx_r_type == BFD_RELOC_SPU_PPU32
+      || fixP->fx_r_type == BFD_RELOC_SPU_PPU64)
+    return;
+
   if (fixP->fx_addsy == NULL && fixP->fx_pcrel == 0)
     {
       fixP->fx_done = 1;
       res = 0;
-      if (fixP->tc_fix_data > A_P)
+      if (fixP->tc_fix_data.arg_format > A_P)
 	{
-	  int hi = arg_encode[fixP->tc_fix_data].hi;
-	  int lo = arg_encode[fixP->tc_fix_data].lo;
+	  int hi = arg_encode[fixP->tc_fix_data.arg_format].hi;
+	  int lo = arg_encode[fixP->tc_fix_data.arg_format].lo;
 	  if (hi > lo && ((offsetT) val < lo || (offsetT) val > hi))
 	    as_bad_where (fixP->fx_file, fixP->fx_line,
 			  "Relocation doesn't fit. (relocation value = 0x%lx)",
@@ -962,6 +965,7 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)
 	  return;
 
         case BFD_RELOC_32:
+	case BFD_RELOC_32_PCREL:
 	  md_number_to_chars (place, val, 4);
 	  return;
 
@@ -1008,6 +1012,14 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)
         case BFD_RELOC_SPU_PCREL16:
           res = (val & 0x3fffc) << 5;
           break;
+
+	case BFD_RELOC_SPU_HI16:
+	  res = (val >> 9) & 0x7fff80;
+	  break;
+
+	case BFD_RELOC_SPU_LO16:
+	  res = (val << 7) & 0x7fff80;
+	  break;
 
         default:
           as_bad_where (fixP->fx_file, fixP->fx_line,

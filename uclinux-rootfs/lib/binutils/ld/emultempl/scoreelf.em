@@ -1,14 +1,14 @@
 # This shell script emits a C file. -*- C -*-
-#   Copyright 2006 Free Software Foundation, Inc.
-#   Contributed by: 
+#   Copyright 2006, 2007, 2008 Free Software Foundation, Inc.
+#   Contributed by:
 #   Mei Ligang (ligang@sunnorth.com.cn)
 #   Pei-Lin Tsai (pltsai@sunplus.com)
 
-# This file is part of GLD, the Gnu Linker.
+# This file is part of the GNU Binutils.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -18,14 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA
-# 02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+# MA 02110-1301, USA.
 #
 
 # This file is sourced from elf32.em, and defines extra score-elf
 # specific routines.
 #
-cat >>e${EMULATION_NAME}.c <<EOF
+fragment <<EOF
 
 static void
 gld${EMULATION_NAME}_before_parse ()
@@ -40,7 +40,7 @@ gld${EMULATION_NAME}_before_parse ()
 static void
 score_elf_after_open (void)
 {
-  if (strstr (bfd_get_target (output_bfd), "score") == NULL)
+  if (strstr (bfd_get_target (link_info.output_bfd), "score") == NULL)
     {
       /* The score backend needs special fields in the output hash structure.
 	 These will only be created if the output format is an score format,
@@ -56,19 +56,9 @@ score_elf_after_open (void)
 
 EOF
 
-# Define some shell vars to insert bits of code into the standard elf
-# parse_args and list_options functions.
-#
-PARSE_AND_LIST_PROLOGUE=''
-PARSE_AND_LIST_SHORTOPTS=
-PARSE_AND_LIST_LONGOPTS=''
-PARSE_AND_LIST_OPTIONS=''
-PARSE_AND_LIST_ARGS_CASES=''
-
 # We have our own after_open and before_allocation functions, but they call
 # the standard routines, so give them a different name.
 LDEMUL_AFTER_OPEN=score_elf_after_open
 
 # Replace the elf before_parse function with our own.
 LDEMUL_BEFORE_PARSE=gld"${EMULATION_NAME}"_before_parse
-

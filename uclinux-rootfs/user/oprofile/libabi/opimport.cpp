@@ -17,12 +17,16 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <cstring>
+#include <cstdlib>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <cstdlib>
+#include <cstring>
 
 using namespace std;
 

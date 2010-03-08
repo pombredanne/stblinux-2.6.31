@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:17:06 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_hif_cpu_intr1.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:27p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,23 +43,23 @@
 #define BCHP_HIF_CPU_INTR1_H__
 
 /***************************************************************************
- *HIF_CPU_INTR1
+ *HIF_CPU_INTR1 - HIF CPU1 Thread Processor 0 Level 1 Interrupt Controller Registers
  ***************************************************************************/
-#define BCHP_HIF_CPU_INTR1_INTR_W0_STATUS        0x00441400
-#define BCHP_HIF_CPU_INTR1_INTR_W1_STATUS        0x00441404
-#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS        0x00441408
-#define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_STATUS   0x0044140c
-#define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_STATUS   0x00441410
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS   0x00441414
-#define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_SET      0x00441418
-#define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_SET      0x0044141c
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET      0x00441420
-#define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_CLEAR    0x00441424
-#define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_CLEAR    0x00441428
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR    0x0044142c
+#define BCHP_HIF_CPU_INTR1_INTR_W0_STATUS        0x00441400 /* Interrupt Status Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W1_STATUS        0x00441404 /* Interrupt Status Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS        0x00441408 /* Interrupt Status Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_STATUS   0x0044140c /* Interrupt Mask Status Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_STATUS   0x00441410 /* Interrupt Mask Status Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS   0x00441414 /* Interrupt Mask Status Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_SET      0x00441418 /* Interrupt Mask Set Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_SET      0x0044141c /* Interrupt Mask Set Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET      0x00441420 /* Interrupt Mask Set Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_CLEAR    0x00441424 /* Interrupt Mask Clear Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_CLEAR    0x00441428 /* Interrupt Mask Clear Register */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR    0x0044142c /* Interrupt Mask Clear Register */
 
 /***************************************************************************
- *INTR_W0_STATUS
+ *INTR_W0_STATUS - Interrupt Status Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W0_STATUS :: XPT_RAV_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_XPT_RAV_CPU_INTR_MASK    0x80000000
@@ -179,7 +182,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_HIF_CPU_INTR_SHIFT       0
 
 /***************************************************************************
- *INTR_W1_STATUS
+ *INTR_W1_STATUS - Interrupt Status Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W1_STATUS :: BNM_IRQ_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_BNM_IRQ_CPU_INTR_MASK    0x80000000
@@ -302,7 +305,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_PCI_INTA_0_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W2_STATUS
+ *INTR_W2_STATUS - Interrupt Status Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W2_STATUS :: reserved0 [31:17] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_reserved0_MASK           0xfffe0000
@@ -345,7 +348,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_UPG_UART1_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W0_MASK_STATUS
+ *INTR_W0_MASK_STATUS - Interrupt Mask Status Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W0_MASK_STATUS :: XPT_RAV_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_STATUS_XPT_RAV_CPU_INTR_MASK 0x80000000
@@ -468,7 +471,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_STATUS_HIF_CPU_INTR_SHIFT  0
 
 /***************************************************************************
- *INTR_W1_MASK_STATUS
+ *INTR_W1_MASK_STATUS - Interrupt Mask Status Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W1_MASK_STATUS :: BNM_IRQ_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_STATUS_BNM_IRQ_CPU_INTR_MASK 0x80000000
@@ -591,7 +594,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_STATUS_PCI_INTA_0_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W2_MASK_STATUS
+ *INTR_W2_MASK_STATUS - Interrupt Mask Status Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W2_MASK_STATUS :: reserved0 [31:17] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_reserved0_MASK      0xfffe0000
@@ -634,7 +637,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_UPG_UART1_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W0_MASK_SET
+ *INTR_W0_MASK_SET - Interrupt Mask Set Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W0_MASK_SET :: XPT_RAV_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_SET_XPT_RAV_CPU_INTR_MASK  0x80000000
@@ -757,7 +760,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_SET_HIF_CPU_INTR_SHIFT     0
 
 /***************************************************************************
- *INTR_W1_MASK_SET
+ *INTR_W1_MASK_SET - Interrupt Mask Set Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W1_MASK_SET :: BNM_IRQ_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_SET_BNM_IRQ_CPU_INTR_MASK  0x80000000
@@ -880,7 +883,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_SET_PCI_INTA_0_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W2_MASK_SET
+ *INTR_W2_MASK_SET - Interrupt Mask Set Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W2_MASK_SET :: reserved0 [31:17] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_reserved0_MASK         0xfffe0000
@@ -923,7 +926,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_UPG_UART1_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W0_MASK_CLEAR
+ *INTR_W0_MASK_CLEAR - Interrupt Mask Clear Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W0_MASK_CLEAR :: XPT_RAV_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_CLEAR_XPT_RAV_CPU_INTR_MASK 0x80000000
@@ -1046,7 +1049,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W0_MASK_CLEAR_HIF_CPU_INTR_SHIFT   0
 
 /***************************************************************************
- *INTR_W1_MASK_CLEAR
+ *INTR_W1_MASK_CLEAR - Interrupt Mask Clear Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W1_MASK_CLEAR :: BNM_IRQ_CPU_INTR [31:31] */
 #define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_CLEAR_BNM_IRQ_CPU_INTR_MASK 0x80000000
@@ -1169,7 +1172,7 @@
 #define BCHP_HIF_CPU_INTR1_INTR_W1_MASK_CLEAR_PCI_INTA_0_CPU_INTR_SHIFT 0
 
 /***************************************************************************
- *INTR_W2_MASK_CLEAR
+ *INTR_W2_MASK_CLEAR - Interrupt Mask Clear Register
  ***************************************************************************/
 /* HIF_CPU_INTR1 :: INTR_W2_MASK_CLEAR :: reserved0 [31:17] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR_reserved0_MASK       0xfffe0000

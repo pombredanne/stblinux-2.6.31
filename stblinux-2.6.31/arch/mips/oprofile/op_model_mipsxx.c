@@ -152,6 +152,14 @@ static void mipsxx_reg_setup(struct op_counter_config *ctr)
 			reg.control[i] |= M_PERFCTL_USER;
 		if (ctr[i].exl)
 			reg.control[i] |= M_PERFCTL_EXL;
+#ifdef CONFIG_BMIPS5000
+		/* unit mask selects the TP(s) to count */
+		reg.control[i] |= ((ctr->unit_mask & 0x3) << 12) | (1 << 30);
+
+		/* default is TP0 + TP1 */
+		if (!ctr->unit_mask)
+			reg.control[i] |= 0x3 << 12;
+#endif
 		reg.counter[i] = 0x80000000 - ctr[i].count;
 	}
 }
@@ -241,6 +249,13 @@ static int mipsxx_perfcount_handler(void)
 
 	return handled;
 }
+
+#ifdef CONFIG_BRCMSTB
+static irqreturn_t mipsxx_perfcount_isr(int irq, void *dev_id)
+{
+	return mipsxx_perfcount_handler();
+}
+#endif
 
 #define M_CONFIG1_PC	(1 << 4)
 
@@ -365,6 +380,12 @@ static int __init mipsxx_init(void)
 		op_model_mipsxx_ops.cpu_type = "mips/sb1";
 		break;
 
+#ifdef CONFIG_BMIPS5000
+	case CPU_BMIPS5000:
+		op_model_mipsxx_ops.cpu_type = "mips/bmips5000";
+		break;
+#endif
+
 	default:
 		printk(KERN_ERR "Profiling unsupported for this CPU\n");
 
@@ -374,7 +395,13 @@ static int __init mipsxx_init(void)
 	save_perf_irq = perf_irq;
 	perf_irq = mipsxx_perfcount_handler;
 
-	return 0;
+#ifdef CONFIG_BRCMSTB
+	if (cp0_perfcount_irq >= 0)
+		return request_irq(MIPS_CPU_IRQ_BASE + cp0_perfcount_irq,
+			mipsxx_perfcount_isr, 0, "Perfcounter", NULL);
+	else
+#endif
+		return 0;
 }
 
 static void mipsxx_exit(void)
@@ -383,6 +410,11 @@ static void mipsxx_exit(void)
 
 	counters = counters_per_cpu_to_total(counters);
 	on_each_cpu(reset_counters, (void *)(long)counters, 1);
+
+#ifdef CONFIG_BRCMSTB
+	if (cp0_perfcount_irq >= 0)
+		free_irq(MIPS_CPU_IRQ_BASE + cp0_perfcount_irq, NULL);
+#endif
 
 	perf_irq = save_perf_irq;
 }

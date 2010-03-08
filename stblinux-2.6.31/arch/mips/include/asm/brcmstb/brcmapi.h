@@ -28,10 +28,15 @@
 #include <net/sock.h>
 #include <asm/ptrace.h>
 #include <asm/inst.h>
+#include <asm/bug.h>
 
 /***********************************************************************
  * Kernel hooks
  ***********************************************************************/
+
+#define BRCM_RX_NUM_HOOKS	2
+#define BRCM_RX_HOOK_NETACCEL	0 
+#define BRCM_RX_HOOK_EROUTER	1
 
 void __init brcm_free_bootmem(unsigned long addr, unsigned long size);
 void brcm_tlb_init(void);
@@ -39,12 +44,13 @@ unsigned long brcm_setup_ebase(void);
 int brcm_simulate_opcode(struct pt_regs *regs, unsigned int opcode);
 int brcm_unaligned_fp(void __user *addr, union mips_instruction *insn,
 	struct pt_regs *regs);
-extern int (*brcm_netif_rx_hook)(struct sk_buff *);
+extern int (*brcm_netif_rx_hook[BRCM_RX_NUM_HOOKS])(struct sk_buff *);
 int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 	unsigned int cache);
 void brcm_sync_for_cpu(unsigned long addr, size_t size,
 	enum dma_data_direction dir);
 unsigned long brcm_fixup_ticks(unsigned long delta);
+extern unsigned long brcm_adj_cpu_khz;
 
 /***********************************************************************
  * BSP External API
@@ -73,8 +79,10 @@ void brcm_get_cache_info(struct brcm_cache_info *info);
 
 void brcm_get_ocap_info(struct brcm_ocap_info *info);
 
-static inline void brcm_netif_rx_sethook(int (*fn)(struct sk_buff *)) {
-	brcm_netif_rx_hook = fn;
+static inline void brcm_netif_rx_sethook(unsigned int id,
+		int (*fn)(struct sk_buff *)) {
+	BUG_ON(id >= BRCM_RX_NUM_HOOKS);
+	brcm_netif_rx_hook[id] = fn;
 }
 
 int brcm_alloc_macaddr(u8 *buf);

@@ -40,12 +40,20 @@ subdir = doc
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(as_TEXINFOS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/../bfd/acinclude.m4 \
 	$(top_srcdir)/../bfd/warning.m4 \
+	$(top_srcdir)/../config/depstand.m4 \
+	$(top_srcdir)/../config/extensions.m4 \
 	$(top_srcdir)/../config/gettext-sister.m4 \
-	$(top_srcdir)/../config/nls.m4 $(top_srcdir)/../config/po.m4 \
+	$(top_srcdir)/../config/lead-dot.m4 \
+	$(top_srcdir)/../config/nls.m4 \
+	$(top_srcdir)/../config/override.m4 \
+	$(top_srcdir)/../config/po.m4 \
+	$(top_srcdir)/../config/proginstall.m4 \
 	$(top_srcdir)/../config/progtest.m4 \
-	$(top_srcdir)/../libtool.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/../libtool.m4 $(top_srcdir)/../ltoptions.m4 \
+	$(top_srcdir)/../ltsugar.m4 $(top_srcdir)/../ltversion.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
@@ -75,6 +83,7 @@ ALLOCA = @ALLOCA@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
+AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -90,11 +99,13 @@ CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+FGREP = @FGREP@
 GDBINIT = @GDBINIT@
 GENCAT = @GENCAT@
 GENINSRC_NEVER_FALSE = @GENINSRC_NEVER_FALSE@
@@ -107,6 +118,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INSTOBJEXT = @INSTOBJEXT@
+LD = @LD@
 LDFLAGS = @LDFLAGS@
 LEX = @LEX@
 LEXLIB = @LEXLIB@
@@ -126,6 +138,7 @@ MAKEINFO = @MAKEINFO@
 MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+NM = @NM@
 NO_WERROR = @NO_WERROR@
 OBJEXT = @OBJEXT@
 OPCODES_LIB = @OPCODES_LIB@
@@ -138,6 +151,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 POSUB = @POSUB@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -146,8 +160,11 @@ VERSION = @VERSION@
 WARN_CFLAGS = @WARN_CFLAGS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
-YFLAGS = @YFLAGS@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+ac_ct_RANLIB = @ac_ct_RANLIB@
+ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@
@@ -166,7 +183,6 @@ cgen_cpu_prefix = @cgen_cpu_prefix@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
-dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 extra_objects = @extra_objects@
 host = @host@
@@ -181,16 +197,14 @@ install_sh = @install_sh@
 install_tooldir = @install_tooldir@
 libdir = @libdir@
 libexecdir = @libexecdir@
-localedir = @localedir@
 localstatedir = @localstatedir@
+lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 obj_format = @obj_format@
 oldincludedir = @oldincludedir@
-pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
-psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
@@ -214,15 +228,20 @@ POD2MAN = pod2man --center="GNU Development Tools" \
 
 man_MANS = as.1
 info_TEXINFOS = as.texinfo 
-as_TEXINFOS = asconfig.texi gasver.texi $(CPU_DOCS)
-AM_MAKEINFOFLAGS = -I "$(srcdir)" -I "$(top_srcdir)/../libiberty"
-TEXI2DVI = texi2dvi -I "$(srcdir)" -I "$(top_srcdir)/../libiberty"
+as_TEXINFOS = asconfig.texi $(CPU_DOCS)
+AM_MAKEINFOFLAGS = -I "$(srcdir)" -I "$(top_srcdir)/../libiberty" \
+		   -I "$(top_srcdir)/../bfd/doc" -I ../../bfd/doc
+
+TEXI2DVI = texi2dvi -I "$(srcdir)" -I "$(top_srcdir)/../libiberty" \
+		   -I "$(top_srcdir)/../bfd/doc" -I ../../bfd/doc
+
 CPU_DOCS = \
 	c-alpha.texi \
 	c-arc.texi \
 	c-arm.texi \
 	c-avr.texi \
 	c-bfin.texi \
+	c-cr16.texi \
 	c-d10v.texi \
 	c-cris.texi \
 	c-h8300.texi \
@@ -258,7 +277,7 @@ html__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 
 # This one isn't ready for prime time yet.  Not even a little bit.
 noinst_TEXINFOS = internals.texi
-MAINTAINERCLEANFILES = asconfig.texi gasver.texi as.info
+MAINTAINERCLEANFILES = asconfig.texi as.info
 BASEDIR = $(srcdir)/../..
 BFDDIR = $(BASEDIR)/bfd
 CONFIG_STATUS_DEPENDENCIES = $(BFDDIR)/configure.in
@@ -588,11 +607,6 @@ asconfig.texi: $(CONFIG).texi
 	cp $(srcdir)/$(CONFIG).texi ./asconfig.texi
 	chmod u+w ./asconfig.texi
 
-gasver.texi: $(srcdir)/../../bfd/configure
-	rm -f $@
-	eval `grep '^ *VERSION=' $(srcdir)/../../bfd/configure`; \
-	  echo "@set VERSION $$VERSION" > $@
-
 # We want install to imply install-info as per GNU standards, despite the
 # cygnus option.
 install-data-local: install-info
@@ -624,7 +638,7 @@ info-local: $(MANS)
 # Build the man page from the texinfo file
 # The sed command removes the no-adjust Nroff command so that
 # the man output looks standard.
-as.1: $(srcdir)/as.texinfo asconfig.texi gasver.texi $(CPU_DOCS)
+as.1: $(srcdir)/as.texinfo asconfig.texi $(CPU_DOCS)
 	touch $@
 	-$(TEXI2POD) $(MANCONF) < $(srcdir)/as.texinfo > as.pod
 	-($(POD2MAN) as.pod | \

@@ -1,7 +1,7 @@
 /* Internal format of COFF object file data structures, for GNU BFD.
    This file is part of BFD, the Binary File Descriptor library.
    
-   Copyright 1999, 2000, 2001, 2002, 2003, 2004. 2005, 2006
+   Copyright 1999, 2000, 2001, 2002, 2003, 2004. 2005, 2006, 2007
    Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
@@ -138,6 +138,28 @@ typedef struct _IMAGE_DATA_DIRECTORY
 
 struct internal_extra_pe_aouthdr 
 {
+  /* FIXME: The following entries are in AOUTHDR.  But they aren't
+     available internally in bfd.  We add them here so that objdump
+     can dump them.  */
+  /* The state of the image file  */
+  short Magic;
+  /* Linker major version number */
+  char MajorLinkerVersion;
+  /* Linker minor version number  */
+  char MinorLinkerVersion;	
+  /* Total size of all code sections  */
+  long SizeOfCode;
+  /* Total size of all initialized data sections  */
+  long SizeOfInitializedData;
+  /* Total size of all uninitialized data sections  */
+  long SizeOfUninitializedData;
+  /* Address of entry point relative to image base.  */
+  bfd_vma AddressOfEntryPoint;
+  /* Address of the first code section relative to image base.  */
+  bfd_vma BaseOfCode;
+  /* Address of the first data section relative to image base.  */
+  bfd_vma BaseOfData;
+ 
   /* PE stuff  */
   bfd_vma ImageBase;		/* address of specific location in memory that
 				   file is located, NT default 0x10000 */
@@ -394,15 +416,15 @@ struct internal_syment
 {
   union
   {
-    char _n_name[SYMNMLEN];	/* old COFF version	*/
+    char _n_name[SYMNMLEN];	/* old COFF version		*/
     struct
     {
-      long _n_zeroes;		/* new == 0		*/
-      long _n_offset;		/* offset into string table */
+      bfd_hostptr_t _n_zeroes;	/* new == 0			*/
+      bfd_hostptr_t _n_offset;	/* offset into string table	*/
     }      _n_n;
     char *_n_nptr[2];		/* allows for overlaying	*/
   }     _n;
-  bfd_vma n_value;			/* value of symbol		*/
+  bfd_vma n_value;		/* value of symbol		*/
   short n_scnum;		/* section number		*/
   unsigned short n_flags;	/* copy of flags from filhdr	*/
   unsigned short n_type;	/* type and derived type	*/

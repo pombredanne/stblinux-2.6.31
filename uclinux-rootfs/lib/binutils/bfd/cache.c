@@ -1,25 +1,26 @@
 /* BFD library -- caching of file descriptors.
 
    Copyright 1990, 1991, 1992, 1993, 1994, 1996, 2000, 2001, 2002,
-   2003, 2004, 2005 Free Software Foundation, Inc.
+   2003, 2004, 2005, 2007 Free Software Foundation, Inc.
 
    Hacked by Steve Chamberlain of Cygnus Support (steve@cygnus.com).
 
-This file is part of BFD, the Binary File Descriptor library.
+   This file is part of BFD, the Binary File Descriptor library.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 /*
 SECTION
@@ -40,8 +41,8 @@ SUBSECTION
 	Caching functions
 */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "libiberty.h"
 
@@ -165,22 +166,6 @@ close_one (void)
 
   kill->where = real_ftell ((FILE *) kill->iostream);
 
-  /* Save the file st_mtime.  This is a hack so that gdb can detect when
-     an executable has been deleted and recreated.  The only thing that
-     makes this reasonable is that st_mtime doesn't change when a file
-     is unlinked, so saving st_mtime makes BFD's file cache operation
-     a little more transparent for this particular usage pattern.  If we
-     hadn't closed the file then we would not have lost the original
-     contents, st_mtime etc.  Of course, if something is writing to an
-     existing file, then this is the wrong thing to do.
-     FIXME: gdb should save these times itself on first opening a file,
-     and this hack be removed.  */
-  if (kill->direction == no_direction || kill->direction == read_direction)
-    {
-      bfd_get_mtime (kill);
-      kill->mtime_set = TRUE;
-    }
-
   return bfd_cache_delete (kill);
 }
 
@@ -265,7 +250,7 @@ cache_bseek (struct bfd *abfd, file_ptr offset, int whence)
    first octet in the file, NOT the beginning of the archive header.  */
 
 static file_ptr
-cache_bread (struct bfd *abfd, void *buf, file_ptr nbytes)
+cache_bread_1 (struct bfd *abfd, void *buf, file_ptr nbytes)
 {
   FILE *f;
   file_ptr nread;
@@ -308,6 +293,47 @@ cache_bread (struct bfd *abfd, void *buf, file_ptr nbytes)
       return -1;
     }
 #endif
+  if (nread < nbytes)
+    /* This may or may not be an error, but in case the calling code
+       bails out because of it, set the right error code.  */
+    bfd_set_error (bfd_error_file_truncated);
+  return nread;
+}
+
+static file_ptr
+cache_bread (struct bfd *abfd, void *buf, file_ptr nbytes)
+{
+  file_ptr nread = 0;
+
+  /* Some filesystems are unable to handle reads that are too large
+     (for instance, NetApp shares with oplocks turned off).  To avoid
+     hitting this limitation, we read the buffer in chunks of 8MB max.  */
+  while (nread < nbytes)
+    {
+      const file_ptr max_chunk_size = 0x800000;
+      file_ptr chunk_size = nbytes - nread;
+      file_ptr chunk_nread;
+
+      if (chunk_size > max_chunk_size)
+        chunk_size = max_chunk_size;
+
+      chunk_nread = cache_bread_1 (abfd, buf + nread, chunk_size);
+
+      /* Update the nread count.
+
+         We just have to be careful of the case when cache_bread_1 returns
+         a negative count:  If this is our first read, then set nread to
+         that negative count in order to return that negative value to the
+         caller.  Otherwise, don't add it to our total count, or we would
+         end up returning a smaller number of bytes read than we actually
+         did.  */
+      if (nread == 0 || chunk_nread > 0)
+        nread += chunk_nread;
+
+      if (chunk_nread < chunk_size)
+        break;
+    }
+
   return nread;
 }
 

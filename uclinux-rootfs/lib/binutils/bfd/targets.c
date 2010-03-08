@@ -1,6 +1,6 @@
 /* Generic target-file-type support for the BFD library.
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
-   2000, 2001, 2002, 2003, 2004, 2005, 2006
+   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
    Written by Cygnus Support.
 
@@ -8,7 +8,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -18,10 +18,11 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "fnmatch.h"
 
@@ -402,7 +403,8 @@ BFD_JUMP_TABLE macros.
 .#define BFD_JUMP_TABLE_RELOCS(NAME) \
 .  NAME##_get_reloc_upper_bound, \
 .  NAME##_canonicalize_reloc, \
-.  NAME##_bfd_reloc_type_lookup
+.  NAME##_bfd_reloc_type_lookup, \
+.  NAME##_bfd_reloc_name_lookup
 .
 .  long        (*_get_reloc_upper_bound) (bfd *, sec_ptr);
 .  long        (*_bfd_canonicalize_reloc)
@@ -410,6 +412,9 @@ BFD_JUMP_TABLE macros.
 .  {* See documentation on reloc types.  *}
 .  reloc_howto_type *
 .              (*reloc_type_lookup) (bfd *, bfd_reloc_code_real_type);
+.  reloc_howto_type *
+.              (*reloc_name_lookup) (bfd *, const char *);
+.
 .
 .  {* Routines used when writing an object file.  *}
 .#define BFD_JUMP_TABLE_WRITE(NAME) \
@@ -556,7 +561,14 @@ extern const bfd_target armpei_little_vec;
 extern const bfd_target b_out_vec_big_host;
 extern const bfd_target b_out_vec_little_host;
 extern const bfd_target bfd_efi_app_ia32_vec;
+extern const bfd_target bfd_efi_bsdrv_ia32_vec;
+extern const bfd_target bfd_efi_rtdrv_ia32_vec;
+extern const bfd_target bfd_efi_app_x86_64_vec;
+extern const bfd_target bfd_efi_bsdrv_x86_64_vec;
+extern const bfd_target bfd_efi_rtdrv_x86_64_vec;
 extern const bfd_target bfd_efi_app_ia64_vec;
+extern const bfd_target bfd_efi_bsdrv_ia64_vec;
+extern const bfd_target bfd_efi_rtdrv_ia64_vec;
 extern const bfd_target bfd_elf32_avr_vec;
 extern const bfd_target bfd_elf32_bfin_vec;
 extern const bfd_target bfd_elf32_bfinfdpic_vec;
@@ -567,6 +579,7 @@ extern const bfd_target bfd_elf32_bigarm_symbian_vec;
 extern const bfd_target bfd_elf32_bigarm_vxworks_vec;
 extern const bfd_target bfd_elf32_bigmips_vec;
 extern const bfd_target bfd_elf32_bigmips_vxworks_vec;
+extern const bfd_target bfd_elf32_cr16_vec;
 extern const bfd_target bfd_elf32_cr16c_vec;
 extern const bfd_target bfd_elf32_cris_vec;
 extern const bfd_target bfd_elf32_crx_vec;
@@ -609,6 +622,8 @@ extern const bfd_target bfd_elf32_m68k_vec;
 extern const bfd_target bfd_elf32_m88k_vec;
 extern const bfd_target bfd_elf32_mcore_big_vec;
 extern const bfd_target bfd_elf32_mcore_little_vec;
+extern const bfd_target bfd_elf32_mep_vec;
+extern const bfd_target bfd_elf32_mep_little_vec;
 extern const bfd_target bfd_elf32_mn10200_vec;
 extern const bfd_target bfd_elf32_mn10300_vec;
 extern const bfd_target bfd_elf32_mt_vec;
@@ -870,8 +885,15 @@ static const bfd_target * const _bfd_target_vector[] =
 	&b_out_vec_big_host,
 	&b_out_vec_little_host,
 	&bfd_efi_app_ia32_vec,
+	&bfd_efi_bsdrv_ia32_vec,
+	&bfd_efi_rtdrv_ia32_vec,
 #ifdef BFD64
+	&bfd_efi_app_x86_64_vec,
+	&bfd_efi_bsdrv_x86_64_vec,
+	&bfd_efi_rtdrv_x86_64_vec,
 	&bfd_efi_app_ia64_vec,
+	&bfd_efi_bsdrv_ia64_vec,
+	&bfd_efi_rtdrv_ia64_vec,
 #endif
 	&bfd_elf32_avr_vec,
 	&bfd_elf32_bfin_vec,
@@ -888,6 +910,7 @@ static const bfd_target * const _bfd_target_vector[] =
 	&bfd_elf32_bigarm_vxworks_vec,
 	&bfd_elf32_bigmips_vec,
 	&bfd_elf32_bigmips_vxworks_vec,
+	&bfd_elf32_cr16_vec,
 	&bfd_elf32_cr16c_vec,
 	&bfd_elf32_cris_vec,
 	&bfd_elf32_crx_vec,
@@ -934,6 +957,7 @@ static const bfd_target * const _bfd_target_vector[] =
 	&bfd_elf32_m88k_vec,
 	&bfd_elf32_mcore_big_vec,
 	&bfd_elf32_mcore_little_vec,
+	&bfd_elf32_mep_vec,
 	&bfd_elf32_mn10200_vec,
 	&bfd_elf32_mn10300_vec,
 	&bfd_elf32_mt_vec,

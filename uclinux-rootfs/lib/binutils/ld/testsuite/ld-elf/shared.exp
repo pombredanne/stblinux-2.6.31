@@ -1,9 +1,11 @@
 # Expect script for various ELF tests.
-#   Copyright 2006 Free Software Foundation, Inc.
+#   Copyright 2006, 2007 Free Software Foundation, Inc.
 #
-# This file is free software; you can redistribute it and/or modify
+# This file is part of the GNU Binutils.
+#
+# This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+# MA 02110-1301, USA.
 #
 
 # Exclude non-ELF targets.
@@ -42,6 +45,9 @@ set build_tests {
   {"Build libbar.so"
    "-shared" "-fPIC"
    {begin.c end.c} {} "libbar.so"}
+  {"Build warn libbar.so"
+   "-shared" "-fPIC"
+   {beginwarn.c end.c} {} "libbarw.so"}
   {"Build hidden libbar.so"
    "-shared" "-fPIC"
    {begin.c endhidden.c} {} "libbarh.so"}
@@ -71,6 +77,9 @@ set build_tests {
    {dl1.c} {} "libdl1.so"}
   {"Build libdl2a.so with --dynamic-list=dl2.list"
    "-shared -Wl,--dynamic-list=dl2.list" "-fPIC"
+   {dl2.c dl2xxx.c} {} "libdl2a.so"}
+  {"Build libdl2a.so with --dynamic-list=dl2a.list"
+   "-shared -Wl,--dynamic-list=dl2a.list" "-fPIC"
    {dl2.c dl2xxx.c} {} "libdl2a.so"}
   {"Build libdl2a.so with --dynamic-list-data"
    "-shared -Wl,--dynamic-list-data" "-fPIC"
@@ -111,6 +120,9 @@ set build_tests {
   {"Build libdl6d.so with --dynamic-list-data -Bsymbolic"
    "-shared -Wl,--dynamic-list-data,-Bsymbolic" "-fPIC"
    {dl6.c} {} "libdl6d.so"}
+  {"Build libdata1.so"
+   "-shared" "-fPIC"
+   {data1.c} {} "libdata1.so"}
 }
 
 set run_tests {
@@ -126,6 +138,10 @@ set run_tests {
     {"Run normal with versioned libfoo.so"
      "tmpdir/begin.o tmpdir/libfoov.so tmpdir/end.o" ""
      {main.c} "normalv" "normal.out"}
+    {"Run warn with versioned libfoo.so"
+     "tmpdir/beginwarn.o tmpdir/libfoov.so" ""
+     {main.c} "warn" "warn.out"
+     "" "" "^.*\\\): warning: function foo is deprecated$"}
     {"Run protected with versioned libfoo.so"
      "tmpdir/begin.o tmpdir/libfoov.so tmpdir/endprotected.o" ""
      {main.c} "protected" "normal.out"}
@@ -216,6 +232,9 @@ set run_tests {
     {"Run dl6d1 with --dynamic-list-data and dlopen on libdl6d.so"
      "--dynamic-list-data -ldl" ""
      {dl6dmain.c} "dl6d1" "dl6b.out"}
+    {"Run with libdata1.so"
+     "tmpdir/libdata1.so" ""
+     {dynbss1.c} "dynbss1" "pass.out"}
 }
 
 run_cc_link_tests $build_tests

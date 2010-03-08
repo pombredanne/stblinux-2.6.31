@@ -16,10 +16,12 @@ POD2MAN = pod2man --center="GNU Development Tools" \
 man_MANS = as.1
 
 info_TEXINFOS = as.texinfo 
-as_TEXINFOS = asconfig.texi gasver.texi $(CPU_DOCS)
+as_TEXINFOS = asconfig.texi $(CPU_DOCS)
 
-AM_MAKEINFOFLAGS = -I "$(srcdir)" -I "$(top_srcdir)/../libiberty"
-TEXI2DVI = texi2dvi -I "$(srcdir)" -I "$(top_srcdir)/../libiberty"
+AM_MAKEINFOFLAGS = -I "$(srcdir)" -I "$(top_srcdir)/../libiberty" \
+		   -I "$(top_srcdir)/../bfd/doc" -I ../../bfd/doc
+TEXI2DVI = texi2dvi -I "$(srcdir)" -I "$(top_srcdir)/../libiberty" \
+		   -I "$(top_srcdir)/../bfd/doc" -I ../../bfd/doc
 
 asconfig.texi: $(CONFIG).texi
 	rm -f asconfig.texi
@@ -32,6 +34,7 @@ CPU_DOCS = \
 	c-arm.texi \
 	c-avr.texi \
 	c-bfin.texi \
+	c-cr16.texi \
 	c-d10v.texi \
 	c-cris.texi \
 	c-h8300.texi \
@@ -63,11 +66,6 @@ CPU_DOCS = \
 	c-z80.texi \
 	c-z8k.texi
 
-gasver.texi: $(srcdir)/../../bfd/configure
-	rm -f $@
-	eval `grep '^ *VERSION=' $(srcdir)/../../bfd/configure`; \
-	  echo "@set VERSION $$VERSION" > $@
-
 # We want install to imply install-info as per GNU standards, despite the
 # cygnus option.
 install-data-local: install-info
@@ -97,7 +95,7 @@ install-html-am: $(HTMLS)
 
 noinst_TEXINFOS = internals.texi
 
-MAINTAINERCLEANFILES = asconfig.texi gasver.texi
+MAINTAINERCLEANFILES = asconfig.texi
 
 BASEDIR = $(srcdir)/../..
 BFDDIR = $(BASEDIR)/bfd
@@ -112,7 +110,7 @@ info-local: $(MANS)
 # Build the man page from the texinfo file
 # The sed command removes the no-adjust Nroff command so that
 # the man output looks standard.
-as.1: $(srcdir)/as.texinfo asconfig.texi gasver.texi $(CPU_DOCS)
+as.1: $(srcdir)/as.texinfo asconfig.texi $(CPU_DOCS)
 	touch $@
 	-$(TEXI2POD) $(MANCONF) < $(srcdir)/as.texinfo > as.pod
 	-($(POD2MAN) as.pod | \

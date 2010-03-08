@@ -9,6 +9,7 @@
  *
  * @author John Levon
  * @author Philippe Elie
+ * @Modifications Daniel Hansel
  */
 
 #ifndef OP_CONFIG_H
@@ -35,6 +36,7 @@ extern char op_samples_dir[];
 extern char op_samples_current_dir[];
 extern char op_lock_file[];
 extern char op_log_file[];
+extern char op_pipe_file[];
 extern char op_dump_status[];
 
 /* Global directory that stores debug files */
@@ -43,7 +45,7 @@ extern char op_dump_status[];
 #endif
 
 #define OPD_MAGIC "DAE\n"
-#define OPD_VERSION 0x10
+#define OPD_VERSION 0x11
 
 #define OP_MIN_CPU_BUF_SIZE 2048
 #define OP_MAX_CPU_BUF_SIZE 131072

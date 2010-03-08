@@ -11,10 +11,12 @@
  */
 
 #include <unistd.h>
+#include <cstring>
 
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstring>
 
 #include <cerrno>
 
@@ -70,14 +72,9 @@ enum profile_type profile_t::is_spu_sample_file(string const & filename)
 //static member
 void profile_t::open_sample_file(string const & filename, odb_t & db)
 {
-	int rc = odb_open(&db, filename.c_str(), ODB_RDONLY,
-		sizeof(struct opd_header));
-
-	if (rc)
-		throw op_fatal_error(filename + ": " + strerror(rc));
-
-	opd_header const & head =
-		*static_cast<opd_header *>(odb_get_data(&db));
+	// Check first if the sample file version is ok else odb_open() can
+	// fail and the error message will be obscure.
+	opd_header head = read_header(filename);
 
 	if (head.version != OPD_VERSION) {
 		ostringstream os;
@@ -86,6 +83,12 @@ void profile_t::open_sample_file(string const & filename, odb_t & db)
 		   <<  "mismatch ?\n";
 		throw op_fatal_error(os.str());
 	}
+
+	int rc = odb_open(&db, filename.c_str(), ODB_RDONLY,
+		sizeof(struct opd_header));
+
+	if (rc)
+		throw op_fatal_error(filename + ": " + strerror(rc));
 }
 
 void profile_t::add_sample_file(string const & filename)
@@ -124,9 +127,18 @@ void profile_t::add_sample_file(string const & filename)
 
 void profile_t::set_offset(op_bfd const & abfd)
 {
-	opd_header const & header = get_header();
-	if (header.anon_start || header.is_kernel)
-		start_offset = abfd.get_start_offset(header.anon_start);
+	// if no bfd file has been located for this samples file, we can't
+	// shift sample because abfd.get_symbol_range() return the whole
+	// address space and setting a non zero start_offset will overflow
+	// in get_symbol_range() caller.
+	if (abfd.valid()) {
+		opd_header const & header = get_header();
+		if (header.anon_start) {
+			start_offset = header.anon_start;
+		} else if (header.is_kernel) {
+			start_offset = abfd.get_start_offset(0);
+		}
+	}
 	cverb << (vdebug) << "start_offset is now " << start_offset << endl;
 }
 

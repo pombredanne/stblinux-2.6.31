@@ -8,6 +8,17 @@ for some pointers and/or read HACKING and doc/CodingStyle.
 
 (this is a minimal selection of stuff I think we need)
 
+ o default to a vmlinux location: need agreement from kernel developers
+ o default to --separate=library (with anon, =none, makes not much sense)
+ o prettify image name for .jo files and allow lib-image: to specify it
+ o gisle's fixes
+ o opreport tgid:<tgid> doesn't work even if .jo files with that pid
+ o Fix:
+
+warning: [vdso] (tgid:9236 range:0x7fff98ffd000-0x7fff98fff000) could not be found.
+warning: /no-vmlinux could not be found.
+warning: /usr/lib64/libpanel-applet-2.so.0.2.27.#prelink#.sXCUK1 (deleted) could not be found.
+
  o amd64 32 bit build needs a sys32_lookup_dcookie() translator in the
    kernel
  o decide on -m tgid semantics for anon regions
@@ -16,7 +27,7 @@ for some pointers and/or read HACKING and doc/CodingStyle.
   speak a bit about lapic kernel option on x86 and recent kernel
  o see the big comment in db_insert.c, it's possible to allow unlimited
    amount of samples with a very minor change in libdb.
- o if oprofilee doesn't recognize the processor selected by the kernel
+ o if oprofile doesn't recognize the processor selected by the kernel
    opcontrol could setup the module in timer mode (remove/reload prolly), and
    warn the user it must upgrade oprofile to get all the feature from its
    hardware.
@@ -60,7 +71,6 @@ Later
  o can say more in opcontrol --status
  o consider a sort option for diff %
  o opannotate is silent about symbols missing debug info
- o opcontrol --reset should avoid to reload the module if it's unloaded
  o oprofiled.log now contains various statistics about lost sample etc. from
   the driver. Post profile tools must parse that and warn eventually, warning
   must include a proposed work around. User need this: if nothing seems wrong
@@ -148,6 +158,27 @@ vma      samples  cum. samples  %           cum. %     symbol name             i
   all instantation then annotating for each distinct instantation, this will
   break our "keep the source line number in annotated source file identical to
   the original source"
+ o events/mips/34k/events, some events does not make sense, they get identical
+  event number, um and counter nr so they overlap, currently commented
+ o can we find a more efficient implementation for sparse_array ?
+ o libpp/profile.cpp:is_spu_sample_file() can be simplified by using
+  read_header()
+ o while fixing #1819350 I needed to make extra_images per profile session
+   rather than a global var so I think we need to revisit find_image_path(),
+   extra_found_images, --image-path (-p).
+   Actually we can't do something ala:
+   opreport { archive:tmp1 search_path=/lib/modules/2.6.20 } { archive:tmp2 search_path=/.../2.6.20.9 }
+   because search_path is specified through -p which is not a part of the
+   profile spec. Fixing #1819350 covered all case except this one but w/o any
+   user visible change. Another way will be to save the -p option used with
+   oparchive in a file at the toplevel of the archive, use it with all tools
+   when an archive: is specified on the command line and deprecate the use of
+   -p in such case.
+ o consider to make extra_images a ref counted object, it's copied by value
+  a few time but can contain a lot of string. There is also some ugly public
+  member extra_images to fix.
+ o daemon bss size can be improved, grep for MAX_PATH to see where dynamic
+   allocation can be used, try $ nm oprofiled --size-sort too.
 
 Documentation
 -------------
@@ -156,6 +187,68 @@ Documentation
  o more discussion of problematic code needs to go in the "interpreting" section. 
  o document gcc 2.95 and linenr info problems especially for inline functions
  o finish the internals manual
+
+JIT support
+-----------
+
+ o We need a more dynamic structure to handle entries_address_ascending and
+   entries_symbols_ascending, actually many scaling problem occur because they
+   are array, this was perfect to get a first implementation focusing on
+   handling overlap and all but the need to qsort/copy arrays at each iteration
+   is a performance killer. Some sort of AVL tree will do the job.
+ o Related to the previous, it's possible to do all processing in opjitconv.c
+   in a single left to right walk of the jitentry list.
+ o see the FIXME at parse_dump.c:parse_code_unload()
+ o Increment JITHEADER_VERSION in jitdump.h to be sure that the new code only
+   accepts dump file created by the new code.
+ o opjitconv.c:replacement_name() should be enough clever to avoid name
+   collision so we can remove the recursive call to disambiguate_symbol_names(),
+   need a hash table or some sort of associative array to check quickly if a
+   name exists, we will need some sort of avl tree so it's probably better
+   to do not implement a hash table only for this purpose.
+ o op_write_native_code() must accept one more parameter, the real code size
+   which can be zero or equal to code_size, this will allow to create elf
+   file w/o any code contents, only a symbol table and .text sections w/o
+   contents (yes ELF format allow that). For dynamic binary translation it'll
+   avoid to dump tons of code for little use, opannotate --assembly will not
+   work on such elf file but it can be a real win. It'll need to add to
+   jitrecord0 a real_size field, and some trickery when building the elf file,
+   taking care about the case we mix zero code size with non zero code size.
+   Perhaps we can use it too for java, filtering native method etc. Actually
+   we allow a simplified form of this feature by allowing to disable/enable
+   code dumping but at the whole dump level not on a symbol basis, quite
+   possible sufficient. [mpj: We're backing away from the idea of dumping
+   JIT records without code.  Since BFD asymbol type does not include symbol size,
+   the op_bfd technique for determining symbol size relies on knowing the true
+   file size; and if code is not included in the .jo file, we don't have true size.]
+ o The pipe used for triggering JIT dump conversion should be used for normal
+   dumping too.
+ o See FIXME in agents/jvmti/libjvmti_oprofile.c:
+   If enablement to get line number info would be configurable through command line,
+   what should be the default on/off?
+ o See FIXME in opjitconv/debug_line.c
+ o The way to use the pipe should be made more secure to avoid denial of service
+   attacks. We have to think about it.
+ o Callgraph does not work properly for the .jo files the JIT support creates.
+   See section Chapter 4, sect 2.3.2 "Callgraph and JIT support". Try to figure
+   out a way to correlate an anonymous sample callgraph entry with
+   the .jo file that may exist for the anonymous code.
+ o see mail from Gisle Dankel:
+   "JIT_SUPPORT: Adding support for file-backed non-ELF JIT code"
+   -> should be changed (if useful) before next release
+ o See FIXME in op_header.cpp:
+   The check for header.mtime of JIT sample files is not correct because currently
+   this mtime value is set to zero due to missing cookie setting for JIT sample files.
+   Some additional check/setting to header.mtime should be made for JIT sample files.
+ o Mono JIT support:
+
+   2007-11-08: with callgraph massi got
+   <massi> oparchive error: parse_filename() invalid filename: /var/lib/oprofile/samples/current/{root}/var/lib/oprofile/samples/current/{root}/home/massi/mono/amd64/bin/mono/{dep}/{anon:anon}/32432.0x40a26000.0x40a36000/CPU_CLK_UNHALTED.100000.0.all.all.all/{dep}/{root}/var/lib/oprofile/samples/current/{root}/home/massi/mono/amd64/bin/mono/{dep}/{anon:anon}/32432.0x40a26000.0x40a36000/CPU_CLK_UNHALTED.100000.0.all.all.all/{cg}/{root}/usr/oprofile/bin/oprofiled/CPU_CLK_
+
+   Massi added Mono JIT support, code on the stack is never unloaded and there is
+   no byte code, code is always compiled to native machine code, this mean than
+   for mono at least we can do callgraph if we can fix this samples filename
+   problem.
 
 General checks to make
 ----------------------

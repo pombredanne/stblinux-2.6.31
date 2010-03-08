@@ -31,7 +31,6 @@ profile_classes classes;
 list<string> sample_files;
 
 namespace options {
-	string archive_path;
 	demangle_type demangle = dmt_normal;
 	bool exclude_dependent;
 	merge_option merge_by;
@@ -63,9 +62,16 @@ void check_options()
 	using namespace options;
 
 	/* output directory is required */
-	if (outdirectory.size() == 0 && !list_files) {
-		cerr << "Requires --output-directory option." << endl;
-		exit(EXIT_FAILURE);
+	if (!list_files) {
+		if (outdirectory.size() == 0) {
+			cerr << "Requires --output-directory option." << endl;
+			exit(EXIT_FAILURE);
+		}
+		string realpath = op_realpath(outdirectory);
+		if (realpath == "/") {
+			cerr << "Invalid --output-directory: /" << endl;
+			exit(EXIT_FAILURE);
+		}
 	}
 }
 
@@ -91,19 +97,17 @@ void handle_options(options::spec const & spec)
 	check_options();
 
 	profile_spec const pspec =
-		profile_spec::create(spec.common, extra_found_images);
+		profile_spec::create(spec.common, image_path, root_path);
 
 	sample_files = pspec.generate_file_list(exclude_dependent, false);
-
-	archive_path = pspec.get_archive_path();
-	cverb << vsfile << "Archive: " << archive_path << endl;
 
 	cverb << vsfile << "Matched sample files: " << sample_files.size()
 	      << endl;
 	copy(sample_files.begin(), sample_files.end(),
 	     ostream_iterator<string>(cverb << vsfile, "\n"));
 
-	classes = arrange_profiles(sample_files, merge_by);
+	classes = arrange_profiles(sample_files, merge_by,
+				   pspec.extra_found_images);
 
 	cverb << vsfile << "profile_classes:\n" << classes << endl;
 

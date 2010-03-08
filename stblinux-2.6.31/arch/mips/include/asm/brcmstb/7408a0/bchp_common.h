@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Tue Nov 17 17:19:20 2009
- *                 MD5 Checksum         fb51f1763a5fb8ecbb67a32796169955
+ * Date:           Generated on         Mon Jan 11 17:58:27 2010
+ *                 MD5 Checksum         6ce76b5c9aa77310a207805bbd2fdb35
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7408/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/2   11/17/09 6:21p albertl
- * SW7408-10: Updated to match RDB.
+ * Hydra_Software_Devel/3   1/12/10 3:45p albertl
+ * SW7408-45: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -47,8 +47,8 @@
  ***************************************************************************/
 #define BCHP_PHYSICAL_OFFSET                               0x10000000
 #define BCHP_REGISTER_START                                0x00000000 /* DECODE_RBNODE_REGS_0 is first */
-#define BCHP_REGISTER_END                                  0x007f5a90 /* AMOLE_0 is last */
-#define BCHP_REGISTER_SIZE                                 0x001fd6a4 /* Number of registers */
+#define BCHP_REGISTER_END                                  0x01f80000 /* BMIPS4380 is last */
+#define BCHP_REGISTER_SIZE                                 0x007e0000 /* Number of registers */
 
 /****************************************************************************
  * Core instance register start address.
@@ -157,6 +157,8 @@
 #define BCHP_MOCA_ECL_DMA1_REG_END                         0x0029041c
 #define BCHP_MOCA_ECL_REGS_REG_START                       0x00290800
 #define BCHP_MOCA_ECL_REGS_REG_END                         0x00290848
+#define BCHP_MOCA_PRI_REG_START                            0x00292000
+#define BCHP_MOCA_PRI_REG_END                              0x0029207c
 #define BCHP_MOCA_NID_REG_START                            0x00294000
 #define BCHP_MOCA_NID_REG_END                              0x002943fc
 #define BCHP_MOCA_TIMER0_REG_START                         0x002a0000
@@ -317,8 +319,6 @@
 #define BCHP_IRQ1_REG_END                                  0x0040678c
 #define BCHP_TIMER_REG_START                               0x004067c0
 #define BCHP_TIMER_REG_END                                 0x004067fc
-#define BCHP_PWMB_REG_START                                0x00406880
-#define BCHP_PWMB_REG_END                                  0x004068a4
 #define BCHP_UARTA_REG_START                               0x00406b00
 #define BCHP_UARTA_REG_END                                 0x00406b1c
 #define BCHP_UARTB_REG_START                               0x00406b40
@@ -395,8 +395,6 @@
 #define BCHP_JTAG_OTP_REG_END                              0x0048a114
 #define BCHP_BOOTROM_REG_START                             0x00500000
 #define BCHP_BOOTROM_REG_END                               0x0050fffc
-#define BCHP_BMIPS4380_REG_START                           0x00600000
-#define BCHP_BMIPS4380_REG_END                             0x0067ffff
 #define BCHP_XPT_BUS_IF_REG_START                          0x00740000
 #define BCHP_XPT_BUS_IF_REG_END                            0x00740074
 #define BCHP_XPT_XMEMIF_REG_START                          0x00741000
@@ -561,6 +559,8 @@
 #define BCHP_GSE_0_REG_END                                 0x007f5980
 #define BCHP_AMOLE_0_REG_START                             0x007f5a00
 #define BCHP_AMOLE_0_REG_END                               0x007f5a8c
+#define BCHP_BMIPS4380_REG_START                           0x01f00000
+#define BCHP_BMIPS4380_REG_END                             0x01f7ffff
 
 
 /***************************************************************************

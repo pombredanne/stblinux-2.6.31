@@ -1,6 +1,6 @@
 /* Generic BFD library interface and support routines.
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
-   2000, 2001, 2002, 2003, 2004, 2005, 2006
+   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
    Written by Cygnus Support.
 
@@ -8,7 +8,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -18,7 +18,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 /*
 SECTION
@@ -50,15 +51,6 @@ CODE_FRAGMENT
 .  void *iostream;
 .  const struct bfd_iovec *iovec;
 .
-.  {* Is the file descriptor being cached?  That is, can it be closed as
-.     needed, and re-opened when accessed later?  *}
-.  bfd_boolean cacheable;
-.
-.  {* Marks whether there was a default target specified when the
-.     BFD was opened. This is used to select which matching algorithm
-.     to use to choose the back end.  *}
-.  bfd_boolean target_defaulted;
-.
 .  {* The caching routines use these to maintain a
 .     least-recently-used list of BFDs.  *}
 .  struct bfd *lru_prev, *lru_next;
@@ -66,13 +58,6 @@ CODE_FRAGMENT
 .  {* When a file is closed by the caching routines, BFD retains
 .     state information on the file here...  *}
 .  ufile_ptr where;
-.
-.  {* ... and here: (``once'' means at least once).  *}
-.  bfd_boolean opened_once;
-.
-.  {* Set if we have a locally maintained mtime value, rather than
-.     getting it from the file each time.  *}
-.  bfd_boolean mtime_set;
 .
 .  {* File modified time, if mtime_set is TRUE.  *}
 .  long mtime;
@@ -96,14 +81,81 @@ CODE_FRAGMENT
 .  {* Format_specific flags.  *}
 .  flagword flags;
 .
+.  {* Values that may appear in the flags field of a BFD.  These also
+.     appear in the object_flags field of the bfd_target structure, where
+.     they indicate the set of flags used by that backend (not all flags
+.     are meaningful for all object file formats) (FIXME: at the moment,
+.     the object_flags values have mostly just been copied from backend
+.     to another, and are not necessarily correct).  *}
+.
+.#define BFD_NO_FLAGS	0x00
+.
+.  {* BFD contains relocation entries.  *}
+.#define HAS_RELOC   	0x01
+.
+.  {* BFD is directly executable.  *}
+.#define EXEC_P      	0x02
+.
+.  {* BFD has line number information (basically used for F_LNNO in a
+.     COFF header).  *}
+.#define HAS_LINENO  	0x04
+.
+.  {* BFD has debugging information.  *}
+.#define HAS_DEBUG   	0x08
+.
+.  {* BFD has symbols.  *}
+.#define HAS_SYMS    	0x10
+.
+.  {* BFD has local symbols (basically used for F_LSYMS in a COFF
+.     header).  *}
+.#define HAS_LOCALS  	0x20
+.
+.  {* BFD is a dynamic object.  *}
+.#define DYNAMIC     	0x40
+.
+.  {* Text section is write protected (if D_PAGED is not set, this is
+.     like an a.out NMAGIC file) (the linker sets this by default, but
+.     clears it for -r or -N).  *}
+.#define WP_TEXT     	0x80
+.
+.  {* BFD is dynamically paged (this is like an a.out ZMAGIC file) (the
+.     linker sets this by default, but clears it for -r or -n or -N).  *}
+.#define D_PAGED     	0x100
+.
+.  {* BFD is relaxable (this means that bfd_relax_section may be able to
+.     do something) (sometimes bfd_relax_section can do something even if
+.     this is not set).  *}
+.#define BFD_IS_RELAXABLE 0x200
+.
+.  {* This may be set before writing out a BFD to request using a
+.     traditional format.  For example, this is used to request that when
+.     writing out an a.out object the symbols not be hashed to eliminate
+.     duplicates.  *}
+.#define BFD_TRADITIONAL_FORMAT 0x400
+.
+.  {* This flag indicates that the BFD contents are actually cached
+.     in memory.  If this is set, iostream points to a bfd_in_memory
+.     struct.  *}
+.#define BFD_IN_MEMORY 0x800
+.
+.  {* The sections in this BFD specify a memory page.  *}
+.#define HAS_LOAD_PAGE 0x1000
+.
+.  {* This BFD has been created by the linker and doesn't correspond
+.     to any input file.  *}
+.#define BFD_LINKER_CREATED 0x2000
+.
 .  {* Currently my_archive is tested before adding origin to
 .     anything. I believe that this can become always an add of
 .     origin, with origin set to 0 for non archive files.  *}
 .  ufile_ptr origin;
 .
-.  {* Remember when output has begun, to stop strange things
-.     from happening.  *}
-.  bfd_boolean output_has_begun;
+.  {* The origin in the archive of the proxy entry.  This will
+.     normally be the same as origin, except for thin archives,
+.     when it will contain the current offset of the proxy in the
+.     thin archive rather than the offset of the bfd in its actual
+.     container.  *}
+.  ufile_ptr proxy_origin;
 .
 .  {* A hash table for section names.  *}
 .  struct bfd_hash_table section_htab;
@@ -124,7 +176,8 @@ CODE_FRAGMENT
 .  {* Used for input and output.  *}
 .  unsigned int symcount;
 .
-.  {* Symbol table for output BFD (with symcount entries).  *}
+.  {* Symbol table for output BFD (with symcount entries).
+.     Also used by the linker to cache input BFD symbols.  *}
 .  struct bfd_symbol  **outsymbols;
 .
 .  {* Used for slurped dynamic symbol tables.  *}
@@ -133,15 +186,13 @@ CODE_FRAGMENT
 .  {* Pointer to structure which contains architecture information.  *}
 .  const struct bfd_arch_info *arch_info;
 .
-.  {* Flag set if symbols from this BFD should not be exported.  *}
-.  bfd_boolean no_export;
-.
 .  {* Stuff only useful for archives.  *}
 .  void *arelt_data;
 .  struct bfd *my_archive;      {* The containing archive BFD.  *}
-.  struct bfd *next;            {* The next BFD in the archive.  *}
+.  struct bfd *archive_next;    {* The next BFD in the archive.  *}
 .  struct bfd *archive_head;    {* The first BFD in the archive.  *}
-.  bfd_boolean has_armap;
+.  struct bfd *nested_archives; {* List of nested archive in a flattened
+.                                  thin archive.  *}
 .
 .  {* A chain of BFD structures involved in a link.  *}
 .  struct bfd *link_next;
@@ -198,15 +249,45 @@ CODE_FRAGMENT
 .     struct objalloc *, but we use void * to avoid requiring the inclusion
 .     of objalloc.h.  *}
 .  void *memory;
+.
+.  {* Is the file descriptor being cached?  That is, can it be closed as
+.     needed, and re-opened when accessed later?  *}
+.  unsigned int cacheable : 1;
+.
+.  {* Marks whether there was a default target specified when the
+.     BFD was opened. This is used to select which matching algorithm
+.     to use to choose the back end.  *}
+.  unsigned int target_defaulted : 1;
+.
+.  {* ... and here: (``once'' means at least once).  *}
+.  unsigned int opened_once : 1;
+.
+.  {* Set if we have a locally maintained mtime value, rather than
+.     getting it from the file each time.  *}
+.  unsigned int mtime_set : 1;
+.
+.  {* Flag set if symbols from this BFD should not be exported.  *}
+.  unsigned int no_export : 1;
+.
+.  {* Remember when output has begun, to stop strange things
+.     from happening.  *}
+.  unsigned int output_has_begun : 1;
+.
+.  {* Have archive map.  *}
+.  unsigned int has_armap : 1;
+.
+.  {* Set if this is a thin archive.  *}
+.  unsigned int is_thin_archive : 1;
 .};
 .
 */
 
-#include "bfd.h"
-#include "bfdver.h"
 #include "sysdep.h"
 #include <stdarg.h>
+#include "bfd.h"
+#include "bfdver.h"
 #include "libiberty.h"
+#include "demangle.h"
 #include "safe-ctype.h"
 #include "bfdlink.h"
 #include "libbfd.h"
@@ -473,6 +554,9 @@ _bfd_default_error_handler (const char *fmt, ...)
   const char *new_fmt, *p;
   size_t avail = 1000;
   char buf[1000];
+
+  /* PR 4992: Don't interrupt output being sent to stdout.  */
+  fflush (stdout);
 
   if (_bfd_error_program_name != NULL)
     fprintf (stderr, "%s: ", _bfd_error_program_name);
@@ -911,6 +995,8 @@ bfd_get_sign_extend_vma (bfd *abfd)
   if (CONST_STRNEQ (name, "coff-go32")
       || strcmp (name, "pe-i386") == 0
       || strcmp (name, "pei-i386") == 0
+      || strcmp (name, "pe-x86-64") == 0
+      || strcmp (name, "pei-x86-64") == 0
       || strcmp (name, "pe-arm-wince-little") == 0
       || strcmp (name, "pei-arm-wince-little") == 0)
     return 1;
@@ -1018,7 +1104,7 @@ void
 _bfd_set_gp_value (bfd *abfd, bfd_vma v)
 {
   if (! abfd)
-    BFD_FAIL ();
+    abort ();
   if (abfd->format != bfd_object)
     return;
 
@@ -1374,22 +1460,51 @@ bfd_record_phdr (bfd *abfd,
   return TRUE;
 }
 
-void
-bfd_sprintf_vma (bfd *abfd, char *buf, bfd_vma value)
+#ifdef BFD64
+/* Return true iff this target is 32-bit.  */
+
+static bfd_boolean
+is32bit (bfd *abfd)
 {
   if (bfd_get_flavour (abfd) == bfd_target_elf_flavour)
-    get_elf_backend_data (abfd)->elf_backend_sprintf_vma (abfd, buf, value);
-  else
-    sprintf_vma (buf, value);
+    {
+      const struct elf_backend_data *bed = get_elf_backend_data (abfd);
+      return bed->s->elfclass == ELFCLASS32;
+    }
+
+  /* For non-ELF, make a guess based on the target name.  */
+  return (strstr (bfd_get_target (abfd), "64") == NULL
+	  && strcmp (bfd_get_target (abfd), "mmo") != 0);
+}
+#endif
+
+/* bfd_sprintf_vma and bfd_fprintf_vma display an address in the
+   target's address size.  */
+
+void
+bfd_sprintf_vma (bfd *abfd ATTRIBUTE_UNUSED, char *buf, bfd_vma value)
+{
+#ifdef BFD64
+  if (is32bit (abfd))
+    {
+      sprintf (buf, "%08lx", (unsigned long) value & 0xffffffff);
+      return;
+    }
+#endif
+  sprintf_vma (buf, value);
 }
 
 void
-bfd_fprintf_vma (bfd *abfd, void *stream, bfd_vma value)
+bfd_fprintf_vma (bfd *abfd ATTRIBUTE_UNUSED, void *stream, bfd_vma value)
 {
-  if (bfd_get_flavour (abfd) == bfd_target_elf_flavour)
-    get_elf_backend_data (abfd)->elf_backend_fprintf_vma (abfd, stream, value);
-  else
-    fprintf_vma ((FILE *) stream, value);
+#ifdef BFD64
+  if (is32bit (abfd))
+    {
+      fprintf ((FILE *) stream, "%08lx", (unsigned long) value & 0xffffffff);
+      return;
+    }
+#endif
+  fprintf_vma ((FILE *) stream, value);
 }
 
 /*
@@ -1692,4 +1807,99 @@ bfd_emul_set_commonpagesize (const char *emul, bfd_vma size)
     bfd_elf_set_pagesize (target, size,
 			  offsetof (struct elf_backend_data,
 				    commonpagesize), target);
+}
+
+/*
+FUNCTION
+	bfd_demangle
+
+SYNOPSIS
+	char *bfd_demangle (bfd *, const char *, int);
+
+DESCRIPTION
+	Wrapper around cplus_demangle.  Strips leading underscores and
+	other such chars that would otherwise confuse the demangler.
+	If passed a g++ v3 ABI mangled name, returns a buffer allocated
+	with malloc holding the demangled name.  Returns NULL otherwise
+	and on memory alloc failure.
+*/
+
+char *
+bfd_demangle (bfd *abfd, const char *name, int options)
+{
+  char *res, *alloc;
+  const char *pre, *suf;
+  size_t pre_len;
+  bfd_boolean skip_lead;
+
+  skip_lead = (abfd != NULL
+	       && *name != '\0'
+	       && bfd_get_symbol_leading_char (abfd) == *name);
+  if (skip_lead)
+    ++name;
+
+  /* This is a hack for better error reporting on XCOFF, PowerPC64-ELF
+     or the MS PE format.  These formats have a number of leading '.'s
+     on at least some symbols, so we remove all dots to avoid
+     confusing the demangler.  */
+  pre = name;
+  while (*name == '.' || *name == '$')
+    ++name;
+  pre_len = name - pre;
+
+  /* Strip off @plt and suchlike too.  */
+  alloc = NULL;
+  suf = strchr (name, '@');
+  if (suf != NULL)
+    {
+      alloc = bfd_malloc (suf - name + 1);
+      if (alloc == NULL)
+	return NULL;
+      memcpy (alloc, name, suf - name);
+      alloc[suf - name] = '\0';
+      name = alloc;
+    }
+
+  res = cplus_demangle (name, options);
+
+  if (alloc != NULL)
+    free (alloc);
+
+  if (res == NULL)
+    {
+      if (skip_lead)
+	{
+	  size_t len = strlen (pre) + 1;
+	  alloc = bfd_malloc (len);
+	  if (alloc == NULL)
+	    return NULL;
+	  memcpy (alloc, pre, len);
+	  return alloc;
+	}
+      return NULL;
+    }
+
+  /* Put back any prefix or suffix.  */
+  if (pre_len != 0 || suf != NULL)
+    {
+      size_t len;
+      size_t suf_len;
+      char *final;
+
+      len = strlen (res);
+      if (suf == NULL)
+	suf = res + len;
+      suf_len = strlen (suf) + 1;
+      final = bfd_malloc (pre_len + len + suf_len);
+      if (final != NULL)
+	{
+	  memcpy (final, pre, pre_len);
+	  memcpy (final + pre_len, res, len);
+	  memcpy (final + pre_len + len, suf, suf_len);
+	}
+      free (res);
+      res = final;
+    }
+
+  return res;
 }

@@ -1,6 +1,6 @@
 /* vms-tir.c -- BFD back-end for VAX (openVMS/VAX) and
    EVAX (openVMS/Alpha) files.
-   Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005
+   Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2007, 2008
    Free Software Foundation, Inc.
 
    TIR record handling functions
@@ -13,7 +13,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -23,7 +23,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
+
 
 /* The following type abbreviations are used:
 
@@ -34,8 +36,8 @@
 	qw	quadword (8 byte, 64 bit)
 	da	data stream  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 #include "vms.h"
@@ -49,8 +51,8 @@ check_section (bfd * abfd, int size)
   if (offset + size > PRIV (image_section)->size)
     {
       PRIV (image_section)->contents
-	= bfd_realloc (PRIV (image_section)->contents, offset + size);
-      if (PRIV (image_section)->contents == 0)
+	= bfd_realloc_or_free (PRIV (image_section)->contents, offset + size);
+      if (PRIV (image_section)->contents == NULL)
 	{
 	  (*_bfd_error_handler) (_("No Mem !"));
 	  return -1;
@@ -806,7 +808,7 @@ new_section (bfd * abfd ATTRIBUTE_UNUSED, int idx)
   if (section == 0)
     {
 #if VMS_DEBUG
-      _bfd_vms_debug (6,  "bfd_make_section (%s) failed", name);
+      _bfd_vms_debug (6,  "new_section (%s) failed", name);
 #endif
       return NULL;
     }
@@ -831,8 +833,8 @@ alloc_section (bfd * abfd, unsigned int idx)
 
   amt = idx + 1;
   amt *= sizeof (asection *);
-  PRIV (sections) = bfd_realloc (PRIV (sections), amt);
-  if (PRIV (sections) == 0)
+  PRIV (sections) = bfd_realloc_or_free (PRIV (sections), amt);
+  if (PRIV (sections) == NULL)
     return -1;
 
   while (PRIV (section_count) <= idx)

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:07 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:05:34 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_common.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 7:40p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -1090,14 +1093,14 @@
  *AUD_FMM_MS_CTRL
  ***************************************************************************/
 /***************************************************************************
- *ABSTRACT_01_MICRO_SEQUENCER_CONTROL
+ *ABSTRACT_01_MICRO_SEQUENCER_CONTROL - Process to initialize and enable microsequencer
  ***************************************************************************/
 /* AUD_FMM_MS_CTRL :: ABSTRACT_01_MICRO_SEQUENCER_CONTROL :: NULL [31:00] */
 #define BCHP_AUD_FMM_MS_CTRL_ABSTRACT_01_MICRO_SEQUENCER_CONTROL_NULL_MASK 0xffffffff
 #define BCHP_AUD_FMM_MS_CTRL_ABSTRACT_01_MICRO_SEQUENCER_CONTROL_NULL_SHIFT 0
 
 /***************************************************************************
- *ABSTRACT_02_CHANNEL_STATUS
+ *ABSTRACT_02_CHANNEL_STATUS - How to control channel status bits
  ***************************************************************************/
 /* AUD_FMM_MS_CTRL :: ABSTRACT_02_CHANNEL_STATUS :: NULL [31:00] */
 #define BCHP_AUD_FMM_MS_CTRL_ABSTRACT_02_CHANNEL_STATUS_NULL_MASK  0xffffffff
@@ -1107,7 +1110,7 @@
  *AUD_FMM_OP_CTRL
  ***************************************************************************/
 /***************************************************************************
- *ABSTRACT_01_MULTICHANNEL_MAI
+ *ABSTRACT_01_MULTICHANNEL_MAI - Transmitting 6- and 8-channel MAI
  ***************************************************************************/
 /* AUD_FMM_OP_CTRL :: ABSTRACT_01_MULTICHANNEL_MAI :: MORE_INFORMATION [31:00] */
 #define BCHP_AUD_FMM_OP_CTRL_ABSTRACT_01_MULTICHANNEL_MAI_MORE_INFORMATION_MASK 0xffffffff
@@ -1117,42 +1120,42 @@
  *AUD_REGSET_DSP_CFG
  ***************************************************************************/
 /***************************************************************************
- *AAC_UPS_WORD_00
+ *AAC_UPS_WORD_00 - AAC User Parameters Structure Word 0 - XPT_FORMAT
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_00 :: XPT_FORMAT [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_00_XPT_FORMAT_MASK    0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_00_XPT_FORMAT_SHIFT   0
 
 /***************************************************************************
- *AAC_UPS_WORD_01
+ *AAC_UPS_WORD_01 - AAC User Parameters Structure Word 1 - DRC_GAIN_CONTROL_COMPRESS
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_01 :: DRC_GAIN_CONTROL_COMPRESS [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_01_DRC_GAIN_CONTROL_COMPRESS_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_01_DRC_GAIN_CONTROL_COMPRESS_SHIFT 0
 
 /***************************************************************************
- *AAC_UPS_WORD_02
+ *AAC_UPS_WORD_02 - AAC User Parameters Structure Word 2 - DRC_GAIN_CONTROL_BOOST
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_02 :: DRC_GAIN_CONTROL_BOOST [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_02_DRC_GAIN_CONTROL_BOOST_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_02_DRC_GAIN_CONTROL_BOOST_SHIFT 0
 
 /***************************************************************************
- *AAC_UPS_WORD_03
+ *AAC_UPS_WORD_03 - AAC User Parameters Structure Word 3 - DRC_TARGET_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_03 :: DRC_TARGET_LEVEL [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_03_DRC_TARGET_LEVEL_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_03_DRC_TARGET_LEVEL_SHIFT 0
 
 /***************************************************************************
- *AAC_UPS_WORD_04
+ *AAC_UPS_WORD_04 - AAC User Parameters Structure Word 4 - DOWNMIX_TYPE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_04 :: DOWNMIX_TYPE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_04_DOWNMIX_TYPE_MASK  0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_04_DOWNMIX_TYPE_SHIFT 0
 
 /***************************************************************************
- *AAC_UPS_WORD_05
+ *AAC_UPS_WORD_05 - AAC User Parameters Structure Word 5 - OUTMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_05 :: OUTMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_MASK       0xffffffff
@@ -1161,7 +1164,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_Mono       1
 
 /***************************************************************************
- *AAC_UPS_WORD_06
+ *AAC_UPS_WORD_06 - AAC User Parameters Structure Word 6 - DUALMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AAC_UPS_WORD_06 :: DUALMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_MASK      0xffffffff
@@ -1172,14 +1175,14 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Dual_mixmono 3
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_00
+ *AC3_PLUS_UPS_WORD_00 - AC3 Plus User Parameters Structure Word 0 - COMPMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_00 :: COMPMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_00_COMPMODE_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_00_COMPMODE_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_01
+ *AC3_PLUS_UPS_WORD_01 - AC3 Plus User Parameters Structure Word 1 - PCMSCALE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_01 :: PCMSCALE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_MASK 0xffffffff
@@ -1188,49 +1191,49 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_Mute 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_02
+ *AC3_PLUS_UPS_WORD_02 - AC3 Plus User Parameters Structure Word 2 - DYNSCALEHIGH
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_02 :: DYNSCALEHIGH [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_02_DYNSCALEHIGH_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_02_DYNSCALEHIGH_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_03
+ *AC3_PLUS_UPS_WORD_03 - AC3 Plus User Parameters Structure Word 3 - DYNSCALELOW
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_03 :: DYNSCALELOW [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_03_DYNSCALELOW_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_03_DYNSCALELOW_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_04
+ *AC3_PLUS_UPS_WORD_04 - AC3 Plus User Parameters Structure Word 4 - OUTLFE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_04 :: OUTLFE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_04_OUTLFE_MASK   0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_04_OUTLFE_SHIFT  0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_05
+ *AC3_PLUS_UPS_WORD_05 - AC3 Plus User Parameters Structure Word 5 - OUTMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_05 :: OUTMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_05_OUTMODE_MASK  0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_05_OUTMODE_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_06
+ *AC3_PLUS_UPS_WORD_06 - AC3 Plus User Parameters Structure Word 6 - STEREOMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_06 :: STEREOMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_06_STEREOMODE_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_06_STEREOMODE_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_07
+ *AC3_PLUS_UPS_WORD_07 - AC3 Plus User Parameters Structure Word 7 - DUALMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_07 :: DUALMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_07_DUALMODE_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_07_DUALMODE_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_08
+ *AC3_PLUS_UPS_WORD_08 - AC3 Plus User Parameters Structure Word 8 - KMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_08 :: KMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_MASK    0xffffffff
@@ -1241,14 +1244,14 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_BOTH_VOCALS 3
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_09
+ *AC3_PLUS_UPS_WORD_09 - AC3 Plus User Parameters Structure Word 9 - EXTDNMIX_ENABLED
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_09 :: EXTDNMIX_ENABLED [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_09_EXTDNMIX_ENABLED_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_09_EXTDNMIX_ENABLED_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_10_TO_45
+ *AC3_PLUS_UPS_WORD_10_TO_45 - AC3 Plus User Parameters Structure Word 10 to 45 - EXTDNMIXTAB
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_10_TO_45 :: EXTDNMIXTAB [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_MASK 0xffffffff
@@ -1257,14 +1260,14 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_Mute 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_46
+ *AC3_PLUS_UPS_WORD_46 - AC3 Plus User Parameters Structure Word 46 - EXTKARAOKE_ENABLED
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_46 :: EXTKARAOKE_ENABLED [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_46_EXTKARAOKE_ENABLED_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_46_EXTKARAOKE_ENABLED_SHIFT 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_47
+ *AC3_PLUS_UPS_WORD_47 - AC3 Plus User Parameters Structure Word 47 - EXT_V1_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_47 :: EXT_V1_LEVEL [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_MASK 0xffffffff
@@ -1273,7 +1276,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_Mute 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_48
+ *AC3_PLUS_UPS_WORD_48 - AC3 Plus User Parameters Structure Word 48 - EXT_V1_PAN
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_48 :: EXT_V1_PAN [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_MASK 0xffffffff
@@ -1283,7 +1286,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_49
+ *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_49 :: EXT_V2_LEVEL [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_MASK 0xffffffff
@@ -1292,7 +1295,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_Mute 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_50
+ *AC3_PLUS_UPS_WORD_50 - AC3 Plus User Parameters Structure Word 50 - EXT_V2_PAN
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_50 :: EXT_V2_PAN [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_MASK 0xffffffff
@@ -1302,7 +1305,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_51
+ *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_51 :: EXT_GM_LEVEL [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_MASK 0xffffffff
@@ -1311,7 +1314,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_Mute 0
 
 /***************************************************************************
- *AC3_PLUS_UPS_WORD_52
+ *AC3_PLUS_UPS_WORD_52 - AC3 Plus User Parameters Structure Word 52 - EXT_GM_PAN
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_52 :: EXT_GM_PAN [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_MASK 0xffffffff
@@ -1321,37 +1324,37 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
 
 /***************************************************************************
- *AC3_UPS_WORD_00
+ *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_00 :: DYNRNGSCALEHI [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_00_DYNRNGSCALEHI_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_00_DYNRNGSCALEHI_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_00_DYNRNGSCALEHI_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_00_DYNRNGSCALEHI_No_compression 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_00_DYNRNGSCALEHI_Full_compression 32767
 
 /***************************************************************************
- *AC3_UPS_WORD_01
+ *AC3_UPS_WORD_01 - AC3 User Parameters Structure Word 1 - DYNRNGSCALELOW
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_01 :: DYNRNGSCALELOW [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_01_DYNRNGSCALELOW_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_01_DYNRNGSCALELOW_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_01_DYNRNGSCALELOW_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_01_DYNRNGSCALELOW_No_compression 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_01_DYNRNGSCALELOW_Full_compression 32767
 
 /***************************************************************************
- *AC3_UPS_WORD_02
+ *AC3_UPS_WORD_02 - AC3 User Parameters Structure Word 2 - PCMSCALEFAC
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_02 :: PCMSCALEFAC [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_02_PCMSCALEFAC_MASK   0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_02_PCMSCALEFAC_MASK   0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_02_PCMSCALEFAC_SHIFT  0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_02_PCMSCALEFAC_Full_scale 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_02_PCMSCALEFAC_Mute   0
 
 /***************************************************************************
- *AC3_UPS_WORD_03
+ *AC3_UPS_WORD_03 - AC3 User Parameters Structure Word 3 - COMPMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_03 :: COMPMODE [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_03_COMPMODE_MASK      0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_03_COMPMODE_MASK      0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_03_COMPMODE_SHIFT     0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_03_COMPMODE_Comp_custom_a 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_03_COMPMODE_Comp_custom_d 1
@@ -1359,10 +1362,10 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_03_COMPMODE_Comp_rf   3
 
 /***************************************************************************
- *AC3_UPS_WORD_04
+ *AC3_UPS_WORD_04 - AC3 User Parameters Structure Word 4 - DUALMONOMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_04 :: DUALMONOMODE [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_04_DUALMONOMODE_MASK  0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_04_DUALMONOMODE_MASK  0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_04_DUALMONOMODE_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_04_DUALMONOMODE_Pass_through 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_04_DUALMONOMODE_Left_mono 1
@@ -1370,10 +1373,10 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_04_DUALMONOMODE_True_mono 3
 
 /***************************************************************************
- *AC3_UPS_WORD_05
+ *AC3_UPS_WORD_05 - AC3 User Parameters Structure Word 5 - OUTPUTMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_05 :: OUTPUTMODE [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_05_OUTPUTMODE_MASK    0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_05_OUTPUTMODE_MASK    0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_05_OUTPUTMODE_SHIFT   0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_05_OUTPUTMODE_Mode11  0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_05_OUTPUTMODE_Mode10  1
@@ -1385,19 +1388,19 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_05_OUTPUTMODE_Mode32  7
 
 /***************************************************************************
- *AC3_UPS_WORD_06
+ *AC3_UPS_WORD_06 - AC3 User Parameters Structure Word 6 - OUTLFEON
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_06 :: OUTLFEON [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_06_OUTLFEON_MASK      0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_06_OUTLFEON_MASK      0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_06_OUTLFEON_SHIFT     0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_06_OUTLFEON_Off       0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_06_OUTLFEON_On        1
 
 /***************************************************************************
- *AC3_UPS_WORD_07
+ *AC3_UPS_WORD_07 - AC3 User Parameters Structure Word 7 - KCAPABLEMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_07 :: KCAPABLEMODE [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_07_KCAPABLEMODE_MASK  0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_07_KCAPABLEMODE_MASK  0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_07_KCAPABLEMODE_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_07_KCAPABLEMODE_No_vocal_channels 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_07_KCAPABLEMODE_Vocal_channel_V1 1
@@ -1405,108 +1408,108 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_07_KCAPABLEMODE_Both_vocal_channels 3
 
 /***************************************************************************
- *AC3_UPS_WORD_08
+ *AC3_UPS_WORD_08 - AC3 User Parameters Structure Word 8 - KARAOKE_PARAMETER_FLAG
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_08 :: KARAOKE_PARAMETER_FLAG [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_08_KARAOKE_PARAMETER_FLAG_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_08_KARAOKE_PARAMETER_FLAG_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_08_KARAOKE_PARAMETER_FLAG_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_08_KARAOKE_PARAMETER_FLAG_Off 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_08_KARAOKE_PARAMETER_FLAG_On 1
 
 /***************************************************************************
- *AC3_UPS_WORD_09
+ *AC3_UPS_WORD_09 - AC3 User Parameters Structure Word 9 - KARAOKE_V1_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_09 :: KARAOKE_V1_LEVEL [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_09_KARAOKE_V1_LEVEL_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_09_KARAOKE_V1_LEVEL_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_09_KARAOKE_V1_LEVEL_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_09_KARAOKE_V1_LEVEL_Full_scale 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_09_KARAOKE_V1_LEVEL_Mute 0
 
 /***************************************************************************
- *AC3_UPS_WORD_10
+ *AC3_UPS_WORD_10 - AC3 User Parameters Structure Word 10 - KARAOKE_V1_PAN
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_10 :: KARAOKE_V1_PAN [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_10_KARAOKE_V1_PAN_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_10_KARAOKE_V1_PAN_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_10_KARAOKE_V1_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_10_KARAOKE_V1_PAN_Hard_left 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_10_KARAOKE_V1_PAN_Middle 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_10_KARAOKE_V1_PAN_Hard_right 32768
 
 /***************************************************************************
- *AC3_UPS_WORD_11
+ *AC3_UPS_WORD_11 - AC3 User Parameters Structure Word 11 - KARAOKE_V2_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_11 :: KARAOKE_V2_LEVEL [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_11_KARAOKE_V2_LEVEL_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_11_KARAOKE_V2_LEVEL_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_11_KARAOKE_V2_LEVEL_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_11_KARAOKE_V2_LEVEL_Full_scale 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_11_KARAOKE_V2_LEVEL_Mute 0
 
 /***************************************************************************
- *AC3_UPS_WORD_12
+ *AC3_UPS_WORD_12 - AC3 User Parameters Structure Word 12 - KARAOKE_V2_PAN
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_12 :: KARAOKE_V2_PAN [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_12_KARAOKE_V2_PAN_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_12_KARAOKE_V2_PAN_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_12_KARAOKE_V2_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_12_KARAOKE_V2_PAN_Hard_left 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_12_KARAOKE_V2_PAN_Middle 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_12_KARAOKE_V2_PAN_Hard_right 32768
 
 /***************************************************************************
- *AC3_UPS_WORD_13
+ *AC3_UPS_WORD_13 - AC3 User Parameters Structure Word 13 - KARAOKE_GM_LEVEL
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_13 :: KARAOKE_GM_LEVEL [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_13_KARAOKE_GM_LEVEL_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_13_KARAOKE_GM_LEVEL_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_13_KARAOKE_GM_LEVEL_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_13_KARAOKE_GM_LEVEL_Full_scale 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_13_KARAOKE_GM_LEVEL_Mute 0
 
 /***************************************************************************
- *AC3_UPS_WORD_14
+ *AC3_UPS_WORD_14 - AC3 User Parameters Structure Word 14 - KARAOKE_GM_PAN
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_14 :: KARAOKE_GM_PAN [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_14_KARAOKE_GM_PAN_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_14_KARAOKE_GM_PAN_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_14_KARAOKE_GM_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_14_KARAOKE_GM_PAN_Hard_left 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_14_KARAOKE_GM_PAN_Middle 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_14_KARAOKE_GM_PAN_Hard_right 32768
 
 /***************************************************************************
- *AC3_UPS_WORD_15
+ *AC3_UPS_WORD_15 - AC3 User Parameters Structure Word 15 - STEREO_MOD
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_15 :: STEREO_MOD [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_15_STEREO_MOD_MASK    0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_15_STEREO_MOD_MASK    0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_15_STEREO_MOD_SHIFT   0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_15_STEREO_MOD_Auto    0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_15_STEREO_MOD_LtRt    1
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_15_STEREO_MOD_LoRo    2
 
 /***************************************************************************
- *AC3_UPS_WORD_16
+ *AC3_UPS_WORD_16 - AC3 User Parameters Structure Word 16 - USER_DOWNMIX_FLAG
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_16 :: USER_DOWNMIX_FLAG [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_16_USER_DOWNMIX_FLAG_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_16_USER_DOWNMIX_FLAG_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_16_USER_DOWNMIX_FLAG_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_16_USER_DOWNMIX_FLAG_Off 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_16_USER_DOWNMIX_FLAG_On 1
 
 /***************************************************************************
- *AC3_UPS_WORD_17_TO_52
+ *AC3_UPS_WORD_17_TO_52 - AC3 User Parameters Structure Word 17 to 52 - DRAM_USER_DEFINED_DNMX_COEFFS
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_17_TO_52 :: DRAM_USER_DEFINED_DNMX_COEFFS [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_17_TO_52_DRAM_USER_DEFINED_DNMX_COEFFS_MASK 0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_17_TO_52_DRAM_USER_DEFINED_DNMX_COEFFS_MASK 0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_17_TO_52_DRAM_USER_DEFINED_DNMX_COEFFS_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_17_TO_52_DRAM_USER_DEFINED_DNMX_COEFFS_Full_scale 32767
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_17_TO_52_DRAM_USER_DEFINED_DNMX_COEFFS_Mute 0
 
 /***************************************************************************
- *AC3_UPS_WORD_53
+ *AC3_UPS_WORD_53 - AC3 User Parameters Structure Word 53 - DUMMY
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: AC3_UPS_WORD_53 :: DUMMY [15:00] */
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_53_DUMMY_MASK         0x0000ffff
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_53_DUMMY_MASK         0xffff
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_UPS_WORD_53_DUMMY_SHIFT        0
 
 /***************************************************************************
- *DTS_CORE_UPS_WORD_00
+ *DTS_CORE_UPS_WORD_00 - DTS Core User Parameters Structure Word 0 - OUTMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_00 :: OUTMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_00_OUTMODE_MASK  0xffffffff
@@ -1515,14 +1518,14 @@
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_00_OUTMODE_Mono  1
 
 /***************************************************************************
- *DTS_CORE_UPS_WORD_01
+ *DTS_CORE_UPS_WORD_01 - DTS Core User Parameters Structure Word 1 - OUTLFE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_01 :: OUTLFE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_01_OUTLFE_MASK   0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_01_OUTLFE_SHIFT  0
 
 /***************************************************************************
- *DTS_CORE_UPS_WORD_02
+ *DTS_CORE_UPS_WORD_02 - DTS Core User Parameters Structure Word 2 - DUALMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_02 :: DUALMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_02_DUALMODE_MASK 0xffffffff
@@ -1533,7 +1536,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_02_DUALMODE_Dual_mixmono 3
 
 /***************************************************************************
- *DTS_CORE_UPS_WORD_03
+ *DTS_CORE_UPS_WORD_03 - DTS Core User Parameters Structure Word 3 - STEREOMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_03 :: STEREOMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_03_STEREOMODE_MASK 0xffffffff
@@ -1543,14 +1546,14 @@
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_03_STEREOMODE_Stereodmix_LORO 2
 
 /***************************************************************************
- *DTS_CORE_UPS_WORD_04
+ *DTS_CORE_UPS_WORD_04 - DTS Core User Parameters Structure Word 4 - EXTDNMIX_ENABLED
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_04 :: EXTDNMIX_ENABLED [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_04_EXTDNMIX_ENABLED_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_04_EXTDNMIX_ENABLED_SHIFT 0
 
 /***************************************************************************
- *DTS_CORE_UPS_WORD_05_TO_40
+ *DTS_CORE_UPS_WORD_05_TO_40 - DTS Core User Parameters Structure Word 5 to 40 - EXTDNMIXTAB
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_05_TO_40 :: EXTDNMIXTAB [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_05_TO_40_EXTDNMIXTAB_MASK 0xffffffff
@@ -1559,14 +1562,14 @@
 #define BCHP_AUD_REGSET_DSP_CFG_DTS_CORE_UPS_WORD_05_TO_40_EXTDNMIXTAB_Mute 0
 
 /***************************************************************************
- *LPCM_UPS_WORD_00
+ *LPCM_UPS_WORD_00 - LPCM User Parameters Structure Word 0 - EXTDNMIX_ENABLED
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: LPCM_UPS_WORD_00 :: EXTDNMIX_ENABLED [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_LPCM_UPS_WORD_00_EXTDNMIX_ENABLED_MASK 0xffffffff
 #define BCHP_AUD_REGSET_DSP_CFG_LPCM_UPS_WORD_00_EXTDNMIX_ENABLED_SHIFT 0
 
 /***************************************************************************
- *LPCM_UPS_WORD_01_TO_16
+ *LPCM_UPS_WORD_01_TO_16 - LPCM User Parameters Structure Word 1 to 16 - EXTDNMIXTAB
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: LPCM_UPS_WORD_01_TO_16 :: EXTDNMIXTAB [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_LPCM_UPS_WORD_01_TO_16_EXTDNMIXTAB_MASK 0xffffffff
@@ -1575,7 +1578,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_LPCM_UPS_WORD_01_TO_16_EXTDNMIXTAB_Mute 0
 
 /***************************************************************************
- *MPEG_UPS_WORD_00
+ *MPEG_UPS_WORD_00 - MPEG User Parameters Structure Word 0 - OUTMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: MPEG_UPS_WORD_00 :: OUTMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_MPEG_UPS_WORD_00_OUTMODE_MASK      0xffffffff
@@ -1584,7 +1587,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_MPEG_UPS_WORD_00_OUTMODE_Mono      1
 
 /***************************************************************************
- *MPEG_UPS_WORD_01
+ *MPEG_UPS_WORD_01 - MPEG User Parameters Structure Word 1 - DUALMODE
  ***************************************************************************/
 /* AUD_REGSET_DSP_CFG :: MPEG_UPS_WORD_01 :: DUALMODE [31:00] */
 #define BCHP_AUD_REGSET_DSP_CFG_MPEG_UPS_WORD_01_DUALMODE_MASK     0xffffffff
@@ -1598,7 +1601,7 @@
  *BVN_MFD
  ***************************************************************************/
 /***************************************************************************
- *DRAM_DATA_STRUCTURE
+ *DRAM_DATA_STRUCTURE - DRAM Data Structure
  ***************************************************************************/
 /* BVN_MFD :: DRAM_DATA_STRUCTURE :: DRAM_DATA_STRUCTURE [31:00] */
 #define BCHP_BVN_MFD_DRAM_DATA_STRUCTURE_DRAM_DATA_STRUCTURE_MASK  0xffffffff
@@ -1608,7 +1611,7 @@
  *BVN_VFD
  ***************************************************************************/
 /***************************************************************************
- *DRAM_DATA_STRUCTURE
+ *DRAM_DATA_STRUCTURE - DRAM Data Structure
  ***************************************************************************/
 /* BVN_VFD :: DRAM_DATA_STRUCTURE :: DRAM_DATA_STRUCTURE [31:00] */
 #define BCHP_BVN_VFD_DRAM_DATA_STRUCTURE_DRAM_DATA_STRUCTURE_MASK  0xffffffff
@@ -1618,7 +1621,7 @@
  *GFD
  ***************************************************************************/
 /***************************************************************************
- *DRAM_DATA_STRUCTURE
+ *DRAM_DATA_STRUCTURE - DRAM Data Structure
  ***************************************************************************/
 /* GFD :: DRAM_DATA_STRUCTURE :: DRAM_DATA_STRUCTURE [31:00] */
 #define BCHP_GFD_DRAM_DATA_STRUCTURE_DRAM_DATA_STRUCTURE_MASK      0xffffffff
@@ -1628,7 +1631,7 @@
  *GFD_1
  ***************************************************************************/
 /***************************************************************************
- *DRAM_DATA_STRUCTURE
+ *DRAM_DATA_STRUCTURE - DRAM Data Structure
  ***************************************************************************/
 /* GFD_1 :: DRAM_DATA_STRUCTURE :: DRAM_DATA_STRUCTURE [31:00] */
 #define BCHP_GFD_1_DRAM_DATA_STRUCTURE_DRAM_DATA_STRUCTURE_MASK    0xffffffff
@@ -1638,21 +1641,21 @@
  *HIFIDAC_CTRL
  ***************************************************************************/
 /***************************************************************************
- *ABSTRACT_01_COMING_OUT_OF_RESET
+ *ABSTRACT_01_COMING_OUT_OF_RESET - Process to come out of reset
  ***************************************************************************/
 /* HIFIDAC_CTRL :: ABSTRACT_01_COMING_OUT_OF_RESET :: MORE_INFORMATION [31:00] */
 #define BCHP_HIFIDAC_CTRL_ABSTRACT_01_COMING_OUT_OF_RESET_MORE_INFORMATION_MASK 0xffffffff
 #define BCHP_HIFIDAC_CTRL_ABSTRACT_01_COMING_OUT_OF_RESET_MORE_INFORMATION_SHIFT 0
 
 /***************************************************************************
- *ABSTRACT_02_MUTE_USAGE
+ *ABSTRACT_02_MUTE_USAGE - Mute usage
  ***************************************************************************/
 /* HIFIDAC_CTRL :: ABSTRACT_02_MUTE_USAGE :: MORE_INFORMATION [31:00] */
 #define BCHP_HIFIDAC_CTRL_ABSTRACT_02_MUTE_USAGE_MORE_INFORMATION_MASK 0xffffffff
 #define BCHP_HIFIDAC_CTRL_ABSTRACT_02_MUTE_USAGE_MORE_INFORMATION_SHIFT 0
 
 /***************************************************************************
- *ABSTRACT_03_SAMPLE_RATE_CHANGE
+ *ABSTRACT_03_SAMPLE_RATE_CHANGE - Process to effect a sample rate change
  ***************************************************************************/
 /* HIFIDAC_CTRL :: ABSTRACT_03_SAMPLE_RATE_CHANGE :: MORE_INFORMATION [31:00] */
 #define BCHP_HIFIDAC_CTRL_ABSTRACT_03_SAMPLE_RATE_CHANGE_MORE_INFORMATION_MASK 0xffffffff
@@ -1662,14 +1665,14 @@
  *M2MC
  ***************************************************************************/
 /***************************************************************************
- *LIST_PACKET_ABSTRACT
+ *LIST_PACKET_ABSTRACT - Linked-List Packet Abstract
  ***************************************************************************/
 /* M2MC :: LIST_PACKET_ABSTRACT :: PACKET_FORMAT [31:00] */
 #define BCHP_M2MC_LIST_PACKET_ABSTRACT_PACKET_FORMAT_MASK          0xffffffff
 #define BCHP_M2MC_LIST_PACKET_ABSTRACT_PACKET_FORMAT_SHIFT         0
 
 /***************************************************************************
- *LIST_PACKET_HEADER_0
+ *LIST_PACKET_HEADER_0 - Linked-List Packet Header Word 0
  ***************************************************************************/
 /* M2MC :: LIST_PACKET_HEADER_0 :: reserved0 [31:28] */
 #define BCHP_M2MC_LIST_PACKET_HEADER_0_reserved0_MASK              0xf0000000
@@ -1690,7 +1693,7 @@
 #define BCHP_M2MC_LIST_PACKET_HEADER_0_LAST_PKT_IND_NextPktInvalid 1
 
 /***************************************************************************
- *LIST_PACKET_HEADER_1
+ *LIST_PACKET_HEADER_1 - Linked-List Packet Header Word 1
  ***************************************************************************/
 /* M2MC :: LIST_PACKET_HEADER_1 :: reserved0 [31:15] */
 #define BCHP_M2MC_LIST_PACKET_HEADER_1_reserved0_MASK              0xffff8000
@@ -1787,98 +1790,98 @@
 #define BCHP_M2MC_LIST_PACKET_HEADER_1_DST_CLUT_GRP_CNTRL_GRP_DISABLE 0
 
 /***************************************************************************
- *LIST_PKT_00_SRC_FEEDER_N
+ *LIST_PKT_00_SRC_FEEDER_N - Linked-List Packet Word N for group SRC_FEEDER
  ***************************************************************************/
 /* M2MC :: LIST_PKT_00_SRC_FEEDER_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_00_SRC_FEEDER_N_REGISTER_CONTENTS_MASK  0xffffffff
 #define BCHP_M2MC_LIST_PKT_00_SRC_FEEDER_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_01_DST_FEEDER_N
+ *LIST_PKT_01_DST_FEEDER_N - Linked-List Packet Word N for group DST_FEEDER
  ***************************************************************************/
 /* M2MC :: LIST_PKT_01_DST_FEEDER_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_01_DST_FEEDER_N_REGISTER_CONTENTS_MASK  0xffffffff
 #define BCHP_M2MC_LIST_PKT_01_DST_FEEDER_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_02_OUTPUT_FEEDER_N
+ *LIST_PKT_02_OUTPUT_FEEDER_N - Linked-List Packet Word N for group OUTPUT_FEEDER
  ***************************************************************************/
 /* M2MC :: LIST_PKT_02_OUTPUT_FEEDER_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_02_OUTPUT_FEEDER_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_02_OUTPUT_FEEDER_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_03_BLIT_N
+ *LIST_PKT_03_BLIT_N - Linked-List Packet Word N for group BLIT
  ***************************************************************************/
 /* M2MC :: LIST_PKT_03_BLIT_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_03_BLIT_N_REGISTER_CONTENTS_MASK        0xffffffff
 #define BCHP_M2MC_LIST_PKT_03_BLIT_N_REGISTER_CONTENTS_SHIFT       0
 
 /***************************************************************************
- *LIST_PKT_04_SCALE_PARAM_N
+ *LIST_PKT_04_SCALE_PARAM_N - Linked-List Packet Word N for group SCALE_PARAM
  ***************************************************************************/
 /* M2MC :: LIST_PKT_04_SCALE_PARAM_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_04_SCALE_PARAM_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_04_SCALE_PARAM_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_05_BLEND_PARAM_N
+ *LIST_PKT_05_BLEND_PARAM_N - Linked-List Packet Word N for group BLEND_PARAM
  ***************************************************************************/
 /* M2MC :: LIST_PKT_05_BLEND_PARAM_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_05_BLEND_PARAM_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_05_BLEND_PARAM_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_06_ROP_N
+ *LIST_PKT_06_ROP_N - Linked-List Packet Word N for group ROP
  ***************************************************************************/
 /* M2MC :: LIST_PKT_06_ROP_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_06_ROP_N_REGISTER_CONTENTS_MASK         0xffffffff
 #define BCHP_M2MC_LIST_PKT_06_ROP_N_REGISTER_CONTENTS_SHIFT        0
 
 /***************************************************************************
- *LIST_PKT_07_SRC_COLOR_KEY_N
+ *LIST_PKT_07_SRC_COLOR_KEY_N - Linked-List Packet Word N for group SRC_COLOR_KEY
  ***************************************************************************/
 /* M2MC :: LIST_PKT_07_SRC_COLOR_KEY_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_07_SRC_COLOR_KEY_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_07_SRC_COLOR_KEY_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_08_DST_COLOR_KEY_N
+ *LIST_PKT_08_DST_COLOR_KEY_N - Linked-List Packet Word N for group DST_COLOR_KEY
  ***************************************************************************/
 /* M2MC :: LIST_PKT_08_DST_COLOR_KEY_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_08_DST_COLOR_KEY_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_08_DST_COLOR_KEY_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_09_SCALE_COEF_N
+ *LIST_PKT_09_SCALE_COEF_N - Linked-List Packet Word N for group SCALE_COEF
  ***************************************************************************/
 /* M2MC :: LIST_PKT_09_SCALE_COEF_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_09_SCALE_COEF_N_REGISTER_CONTENTS_MASK  0xffffffff
 #define BCHP_M2MC_LIST_PKT_09_SCALE_COEF_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_10_SRC_COLOR_MATRIX_N
+ *LIST_PKT_10_SRC_COLOR_MATRIX_N - Linked-List Packet Word N for group SRC_COLOR_MATRIX
  ***************************************************************************/
 /* M2MC :: LIST_PKT_10_SRC_COLOR_MATRIX_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_10_SRC_COLOR_MATRIX_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_10_SRC_COLOR_MATRIX_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_11_DST_COLOR_MATRIX_N
+ *LIST_PKT_11_DST_COLOR_MATRIX_N - Linked-List Packet Word N for group DST_COLOR_MATRIX
  ***************************************************************************/
 /* M2MC :: LIST_PKT_11_DST_COLOR_MATRIX_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_11_DST_COLOR_MATRIX_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_11_DST_COLOR_MATRIX_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_12_OUTPUT_COLOR_MATRIX_N
+ *LIST_PKT_12_OUTPUT_COLOR_MATRIX_N - Linked-List Packet Word N for group OUTPUT_COLOR_MATRIX
  ***************************************************************************/
 /* M2MC :: LIST_PKT_12_OUTPUT_COLOR_MATRIX_N :: REGISTER_CONTENTS [31:00] */
 #define BCHP_M2MC_LIST_PKT_12_OUTPUT_COLOR_MATRIX_N_REGISTER_CONTENTS_MASK 0xffffffff
 #define BCHP_M2MC_LIST_PKT_12_OUTPUT_COLOR_MATRIX_N_REGISTER_CONTENTS_SHIFT 0
 
 /***************************************************************************
- *LIST_PKT_13_SRC_CLUT
+ *LIST_PKT_13_SRC_CLUT - Linked-List Packet Word for group SRC_CLUT
  ***************************************************************************/
 /* M2MC :: LIST_PKT_13_SRC_CLUT :: reserved0 [31:29] */
 #define BCHP_M2MC_LIST_PKT_13_SRC_CLUT_reserved0_MASK              0xe0000000
@@ -1889,7 +1892,7 @@
 #define BCHP_M2MC_LIST_PKT_13_SRC_CLUT_REGISTER_CONTENTS_SHIFT     0
 
 /***************************************************************************
- *LIST_PKT_14_DST_CLUT
+ *LIST_PKT_14_DST_CLUT - Linked-List Packet Word for group DST_CLUT
  ***************************************************************************/
 /* M2MC :: LIST_PKT_14_DST_CLUT :: reserved0 [31:29] */
 #define BCHP_M2MC_LIST_PKT_14_DST_CLUT_reserved0_MASK              0xe0000000
@@ -1900,7 +1903,7 @@
 #define BCHP_M2MC_LIST_PKT_14_DST_CLUT_REGISTER_CONTENTS_SHIFT     0
 
 /***************************************************************************
- *TYPE_CLUT_COLOR_DATA
+ *TYPE_CLUT_COLOR_DATA - color data for color look up table
  ***************************************************************************/
 /* M2MC :: TYPE_CLUT_COLOR_DATA :: ALPHA [31:24] */
 #define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_ALPHA_MASK                  0xff000000
@@ -1922,7 +1925,7 @@
  *MC_CORE_ARB
  ***************************************************************************/
 /***************************************************************************
- *Type_CLIENT_INFO_0
+ *Type_CLIENT_INFO_0 - CLIENT_INFO_MEMC0_0_XPT_WR0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_0 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_0_reserved0_MASK         0xffe00000
@@ -1941,7 +1944,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_0_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_1
+ *Type_CLIENT_INFO_1 - CLIENT_INFO_MEMC0_1_XPT_WR1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_1 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_1_reserved0_MASK         0xffe00000
@@ -1960,7 +1963,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_1_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_11
+ *Type_CLIENT_INFO_11 - CLIENT_INFO_MEMC0_11_AVD_DBLK_1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_11 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_11_reserved0_MASK        0xffe00000
@@ -1979,7 +1982,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_11_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_118
+ *Type_CLIENT_INFO_118 - CLIENT_INFO_118_MEMC0_MEMC64_SOFT
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_118 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_118_reserved0_MASK       0xffe00000
@@ -1998,7 +2001,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_118_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_12
+ *Type_CLIENT_INFO_12 - CLIENT_INFO_MEMC0_12_AVD_ILA_1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_12 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_12_reserved0_MASK        0xffe00000
@@ -2017,7 +2020,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_12_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_120
+ *Type_CLIENT_INFO_120 - CLIENT_INFO_120_MEMC0_AVD_PFR_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_120 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_120_reserved0_MASK       0xffe00000
@@ -2036,7 +2039,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_120_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_121
+ *Type_CLIENT_INFO_121 - CLIENT_INFO_121_MEMC0_AVD_PFR_1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_121 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_reserved0_MASK       0xffe00000
@@ -2055,7 +2058,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_124
+ *Type_CLIENT_INFO_124 - CLIENT_INFO_124_MEMC0_CPU_LMB0_CPU_LMB1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_124 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_124_reserved0_MASK       0xffe00000
@@ -2074,7 +2077,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_124_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_126
+ *Type_CLIENT_INFO_126 - CLIENT_INFO_126_MEMC0_DRAM_INIT
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_126 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_126_reserved0_MASK       0xffe00000
@@ -2093,7 +2096,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_126_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_127
+ *Type_CLIENT_INFO_127 - CLIENT_INFO_127_MEMC0_MEMC64_REF
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_127 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_127_reserved0_MASK       0xffe00000
@@ -2112,7 +2115,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_127_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_13
+ *Type_CLIENT_INFO_13 - CLIENT_INFO_MEMC0_13_AVD_OLA_1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_13 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_reserved0_MASK        0xffe00000
@@ -2131,7 +2134,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_14
+ *Type_CLIENT_INFO_14 - CLIENT_INFO_MEMC0_14_AVD_CAB_1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_14 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_reserved0_MASK        0xffe00000
@@ -2150,7 +2153,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_15
+ *Type_CLIENT_INFO_15 - CLIENT_INFO_MEMC0_15_AVD_SYM_1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_15 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_reserved0_MASK        0xffe00000
@@ -2169,7 +2172,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_16
+ *Type_CLIENT_INFO_16 - CLIENT_INFO_MEMC0_16_XPT_RD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_16 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_16_reserved0_MASK        0xffe00000
@@ -2188,7 +2191,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_16_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_17
+ *Type_CLIENT_INFO_17 - CLIENT_INFO_MEMC0_17_BVNM_FGT_EDU
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_17 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_17_reserved0_MASK        0xffe00000
@@ -2207,7 +2210,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_17_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_19
+ *Type_CLIENT_INFO_19 - CLIENT_INFO_MEMC0_19_AUD_ZSP
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_19 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_19_reserved0_MASK        0xffe00000
@@ -2226,7 +2229,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_19_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_2
+ *Type_CLIENT_INFO_2 - CLIENT_INFO_MEMC0_2_XPT_WR2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_2 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_2_reserved0_MASK         0xffe00000
@@ -2245,7 +2248,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_2_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_20
+ *Type_CLIENT_INFO_20 - CLIENT_INFO_MEMC0_20_AUD_AIO
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_20 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_20_reserved0_MASK        0xffe00000
@@ -2264,7 +2267,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_20_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_22
+ *Type_CLIENT_INFO_22 - CLIENT_INFO_MEMC0_22_AEGIS
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_22 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_22_reserved0_MASK        0xffe00000
@@ -2283,7 +2286,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_22_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_23
+ *Type_CLIENT_INFO_23 - CLIENT_INFO_MEMC0_23_XPT_RD2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_23 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_23_reserved0_MASK        0xffe00000
@@ -2302,7 +2305,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_23_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_24
+ *Type_CLIENT_INFO_24 - CLIENT_INFO_MEMC0_24_VEC_VBI_ENC2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_24 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_reserved0_MASK        0xffe00000
@@ -2321,7 +2324,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_25
+ *Type_CLIENT_INFO_25 - CLIENT_INFO_MEMC0_25_VEC_VBI_ENC1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_25 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_25_reserved0_MASK        0xffe00000
@@ -2340,7 +2343,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_25_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_26
+ *Type_CLIENT_INFO_26 - CLIENT_INFO_MEMC0_26_VEC_VBI_ENC0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_26 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_26_reserved0_MASK        0xffe00000
@@ -2359,7 +2362,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_26_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_27
+ *Type_CLIENT_INFO_27 - CLIENT_INFO_MEMC0_27_BVN_GFD2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_27 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_reserved0_MASK        0xffe00000
@@ -2378,7 +2381,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_28
+ *Type_CLIENT_INFO_28 - CLIENT_INFO_MEMC0_28_BVN_GFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_28 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_28_reserved0_MASK        0xffe00000
@@ -2397,7 +2400,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_28_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_29
+ *Type_CLIENT_INFO_29 - CLIENT_INFO_MEMC0_29_BVN_GFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_29 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_29_reserved0_MASK        0xffe00000
@@ -2416,7 +2419,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_29_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_3
+ *Type_CLIENT_INFO_3 - CLIENT_INFO_MEMC0_3_M2MC0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_3 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_3_reserved0_MASK         0xffe00000
@@ -2435,7 +2438,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_3_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_30
+ *Type_CLIENT_INFO_30 - CLIENT_INFO_MEMC0_30_BVN_CAP3
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_30 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_reserved0_MASK        0xffe00000
@@ -2454,7 +2457,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_31
+ *Type_CLIENT_INFO_31 - CLIENT_INFO_31_MEMC0_BVN_CAP2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_31 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_reserved0_MASK        0xffe00000
@@ -2473,7 +2476,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_32
+ *Type_CLIENT_INFO_32 - CLIENT_INFO_32_MEMC0_BVN_CAP1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_32 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_32_reserved0_MASK        0xffe00000
@@ -2492,7 +2495,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_32_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_33
+ *Type_CLIENT_INFO_33 - CLIENT_INFO_33_MEMC0_BVN_CAP0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_33 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_33_reserved0_MASK        0xffe00000
@@ -2511,7 +2514,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_33_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_34
+ *Type_CLIENT_INFO_34 - CLIENT_INFO_34_MEMC0_BVN_RDC
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_34 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_34_reserved0_MASK        0xffe00000
@@ -2530,7 +2533,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_34_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_35
+ *Type_CLIENT_INFO_35 - CLIENT_INFO_35_MEMC0_BVN_VFD3
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_35 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_reserved0_MASK        0xffe00000
@@ -2549,7 +2552,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_36
+ *Type_CLIENT_INFO_36 - CLIENT_INFO_36_MEMC0_BVN_VFD2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_36 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_reserved0_MASK        0xffe00000
@@ -2568,7 +2571,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_37
+ *Type_CLIENT_INFO_37 - CLIENT_INFO_37_MEMC0_BVN_VFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_37 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_37_reserved0_MASK        0xffe00000
@@ -2587,7 +2590,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_37_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_38
+ *Type_CLIENT_INFO_38 - CLIENT_INFO_38_MEMC0_BVN_VFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_38 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_38_reserved0_MASK        0xffe00000
@@ -2606,7 +2609,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_38_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_39
+ *Type_CLIENT_INFO_39 - CLIENT_INFO_39_MEMC0_BVN_MFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_39 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_reserved0_MASK        0xffe00000
@@ -2625,7 +2628,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_4
+ *Type_CLIENT_INFO_4 - CLIENT_INFO_MEMC0_4_AVD_DBLK_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_4 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_4_reserved0_MASK         0xffe00000
@@ -2644,7 +2647,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_4_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_40
+ *Type_CLIENT_INFO_40 - CLIENT_INFO_40_MEMC0_BVN_MFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_40 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_40_reserved0_MASK        0xffe00000
@@ -2663,7 +2666,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_40_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_41
+ *Type_CLIENT_INFO_41 - CLIENT_INFO_41_MEMC0_CPU_SCB0_CPU_SCB1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_41 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_41_reserved0_MASK        0xffe00000
@@ -2682,7 +2685,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_41_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_42
+ *Type_CLIENT_INFO_42 - CLIENT_INFO_42_MEMC0_PCI_HIF_PCI
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_42 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_42_reserved0_MASK        0xffe00000
@@ -2701,7 +2704,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_42_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_44
+ *Type_CLIENT_INFO_44 - CLIENT_INFO_44_MEMC0_M2M_DMA0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_44 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_44_reserved0_MASK        0xffe00000
@@ -2720,7 +2723,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_44_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_45
+ *Type_CLIENT_INFO_45 - CLIENT_INFO_45_MEMC0_ENET0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_45 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_reserved0_MASK        0xffe00000
@@ -2739,7 +2742,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_46
+ *Type_CLIENT_INFO_46 - CLIENT_INFO_46_MEMC0_PIX_3D_GPORT
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_46 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_46_reserved0_MASK        0xffe00000
@@ -2758,7 +2761,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_46_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_47
+ *Type_CLIENT_INFO_47 - CLIENT_INFO_47_MEMC0_USB_20_USB_HI
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_47 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_47_reserved0_MASK        0xffe00000
@@ -2777,7 +2780,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_47_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_48
+ *Type_CLIENT_INFO_48 - CLIENT_INFO_48_MEMC0_USB_11_USB_LO
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_48 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_48_reserved0_MASK        0xffe00000
@@ -2796,7 +2799,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_48_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_5
+ *Type_CLIENT_INFO_5 - CLIENT_INFO_MEMC0_5_AVD_ILA_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_5 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_5_reserved0_MASK         0xffe00000
@@ -2815,7 +2818,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_5_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_54
+ *Type_CLIENT_INFO_54 - CLIENT_INFO_54_MEMC0_BVN_MCVP0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_54 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_54_reserved0_MASK        0xffe00000
@@ -2834,7 +2837,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_54_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_55
+ *Type_CLIENT_INFO_55 - CLIENT_INFO_55_MEMC0_BVN_MCVP1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_55 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_reserved0_MASK        0xffe00000
@@ -2853,7 +2856,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_56
+ *Type_CLIENT_INFO_56 - CLIENT_INFO_56_MEMC0_MCIF_RD
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_56 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_56_reserved0_MASK        0xffe00000
@@ -2872,7 +2875,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_56_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_57
+ *Type_CLIENT_INFO_57 - CLIENT_INFO_57_MEMC0_MCIF_WR
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_57 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_57_reserved0_MASK        0xffe00000
@@ -2891,7 +2894,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_57_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_58
+ *Type_CLIENT_INFO_58 - CLIENT_INFO_58_MEMC0_SATA
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_58 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_58_reserved0_MASK        0xffe00000
@@ -2910,7 +2913,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_58_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_59
+ *Type_CLIENT_INFO_59 - CLIENT_INFO_59_MEMC0_ENET1_MOCA_DATA
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_59 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_59_reserved0_MASK        0xffe00000
@@ -2929,7 +2932,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_59_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_6
+ *Type_CLIENT_INFO_6 - CLIENT_INFO_MEMC0_6_AVD_OLA_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_6 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_6_reserved0_MASK         0xffe00000
@@ -2948,7 +2951,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_6_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_62
+ *Type_CLIENT_INFO_62 - CLIENT_INFO_62_MEMC0_MOCA_MIPS
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_62 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_62_reserved0_MASK        0xffe00000
@@ -2967,7 +2970,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_62_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_63
+ *Type_CLIENT_INFO_63 - CLIENT_INFO_63_MEMC0_PCIE
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_63 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_reserved0_MASK        0xffe00000
@@ -2986,7 +2989,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_64
+ *Type_CLIENT_INFO_64 - CLIENT_INFO_64_MEMC0_IEEE_1394
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_64 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_reserved0_MASK        0xffe00000
@@ -3005,7 +3008,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_65
+ *Type_CLIENT_INFO_65 - CLIENT_INFO_65_MEMC0_TPCAP
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_65 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_65_reserved0_MASK        0xffe00000
@@ -3024,7 +3027,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_65_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_7
+ *Type_CLIENT_INFO_7 - CLIENT_INFO_MEMC0_7_AVD_CAB_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_7 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_7_reserved0_MASK         0xffe00000
@@ -3043,7 +3046,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_7_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_8
+ *Type_CLIENT_INFO_8 - CLIENT_INFO_MEMC0_8_AVD_SYM_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_8 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_8_reserved0_MASK         0xffe00000
@@ -3062,7 +3065,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_8_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_9
+ *Type_CLIENT_INFO_9 - CLIENT_INFO_MEMC0_9_XPT_RD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_9 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_9_reserved0_MASK         0xffe00000
@@ -3081,7 +3084,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_9_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_a
+ *Type_CLIENT_INFO_a - CLIENT_INFO_MEMC1_3_M2MC0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_a :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_reserved0_MASK         0xffe00000
@@ -3100,7 +3103,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_b
+ *Type_CLIENT_INFO_b - CLIENT_INFO_MEMC1_27_BVN_GFD2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_b :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_reserved0_MASK         0xffe00000
@@ -3119,7 +3122,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_c
+ *Type_CLIENT_INFO_c - CLIENT_INFO_MEMC1_28_BVN_GFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_c :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_reserved0_MASK         0xffe00000
@@ -3138,7 +3141,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_d
+ *Type_CLIENT_INFO_d - CLIENT_INFO_MEMC1_29_BVN_GFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_d :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_reserved0_MASK         0xffe00000
@@ -3157,7 +3160,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_e
+ *Type_CLIENT_INFO_e - CLIENT_INFO_MEMC1_30_BVN_CAP3
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_e :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_reserved0_MASK         0xffe00000
@@ -3176,7 +3179,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_f
+ *Type_CLIENT_INFO_f - CLIENT_INFO_31_MEMC1_BVN_CAP2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_f :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_reserved0_MASK         0xffe00000
@@ -3195,7 +3198,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_g
+ *Type_CLIENT_INFO_g - CLIENT_INFO_32_MEMC1_BVN_CAP1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_g :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_reserved0_MASK         0xffe00000
@@ -3214,7 +3217,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_h
+ *Type_CLIENT_INFO_h - CLIENT_INFO_33_MEMC1_BVN_CAP0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_h :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_reserved0_MASK         0xffe00000
@@ -3233,7 +3236,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_i
+ *Type_CLIENT_INFO_i - CLIENT_INFO_34_MEMC1_BVN_RDC
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_i :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_reserved0_MASK         0xffe00000
@@ -3252,7 +3255,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_j
+ *Type_CLIENT_INFO_j - CLIENT_INFO_35_MEMC1_BVN_VFD3
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_j :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_reserved0_MASK         0xffe00000
@@ -3271,7 +3274,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_k
+ *Type_CLIENT_INFO_k - CLIENT_INFO_36_MEMC1_BVN_VFD2
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_k :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_reserved0_MASK         0xffe00000
@@ -3290,7 +3293,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_l
+ *Type_CLIENT_INFO_l - CLIENT_INFO_37_MEMC1_BVN_VFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_l :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_reserved0_MASK         0xffe00000
@@ -3309,7 +3312,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_m
+ *Type_CLIENT_INFO_m - CLIENT_INFO_38_MEMC1_BVN_VFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_m :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_reserved0_MASK         0xffe00000
@@ -3328,7 +3331,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_n
+ *Type_CLIENT_INFO_n - CLIENT_INFO_39_MEMC1_BVN_MFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_n :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_reserved0_MASK         0xffe00000
@@ -3347,7 +3350,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_o
+ *Type_CLIENT_INFO_o - CLIENT_INFO_40_MEMC1_BVN_MFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_o :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_reserved0_MASK         0xffe00000
@@ -3366,7 +3369,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_p
+ *Type_CLIENT_INFO_p - CLIENT_INFO_44_MEMC1_M2M_DMA0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_p :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_reserved0_MASK         0xffe00000
@@ -3385,7 +3388,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_q
+ *Type_CLIENT_INFO_q - CLIENT_INFO_46_MEMC1_PIX_3D_GPORT
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_q :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_reserved0_MASK         0xffe00000
@@ -3404,7 +3407,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_r
+ *Type_CLIENT_INFO_r - CLIENT_INFO_54_MEMC1_BVN_MCVP0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_r :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_reserved0_MASK         0xffe00000
@@ -3423,7 +3426,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_s
+ *Type_CLIENT_INFO_s - CLIENT_INFO_55_MEMC1_BVN_MCVP1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_s :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_reserved0_MASK         0xffe00000
@@ -3442,7 +3445,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_t
+ *Type_CLIENT_INFO_t - CLIENT_INFO_127_MEMC1_MEMC16_REF
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_t :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_reserved0_MASK         0xffe00000
@@ -3461,7 +3464,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_u
+ *Type_CLIENT_INFO_u - CLIENT_INFO_118_MEMC1_MEMC16_SOFT
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_u :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_reserved0_MASK         0xffe00000
@@ -3480,7 +3483,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_REQ_MASK_0
+ *Type_REQ_MASK_0 - REQ_MASK_31_0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVN_CAP2 [31:31] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_CAP2_MASK             0x80000000
@@ -3611,7 +3614,7 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_WR0_SHIFT             0
 
 /***************************************************************************
- *Type_REQ_MASK_1
+ *Type_REQ_MASK_1 - REQ_MASK_63_32
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved0 [31:28] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved0_MASK            0xf0000000
@@ -3714,7 +3717,7 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_CAP1_SHIFT            0
 
 /***************************************************************************
- *Type_REQ_MASK_2
+ *Type_REQ_MASK_2 - REQ_MASK_127_96
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_REQ_MASK_2 :: MEMC64_REF_MEMC16_REF [31:31] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_MEMC64_REF_MEMC16_REF_MASK 0x80000000
@@ -3757,7 +3760,7 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved2_SHIFT           0
 
 /***************************************************************************
- *Type_REQ_MASK_3
+ *Type_REQ_MASK_3 - REQ_MASK_95_64
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_REQ_MASK_3 :: reserved0 [31:01] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved0_MASK            0xfffffffe
@@ -3771,21 +3774,21 @@
  *MEM_DMA
  ***************************************************************************/
 /***************************************************************************
- *DESC_WORD0
+ *DESC_WORD0 - MEM DMA Descriptor Word 0
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD0 :: READ_ADDR [31:00] */
 #define BCHP_MEM_DMA_DESC_WORD0_READ_ADDR_MASK                     0xffffffff
 #define BCHP_MEM_DMA_DESC_WORD0_READ_ADDR_SHIFT                    0
 
 /***************************************************************************
- *DESC_WORD1
+ *DESC_WORD1 - MEM DMA Descriptor Word 1
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD1 :: WRITE_ADDR [31:00] */
 #define BCHP_MEM_DMA_DESC_WORD1_WRITE_ADDR_MASK                    0xffffffff
 #define BCHP_MEM_DMA_DESC_WORD1_WRITE_ADDR_SHIFT                   0
 
 /***************************************************************************
- *DESC_WORD2
+ *DESC_WORD2 - MEM DMA Descriptor Word 2
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD2 :: INTR_ENABLE [31:31] */
 #define BCHP_MEM_DMA_DESC_WORD2_INTR_ENABLE_MASK                   0x80000000
@@ -3808,7 +3811,7 @@
 #define BCHP_MEM_DMA_DESC_WORD2_TRANSFER_SIZE_SHIFT                0
 
 /***************************************************************************
- *DESC_WORD3
+ *DESC_WORD3 - MEM DMA Descriptor Word 3
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD3 :: NEXT_DESC_ADDR [31:05] */
 #define BCHP_MEM_DMA_DESC_WORD3_NEXT_DESC_ADDR_MASK                0xffffffe0
@@ -3833,7 +3836,7 @@
 #define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_reserved   3
 
 /***************************************************************************
- *DESC_WORD4
+ *DESC_WORD4 - MEM DMA Descriptor Word 4
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD4 :: reserved0 [31:16] */
 #define BCHP_MEM_DMA_DESC_WORD4_reserved0_MASK                     0xffff0000
@@ -3868,21 +3871,21 @@
 #define BCHP_MEM_DMA_DESC_WORD4_KEY_SELECT_SHIFT                   0
 
 /***************************************************************************
- *DESC_WORD5
+ *DESC_WORD5 - MEM DMA Descriptor Word 5
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD5 :: reserved0 [31:00] */
 #define BCHP_MEM_DMA_DESC_WORD5_reserved0_MASK                     0xffffffff
 #define BCHP_MEM_DMA_DESC_WORD5_reserved0_SHIFT                    0
 
 /***************************************************************************
- *DESC_WORD6
+ *DESC_WORD6 - MEM DMA Descriptor Word 6
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD6 :: reserved0 [31:00] */
 #define BCHP_MEM_DMA_DESC_WORD6_reserved0_MASK                     0xffffffff
 #define BCHP_MEM_DMA_DESC_WORD6_reserved0_SHIFT                    0
 
 /***************************************************************************
- *DESC_WORD7
+ *DESC_WORD7 - MEM DMA Descriptor Word 7
  ***************************************************************************/
 /* MEM_DMA :: DESC_WORD7 :: reserved0 [31:00] */
 #define BCHP_MEM_DMA_DESC_WORD7_reserved0_MASK                     0xffffffff
@@ -3892,21 +3895,21 @@
  *PCI_DMA
  ***************************************************************************/
 /***************************************************************************
- *DESC_WORD0
+ *DESC_WORD0 - PDD_WORD0
  ***************************************************************************/
 /* PCI_DMA :: DESC_WORD0 :: MEMORY_ADDRESS [31:00] */
 #define BCHP_PCI_DMA_DESC_WORD0_MEMORY_ADDRESS_MASK                0xffffffff
 #define BCHP_PCI_DMA_DESC_WORD0_MEMORY_ADDRESS_SHIFT               0
 
 /***************************************************************************
- *DESC_WORD1
+ *DESC_WORD1 - PDD_WORD1
  ***************************************************************************/
 /* PCI_DMA :: DESC_WORD1 :: PCI_ADDRESS [31:00] */
 #define BCHP_PCI_DMA_DESC_WORD1_PCI_ADDRESS_MASK                   0xffffffff
 #define BCHP_PCI_DMA_DESC_WORD1_PCI_ADDRESS_SHIFT                  0
 
 /***************************************************************************
- *DESC_WORD2
+ *DESC_WORD2 - PDD_WORD2
  ***************************************************************************/
 /* PCI_DMA :: DESC_WORD2 :: INTERRUPT_ENABLE [31:31] */
 #define BCHP_PCI_DMA_DESC_WORD2_INTERRUPT_ENABLE_MASK              0x80000000
@@ -3927,7 +3930,7 @@
 #define BCHP_PCI_DMA_DESC_WORD2_DMA_TRANSFER_SIZE_SHIFT            0
 
 /***************************************************************************
- *DESC_WORD3
+ *DESC_WORD3 - PDD_WORD3
  ***************************************************************************/
 /* PCI_DMA :: DESC_WORD3 :: NEXT_DESC_ADDR [31:04] */
 #define BCHP_PCI_DMA_DESC_WORD3_NEXT_DESC_ADDR_MASK                0xfffffff0
@@ -3953,7 +3956,7 @@
  *PX3D
  ***************************************************************************/
 /***************************************************************************
- *Type_PrimHeaderA
+ *Type_PrimHeaderA - Prim Header A
  ***************************************************************************/
 /* PX3D :: Type_PrimHeaderA :: PrimitiveType [31:30] */
 #define BCHP_PX3D_Type_PrimHeaderA_PrimitiveType_MASK              0xc0000000
@@ -4016,7 +4019,7 @@
 #define BCHP_PX3D_Type_PrimHeaderA_TexelFormat_SHIFT               0
 
 /***************************************************************************
- *Type_PrimHeaderB
+ *Type_PrimHeaderB - Prim Header B
  ***************************************************************************/
 /* PX3D :: Type_PrimHeaderB :: TextureAddr_high [31:24] */
 #define BCHP_PX3D_Type_PrimHeaderB_TextureAddr_high_MASK           0xff000000
@@ -4039,7 +4042,7 @@
 #define BCHP_PX3D_Type_PrimHeaderB_AppPriority_SHIFT               0
 
 /***************************************************************************
- *Type_TextureAddr
+ *Type_TextureAddr - Texture Address
  ***************************************************************************/
 /* PX3D :: Type_TextureAddr :: reserved0 [31:31] */
 #define BCHP_PX3D_Type_TextureAddr_reserved0_MASK                  0x80000000
@@ -4073,7 +4076,7 @@
  *RDC
  ***************************************************************************/
 /***************************************************************************
- *RUL
+ *RUL - RUL Command.
  ***************************************************************************/
 /* RDC :: RUL :: opcode [31:24] */
 #define BCHP_RDC_RUL_opcode_MASK                                   0xff000000
@@ -4142,28 +4145,28 @@
  *XPT_PB
  ***************************************************************************/
 /***************************************************************************
- *DESCRIPTOR_ABSTRACT
+ *DESCRIPTOR_ABSTRACT - Playback Linked-List Descriptor Abstract
  ***************************************************************************/
 /* XPT_PB :: DESCRIPTOR_ABSTRACT :: DESCRIPTOR_FORMAT [31:00] */
 #define BCHP_XPT_PB_DESCRIPTOR_ABSTRACT_DESCRIPTOR_FORMAT_MASK     0xffffffff
 #define BCHP_XPT_PB_DESCRIPTOR_ABSTRACT_DESCRIPTOR_FORMAT_SHIFT    0
 
 /***************************************************************************
- *DESC_0
+ *DESC_0 - Playback Linked-List Descriptor Word 0
  ***************************************************************************/
 /* XPT_PB :: DESC_0 :: PB_BUFFER_START_ADDR [31:00] */
 #define BCHP_XPT_PB_DESC_0_PB_BUFFER_START_ADDR_MASK               0xffffffff
 #define BCHP_XPT_PB_DESC_0_PB_BUFFER_START_ADDR_SHIFT              0
 
 /***************************************************************************
- *DESC_1
+ *DESC_1 - Playback Linked-List Descriptor Word 1
  ***************************************************************************/
 /* XPT_PB :: DESC_1 :: PB_BUFFER_LENGTH [31:00] */
 #define BCHP_XPT_PB_DESC_1_PB_BUFFER_LENGTH_MASK                   0xffffffff
 #define BCHP_XPT_PB_DESC_1_PB_BUFFER_LENGTH_SHIFT                  0
 
 /***************************************************************************
- *DESC_2
+ *DESC_2 - Playback Linked-List Descriptor Word 2
  ***************************************************************************/
 /* XPT_PB :: DESC_2 :: PB_INTERRUPT_ENABLE [31:31] */
 #define BCHP_XPT_PB_DESC_2_PB_INTERRUPT_ENABLE_MASK                0x80000000
@@ -4186,7 +4189,7 @@
 #define BCHP_XPT_PB_DESC_2_reserved1_SHIFT                         0
 
 /***************************************************************************
- *DESC_3
+ *DESC_3 - Playback Linked-List Descriptor Word 3
  ***************************************************************************/
 /* XPT_PB :: DESC_3 :: PB_NEXT_DESC_ADDR [31:04] */
 #define BCHP_XPT_PB_DESC_3_PB_NEXT_DESC_ADDR_MASK                  0xfffffff0
@@ -4204,77 +4207,77 @@
  *XPT_RAVE
  ***************************************************************************/
 /***************************************************************************
- *NOTEA_CONTEXT_SETUP_EXAMPLES
+ *NOTEA_CONTEXT_SETUP_EXAMPLES - Context Setup Examples
  ***************************************************************************/
 /* XPT_RAVE :: NOTEA_CONTEXT_SETUP_EXAMPLES :: CONTEXT_EXAMPLES [31:00] */
 #define BCHP_XPT_RAVE_NOTEA_CONTEXT_SETUP_EXAMPLES_CONTEXT_EXAMPLES_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEA_CONTEXT_SETUP_EXAMPLES_CONTEXT_EXAMPLES_SHIFT 0
 
 /***************************************************************************
- *NOTEB_STREAM_TYPE_SETUP
+ *NOTEB_STREAM_TYPE_SETUP - Stream Type Setup
  ***************************************************************************/
 /* XPT_RAVE :: NOTEB_STREAM_TYPE_SETUP :: STREAM_TYPE_SETUP [31:00] */
 #define BCHP_XPT_RAVE_NOTEB_STREAM_TYPE_SETUP_STREAM_TYPE_SETUP_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEB_STREAM_TYPE_SETUP_STREAM_TYPE_SETUP_SHIFT 0
 
 /***************************************************************************
- *NOTEC_PES_LAYER_SELECTION
+ *NOTEC_PES_LAYER_SELECTION - PES Layer Selection
  ***************************************************************************/
 /* XPT_RAVE :: NOTEC_PES_LAYER_SELECTION :: PES_LAYER_SELECTION [31:00] */
 #define BCHP_XPT_RAVE_NOTEC_PES_LAYER_SELECTION_PES_LAYER_SELECTION_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEC_PES_LAYER_SELECTION_PES_LAYER_SELECTION_SHIFT 0
 
 /***************************************************************************
- *NOTED_ES_FORMAT_SELECTION_GENERAL
+ *NOTED_ES_FORMAT_SELECTION_GENERAL - ES Format Selection - general
  ***************************************************************************/
 /* XPT_RAVE :: NOTED_ES_FORMAT_SELECTION_GENERAL :: GENERAL_ES_FORMAT_SELECTION [31:00] */
 #define BCHP_XPT_RAVE_NOTED_ES_FORMAT_SELECTION_GENERAL_GENERAL_ES_FORMAT_SELECTION_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTED_ES_FORMAT_SELECTION_GENERAL_GENERAL_ES_FORMAT_SELECTION_SHIFT 0
 
 /***************************************************************************
- *NOTEE_MPEG2_VIDEO_ES_SETUP
+ *NOTEE_MPEG2_VIDEO_ES_SETUP - ES Setup - MPEG2 Video
  ***************************************************************************/
 /* XPT_RAVE :: NOTEE_MPEG2_VIDEO_ES_SETUP :: MPEG2_VIDEO_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEE_MPEG2_VIDEO_ES_SETUP_MPEG2_VIDEO_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEE_MPEG2_VIDEO_ES_SETUP_MPEG2_VIDEO_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
- *NOTEF_AVC_VC1_VIDEO_ES_SETUP
+ *NOTEF_AVC_VC1_VIDEO_ES_SETUP - ES Setup - AVC and VC1 Video
  ***************************************************************************/
 /* XPT_RAVE :: NOTEF_AVC_VC1_VIDEO_ES_SETUP :: AVC_VC1_VIDEO_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEF_AVC_VC1_VIDEO_ES_SETUP_AVC_VC1_VIDEO_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEF_AVC_VC1_VIDEO_ES_SETUP_AVC_VC1_VIDEO_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
- *NOTEG_MPEG_AUDIO_ES_SETUP
+ *NOTEG_MPEG_AUDIO_ES_SETUP - ES Setup - MPEG Audio
  ***************************************************************************/
 /* XPT_RAVE :: NOTEG_MPEG_AUDIO_ES_SETUP :: AUDIO_MPEG_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEG_MPEG_AUDIO_ES_SETUP_AUDIO_MPEG_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEG_MPEG_AUDIO_ES_SETUP_AUDIO_MPEG_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
- *NOTEH_AAC_AUDIO_ES_SETUP
+ *NOTEH_AAC_AUDIO_ES_SETUP - ES Setup - AAC Audio
  ***************************************************************************/
 /* XPT_RAVE :: NOTEH_AAC_AUDIO_ES_SETUP :: AUDIO_AAC_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AAC_AUDIO_ES_SETUP_AUDIO_AAC_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AAC_AUDIO_ES_SETUP_AUDIO_AAC_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
- *NOTEH_AC3_AUDIO_ES_SETUP
+ *NOTEH_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio
  ***************************************************************************/
 /* XPT_RAVE :: NOTEH_AC3_AUDIO_ES_SETUP :: AUDIO_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
- *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP
+ *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio
  ***************************************************************************/
 /* XPT_RAVE :: NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP :: AUDIO_ENHANCED_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP_AUDIO_ENHANCED_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP_AUDIO_ENHANCED_AC3_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
- *NOTEK_AAC_HE_AUDIO_ES_SETUP
+ *NOTEK_AAC_HE_AUDIO_ES_SETUP - ES Setup - AAC HE Audio
  ***************************************************************************/
 /* XPT_RAVE :: NOTEK_AAC_HE_AUDIO_ES_SETUP :: AUDIO_AAC_HE_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEK_AAC_HE_AUDIO_ES_SETUP_AUDIO_AAC_HE_ES_FORMAT_MASK 0xffffffff

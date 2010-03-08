@@ -1,0 +1,65 @@
+#
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-03-04
+#
+# Original package: lttcontrol-0.77-18112009.tar.bz2
+#
+diff -ruNp lttcontrol.orig/lttd/lttd.c lttcontrol/lttd/lttd.c
+--- lttcontrol.orig/lttd/lttd.c	2009-11-17 09:31:22.000000000 -0800
++++ lttcontrol/lttd/lttd.c	2010-03-04 20:36:42.000000000 -0800
+@@ -52,6 +52,13 @@
+ /* returns the size of data to consume in the current sub-buffer. */
+ #define RELAY_GET_MAX_SB_SIZE	_IOR(0xF5, 0x04, __u32)
+ 
++# define SPLICE_F_MOVE                1       /* Move pages instead of copying.  */
++# define SPLICE_F_MORE                4       /* Expect more data.  */
++
++#include <sys/syscall.h>
++#define splice(...)      syscall(__NR_splice, __VA_ARGS__)
++
++
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,14)
+ #include <sys/inotify.h>
+diff -ruNp lttcontrol.orig/makefile lttcontrol/makefile
+--- lttcontrol.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ lttcontrol/makefile	2010-03-04 20:36:42.000000000 -0800
+@@ -0,0 +1,39 @@
++include $(ROOTDIR)/config.arch
++
++BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
++
++CC			:= $(MACHINE)-linux-gcc
++STRIP			:= $(MACHINE)-linux-strip
++CFLAGS			:=
++
++export CC CFLAGS
++
++.PHONY: all
++all::
++	if [ ! -e Makefile ]; then \
++		./configure --host=$(MACHINE)-linux --target=$(MACHINE)-linux \
++			--disable-shared --prefix=/ || exit 1 ; \
++	fi
++	$(MAKE) -f Makefile
++
++.PHONY: romfs
++romfs::
++	$(STRIP) lttctl/lttctl lttd/lttd
++	$(ROMFSINST) -e CONFIG_USER_LTT_CONTROL lttctl/ltt-armall \
++		/bin/ltt-armall
++	$(ROMFSINST) -e CONFIG_USER_LTT_CONTROL lttctl/ltt-armtap \
++		/bin/ltt-armtap
++	$(ROMFSINST) -e CONFIG_USER_LTT_CONTROL lttctl/ltt-disarmall \
++		/bin/ltt-disarmall
++	$(ROMFSINST) -e CONFIG_USER_LTT_CONTROL lttctl/ltt-disarmtap \
++		/bin/ltt-disarmtap
++	$(ROMFSINST) -e CONFIG_USER_LTT_CONTROL lttctl/lttctl /bin/lttctl
++	$(ROMFSINST) -e CONFIG_USER_LTT_CONTROL lttd/lttd /bin/lttd
++
++# These targets must not be passed through to the original Makefile
++.PHONY: $(BOGUS_TARGETS)
++$(BOGUS_TARGETS)::
++
++# Everything else (maybe including clean, distclean) does get passed through
++%:: FORCE
++	$(MAKE) -f Makefile $@

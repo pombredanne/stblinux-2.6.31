@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Oct 26 15:43:45 2009
- *                 MD5 Checksum         5fd0cb0aa6450b45d64f0dc6066fbcc8
+ * Date:           Generated on         Sat Dec  5 04:14:14 2009
+ *                 MD5 Checksum         9437f18f3328c688f4d21c20465093b8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35230/rdb/a0/bchp_pcu.h $
  * 
- * Hydra_Software_Devel/2   10/29/09 4:45p albertl
- * SW35230-5: Updated to match RDB.
+ * Hydra_Software_Devel/3   12/7/09 8:09p albertl
+ * SW35230-30: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -53,24 +53,26 @@
 #define BCHP_PCU_PAR_DMA_CNTL                    0x00205014 /* PAR_DMA_CNTL */
 #define BCHP_PCU_PAR_INT_CNTL                    0x00205018 /* PAR_INT_CNTL */
 #define BCHP_PCU_PAR_INT_STAT                    0x0020501c /* PAR_INT_STAT */
-#define BCHP_PCU_UART2_RBR_THR                   0x00205300 /* UART2_RBR_THR */
+#define BCHP_PCU_UART2_RBR                       0x205300 /* UART2_RBR */
+#define BCHP_PCU_UART2_THR                       0x205300 /* UART2_THR */
 #define BCHP_PCU_UART2_IER                       0x00205304 /* UART2_IER */
 #define BCHP_PCU_UART2_IIR                       0x00205308 /* UART2_IIR */
+#define BCHP_PCU_UART2_FCR                       0x00205308 /* UART2_FCR */
 #define BCHP_PCU_UART2_LCR                       0x0020530c /* UART2_LCR */
 #define BCHP_PCU_UART2_MCR                       0x00205310 /* UART2_MCR */
 #define BCHP_PCU_UART2_LSR                       0x00205314 /* UART2_LSR */
 #define BCHP_PCU_UART2_MSR                       0x00205318 /* UART2_MSR */
 #define BCHP_PCU_UART2_SCR                       0x0020531c /* UART2_SCR */
-#define BCHP_PCU_UART2_FCR                       0x00205320 /* UART2_FCR */
-#define BCHP_PCU_UART3_RBR_THR                   0x205340 /* UART3_RBR_THR */
+#define BCHP_PCU_UART3_RBR                       0x205340 /* UART3_RBR */
+#define BCHP_PCU_UART3_THR                       0x205340 /* UART3_THR */
 #define BCHP_PCU_UART3_IER                       0x205344 /* UART3_IER */
 #define BCHP_PCU_UART3_IIR                       0x205348 /* UART3_IIR */
+#define BCHP_PCU_UART3_FCR                       0x205348 /* UART3_FCR */
 #define BCHP_PCU_UART3_LCR                       0x20534c /* UART3_LCR */
 #define BCHP_PCU_UART3_MCR                       0x205350 /* UART3_MCR */
 #define BCHP_PCU_UART3_LSR                       0x205354 /* UART3_LSR */
 #define BCHP_PCU_UART3_MSR                       0x205358 /* UART3_MSR */
 #define BCHP_PCU_UART3_SCR                       0x20535c /* UART3_SCR */
-#define BCHP_PCU_UART3_FCR                       0x205360 /* UART3_FCR */
 #define BCHP_PCU_UIRT1_RXTX_FIFO                 0x00205240 /* UIRT1_RXTX_FIFO */
 #define BCHP_PCU_UIRT1_SAMPLE_CLKDIV             0x00205250 /* UIRT1_SAMPLE_CLKDIV */
 #define BCHP_PCU_UIRT1_XMIT_MOD_CNTL             0x00205254 /* UIRT1_XMIT_MOD_CNTL */
@@ -298,9 +300,9 @@
 /***************************************************************************
  *TEST_PCU_INT_STATUS1 - TEST_PCU_INT_STATUS1
  ***************************************************************************/
-/* PCU :: TEST_PCU_INT_STATUS1 :: reserved0 [31:27] */
-#define BCHP_PCU_TEST_PCU_INT_STATUS1_reserved0_MASK               0xf8000000
-#define BCHP_PCU_TEST_PCU_INT_STATUS1_reserved0_SHIFT              27
+/* PCU :: TEST_PCU_INT_STATUS1 :: reserved_for_eco0 [31:27] */
+#define BCHP_PCU_TEST_PCU_INT_STATUS1_reserved_for_eco0_MASK       0xf8000000
+#define BCHP_PCU_TEST_PCU_INT_STATUS1_reserved_for_eco0_SHIFT      27
 
 /* PCU :: TEST_PCU_INT_STATUS1 :: TEST_UART1_INTR_RCVR_LINE_STATUS [26:26] */
 #define BCHP_PCU_TEST_PCU_INT_STATUS1_TEST_UART1_INTR_RCVR_LINE_STATUS_MASK 0x04000000
@@ -535,15 +537,18 @@
 #define BCHP_PCU_PAR_INT_STAT_TVM2MAIN_COMM_INT_STAT_SHIFT         0
 
 /***************************************************************************
- *UART2_RBR_THR - UART2_RBR_THR
+ *UART2_RBR - UART2_RBR
  ***************************************************************************/
-/* PCU :: UART2_RBR_THR :: reserved0 [31:08] */
-#define BCHP_PCU_UART2_RBR_THR_reserved0_MASK                      0xffffff00
-#define BCHP_PCU_UART2_RBR_THR_reserved0_SHIFT                     8
+/* PCU :: UART2_RBR :: RBR [07:00] */
+#define BCHP_PCU_UART2_RBR_RBR_MASK                                0xff
+#define BCHP_PCU_UART2_RBR_RBR_SHIFT                               0
 
-/* PCU :: UART2_RBR_THR :: RBR_THR [07:00] */
-#define BCHP_PCU_UART2_RBR_THR_RBR_THR_MASK                        0x000000ff
-#define BCHP_PCU_UART2_RBR_THR_RBR_THR_SHIFT                       0
+/***************************************************************************
+ *UART2_THR - UART2_THR
+ ***************************************************************************/
+/* PCU :: UART2_THR :: THR [07:00] */
+#define BCHP_PCU_UART2_THR_THR_MASK                                0xff
+#define BCHP_PCU_UART2_THR_THR_SHIFT                               0
 
 /***************************************************************************
  *UART2_IER - UART2_IER
@@ -590,6 +595,33 @@
 /* PCU :: UART2_IIR :: INTR_PENDING_NOT [00:00] */
 #define BCHP_PCU_UART2_IIR_INTR_PENDING_NOT_MASK                   0x00000001
 #define BCHP_PCU_UART2_IIR_INTR_PENDING_NOT_SHIFT                  0
+
+/***************************************************************************
+ *UART2_FCR - UART2_FCR
+ ***************************************************************************/
+/* PCU :: UART2_FCR :: reserved0 [31:08] */
+#define BCHP_PCU_UART2_FCR_reserved0_MASK                          0xffffff00
+#define BCHP_PCU_UART2_FCR_reserved0_SHIFT                         8
+
+/* PCU :: UART2_FCR :: RCVR_TRIGGER [07:04] */
+#define BCHP_PCU_UART2_FCR_RCVR_TRIGGER_MASK                       0x000000f0
+#define BCHP_PCU_UART2_FCR_RCVR_TRIGGER_SHIFT                      4
+
+/* PCU :: UART2_FCR :: reserved1 [03:03] */
+#define BCHP_PCU_UART2_FCR_reserved1_MASK                          0x00000008
+#define BCHP_PCU_UART2_FCR_reserved1_SHIFT                         3
+
+/* PCU :: UART2_FCR :: XMIT_FIFO_RESET [02:02] */
+#define BCHP_PCU_UART2_FCR_XMIT_FIFO_RESET_MASK                    0x00000004
+#define BCHP_PCU_UART2_FCR_XMIT_FIFO_RESET_SHIFT                   2
+
+/* PCU :: UART2_FCR :: RCVR_FIFO_RESET [01:01] */
+#define BCHP_PCU_UART2_FCR_RCVR_FIFO_RESET_MASK                    0x00000002
+#define BCHP_PCU_UART2_FCR_RCVR_FIFO_RESET_SHIFT                   1
+
+/* PCU :: UART2_FCR :: FIFO_ENABLE [00:00] */
+#define BCHP_PCU_UART2_FCR_FIFO_ENABLE_MASK                        0x00000001
+#define BCHP_PCU_UART2_FCR_FIFO_ENABLE_SHIFT                       0
 
 /***************************************************************************
  *UART2_LCR - UART2_LCR
@@ -735,38 +767,18 @@
 #define BCHP_PCU_UART2_SCR_SCR_SHIFT                               0
 
 /***************************************************************************
- *UART2_FCR - UART2_FCR
+ *UART3_RBR - UART3_RBR
  ***************************************************************************/
-/* PCU :: UART2_FCR :: reserved0 [31:08] */
-#define BCHP_PCU_UART2_FCR_reserved0_MASK                          0xffffff00
-#define BCHP_PCU_UART2_FCR_reserved0_SHIFT                         8
-
-/* PCU :: UART2_FCR :: RCVR_TRIGGER [07:04] */
-#define BCHP_PCU_UART2_FCR_RCVR_TRIGGER_MASK                       0x000000f0
-#define BCHP_PCU_UART2_FCR_RCVR_TRIGGER_SHIFT                      4
-
-/* PCU :: UART2_FCR :: reserved1 [03:03] */
-#define BCHP_PCU_UART2_FCR_reserved1_MASK                          0x00000008
-#define BCHP_PCU_UART2_FCR_reserved1_SHIFT                         3
-
-/* PCU :: UART2_FCR :: XMIT_FIFO_RESET [02:02] */
-#define BCHP_PCU_UART2_FCR_XMIT_FIFO_RESET_MASK                    0x00000004
-#define BCHP_PCU_UART2_FCR_XMIT_FIFO_RESET_SHIFT                   2
-
-/* PCU :: UART2_FCR :: RCVR_FIFO_RESET [01:01] */
-#define BCHP_PCU_UART2_FCR_RCVR_FIFO_RESET_MASK                    0x00000002
-#define BCHP_PCU_UART2_FCR_RCVR_FIFO_RESET_SHIFT                   1
-
-/* PCU :: UART2_FCR :: FIFO_ENABLE [00:00] */
-#define BCHP_PCU_UART2_FCR_FIFO_ENABLE_MASK                        0x00000001
-#define BCHP_PCU_UART2_FCR_FIFO_ENABLE_SHIFT                       0
+/* PCU :: UART3_RBR :: RBR [07:00] */
+#define BCHP_PCU_UART3_RBR_RBR_MASK                                0xff
+#define BCHP_PCU_UART3_RBR_RBR_SHIFT                               0
 
 /***************************************************************************
- *UART3_RBR_THR - UART3_RBR_THR
+ *UART3_THR - UART3_THR
  ***************************************************************************/
-/* PCU :: UART3_RBR_THR :: RBR_THR [07:00] */
-#define BCHP_PCU_UART3_RBR_THR_RBR_THR_MASK                        0xff
-#define BCHP_PCU_UART3_RBR_THR_RBR_THR_SHIFT                       0
+/* PCU :: UART3_THR :: THR [07:00] */
+#define BCHP_PCU_UART3_THR_THR_MASK                                0xff
+#define BCHP_PCU_UART3_THR_THR_SHIFT                               0
 
 /***************************************************************************
  *UART3_IER - UART3_IER
@@ -809,6 +821,29 @@
 /* PCU :: UART3_IIR :: INTR_PENDING_NOT [00:00] */
 #define BCHP_PCU_UART3_IIR_INTR_PENDING_NOT_MASK                   0x01
 #define BCHP_PCU_UART3_IIR_INTR_PENDING_NOT_SHIFT                  0
+
+/***************************************************************************
+ *UART3_FCR - UART3_FCR
+ ***************************************************************************/
+/* PCU :: UART3_FCR :: RCVR_TRIGGER [07:06] */
+#define BCHP_PCU_UART3_FCR_RCVR_TRIGGER_MASK                       0xc0
+#define BCHP_PCU_UART3_FCR_RCVR_TRIGGER_SHIFT                      6
+
+/* PCU :: UART3_FCR :: reserved0 [05:03] */
+#define BCHP_PCU_UART3_FCR_reserved0_MASK                          0x38
+#define BCHP_PCU_UART3_FCR_reserved0_SHIFT                         3
+
+/* PCU :: UART3_FCR :: XMIT_FIFO_RESET [02:02] */
+#define BCHP_PCU_UART3_FCR_XMIT_FIFO_RESET_MASK                    0x04
+#define BCHP_PCU_UART3_FCR_XMIT_FIFO_RESET_SHIFT                   2
+
+/* PCU :: UART3_FCR :: RCVR_FIFO_RESET [01:01] */
+#define BCHP_PCU_UART3_FCR_RCVR_FIFO_RESET_MASK                    0x02
+#define BCHP_PCU_UART3_FCR_RCVR_FIFO_RESET_SHIFT                   1
+
+/* PCU :: UART3_FCR :: FIFO_ENABLE [00:00] */
+#define BCHP_PCU_UART3_FCR_FIFO_ENABLE_MASK                        0x01
+#define BCHP_PCU_UART3_FCR_FIFO_ENABLE_SHIFT                       0
 
 /***************************************************************************
  *UART3_LCR - UART3_LCR
@@ -936,29 +971,6 @@
 /* PCU :: UART3_SCR :: SCR [07:00] */
 #define BCHP_PCU_UART3_SCR_SCR_MASK                                0xff
 #define BCHP_PCU_UART3_SCR_SCR_SHIFT                               0
-
-/***************************************************************************
- *UART3_FCR - UART3_FCR
- ***************************************************************************/
-/* PCU :: UART3_FCR :: RCVR_TRIGGER [07:06] */
-#define BCHP_PCU_UART3_FCR_RCVR_TRIGGER_MASK                       0xc0
-#define BCHP_PCU_UART3_FCR_RCVR_TRIGGER_SHIFT                      6
-
-/* PCU :: UART3_FCR :: reserved0 [05:03] */
-#define BCHP_PCU_UART3_FCR_reserved0_MASK                          0x38
-#define BCHP_PCU_UART3_FCR_reserved0_SHIFT                         3
-
-/* PCU :: UART3_FCR :: XMIT_FIFO_RESET [02:02] */
-#define BCHP_PCU_UART3_FCR_XMIT_FIFO_RESET_MASK                    0x04
-#define BCHP_PCU_UART3_FCR_XMIT_FIFO_RESET_SHIFT                   2
-
-/* PCU :: UART3_FCR :: RCVR_FIFO_RESET [01:01] */
-#define BCHP_PCU_UART3_FCR_RCVR_FIFO_RESET_MASK                    0x02
-#define BCHP_PCU_UART3_FCR_RCVR_FIFO_RESET_SHIFT                   1
-
-/* PCU :: UART3_FCR :: FIFO_ENABLE [00:00] */
-#define BCHP_PCU_UART3_FCR_FIFO_ENABLE_MASK                        0x01
-#define BCHP_PCU_UART3_FCR_FIFO_ENABLE_SHIFT                       0
 
 /***************************************************************************
  *UIRT1_RXTX_FIFO - UIRT1_RXTX_FIFO

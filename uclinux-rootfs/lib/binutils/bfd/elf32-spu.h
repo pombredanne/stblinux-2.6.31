@@ -1,12 +1,12 @@
 /* SPU specific support for 32-bit ELF.
 
-   Copyright 2006 Free Software Foundation, Inc.
+   Copyright 2006, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -20,12 +20,26 @@
 
 /* Extra info kept for SPU sections.  */
 
+struct spu_elf_stack_info;
+
 struct _spu_elf_section_data
 {
   struct bfd_elf_section_data elf;
 
-  /* Non-zero for overlay output sections.  */
-  unsigned int ovl_index;
+  union {
+    /* Info kept for input sections.  */
+    struct {
+      /* Stack analysis info kept for this section.  */
+      struct spu_elf_stack_info *stack_info;
+    } i;
+
+    /* Info kept for output sections.  */
+    struct {
+      /* Non-zero for overlay output sections.  */
+      unsigned int ovl_index;
+      unsigned int ovl_buf;
+    } o;
+  } u;
 };
 
 #define spu_elf_section_data(sec) \
@@ -33,19 +47,20 @@ struct _spu_elf_section_data
 
 struct _ovl_stream
 {
-  void *start;
-  void *end;
+  const void *start;
+  const void *end;
 };
 
 extern void spu_elf_plugin (int);
 extern bfd_boolean spu_elf_open_builtin_lib (bfd **,
 					     const struct _ovl_stream *);
-extern bfd_boolean spu_elf_create_sections (bfd *,
-					    struct bfd_link_info *);
-extern bfd_boolean spu_elf_find_overlays (bfd *, struct bfd_link_info *);
-extern bfd_boolean spu_elf_size_stubs (bfd *, struct bfd_link_info *, int,
-				       asection **, asection **,
-				       asection **);
-extern bfd_boolean spu_elf_build_stubs (struct bfd_link_info *, int,
-					asection *);
-extern asection *spu_elf_check_vma (bfd *, bfd_vma, bfd_vma);
+extern bfd_boolean spu_elf_create_sections (struct bfd_link_info *, int, int);
+extern bfd_boolean spu_elf_find_overlays (struct bfd_link_info *);
+extern int spu_elf_size_stubs (struct bfd_link_info *,
+			       void (*) (asection *, asection *, const char *),
+			       int);
+extern bfd_boolean spu_elf_build_stubs (struct bfd_link_info *, int);
+extern asection *spu_elf_check_vma (struct bfd_link_info *, int,
+				    unsigned int, unsigned int, unsigned int,
+				    unsigned int, int, void (*) (void),
+				    FILE *(*) (void), void (*) (void));

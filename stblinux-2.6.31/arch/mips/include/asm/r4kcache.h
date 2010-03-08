@@ -30,7 +30,7 @@
  */
 #define INDEX_BASE	CKSEG0
 
-#ifdef CONFIG_BCM7420 // A0 only
+#ifdef CONFIG_BCM7420B0
 
 #define cache_op(op,addr)						\
 	__asm__ __volatile__(						\

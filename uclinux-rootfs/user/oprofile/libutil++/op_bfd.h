@@ -18,14 +18,17 @@
 #include <string>
 #include <list>
 #include <map>
+#include <set>
 
 #include "bfd_support.h"
+#include "locate_images.h"
 #include "utility.h"
 #include "cached_value.h"
 #include "op_types.h"
 
 class op_bfd;
 class string_filter;
+class extra_images;
 
 /// all symbol vector indexing uses this type
 typedef size_t symbol_index_t;
@@ -47,12 +50,15 @@ public:
 	bfd_vma vma() const { return symb_value + section_vma; }
 	unsigned long value() const { return symb_value; }
 	unsigned long filepos() const { return symb_value + section_filepos; }
+	unsigned long symbol_endpos(void) const;
+	asection const * section(void) const { return bfd_symbol->section; }
 	std::string const & name() const { return symb_name; }
 	asymbol const * symbol() const { return bfd_symbol; }
 	size_t size() const { return symb_size; }
 	void size(size_t s) { symb_size = s; }
 	bool hidden() const { return symb_hidden; }
 	bool weak() const { return symb_weak; }
+	bool artificial() const { return symb_artificial; }
 
 	/// compare two symbols by their filepos()
 	bool operator<(op_bfd_symbol const & lhs) const;
@@ -76,6 +82,8 @@ private:
 	bool symb_hidden;
 	/// whether other symbols can override it
 	bool symb_weak;
+	/// symbol is artificially created
+	bool symb_artificial;
 	/// code bytes corresponding to symbol -- used for XML generation
 	std::string symb_bytes;
 };
@@ -89,26 +97,27 @@ private:
 class op_bfd {
 public:
 	/**
-	 * @param archive_path oparchive prefix path
 	 * @param filename  the name of the image file
 	 * @param symbol_filter  filter to apply to symbols
+	 * @param extra_images container where all extra candidate filenames
+	 *    are stored
 	 * @param ok in-out parameter: on in, if not set, don't
 	 * open the bfd (because it's not there or whatever). On out,
 	 * it's set to false if the bfd couldn't be loaded.
 	 */
-	op_bfd(std::string const & archive_path,
-	       std::string const & filename,
+	op_bfd(std::string const & filename,
 	       string_filter const & symbol_filter,
+	       extra_images const & extra_images,
 	       bool & ok);
 
 	/**
 	 * This constructor is used when processing an SPU profile
 	 * where the SPU ELF is embedded within the PPE binary.
 	 */
-	op_bfd(std::string const & archive_path,
-	       uint64_t spu_offset,
+	op_bfd(uint64_t spu_offset,
 	       std::string const & filename,
 	       string_filter const & symbol_filter,
+	       extra_images const & extra_images,
 	       bool & ok);
 
 	std::string get_embedding_filename() const { return embedding_filename; }
@@ -127,7 +136,7 @@ public:
 	 * function can retrieve the filename and return true but fail to
 	 * retrieve the linenr and so can return zero in linenr
 	 */
-	bool get_linenr(symbol_index_t sym_idx, unsigned int offset,
+	bool get_linenr(symbol_index_t sym_idx, bfd_vma offset,
 			std::string & filename, unsigned int & linenr) const;
 
 	/**
@@ -143,17 +152,7 @@ public:
 	 * All errors are fatal.
 	 */
 	void get_symbol_range(symbol_index_t sym_idx,
-			      unsigned long & start, unsigned long & end) const;
-
-	/**
-	 * sym_offset - return offset from a symbol's start
-	 * @param num_symbols symbol number
-	 * @param num number of fentry
-	 *
-	 * Returns the offset of a sample at position num
-	 * in the samples file from the start of symbol sym_idx.
-	 */
-	unsigned long sym_offset(symbol_index_t num_symbols, u32 num) const;
+			      unsigned long long & start, unsigned long long & end) const;
 
 	/**
 	 * @param start reference to the start vma
@@ -171,7 +170,7 @@ public:
 	 * Otherwise, return the filepos of a section with a matching
 	 * vma.
 	 */
-	unsigned long const get_start_offset(bfd_vma vma = 0) const;
+	unsigned long get_start_offset(bfd_vma vma = 0) const;
  
 	/**
 	 * Return the image name of the underlying binary image. For an
@@ -191,8 +190,27 @@ public:
 	/// return true if binary contain some debug information
 	bool has_debug_info() const;
 
+	/**
+	 * @param sym_idx symbol index
+	 *
+	 * Return true or false, indicating whether or not the
+	 * symbol referenced by the passed sym_idx has code available.
+	 * Some symbols have no code associated with them; for example,
+	 * artificial symbols created for anonymous memory samples or for
+	 * stripped binaries with no symbol debug info.  Additionally,
+	 * if the bfd object associated with the symbol is not valid,
+	 * this function will also return false.
+	 *
+	 * NOTE:  This call should be made prior to invoking
+	 *        get_symbol_contents to avoid unnecessarily allocating
+	 *        memory for the symbol contents.
+	 */
+	bool symbol_has_contents(symbol_index_t sym_idx);
+
 	bool get_symbol_contents(symbol_index_t sym_index,
 		unsigned char * contents) const;
+
+	bool valid() const { return ibfd.valid(); }
 
 private:
 	/// temporary container type for getting symbols
@@ -246,6 +264,9 @@ private:
 	/// path to archive
 	std::string archive_path;
 
+	/// reference to extra_images
+	extra_images const & extra_found_images;
+
 	/// file size in bytes
 	off_t file_size;
 
@@ -261,6 +282,12 @@ private:
 	// corresponding debug bfd object, if one is found
 	mutable bfd_info dbfd;
 
+	/// sections we will avoid to use symbol from, this is needed
+	/// because elf file allows sections with identical vma and we can't
+	/// allow overlapping symbols. Such elf layout is used actually by
+	/// kernel modules where all code section vma are set to 0.
+	std::vector<asection const *> filtered_section;
+
 	typedef std::map<std::string, u32> filepos_map_t;
 	// mapping of section names to filepos in the original binary
 	filepos_map_t filepos_map;
@@ -270,6 +297,8 @@ private:
 	 * the embedded SPU image.
 	 */
 	std::string embedding_filename;
+
+	bool anon_obj;
 };
 
 

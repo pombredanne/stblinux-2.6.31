@@ -1,33 +1,32 @@
 /* Low-level I/O routines for BFDs.
 
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
 
    Written by Cygnus Support.
 
-This file is part of BFD, the Binary File Descriptor library.
+   This file is part of BFD, the Binary File Descriptor library.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #include "sysdep.h"
-
+#include <limits.h>
 #include "bfd.h"
 #include "libbfd.h"
-
-#include <limits.h>
 
 #ifndef S_IXUSR
 #define S_IXUSR 0100    /* Execute by owner.  */
@@ -175,8 +174,8 @@ bfd_bwrite (const void *ptr, bfd_size_type size, bfd *abfd)
 	  newsize = (bim->size + 127) & ~(bfd_size_type) 127;
 	  if (newsize > oldsize)
 	    {
-	      bim->buffer = bfd_realloc (bim->buffer, newsize);
-	      if (bim->buffer == 0)
+	      bim->buffer = bfd_realloc_or_free (bim->buffer, newsize);
+	      if (bim->buffer == NULL)
 		{
 		  bim->size = 0;
 		  return 0;
@@ -299,8 +298,8 @@ bfd_seek (bfd *abfd, file_ptr position, int direction)
 	      newsize = (bim->size + 127) & ~(bfd_size_type) 127;
 	      if (newsize > oldsize)
 	        {
-		  bim->buffer = bfd_realloc (bim->buffer, newsize);
-		  if (bim->buffer == 0)
+		  bim->buffer = bfd_realloc_or_free (bim->buffer, newsize);
+		  if (bim->buffer == NULL)
 		    {
 		      bim->size = 0;
 		      return -1;

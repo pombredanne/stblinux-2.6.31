@@ -5,24 +5,28 @@ if [ -z "$MACHINE" ]; then
 else
   OUTPUT_ARCH=${ARCH}:${MACHINE}
 fi
-cat >e${EMULATION_NAME}.c <<EOF
+fragment <<EOF
 /* This file is part of GLD, the Gnu Linker.
    Copyright 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006 Free Software Foundation, Inc.
+   2005, 2006, 2007, 2008 Free Software Foundation, Inc.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This file is part of the GNU Binutils.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
+
 
 /* For WINDOWS_NT */
 /* The original file generated returned different default scripts depending
@@ -31,8 +35,8 @@ Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA. 
    only determine if the subsystem is console or windows in order to select
    the correct entry point by default. */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "getopt.h"
 #include "libiberty.h"
@@ -378,13 +382,13 @@ gld_${EMULATION_NAME}_after_open (void)
   /* Pass the wacky PE command line options into the output bfd.
      FIXME: This should be done via a function, rather than by
      including an internal BFD header.  */
-  if (!coff_data(output_bfd)->pe)
+  if (!coff_data(link_info.output_bfd)->pe)
     {
       einfo ("%F%P: PE operations on non PE file.\n");
     }
 
-  pe_data(output_bfd)->pe_opthdr = pe;
-  pe_data(output_bfd)->dll = init[DLLOFF].value;
+  pe_data(link_info.output_bfd)->pe_opthdr = pe;
+  pe_data(link_info.output_bfd)->dll = init[DLLOFF].value;
 
 }
 
@@ -693,7 +697,7 @@ gld${EMULATION_NAME}_place_orphan (asection *s)
   output_secname = xstrdup (secname);
   ps = strchr (output_secname + 1, '\$');
   *ps = 0;
-  os = lang_output_section_statement_lookup (output_secname);
+  os = lang_output_section_statement_lookup (output_secname, 0, TRUE);
 
   /* Find the '\$' wild statement for this section.  We currently require the
      linker script to explicitly mention "*(.foo\$)".
@@ -733,7 +737,7 @@ EOF
 # sed commands to quote an ld script as a C string.
 sc="-f stringify.sed"
 
-cat >>e${EMULATION_NAME}.c <<EOF
+fragment <<EOF
 {
   *isfile = 0;
 
@@ -751,7 +755,7 @@ echo '  ; else return'                                 >> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.x                  >> e${EMULATION_NAME}.c
 echo '; }'                                             >> e${EMULATION_NAME}.c
 
-cat >>e${EMULATION_NAME}.c <<EOF
+fragment <<EOF
 
 
 struct ld_emulation_xfer_struct ld_${EMULATION_NAME}_emulation =

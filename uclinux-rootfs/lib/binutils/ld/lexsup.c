@@ -1,28 +1,28 @@
 /* Parse options for the GNU linker.
    Copyright 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-   2001, 2002, 2003, 2004, 2005
+   2001, 2002, 2003, 2004, 2005, 2006, 2007
    Free Software Foundation, Inc.
 
-   This file is part of GLD, the Gnu Linker.
+   This file is part of the GNU Binutils.
 
-   GLD is free software; you can redistribute it and/or modify
+   This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-   GLD is distributed in the hope that it will be useful,
+   This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with GLD; see the file COPYING.  If not, write to the Free
-   Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA
-   02110-1301, USA.  */
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
-#include "config.h"
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
+#include "bfdver.h"
 #include "libiberty.h"
 #include <stdio.h>
 #include <string.h>
@@ -83,6 +83,7 @@ enum option_values
   OPTION_NO_DEMANGLE,
   OPTION_NO_KEEP_MEMORY,
   OPTION_NO_WARN_MISMATCH,
+  OPTION_NO_WARN_SEARCH_MISMATCH,
   OPTION_NOINHIBIT_EXEC,
   OPTION_NON_SHARED,
   OPTION_NO_WHOLE_ARCHIVE,
@@ -115,6 +116,7 @@ enum option_values
   OPTION_WARN_COMMON,
   OPTION_WARN_CONSTRUCTORS,
   OPTION_WARN_FATAL,
+  OPTION_NO_WARN_FATAL,
   OPTION_WARN_MULTIPLE_GP,
   OPTION_WARN_ONCE,
   OPTION_WARN_SECTION_ALIGN,
@@ -326,10 +328,12 @@ static const struct ld_option ld_options[] =
     TWO_DASHES },
   { {"add-needed", no_argument, NULL, OPTION_ADD_NEEDED},
     '\0', NULL, N_("Set DT_NEEDED tags for DT_NEEDED entries in\n"
-		   "\t\t\t\tfollowing dynamic libs"), TWO_DASHES },
+		   "                                following dynamic libs"),
+    TWO_DASHES },
   { {"no-add-needed", no_argument, NULL, OPTION_NO_ADD_NEEDED},
     '\0', NULL, N_("Do not set DT_NEEDED tags for DT_NEEDED entries\n"
-		   "\t\t\t\tin following dynamic libs"), TWO_DASHES },
+		   "                                in following dynamic libs"),
+    TWO_DASHES },
   { {"as-needed", no_argument, NULL, OPTION_AS_NEEDED},
     '\0', NULL, N_("Only set DT_NEEDED for following dynamic libs if used"),
     TWO_DASHES },
@@ -373,6 +377,9 @@ static const struct ld_option ld_options[] =
     '\0', NULL, N_("Generate embedded relocs"), TWO_DASHES},
   { {"fatal-warnings", no_argument, NULL, OPTION_WARN_FATAL},
     '\0', NULL, N_("Treat warnings as errors"),
+    TWO_DASHES },
+  { {"no-fatal-warnings", no_argument, NULL, OPTION_NO_WARN_FATAL},
+    '\0', NULL, N_("Do not treat warnings as errors (default)"),
     TWO_DASHES },
   { {"fini", required_argument, NULL, OPTION_FINI},
     '\0', N_("SYMBOL"), N_("Call SYMBOL at unload-time"), ONE_DASH },
@@ -428,6 +435,10 @@ static const struct ld_option ld_options[] =
     TWO_DASHES },
   { {"no-warn-mismatch", no_argument, NULL, OPTION_NO_WARN_MISMATCH},
     '\0', NULL, N_("Don't warn about mismatched input files"), TWO_DASHES},
+  { {"no-warn-search-mismatch", no_argument, NULL,
+     OPTION_NO_WARN_SEARCH_MISMATCH},
+    '\0', NULL, N_("Don't warn on finding an incompatible library"),
+    TWO_DASHES},
   { {"no-whole-archive", no_argument, NULL, OPTION_NO_WHOLE_ARCHIVE},
     '\0', NULL, N_("Turn off --whole-archive"), TWO_DASHES },
   { {"noinhibit-exec", no_argument, NULL, OPTION_NOINHIBIT_EXEC},
@@ -437,7 +448,8 @@ static const struct ld_option ld_options[] =
     '\0', NULL, NULL, NO_HELP },
   { {"nostdlib", no_argument, NULL, OPTION_NOSTDLIB},
     '\0', NULL, N_("Only use library directories specified on\n"
-		   "\t\t\t\tthe command line"), ONE_DASH },
+		   "                                the command line"),
+    ONE_DASH },
   { {"oformat", required_argument, NULL, OPTION_OFORMAT},
     '\0', N_("TARGET"), N_("Specify target of output file"),
     EXACTLY_TWO_DASHES },
@@ -465,8 +477,10 @@ static const struct ld_option ld_options[] =
     '\0', NULL, N_("Create a position independent executable"), ONE_DASH },
   { {"pic-executable", no_argument, NULL, OPTION_PIE},
     '\0', NULL, NULL, TWO_DASHES },
-  { {"sort-common", no_argument, NULL, OPTION_SORT_COMMON},
-    '\0', NULL, N_("Sort common symbols by size"), TWO_DASHES },
+  { {"sort-common", optional_argument, NULL, OPTION_SORT_COMMON},
+    '\0', N_("[=ascending|descending]"), 
+    N_("Sort common symbols by alignment [in specified order]"), 
+    TWO_DASHES },
   { {"sort_common", no_argument, NULL, OPTION_SORT_COMMON},
     '\0', NULL, NULL, NO_HELP },
   { {"sort-section", required_argument, NULL, OPTION_SORT_SECTION},
@@ -501,8 +515,9 @@ static const struct ld_option ld_options[] =
   { {"unresolved-symbols=<method>", required_argument, NULL,
      OPTION_UNRESOLVED_SYMBOLS},
     '\0', NULL, N_("How to handle unresolved symbols.  <method> is:\n"
-		   "\t\t\t\tignore-all, report-all, ignore-in-object-files,\n"
-		   "\t\t\t\tignore-in-shared-libs"), TWO_DASHES },
+		   "                                ignore-all, report-all, ignore-in-object-files,\n"
+		   "                                ignore-in-shared-libs"),
+    TWO_DASHES },
   { {"verbose", no_argument, NULL, OPTION_VERBOSE},
     '\0', NULL, N_("Output lots of information during link"), TWO_DASHES },
   { {"dll-verbose", no_argument, NULL, OPTION_VERBOSE}, /* Linux.  */
@@ -512,7 +527,8 @@ static const struct ld_option ld_options[] =
   { {"version-exports-section", required_argument, NULL,
      OPTION_VERSION_EXPORTS_SECTION },
     '\0', N_("SYMBOL"), N_("Take export symbols list from .exports, using\n"
-			   "\t\t\t\tSYMBOL as the version."), TWO_DASHES },
+			   "                                SYMBOL as the version."),
+    TWO_DASHES },
   { {"dynamic-list-data", no_argument, NULL, OPTION_DYNAMIC_LIST_DATA},
     '\0', NULL, N_("Add data symbols to dynamic list"), TWO_DASHES },
   { {"dynamic-list-cpp-new", no_argument, NULL, OPTION_DYNAMIC_LIST_CPP_NEW},
@@ -963,6 +979,9 @@ parse_args (unsigned argc, char **argv)
 	case OPTION_NO_WARN_MISMATCH:
 	  command_line.warn_mismatch = FALSE;
 	  break;
+	case OPTION_NO_WARN_SEARCH_MISMATCH:
+	  command_line.warn_search_mismatch = FALSE;
+	  break;
 	case OPTION_NOINHIBIT_EXEC:
 	  force_make_executable = TRUE;
 	  break;
@@ -1044,17 +1063,14 @@ parse_args (unsigned argc, char **argv)
 	      /* First see whether OPTARG is already in the path.  */
 	      do
 		{
-		  size_t idx = 0;
-
-		  while (optarg[idx] != '\0' && optarg[idx] == cp[idx])
-		    ++idx;
-		  if (optarg[idx] == '\0'
-		      && (cp[idx] == '\0' || cp[idx] == ':'))
+		  if (strncmp (optarg, cp, optarg_len) == 0
+		      && (cp[optarg_len] == 0
+			  || cp[optarg_len] == config.rpath_separator))
 		    /* We found it.  */
 		    break;
 
 		  /* Not yet found.  */
-		  cp = strchr (cp, ':');
+		  cp = strchr (cp, config.rpath_separator);
 		  if (cp != NULL)
 		    ++cp;
 		}
@@ -1063,7 +1079,8 @@ parse_args (unsigned argc, char **argv)
 	      if (cp == NULL)
 		{
 		  buf = xmalloc (rpath_len + optarg_len + 2);
-		  sprintf (buf, "%s:%s", command_line.rpath, optarg);
+		  sprintf (buf, "%s%c%s", command_line.rpath,
+			   config.rpath_separator, optarg);
 		  free (command_line.rpath);
 		  command_line.rpath = buf;
 		}
@@ -1079,7 +1096,8 @@ parse_args (unsigned argc, char **argv)
 	      buf = xmalloc (strlen (command_line.rpath_link)
 			     + strlen (optarg)
 			     + 2);
-	      sprintf (buf, "%s:%s", command_line.rpath_link, optarg);
+	      sprintf (buf, "%s%c%s", command_line.rpath_link,
+		       config.rpath_separator, optarg);
 	      free (command_line.rpath_link);
 	      command_line.rpath_link = buf;
 	    }
@@ -1130,7 +1148,14 @@ parse_args (unsigned argc, char **argv)
 	  command_line.soname = optarg;
 	  break;
 	case OPTION_SORT_COMMON:
-	  config.sort_common = TRUE;
+	  if (optarg == NULL
+	      || strcmp (optarg, N_("descending")) == 0)
+            config.sort_common = sort_descending;
+          else if (strcmp (optarg, N_("ascending")) == 0)
+	    config.sort_common = sort_ascending;
+	  else
+	    einfo (_("%P%F: invalid common section sorting option: %s\n"),
+		   optarg);
 	  break;
 	case OPTION_SORT_SECTION:
 	  if (strcmp (optarg, N_("name")) == 0)
@@ -1154,9 +1179,11 @@ parse_args (unsigned argc, char **argv)
 	  trace_files = TRUE;
 	  break;
 	case 'T':
+	  previous_script_handle = saved_script_handle;
 	  ldfile_open_command_file (optarg);
 	  parser_input = input_script;
 	  yyparse ();
+	  previous_script_handle = NULL;
 	  break;
 	case OPTION_DEFAULT_SCRIPT:
 	  command_line.default_script = optarg;
@@ -1309,6 +1336,9 @@ parse_args (unsigned argc, char **argv)
 	  break;
 	case OPTION_WARN_FATAL:
 	  config.fatal_warnings = TRUE;
+	  break;
+	case OPTION_NO_WARN_FATAL:
+	  config.fatal_warnings = FALSE;
 	  break;
 	case OPTION_WARN_MULTIPLE_GP:
 	  config.warn_multiple_gp = TRUE;
@@ -1628,5 +1658,6 @@ help (void)
   ldemul_list_emulation_options (stdout);
   printf ("\n");
 
-  printf (_("Report bugs to %s\n"), REPORT_BUGS_TO);
+  if (REPORT_BUGS_TO[0])
+    printf (_("Report bugs to %s\n"), REPORT_BUGS_TO);
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:06:02 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_hif_spi_intr2.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:30p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,23 +43,23 @@
 #define BCHP_HIF_SPI_INTR2_H__
 
 /***************************************************************************
- *HIF_SPI_INTR2
+ *HIF_SPI_INTR2 - HIF Level 2 Interrupt Controller Registers for SPI
  ***************************************************************************/
-#define BCHP_HIF_SPI_INTR2_CPU_STATUS            0x00441d00
-#define BCHP_HIF_SPI_INTR2_CPU_SET               0x00441d04
-#define BCHP_HIF_SPI_INTR2_CPU_CLEAR             0x00441d08
-#define BCHP_HIF_SPI_INTR2_CPU_MASK_STATUS       0x00441d0c
-#define BCHP_HIF_SPI_INTR2_CPU_MASK_SET          0x00441d10
-#define BCHP_HIF_SPI_INTR2_CPU_MASK_CLEAR        0x00441d14
-#define BCHP_HIF_SPI_INTR2_PCI_STATUS            0x00441d18
-#define BCHP_HIF_SPI_INTR2_PCI_SET               0x00441d1c
-#define BCHP_HIF_SPI_INTR2_PCI_CLEAR             0x00441d20
-#define BCHP_HIF_SPI_INTR2_PCI_MASK_STATUS       0x00441d24
-#define BCHP_HIF_SPI_INTR2_PCI_MASK_SET          0x00441d28
-#define BCHP_HIF_SPI_INTR2_PCI_MASK_CLEAR        0x00441d2c
+#define BCHP_HIF_SPI_INTR2_CPU_STATUS            0x00441d00 /* CPU interrupt Status Register */
+#define BCHP_HIF_SPI_INTR2_CPU_SET               0x00441d04 /* CPU interrupt Set Register */
+#define BCHP_HIF_SPI_INTR2_CPU_CLEAR             0x00441d08 /* CPU interrupt Clear Register */
+#define BCHP_HIF_SPI_INTR2_CPU_MASK_STATUS       0x00441d0c /* CPU interrupt Mask Status Register */
+#define BCHP_HIF_SPI_INTR2_CPU_MASK_SET          0x00441d10 /* CPU interrupt Mask Set Register */
+#define BCHP_HIF_SPI_INTR2_CPU_MASK_CLEAR        0x00441d14 /* CPU interrupt Mask Clear Register */
+#define BCHP_HIF_SPI_INTR2_PCI_STATUS            0x00441d18 /* PCI interrupt Status Register */
+#define BCHP_HIF_SPI_INTR2_PCI_SET               0x00441d1c /* PCI interrupt Set Register */
+#define BCHP_HIF_SPI_INTR2_PCI_CLEAR             0x00441d20 /* PCI interrupt Clear Register */
+#define BCHP_HIF_SPI_INTR2_PCI_MASK_STATUS       0x00441d24 /* PCI interrupt Mask Status Register */
+#define BCHP_HIF_SPI_INTR2_PCI_MASK_SET          0x00441d28 /* PCI interrupt Mask Set Register */
+#define BCHP_HIF_SPI_INTR2_PCI_MASK_CLEAR        0x00441d2c /* PCI interrupt Mask Clear Register */
 
 /***************************************************************************
- *CPU_STATUS
+ *CPU_STATUS - CPU interrupt Status Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: CPU_STATUS :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_CPU_STATUS_reserved0_MASK               0xffffff80
@@ -91,7 +94,7 @@
 #define BCHP_HIF_SPI_INTR2_CPU_STATUS_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *CPU_SET
+ *CPU_SET - CPU interrupt Set Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: CPU_SET :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_CPU_SET_reserved0_MASK                  0xffffff80
@@ -126,7 +129,7 @@
 #define BCHP_HIF_SPI_INTR2_CPU_SET_SPI_LR_FULLNESS_REACHED_SHIFT   0
 
 /***************************************************************************
- *CPU_CLEAR
+ *CPU_CLEAR - CPU interrupt Clear Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: CPU_CLEAR :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_CPU_CLEAR_reserved0_MASK                0xffffff80
@@ -161,7 +164,7 @@
 #define BCHP_HIF_SPI_INTR2_CPU_CLEAR_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *CPU_MASK_STATUS
+ *CPU_MASK_STATUS - CPU interrupt Mask Status Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: CPU_MASK_STATUS :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_CPU_MASK_STATUS_reserved0_MASK          0xffffff80
@@ -196,7 +199,7 @@
 #define BCHP_HIF_SPI_INTR2_CPU_MASK_STATUS_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *CPU_MASK_SET
+ *CPU_MASK_SET - CPU interrupt Mask Set Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: CPU_MASK_SET :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_CPU_MASK_SET_reserved0_MASK             0xffffff80
@@ -231,7 +234,7 @@
 #define BCHP_HIF_SPI_INTR2_CPU_MASK_SET_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *CPU_MASK_CLEAR
+ *CPU_MASK_CLEAR - CPU interrupt Mask Clear Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: CPU_MASK_CLEAR :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_CPU_MASK_CLEAR_reserved0_MASK           0xffffff80
@@ -266,7 +269,7 @@
 #define BCHP_HIF_SPI_INTR2_CPU_MASK_CLEAR_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *PCI_STATUS
+ *PCI_STATUS - PCI interrupt Status Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: PCI_STATUS :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_PCI_STATUS_reserved0_MASK               0xffffff80
@@ -301,7 +304,7 @@
 #define BCHP_HIF_SPI_INTR2_PCI_STATUS_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *PCI_SET
+ *PCI_SET - PCI interrupt Set Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: PCI_SET :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_PCI_SET_reserved0_MASK                  0xffffff80
@@ -336,7 +339,7 @@
 #define BCHP_HIF_SPI_INTR2_PCI_SET_SPI_LR_FULLNESS_REACHED_SHIFT   0
 
 /***************************************************************************
- *PCI_CLEAR
+ *PCI_CLEAR - PCI interrupt Clear Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: PCI_CLEAR :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_PCI_CLEAR_reserved0_MASK                0xffffff80
@@ -371,7 +374,7 @@
 #define BCHP_HIF_SPI_INTR2_PCI_CLEAR_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *PCI_MASK_STATUS
+ *PCI_MASK_STATUS - PCI interrupt Mask Status Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: PCI_MASK_STATUS :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_PCI_MASK_STATUS_reserved0_MASK          0xffffff80
@@ -406,7 +409,7 @@
 #define BCHP_HIF_SPI_INTR2_PCI_MASK_STATUS_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *PCI_MASK_SET
+ *PCI_MASK_SET - PCI interrupt Mask Set Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: PCI_MASK_SET :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_PCI_MASK_SET_reserved0_MASK             0xffffff80
@@ -441,7 +444,7 @@
 #define BCHP_HIF_SPI_INTR2_PCI_MASK_SET_SPI_LR_FULLNESS_REACHED_SHIFT 0
 
 /***************************************************************************
- *PCI_MASK_CLEAR
+ *PCI_MASK_CLEAR - PCI interrupt Mask Clear Register
  ***************************************************************************/
 /* HIF_SPI_INTR2 :: PCI_MASK_CLEAR :: reserved0 [31:07] */
 #define BCHP_HIF_SPI_INTR2_PCI_MASK_CLEAR_reserved0_MASK           0xffffff80

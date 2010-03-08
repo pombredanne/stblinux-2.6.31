@@ -47,7 +47,7 @@
  * Everything uses uses a mostly-stock c-r4k.c
  */
 
-#if ! defined(CONFIG_BMIPS5000) || defined(CONFIG_BCM7420) // A0 only
+#if !defined(CONFIG_BMIPS5000) || defined(CONFIG_BCM7420B0)
 #include "c-r4k.c"
 #else /* ! defined(CONFIG_BMIPS5000) */
 
@@ -329,7 +329,7 @@ int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 #if ! defined(CONFIG_BRCM_ZSCM_L2)
 			r4k_blast_dcache_page(pg);
 #endif
-#if defined(CONFIG_BCM7420) // A0 only
+#if defined(CONFIG_BCM7420B0)
 			/* PR56710: skipped cache flushes */
 			if (cpu_scache_line_size()) {
 				do {

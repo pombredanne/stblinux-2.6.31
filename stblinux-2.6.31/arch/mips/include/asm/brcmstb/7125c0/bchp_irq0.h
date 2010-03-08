@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:20:28 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_irq0.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:43p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,13 +43,13 @@
 #define BCHP_IRQ0_H__
 
 /***************************************************************************
- *IRQ0
+ *IRQ0 - Level 2 CPU Interrupt Enable/Status
  ***************************************************************************/
-#define BCHP_IRQ0_IRQEN                          0x00406780
-#define BCHP_IRQ0_IRQSTAT                        0x00406784
+#define BCHP_IRQ0_IRQEN                          0x00406780 /* Interrupt Enable */
+#define BCHP_IRQ0_IRQSTAT                        0x00406784 /* Interrupt Status */
 
 /***************************************************************************
- *IRQEN
+ *IRQEN - Interrupt Enable
  ***************************************************************************/
 /* IRQ0 :: IRQEN :: reserved0 [31:29] */
 #define BCHP_IRQ0_IRQEN_reserved0_MASK                             0xe0000000
@@ -141,7 +144,7 @@
 #define BCHP_IRQ0_IRQEN_kbd1_irqen_SHIFT                           0
 
 /***************************************************************************
- *IRQSTAT
+ *IRQSTAT - Interrupt Status
  ***************************************************************************/
 /* IRQ0 :: IRQSTAT :: reserved0 [31:29] */
 #define BCHP_IRQ0_IRQSTAT_reserved0_MASK                           0xe0000000

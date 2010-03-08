@@ -12,13 +12,22 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <cstdlib>
+#include <cstring>
 
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 #include "op_bfd.h"
+#include "locate_images.h"
 #include "op_libiberty.h"
 #include "string_filter.h"
 #include "cverb.h"
+
+#define OP_SPU_DYN_FLAG		0x10000000	/* kernel module adds this offset */
+						/* to SPU code it can't find in the map */
+#define OP_SPU_MEMSIZE		0x3ffff		/* Physical memory size on an SPU */
 
 using namespace std;
 
@@ -29,13 +38,15 @@ extern verbose vbfd;
  * constructor in libutil++/op_bfd.cpp, with the additional processing
  * needed to handle an embedded spu offset.
  */
-op_bfd::op_bfd(string const & archive, uint64_t spu_offset,
-	       string const & fname,
-	       string_filter const & symbol_filter, bool & ok)
+op_bfd::op_bfd(uint64_t spu_offset, string const & fname,
+	       string_filter const & symbol_filter, 
+	       extra_images const & extra_images, bool & ok)
 	:
-	archive_path(archive),
+	archive_path(extra_images.get_archive_path()),
+	extra_found_images(extra_images),
 	file_size(-1),
-	embedding_filename(fname)
+	embedding_filename(fname),
+	anon_obj(false)
 {
 	int fd;
 	struct stat st;
@@ -48,7 +59,9 @@ op_bfd::op_bfd(string const & archive, uint64_t spu_offset,
 	symbols_found_t symbols;
 	asection const * sect;
 
-	string const image_path = archive_path + fname;
+	image_error image_ok;
+	string const image_path =
+		extra_images.find_image_path(fname, image_ok, true);
 
 	cverb << vbfd << "op_bfd ctor for " << image_path << endl;
 	if (!ok)
@@ -154,6 +167,11 @@ find_sec_code:
 	}
 
 	get_symbols(symbols);
+
+	/* In some cases the SPU library code generates code stubs on the stack. */
+	/* The kernel module remaps those addresses so add an entry to catch/report them. */
+	symbols.push_back(op_bfd_symbol(OP_SPU_DYN_FLAG, OP_SPU_MEMSIZE,
+			  "__send_to_ppe(stack)"));
 
 out:
 	add_symbols(symbols, symbol_filter);

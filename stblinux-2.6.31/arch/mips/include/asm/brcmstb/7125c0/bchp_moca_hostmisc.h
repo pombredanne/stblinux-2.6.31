@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:11:55 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_moca_hostmisc.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:03p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,21 +43,21 @@
 #define BCHP_MOCA_HOSTMISC_H__
 
 /***************************************************************************
- *MOCA_HOSTMISC
+ *MOCA_HOSTMISC - MOCA_HOSTMISC registers
  ***************************************************************************/
-#define BCHP_MOCA_HOSTMISC_SW_RESET              0x002a2040
-#define BCHP_MOCA_HOSTMISC_SCRATCH               0x002a2044
-#define BCHP_MOCA_HOSTMISC_MBIST_TM              0x002a2048
-#define BCHP_MOCA_HOSTMISC_LED_CTRL              0x002a204c
-#define BCHP_MOCA_HOSTMISC_HOST_MMP0             0x002a2050
-#define BCHP_MOCA_HOSTMISC_HOST_MMP1             0x002a2054
-#define BCHP_MOCA_HOSTMISC_HOST_MMP2             0x002a2058
-#define BCHP_MOCA_HOSTMISC_HOST_MMP3             0x002a205c
-#define BCHP_MOCA_HOSTMISC_H2M_INT_TRIG          0x002a2060
-#define BCHP_MOCA_HOSTMISC_WAKEUP                0x002a2064
+#define BCHP_MOCA_HOSTMISC_SW_RESET              0x002a2040 /* Moca Software Reset */
+#define BCHP_MOCA_HOSTMISC_SCRATCH               0x002a2044 /* Moca Scratch Register */
+#define BCHP_MOCA_HOSTMISC_MBIST_TM              0x002a2048 /* MBIST TM Control */
+#define BCHP_MOCA_HOSTMISC_LED_CTRL              0x002a204c /* MoCA LED Control */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP0             0x002a2050 /* Moca Host Messaging Register 0 */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP1             0x002a2054 /* Moca Host Messaging Register 0 */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP2             0x002a2058 /* Moca Host Messaging Register 0 */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP3             0x002a205c /* Moca Host Messaging Register 0 */
+#define BCHP_MOCA_HOSTMISC_H2M_INT_TRIG          0x002a2060 /* Host-to-MoCA Interrupt Trigger */
+#define BCHP_MOCA_HOSTMISC_WAKEUP                0x002a2064 /* Host-to-MoCA Wakeup Interrupt */
 
 /***************************************************************************
- *SW_RESET
+ *SW_RESET - Moca Software Reset
  ***************************************************************************/
 /* MOCA_HOSTMISC :: SW_RESET :: spare_control [31:15] */
 #define BCHP_MOCA_HOSTMISC_SW_RESET_spare_control_MASK             0xffff8000
@@ -97,21 +100,21 @@
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_reset_SHIFT           0
 
 /***************************************************************************
- *SCRATCH
+ *SCRATCH - Moca Scratch Register
  ***************************************************************************/
 /* MOCA_HOSTMISC :: SCRATCH :: VALUE [31:00] */
 #define BCHP_MOCA_HOSTMISC_SCRATCH_VALUE_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_SCRATCH_VALUE_SHIFT                     0
 
 /***************************************************************************
- *MBIST_TM
+ *MBIST_TM - MBIST TM Control
  ***************************************************************************/
 /* MOCA_HOSTMISC :: MBIST_TM :: mbist_tm [31:00] */
 #define BCHP_MOCA_HOSTMISC_MBIST_TM_mbist_tm_MASK                  0xffffffff
 #define BCHP_MOCA_HOSTMISC_MBIST_TM_mbist_tm_SHIFT                 0
 
 /***************************************************************************
- *LED_CTRL
+ *LED_CTRL - MoCA LED Control
  ***************************************************************************/
 /* MOCA_HOSTMISC :: LED_CTRL :: led_on_cyc_count [31:16] */
 #define BCHP_MOCA_HOSTMISC_LED_CTRL_led_on_cyc_count_MASK          0xffff0000
@@ -122,35 +125,35 @@
 #define BCHP_MOCA_HOSTMISC_LED_CTRL_led_off_cyc_count_SHIFT        0
 
 /***************************************************************************
- *HOST_MMP0
+ *HOST_MMP0 - Moca Host Messaging Register 0
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP0 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP0_MMP_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_HOST_MMP0_MMP_SHIFT                     0
 
 /***************************************************************************
- *HOST_MMP1
+ *HOST_MMP1 - Moca Host Messaging Register 0
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP1 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP1_MMP_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_HOST_MMP1_MMP_SHIFT                     0
 
 /***************************************************************************
- *HOST_MMP2
+ *HOST_MMP2 - Moca Host Messaging Register 0
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP2 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP2_MMP_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_HOST_MMP2_MMP_SHIFT                     0
 
 /***************************************************************************
- *HOST_MMP3
+ *HOST_MMP3 - Moca Host Messaging Register 0
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP3 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP3_MMP_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_HOST_MMP3_MMP_SHIFT                     0
 
 /***************************************************************************
- *H2M_INT_TRIG
+ *H2M_INT_TRIG - Host-to-MoCA Interrupt Trigger
  ***************************************************************************/
 /* MOCA_HOSTMISC :: H2M_INT_TRIG :: reserved0 [31:08] */
 #define BCHP_MOCA_HOSTMISC_H2M_INT_TRIG_reserved0_MASK             0xffffff00
@@ -161,7 +164,7 @@
 #define BCHP_MOCA_HOSTMISC_H2M_INT_TRIG_INT_TRIG_SHIFT             0
 
 /***************************************************************************
- *WAKEUP
+ *WAKEUP - Host-to-MoCA Wakeup Interrupt
  ***************************************************************************/
 /* MOCA_HOSTMISC :: WAKEUP :: reserved0 [31:01] */
 #define BCHP_MOCA_HOSTMISC_WAKEUP_reserved0_MASK                   0xfffffffe

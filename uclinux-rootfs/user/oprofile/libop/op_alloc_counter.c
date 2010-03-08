@@ -12,6 +12,8 @@
  */
 
 #include <stdlib.h>
+#include <ctype.h>
+#include <dirent.h>
 
 #include "op_events.h"
 #include "op_libiberty.h"
@@ -111,6 +113,9 @@ static void delete_counter_arc(counter_arc_head * ctr_arc, int nr_events)
  * a bitmask of already allocated counter. Walking through node is done in
  * preorder left to right.
  *
+ * In case of extended events (required no phisical counters), the associated
+ * counter_map entry will be -1.
+ *
  * Possible improvment if neccessary: partition counters in class of counter,
  * two counter belong to the same class if they allow exactly the same set of
  * event. Now using a variant of the backtrack algo can works on class of
@@ -126,40 +131,107 @@ allocate_counter(counter_arc_head const * ctr_arc, int max_depth, int depth,
 	if (depth == max_depth)
 		return 1;
 
-	list_for_each(pos, &ctr_arc[depth].next) {
-		counter_arc const * arc = list_entry(pos, counter_arc, next);
-
-		if (allocated_mask & (1 << arc->counter))
-			continue;
-
-		counter_map[depth] = arc->counter;
-
+	/* If ctr_arc is not available, counter_map is -1 */
+	if((&ctr_arc[depth].next)->next == &ctr_arc[depth].next) {
+		counter_map[depth] = -1;
 		if (allocate_counter(ctr_arc, max_depth, depth + 1,
-		                     allocated_mask | (1 << arc->counter),
+		                     allocated_mask,
 		                     counter_map))
 			return 1;
+	} else {
+		list_for_each(pos, &ctr_arc[depth].next) {
+			counter_arc const * arc = list_entry(pos, counter_arc, next);
+
+			if (allocated_mask & (1 << arc->counter))
+				continue;
+
+			counter_map[depth] = arc->counter;
+
+			if (allocate_counter(ctr_arc, max_depth, depth + 1,
+					     allocated_mask | (1 << arc->counter),
+					     counter_map))
+				return 1;
+		}
 	}
 
 	return 0;
 }
 
+/* determine which directories are counter directories
+ */
+static int perfcounterdir(const struct dirent * entry)
+{
+	return (isdigit(entry->d_name[0]));
+}
+
+
+/**
+ * @param mask pointer where to place bit mask of unavailable counters
+ *
+ * return >= 0 number of counters that are available
+ *        < 0  could not determine number of counters
+ *
+ */
+static int op_get_counter_mask(u32 * mask)
+{
+	struct dirent **counterlist;
+	int count, i;
+	/* assume nothing is available */
+	u32 available=0;
+
+	count = scandir("/dev/oprofile", &counterlist, perfcounterdir,
+			alphasort);
+	if (count < 0)
+		/* unable to determine bit mask */
+		return -1;
+	/* convert to bit map (0 where counter exists) */
+	for (i=0; i<count; ++i) {
+		available |= 1 << atoi(counterlist[i]->d_name);
+		free(counterlist[i]);
+	}
+	*mask=~available;
+	free(counterlist);
+	return count;
+}
 
 size_t * map_event_to_counter(struct op_event const * pev[], int nr_events,
                               op_cpu cpu_type)
 {
 	counter_arc_head * ctr_arc;
 	size_t * counter_map;
-	int nr_counters;
+	int i, nr_counters, nr_pmc_events;
+	op_cpu curr_cpu_type;
+	u32 unavailable_counters = 0;
 
-	nr_counters = op_get_nr_counters(cpu_type);
-	if (nr_counters < nr_events)
-		return 0;
+	/* Either ophelp or one of the libop tests may invoke this
+	 * function with a non-native cpu_type.  If so, we should not
+	 * call op_get_counter_mask because that will look for real counter
+	 * information in oprofilefs.
+	 */
+	curr_cpu_type = op_get_cpu_type();
+	if (cpu_type != curr_cpu_type)
+		nr_counters = op_get_nr_counters(cpu_type);
+	else
+		nr_counters = op_get_counter_mask(&unavailable_counters);
+
+	/* no counters then probably perfmon managing perfmon hw */
+	if (nr_counters <= 0) {
+		nr_counters = op_get_nr_counters(cpu_type);
+		unavailable_counters = (~0) << nr_counters;
+	}
+
+	/* Check to see if we have enough physical counters to map events*/
+	for (i = 0, nr_pmc_events = 0; i < nr_events; i++)
+		if(pev[i]->ext == NULL)
+			if (++nr_pmc_events > nr_counters)
+				return 0;
 
 	ctr_arc = build_counter_arc(pev, nr_events);
 
-	counter_map = xmalloc(nr_counters * sizeof(size_t));
+	counter_map = xmalloc(nr_events * sizeof(size_t));
 
-	if (!allocate_counter(ctr_arc, nr_events, 0, 0, counter_map)) {
+	if (!allocate_counter(ctr_arc, nr_events, 0, unavailable_counters,
+			      counter_map)) {
 		free(counter_map);
 		counter_map = 0;
 	}

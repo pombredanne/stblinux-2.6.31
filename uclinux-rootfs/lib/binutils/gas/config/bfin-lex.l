@@ -1,12 +1,12 @@
 /* bfin-lex.l  ADI Blackfin lexer
-   Copyright 2005, 2006
+   Copyright 2005, 2006, 2007
    Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -293,7 +293,7 @@ abort                                   return ABORT;
 <KEYWORD>[iI][fF][lL][uU][sS][hH]                return IFLUSH;
 <KEYWORD>[fF][lL][uU][sS][hH][iI][nN][vV]        return FLUSHINV;
 <KEYWORD>[fF][lL][uU][sS][hH]                    return FLUSH;
-([0-9]+)|(0[xX][0-9a-fA-F]+)|([bhfodBHOFD]#[0-9a-fA-F]+)|(0.[0-9]+) {
+([0-9]+)|(0[xX][0-9a-fA-F]+)|([bhfodBHOFD]#[0-9a-fA-F]+)|(0"."[0-9]+) {
     yylval.value = parse_int (&yytext);
     return NUMBER;
   }

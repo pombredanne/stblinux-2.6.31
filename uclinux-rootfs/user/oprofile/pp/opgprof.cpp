@@ -26,6 +26,8 @@
 
 using namespace std;
 
+extern profile_classes classes;
+
 namespace {
 
 #define GMON_VERSION 1
@@ -107,8 +109,10 @@ void output_cg(FILE * fp, op_bfd const & abfd, profile_t const & cg_db)
 {
 	opd_header const & header = cg_db.get_header();
 	bfd_vma offset = 0;
-	if (header.is_kernel || header.anon_start)
-		offset = abfd.get_start_offset(header.anon_start);
+	if (header.is_kernel)
+		offset = abfd.get_start_offset(0);
+	else
+		offset = header.anon_start;
  
 	profile_t::iterator_pair p_it = cg_db.samples_range();
 	for (; p_it.first != p_it.second; ++p_it.first) {
@@ -278,17 +282,18 @@ int opgprof(options::spec const & spec)
 {
 	handle_options(spec);
 
-	profile_container samples(false, true);
+	profile_container samples(false, true, classes.extra_found_images);
 
 	bool ok = image_profile.error == image_ok;
 	// FIXME: symbol_filter would be allowed through option
-	op_bfd abfd(options::archive_path, image_profile.image,
-		    string_filter(), ok);
+	op_bfd abfd(image_profile.image, string_filter(),
+		    classes.extra_found_images, ok);
 	if (!ok && image_profile.error == image_ok)
 		image_profile.error = image_format_failure;
 
 	if (image_profile.error != image_ok) {
-		report_image_error(image_profile, true);
+		report_image_error(image_profile, true,
+				   classes.extra_found_images);
 		exit(EXIT_FAILURE);
 	}
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:07:13 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_wktmr.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 10:14p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,16 +43,16 @@
 #define BCHP_WKTMR_H__
 
 /***************************************************************************
- *WKTMR
+ *WKTMR - Wakeup timer
  ***************************************************************************/
-#define BCHP_WKTMR_EVENT                         0x00407380
-#define BCHP_WKTMR_COUNTER                       0x00407384
-#define BCHP_WKTMR_ALARM                         0x00407388
-#define BCHP_WKTMR_PRESCALER                     0x0040738c
-#define BCHP_WKTMR_PRESCALER_VAL                 0x00407390
+#define BCHP_WKTMR_EVENT                         0x00407380 /* Wakeup Timer Register */
+#define BCHP_WKTMR_COUNTER                       0x00407384 /* Wakeup Counter */
+#define BCHP_WKTMR_ALARM                         0x00407388 /* Wakeup Timer Alarm */
+#define BCHP_WKTMR_PRESCALER                     0x0040738c /* Wakeup Timer Prescaler */
+#define BCHP_WKTMR_PRESCALER_VAL                 0x00407390 /* Wakeup Timer Prescaler Value */
 
 /***************************************************************************
- *EVENT
+ *EVENT - Wakeup Timer Register
  ***************************************************************************/
 /* WKTMR :: EVENT :: reserved0 [31:01] */
 #define BCHP_WKTMR_EVENT_reserved0_MASK                            0xfffffffe
@@ -60,21 +63,21 @@
 #define BCHP_WKTMR_EVENT_wktmr_alarm_event_SHIFT                   0
 
 /***************************************************************************
- *COUNTER
+ *COUNTER - Wakeup Counter
  ***************************************************************************/
 /* WKTMR :: COUNTER :: wktmr_counter [31:00] */
 #define BCHP_WKTMR_COUNTER_wktmr_counter_MASK                      0xffffffff
 #define BCHP_WKTMR_COUNTER_wktmr_counter_SHIFT                     0
 
 /***************************************************************************
- *ALARM
+ *ALARM - Wakeup Timer Alarm
  ***************************************************************************/
 /* WKTMR :: ALARM :: wktmr_alarm [31:00] */
 #define BCHP_WKTMR_ALARM_wktmr_alarm_MASK                          0xffffffff
 #define BCHP_WKTMR_ALARM_wktmr_alarm_SHIFT                         0
 
 /***************************************************************************
- *PRESCALER
+ *PRESCALER - Wakeup Timer Prescaler
  ***************************************************************************/
 /* WKTMR :: PRESCALER :: reserved0 [31:25] */
 #define BCHP_WKTMR_PRESCALER_reserved0_MASK                        0xfe000000
@@ -85,7 +88,7 @@
 #define BCHP_WKTMR_PRESCALER_wktmr_prescaler_SHIFT                 0
 
 /***************************************************************************
- *PRESCALER_VAL
+ *PRESCALER_VAL - Wakeup Timer Prescaler Value
  ***************************************************************************/
 /* WKTMR :: PRESCALER_VAL :: reserved0 [31:25] */
 #define BCHP_WKTMR_PRESCALER_VAL_reserved0_MASK                    0xfe000000

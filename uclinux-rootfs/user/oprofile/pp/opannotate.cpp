@@ -148,31 +148,112 @@ string count_str(count_array_t const & count,
 }
 
 
-string asm_line_annotation(symbol_entry const * last_symbol,
-			   string const & value)
+/// NOTE: This function annotates a list<string> containing output from objdump.
+/// It uses a list iterator, and a sample_container iterator which iterates
+/// from the beginning to the end, and compare sample address
+/// against the instruction address on the asm line.
+///
+/// There are 2 cases of annotation:
+/// 1. If sample address matches current line address, annotate the current line.
+/// 2. If (previous line address < sample address < current line address),
+///    then we annotate previous line.  This case happens when sample address
+///    is not aligned with the instruction address, which is seen when profile
+///    using the instruction fetch mode of AMD Instruction-Based Sampling (IBS).
+///
+int asm_list_annotation(symbol_entry const * last_symbol,
+			bfd_vma last_symbol_vma,
+			list<string>::iterator sit,
+			sample_container::samples_iterator & samp_it,
+			list<string> & asm_lines)
 {
+	int ret = 0;
+
+	sample_entry const * sample = NULL;
+
+	if (samp_it != samples->end())
+		sample = &samp_it->second;
+
 	// do not use the bfd equivalent:
 	//  - it does not skip space at begin
 	//  - we does not need cross architecture compile so the native
 	// strtoull must work, assuming unsigned long long can contain a vma
 	// and on 32/64 bits box bfd_vma is 64 bits
 	// gcc 2.91.66 workaround
-	bfd_vma vma = 0;
-	vma = strtoull(value.c_str(), NULL, 16);
+	bfd_vma vma = strtoull((*sit).c_str(), NULL, 16);
 
-	string str;
+	if (sample 
+	    && ((sample->vma < last_symbol_vma) || (sample->vma > vma))) {
+		*sit = annotation_fill + *sit;
+	} else if (sample && sample->vma == vma) {
+		// Case 1 : Sample address match current line address.
+		string str = count_str(sample->counts, samples->samples_count());
 
-	sample_entry const * sample = samples->find_sample(last_symbol, vma);
-	if (sample) {
-		str += count_str(sample->counts, samples->samples_count());
+		// For each events
 		for (size_t i = 1; i < nr_events; ++i)
 			str += "  ";
-		str += " :";
+
+		*sit = str + " :" + *sit;
+		if (samp_it != samples->end())
+			++samp_it;
+
+	} else	if (sample && sample->vma < vma) {
+		// Case 2 : vma of the current line is greater than vma of the sample
+
+		// Get the string of previous assembly line
+		list<string>::iterator sit_prev = sit;
+		string prev_line, prev_vma_str;
+		string::size_type loc1 = string::npos, loc2 = string::npos;
+		while (sit_prev != asm_lines.begin()) {
+			--sit_prev;
+			prev_line = *sit_prev;
+
+			loc1 = prev_line.find(":", 0);
+			if (loc1 != string::npos) {
+				loc2 = prev_line.find(":", loc1+1);
+				if (loc2 != string::npos) {
+					prev_vma_str = prev_line.substr(loc1+1, loc2);
+					break;
+				}
+			}
+		}
+
+		bfd_vma prev_vma = strtoull(prev_vma_str.c_str(), NULL, 16);
+
+		// Need to check if prev_vma < sample->vma
+		if (prev_vma != 0 && prev_vma < sample->vma) {
+			string str;
+
+			// Get sample for previous line.
+			sample_entry * prev_sample = (sample_entry *)samples->
+							find_sample(last_symbol, prev_vma);
+			if (prev_sample) {
+				// Aggregate sample with previous line if it already has samples
+				prev_sample->counts += sample->counts;
+				str = count_str(prev_sample->counts, samples->samples_count());
+			} else {
+				str = count_str(sample->counts, samples->samples_count());
+			}
+
+			// For each events
+			for (size_t i = 1; i < nr_events; ++i)
+				str += "  ";
+
+			*sit_prev = str + " :" + prev_line.substr(loc1+1);
+			if (samp_it != samples->end())
+				++samp_it;
+			ret = -1;
+		} else {
+			// Failed to annotate the previous line. Skip sample.
+			*sit = annotation_fill + *sit;
+			if (samp_it != samples->end())
+				++samp_it;
+		}
 	} else {
-		str = annotation_fill;
+		// In case sample is NULL
+		*sit = annotation_fill + *sit;
 	}
 
-	return str;
+	return ret;
 }
 
 
@@ -206,73 +287,116 @@ bool is_symbol_line(string const & str, string::size_type pos)
 }
 
 
-symbol_entry const * output_objdump_asm_line(symbol_entry const * last_symbol,
-		string const & app_name, string const & str,
-		symbol_collection const & symbols,
-		bool & do_output)
+void annotate_objdump_str_list(string const & app_name,
+			       symbol_collection const & symbols,
+			       list<string> & asm_lines)
 {
-	// output of objdump is a human readable form and can contain some
-	// ambiguity so this code is dirty. It is also optimized a little bit
-	// so it is difficult to simplify it without breaking something ...
+	symbol_entry const * last_symbol = 0;
+	bfd_vma last_symbol_vma = 0;
+	int ret = 0;
 
-	// line of interest are: "[:space:]*[:xdigit:]?[ :]", the last char of
-	// this regexp dis-ambiguate between a symbol line and an asm line. If
-	// source contain line of this form an ambiguity occur and we rely on
-	// the robustness of this code.
+	// to filter output of symbols (filter based on command line options)
+	bool do_output = true;
 
-	size_t pos = 0;
-	while (pos < str.length() && isspace(str[pos]))
-		++pos;
+	// We simultaneously walk the two structures (list and sample_container)
+	// which are sorted by address. and do address comparision.
+	list<string>::iterator sit  = asm_lines.begin();
+	list<string>::iterator send = asm_lines.end();
+	sample_container::samples_iterator samp_it = samples->begin();
 
-	if (pos == str.length() || !isxdigit(str[pos])) {
-		if (do_output) {
-			cout << annotation_fill << str << '\n';
-			return last_symbol;
+	for (; sit != send; (!ret? sit++: sit)) {
+		// output of objdump is a human readable form and can contain some
+		// ambiguity so this code is dirty. It is also optimized a little bit
+		// so it is difficult to simplify it without breaking something ...
+
+		// line of interest are: "[:space:]*[:xdigit:]?[ :]", the last char of
+		// this regexp dis-ambiguate between a symbol line and an asm line. If
+		// source contain line of this form an ambiguity occur and we rely on
+		// the robustness of this code.
+		string str = *sit;
+		size_t pos = 0;
+		while (pos < str.length() && isspace(str[pos]))
+			++pos;
+
+		if (pos == str.length() || !isxdigit(str[pos])) {
+			if (do_output) {
+				*sit = annotation_fill + str;
+				continue;
+			}
 		}
-	}
 
-	while (pos < str.length() && isxdigit(str[pos]))
-		++pos;
+		while (pos < str.length() && isxdigit(str[pos]))
+			++pos;
 
-	if (pos == str.length() || (!isspace(str[pos]) && str[pos] != ':')) {
-		if (do_output) {
-			cout << annotation_fill << str << '\n';
-			return last_symbol;
+		if (pos == str.length() || (!isspace(str[pos]) && str[pos] != ':')) {
+			if (do_output) {
+				*sit = annotation_fill + str;
+				continue;
+			}
 		}
-	}
 
-	if (is_symbol_line(str, pos)) {
-		last_symbol = find_symbol(app_name, str);
+		if (is_symbol_line(str, pos)) {
 
-		// ! complexity: linear in number of symbol must use sorted
-		// by address vector and lower_bound ?
-		// Note this use a pointer comparison. It work because symbols
-		// pointer are unique
-		if (find(symbols.begin(), symbols.end(), last_symbol)
-			!= symbols.end()) {
-			do_output = true;
+			last_symbol = find_symbol(app_name, str);
+			last_symbol_vma = strtoull(str.c_str(), NULL, 16);
+
+			// ! complexity: linear in number of symbol must use sorted
+			// by address vector and lower_bound ?
+			// Note this use a pointer comparison. It work because symbols
+			// pointer are unique
+			if (find(symbols.begin(), symbols.end(), last_symbol)
+			    != symbols.end())
+				do_output = true;
+			else
+				do_output = false;
+
+			if (do_output) {
+				*sit += symbol_annotation(last_symbol);
+
+				// Realign the sample iterator to
+				// the beginning of this symbols
+				samp_it = samples->begin(last_symbol);
+			}
 		} else {
-			do_output = false;
+			// not a symbol, probably an asm line.
+			if (do_output)
+				ret = asm_list_annotation(last_symbol,
+							  last_symbol_vma,
+							  sit, samp_it,
+							  asm_lines);
 		}
 
-		if (do_output)
-			cout << str << symbol_annotation(last_symbol) << '\n';
-
-	} else {
-		// not a symbol, probably an asm line.
-		if (do_output)
-			cout << asm_line_annotation(last_symbol, str)
-			     << str << '\n';
+		if (!do_output)
+			*sit = "";
 	}
+}
 
-	return last_symbol;
+
+void output_objdump_str_list(symbol_collection const & symbols,
+			string const & app_name,
+			list<string> & asm_lines)
+{
+
+	annotate_objdump_str_list(app_name, symbols, asm_lines);
+
+	// Printing objdump output to stdout
+	list<string>::iterator sit  = asm_lines.begin();
+	list<string>::iterator send = asm_lines.end();
+	sit = asm_lines.begin();
+	for (; sit != send; ++sit) {
+		string str = *sit;
+		if (str.length() != 0)
+			cout << str << '\n';
+	}
 }
 
 
 void do_one_output_objdump(symbol_collection const & symbols,
-			   string const & app_name, bfd_vma start, bfd_vma end)
+			   string const & image_name, string const & app_name,
+			   bfd_vma start, bfd_vma end)
 {
 	vector<string> args;
+	list<string> asm_lines;
 
 	args.push_back("-d");
 	args.push_back("--no-show-raw-insn");
@@ -292,7 +416,7 @@ void do_one_output_objdump(symbol_collection const & symbols,
 			args.push_back(objdump_params[i]);
 	}
 
-	args.push_back(app_name);
+	args.push_back(image_name);
 	child_reader reader("objdump", args);
 	if (reader.error()) {
 		cerr << "An error occur during the execution of objdump:\n\n";
@@ -300,15 +424,12 @@ void do_one_output_objdump(symbol_collection const & symbols,
 		return;
 	}
 
-	// to filter output of symbols (filter based on command line options)
-	bool do_output = true;
-
-	symbol_entry const * last_symbol = 0;
+	// Read each output line from objdump and store in a list.
 	string str;
-	while (reader.getline(str)) {
-		last_symbol = output_objdump_asm_line(last_symbol, app_name,
-					str, symbols, do_output);
-	}
+	while (reader.getline(str))
+		asm_lines.push_back(str);
+
+	output_objdump_str_list(symbols, app_name, asm_lines);
 
 	// objdump always returns SUCCESS so we must rely on the stderr state
 	// of objdump. If objdump error message is cryptic our own error
@@ -338,6 +459,11 @@ void do_one_output_objdump(symbol_collection const & symbols,
 void output_objdump_asm(symbol_collection const & symbols,
 			string const & app_name)
 {
+	image_error error;
+	string image =
+		classes.extra_found_images.find_image_path(app_name, error,
+							   true);
+
 	// this is only an optimisation, we can either filter output by
 	// directly calling objdump and rely on the symbol filtering or
 	// we can call objdump with the right parameter to just disassemble
@@ -345,16 +471,18 @@ void output_objdump_asm(symbol_collection const & symbols,
 	// a medium number of times, I dunno if the used threshold is optimal
 	// but it is a conservative value.
 	size_t const max_objdump_exec = 50;
-	if (symbols.size() <= max_objdump_exec) {
+	if (symbols.size() <= max_objdump_exec || error != image_ok) {
 		symbol_collection::const_iterator cit = symbols.begin();
 		symbol_collection::const_iterator end = symbols.end();
 		for (; cit != end; ++cit) {
 			bfd_vma start = (*cit)->sample.vma;
 			bfd_vma end  = start + (*cit)->size;
-			do_one_output_objdump(symbols, app_name, start, end);
+			do_one_output_objdump(symbols, image, app_name,
+					      start, end);
 		}
 	} else {
-		do_one_output_objdump(symbols, app_name, 0, ~bfd_vma(0));
+		do_one_output_objdump(symbols, image,
+				      app_name, 0, ~bfd_vma(0));
 	}
 }
 
@@ -685,15 +813,14 @@ int opannotate(options::spec const & spec)
 
 	nr_events = classes.v.size();
 
-	samples.reset(new profile_container(true, true));
+	samples.reset(new profile_container(true, true,
+					    classes.extra_found_images));
 
 	list<string> images;
 
-	list<inverted_profile> iprofiles
-		= invert_profiles(options::archive_path, classes,
-				  options::extra_found_images);
+	list<inverted_profile> iprofiles = invert_profiles(classes);
 
-	report_image_errors(iprofiles);
+	report_image_errors(iprofiles, classes.extra_found_images);
 
 	list<inverted_profile>::iterator it = iprofiles.begin();
 	list<inverted_profile>::iterator const end = iprofiles.end();
@@ -701,17 +828,16 @@ int opannotate(options::spec const & spec)
 	bool debug_info = false;
 	for (; it != end; ++it) {
 		bool tmp = false;
-		populate_for_image(options::archive_path, *samples, *it,
-		                   options::symbol_filter, &tmp);
+		populate_for_image(*samples, *it,
+				   options::symbol_filter, &tmp);
 		images.push_back(it->image);
 		if (tmp)
 			debug_info = true;
 	}
 
 	if (!debug_info && !options::assembly) {
-		cerr << "no debug information available for any binary "
-		     << "selected and --assembly not requested\n";
-		exit(EXIT_FAILURE);
+		cerr << "opannotate (warning): no debug information available for binary "
+		     << it->image << ", and --assembly not requested\n";
 	}
 
 	annotate_source(images);

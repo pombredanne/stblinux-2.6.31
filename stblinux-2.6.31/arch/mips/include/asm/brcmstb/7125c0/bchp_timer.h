@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:20:01 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_timer.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:56p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,27 +43,27 @@
 #define BCHP_TIMER_H__
 
 /***************************************************************************
- *TIMER
+ *TIMER - Watchdog & Programmable Timers
  ***************************************************************************/
-#define BCHP_TIMER_TIMER_IS                      0x004067c0
-#define BCHP_TIMER_TIMER_IE0                     0x004067c4
-#define BCHP_TIMER_TIMER0_CTRL                   0x004067c8
-#define BCHP_TIMER_TIMER1_CTRL                   0x004067cc
-#define BCHP_TIMER_TIMER2_CTRL                   0x004067d0
-#define BCHP_TIMER_TIMER3_CTRL                   0x004067d4
-#define BCHP_TIMER_TIMER0_STAT                   0x004067d8
-#define BCHP_TIMER_TIMER1_STAT                   0x004067dc
-#define BCHP_TIMER_TIMER2_STAT                   0x004067e0
-#define BCHP_TIMER_TIMER3_STAT                   0x004067e4
-#define BCHP_TIMER_WDTIMEOUT                     0x004067e8
-#define BCHP_TIMER_WDCMD                         0x004067ec
-#define BCHP_TIMER_WDCHIPRST_CNT                 0x004067f0
-#define BCHP_TIMER_WDCRS                         0x004067f4
-#define BCHP_TIMER_TIMER_IE1                     0x004067f8
-#define BCHP_TIMER_WDCTRL                        0x004067fc
+#define BCHP_TIMER_TIMER_IS                      0x004067c0 /* TIMER INTERRUPT STATUS REGISTER */
+#define BCHP_TIMER_TIMER_IE0                     0x004067c4 /* TIMER CPU INTERRUPT ENABLE REGISTER */
+#define BCHP_TIMER_TIMER0_CTRL                   0x004067c8 /* TIMER0 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER1_CTRL                   0x004067cc /* TIMER1 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER2_CTRL                   0x004067d0 /* TIMER2 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER3_CTRL                   0x004067d4 /* TIMER3 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER0_STAT                   0x004067d8 /* TIMER0 STATUS REGISTER */
+#define BCHP_TIMER_TIMER1_STAT                   0x004067dc /* TIMER1 STATUS REGISTER */
+#define BCHP_TIMER_TIMER2_STAT                   0x004067e0 /* TIMER2 STATUS REGISTER */
+#define BCHP_TIMER_TIMER3_STAT                   0x004067e4 /* TIMER3 STATUS REGISTER */
+#define BCHP_TIMER_WDTIMEOUT                     0x004067e8 /* WATCHDOG TIMEOUT REGISTER */
+#define BCHP_TIMER_WDCMD                         0x004067ec /* WATCHDOG COMMAND REGISTER */
+#define BCHP_TIMER_WDCHIPRST_CNT                 0x004067f0 /* WATCHDOG CHIP RESET COUNT REGISTER */
+#define BCHP_TIMER_WDCRS                         0x004067f4 /* WATCHDOG CHIP RESET STATUS REGISTER */
+#define BCHP_TIMER_TIMER_IE1                     0x004067f8 /* TIMER PCI INTERRUPT ENABLE REGISTER */
+#define BCHP_TIMER_WDCTRL                        0x004067fc /* WATCHDOG CONTROL REGISTER */
 
 /***************************************************************************
- *TIMER_IS
+ *TIMER_IS - TIMER INTERRUPT STATUS REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER_IS :: reserved0 [31:05] */
 #define BCHP_TIMER_TIMER_IS_reserved0_MASK                         0xffffffe0
@@ -87,7 +90,7 @@
 #define BCHP_TIMER_TIMER_IS_TMR0TO_SHIFT                           0
 
 /***************************************************************************
- *TIMER_IE0
+ *TIMER_IE0 - TIMER CPU INTERRUPT ENABLE REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER_IE0 :: reserved0 [31:05] */
 #define BCHP_TIMER_TIMER_IE0_reserved0_MASK                        0xffffffe0
@@ -114,7 +117,7 @@
 #define BCHP_TIMER_TIMER_IE0_TMR0TO_SHIFT                          0
 
 /***************************************************************************
- *TIMER0_CTRL
+ *TIMER0_CTRL - TIMER0 CONTROL REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER0_CTRL :: ENA [31:31] */
 #define BCHP_TIMER_TIMER0_CTRL_ENA_MASK                            0x80000000
@@ -129,7 +132,7 @@
 #define BCHP_TIMER_TIMER0_CTRL_TIMEOUT_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER1_CTRL
+ *TIMER1_CTRL - TIMER1 CONTROL REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER1_CTRL :: ENA [31:31] */
 #define BCHP_TIMER_TIMER1_CTRL_ENA_MASK                            0x80000000
@@ -144,7 +147,7 @@
 #define BCHP_TIMER_TIMER1_CTRL_TIMEOUT_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER2_CTRL
+ *TIMER2_CTRL - TIMER2 CONTROL REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER2_CTRL :: ENA [31:31] */
 #define BCHP_TIMER_TIMER2_CTRL_ENA_MASK                            0x80000000
@@ -159,7 +162,7 @@
 #define BCHP_TIMER_TIMER2_CTRL_TIMEOUT_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER3_CTRL
+ *TIMER3_CTRL - TIMER3 CONTROL REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER3_CTRL :: ENA [31:31] */
 #define BCHP_TIMER_TIMER3_CTRL_ENA_MASK                            0x80000000
@@ -174,7 +177,7 @@
 #define BCHP_TIMER_TIMER3_CTRL_TIMEOUT_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER0_STAT
+ *TIMER0_STAT - TIMER0 STATUS REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER0_STAT :: RESERVED [31:30] */
 #define BCHP_TIMER_TIMER0_STAT_RESERVED_MASK                       0xc0000000
@@ -185,7 +188,7 @@
 #define BCHP_TIMER_TIMER0_STAT_COUNTER_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER1_STAT
+ *TIMER1_STAT - TIMER1 STATUS REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER1_STAT :: RESERVED [31:30] */
 #define BCHP_TIMER_TIMER1_STAT_RESERVED_MASK                       0xc0000000
@@ -196,7 +199,7 @@
 #define BCHP_TIMER_TIMER1_STAT_COUNTER_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER2_STAT
+ *TIMER2_STAT - TIMER2 STATUS REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER2_STAT :: RESERVED [31:30] */
 #define BCHP_TIMER_TIMER2_STAT_RESERVED_MASK                       0xc0000000
@@ -207,7 +210,7 @@
 #define BCHP_TIMER_TIMER2_STAT_COUNTER_VAL_SHIFT                   0
 
 /***************************************************************************
- *TIMER3_STAT
+ *TIMER3_STAT - TIMER3 STATUS REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER3_STAT :: RESERVED [31:30] */
 #define BCHP_TIMER_TIMER3_STAT_RESERVED_MASK                       0xc0000000
@@ -218,21 +221,21 @@
 #define BCHP_TIMER_TIMER3_STAT_COUNTER_VAL_SHIFT                   0
 
 /***************************************************************************
- *WDTIMEOUT
+ *WDTIMEOUT - WATCHDOG TIMEOUT REGISTER
  ***************************************************************************/
 /* TIMER :: WDTIMEOUT :: WDTIMEOUT_VAL [31:00] */
 #define BCHP_TIMER_WDTIMEOUT_WDTIMEOUT_VAL_MASK                    0xffffffff
 #define BCHP_TIMER_WDTIMEOUT_WDTIMEOUT_VAL_SHIFT                   0
 
 /***************************************************************************
- *WDCMD
+ *WDCMD - WATCHDOG COMMAND REGISTER
  ***************************************************************************/
 /* TIMER :: WDCMD :: WDCMD [31:00] */
 #define BCHP_TIMER_WDCMD_WDCMD_MASK                                0xffffffff
 #define BCHP_TIMER_WDCMD_WDCMD_SHIFT                               0
 
 /***************************************************************************
- *WDCHIPRST_CNT
+ *WDCHIPRST_CNT - WATCHDOG CHIP RESET COUNT REGISTER
  ***************************************************************************/
 /* TIMER :: WDCHIPRST_CNT :: reserved0 [31:26] */
 #define BCHP_TIMER_WDCHIPRST_CNT_reserved0_MASK                    0xfc000000
@@ -243,7 +246,7 @@
 #define BCHP_TIMER_WDCHIPRST_CNT_WDCHIPRST_CNT_SHIFT               0
 
 /***************************************************************************
- *WDCRS
+ *WDCRS - WATCHDOG CHIP RESET STATUS REGISTER
  ***************************************************************************/
 /* TIMER :: WDCRS :: reserved0 [31:01] */
 #define BCHP_TIMER_WDCRS_reserved0_MASK                            0xfffffffe
@@ -254,7 +257,7 @@
 #define BCHP_TIMER_WDCRS_WDCR_SHIFT                                0
 
 /***************************************************************************
- *TIMER_IE1
+ *TIMER_IE1 - TIMER PCI INTERRUPT ENABLE REGISTER
  ***************************************************************************/
 /* TIMER :: TIMER_IE1 :: reserved0 [31:05] */
 #define BCHP_TIMER_TIMER_IE1_reserved0_MASK                        0xffffffe0
@@ -281,7 +284,7 @@
 #define BCHP_TIMER_TIMER_IE1_TMR0TO_SHIFT                          0
 
 /***************************************************************************
- *WDCTRL
+ *WDCTRL - WATCHDOG CONTROL REGISTER
  ***************************************************************************/
 /* TIMER :: WDCTRL :: reserved0 [31:03] */
 #define BCHP_TIMER_WDCTRL_reserved0_MASK                           0xfffffff8

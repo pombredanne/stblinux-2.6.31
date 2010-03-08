@@ -1,11 +1,11 @@
 /* rename.c -- rename a file, preserving symlinks.
-   Copyright 1999, 2002, 2003 Free Software Foundation, Inc.
+   Copyright 1999, 2002, 2003, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of GNU Binutils.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -18,6 +18,7 @@
    Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA
    02110-1301, USA.  */
 
+#include "sysdep.h"
 #include "bfd.h"
 #include "bucomm.h"
 
@@ -30,12 +31,6 @@
 #include <sys/time.h>
 #endif /* HAVE_UTIMES */
 #endif /* ! HAVE_GOOD_UTIME_H */
-
-/* We need to open the file in binary modes on system where that makes
-   a difference.  */
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
 
 #if ! defined (_WIN32) || defined (__CYGWIN32__)
 static int simple_copy (const char *, const char *);
@@ -161,7 +156,7 @@ smart_rename (const char *from, const char *to, int preserve_dates ATTRIBUTE_UNU
   if (ret != 0)
     {
       /* We have to clean up here.  */
-      non_fatal (_("unable to rename '%s' reason: %s"), to, strerror (errno));
+      non_fatal (_("unable to rename '%s'; reason: %s"), to, strerror (errno));
       unlink (from);
     }
 #else
@@ -199,7 +194,7 @@ smart_rename (const char *from, const char *to, int preserve_dates ATTRIBUTE_UNU
       else
 	{
 	  /* We have to clean up here.  */
-	  non_fatal (_("unable to rename '%s' reason: %s"), to, strerror (errno));
+	  non_fatal (_("unable to rename '%s'; reason: %s"), to, strerror (errno));
 	  unlink (from);
 	}
     }
@@ -207,7 +202,7 @@ smart_rename (const char *from, const char *to, int preserve_dates ATTRIBUTE_UNU
     {
       ret = simple_copy (from, to);
       if (ret != 0)
-	non_fatal (_("unable to copy file '%s' reason: %s"), to, strerror (errno));
+	non_fatal (_("unable to copy file '%s'; reason: %s"), to, strerror (errno));
 
       if (preserve_dates)
 	set_times (to, &s);

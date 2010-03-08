@@ -1,13 +1,13 @@
 /* corefile.c
 
-   Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005
+   Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008
    Free Software Foundation, Inc.
 
    This file is part of GNU Binutils.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -20,12 +20,14 @@
    Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA
    02110-1301, USA.  */
 
-#include "libiberty.h"
 #include "gprof.h"
+#include "libiberty.h"
 #include "search_list.h"
 #include "source.h"
 #include "symtab.h"
+#include "hist.h"
 #include "corefile.h"
+#include "safe-ctype.h"
 
 bfd *core_bfd;
 static int core_num_syms;
@@ -269,6 +271,11 @@ core_get_text_space (bfd *cbfd)
 void
 find_call (Sym *parent, bfd_vma p_lowpc, bfd_vma p_highpc)
 {
+  if (core_text_space == 0)
+    return;
+
+  hist_clip_symbol_address (&p_lowpc, &p_highpc);
+
   switch (bfd_get_arch (core_bfd))
     {
     case bfd_arch_i386:
@@ -359,8 +366,15 @@ core_sym_class (asymbol *sym)
 
   for (name = sym->name; *name; ++name)
     {
-      if (*name == '.' || *name == '$')
-	return 0;
+      if (*name == '$')
+        return 0;
+
+      /* Do not discard nested subprograms (those
+	 which end with .NNN, where N are digits).  */
+      if (*name == '.')
+	for (name++; *name; name++)
+	  if (! ISDIGIT (*name))
+	    return 0;
     }
 
   /* On systems where the C compiler adds an underscore to all
@@ -413,7 +427,8 @@ get_src_info (bfd_vma addr, const char **filename, const char **name, int *line_
   else
     {
       DBG (AOUTDEBUG, printf ("[get_src_info] no info for 0x%lx (%s:%d,%s)\n",
-			      (long) addr, fname ? fname : "<unknown>", l,
+			      (unsigned long) addr,
+			      fname ? fname : "<unknown>", l,
 			      func_name ? func_name : "<unknown>"));
       return FALSE;
     }
@@ -575,12 +590,6 @@ core_create_function_syms ()
       else
 	max_vma = MAX (symtab.limit->addr, max_vma);
 
-      /* If we see "main" without an initial '_', we assume names
-	 are *not* prefixed by '_'.  */
-      if (symtab.limit->name[0] == 'm' && discard_underscores
-	  && strcmp (symtab.limit->name, "main") == 0)
-	discard_underscores = 0;
-
       DBG (AOUTDEBUG, printf ("[core_create_function_syms] %ld %s 0x%lx\n",
 			      (long) (symtab.limit - symtab.base),
 			      symtab.limit->name,
@@ -739,12 +748,6 @@ core_create_line_syms ()
 	}
 
       prev = ltab.limit;
-
-      /* If we see "main" without an initial '_', we assume names
-	 are *not* prefixed by '_'.  */
-      if (ltab.limit->name[0] == 'm' && discard_underscores
-	  && strcmp (ltab.limit->name, "main") == 0)
-	discard_underscores = 0;
 
       DBG (AOUTDEBUG, printf ("[core_create_line_syms] %lu %s 0x%lx\n",
 			      (unsigned long) (ltab.limit - ltab.base),

@@ -1,12 +1,12 @@
 /* Binutils emulation layer.
-   Copyright 2002, 2003, 2006 Free Software Foundation, Inc.
+   Copyright 2002, 2003, 2006, 2007, 2008 Free Software Foundation, Inc.
    Written by Tom Rix, Red Hat Inc.
 
    This file is part of GNU Binutils.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -16,7 +16,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #include "binemul.h"
 #include "bfdlink.h"
@@ -34,15 +35,6 @@ static bfd_boolean X32 = TRUE;
 /* Whether to include 64 bit objects.  */
 static bfd_boolean X64 = FALSE;
 
-static void ar_emul_aix_usage (FILE *);
-static bfd_boolean ar_emul_aix_append (bfd **, char *, bfd_boolean);
-static bfd_boolean ar_emul_aix5_append (bfd **, char *, bfd_boolean);
-static bfd_boolean ar_emul_aix_replace (bfd **, char *, bfd_boolean);
-static bfd_boolean ar_emul_aix5_replace (bfd **, char *, bfd_boolean);
-static bfd_boolean ar_emul_aix_parse_arg (char *);
-static bfd_boolean ar_emul_aix_internal
-  (bfd **, char *, bfd_boolean, const char *, bfd_boolean);
-
 static void
 ar_emul_aix_usage (FILE *fp)
 {
@@ -55,8 +47,12 @@ ar_emul_aix_usage (FILE *fp)
 }
 
 static bfd_boolean
-ar_emul_aix_internal (bfd **after_bfd, char *file_name, bfd_boolean verbose,
-		      const char * target_name, bfd_boolean is_append)
+ar_emul_aix_internal (bfd **       after_bfd,
+		      char *       file_name,
+		      bfd_boolean  verbose,
+		      const char * target_name,
+		      bfd_boolean  is_append,
+		      bfd_boolean  flatten ATTRIBUTE_UNUSED)
 {
   bfd *temp;
   bfd *try_bfd;
@@ -89,38 +85,40 @@ ar_emul_aix_internal (bfd **after_bfd, char *file_name, bfd_boolean verbose,
     }
 
   *after_bfd = try_bfd;
-  (*after_bfd)->next = temp;
+  (*after_bfd)->archive_next = temp;
 
   return TRUE;
 }
 
 
 static bfd_boolean
-ar_emul_aix_append (bfd **after_bfd, char *file_name, bfd_boolean verbose)
+ar_emul_aix_append (bfd **after_bfd, char *file_name, bfd_boolean verbose,
+                    bfd_boolean flatten)
 {
   return ar_emul_aix_internal (after_bfd, file_name, verbose,
-			       "aixcoff64-rs6000", TRUE);
+			       "aixcoff64-rs6000", TRUE, flatten);
 }
 
 static bfd_boolean
-ar_emul_aix5_append (bfd **after_bfd, char *file_name, bfd_boolean verbose)
+ar_emul_aix5_append (bfd **after_bfd, char *file_name, bfd_boolean verbose,
+                     bfd_boolean flatten)
 {
   return ar_emul_aix_internal (after_bfd, file_name, verbose,
-			       "aix5coff64-rs6000", TRUE);
+			       "aix5coff64-rs6000", TRUE, flatten);
 }
 
 static bfd_boolean
 ar_emul_aix_replace (bfd **after_bfd, char *file_name, bfd_boolean verbose)
 {
   return ar_emul_aix_internal (after_bfd, file_name, verbose,
-			       "aixcoff64-rs6000", FALSE);
+			       "aixcoff64-rs6000", FALSE, FALSE);
 }
 
 static bfd_boolean
 ar_emul_aix5_replace (bfd **after_bfd, char *file_name, bfd_boolean verbose)
 {
   return ar_emul_aix_internal (after_bfd, file_name, verbose,
-			       "aix5coff64-rs6000", FALSE);
+			       "aix5coff64-rs6000", FALSE, FALSE);
 }
 
 static bfd_boolean

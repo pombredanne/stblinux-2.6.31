@@ -50,6 +50,15 @@
                   <a href="#applications">1. Applications of OProfile</a>
                 </span>
               </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#jitsupport">1.1. Support for dynamically compiled (JIT) code</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
               <dt>
                 <span class="sect1">
                   <a href="#requirements">2. System requirements</a>
@@ -119,54 +128,73 @@
               </dd>
               <dt>
                 <span class="sect1">
-                  <a href="#oprofile-gui">2. Using <span><strong class="command">oprof_start</strong></span></a>
-                </span>
-              </dt>
-              <dt>
-                <span class="sect1">
-                  <a href="#detailed-parameters">3. Configuration details</a>
+                  <a href="#setup-jit">2. Setting up the JIT profiling feature</a>
                 </span>
               </dt>
               <dd>
                 <dl>
                   <dt>
                     <span class="sect2">
-                      <a href="#hardware-counters">3.1. Hardware performance counters</a>
+                      <a href="#setup-jit-jvm">2.1. JVM instrumentation</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect1">
+                  <a href="#oprofile-gui">3. Using <span><strong class="command">oprof_start</strong></span></a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect1">
+                  <a href="#detailed-parameters">4. Configuration details</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#hardware-counters">4.1. Hardware performance counters</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#rtc">3.2. OProfile in RTC mode</a>
+                      <a href="#rtc">4.2. OProfile in RTC mode</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#timer">3.3. OProfile in timer interrupt mode</a>
+                      <a href="#timer">4.3. OProfile in timer interrupt mode</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#p4">3.4. Pentium 4 support</a>
+                      <a href="#p4">4.4. Pentium 4 support</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#ia64">3.5. Intel Itanium 2 support</a>
+                      <a href="#ia64">4.5. Intel Itanium 2 support</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#ppc64">3.6. PowerPC64 support</a>
+                      <a href="#ppc64">4.6. PowerPC64 support</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#cell-be">3.7. Cell Broadband Engine support</a>
+                      <a href="#cell-be">4.7. Cell Broadband Engine support</a>
                     </span>
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#misuse">3.8. Dangerous counter settings</a>
+                      <a href="#amd-ibs-support">4.8. AMD64 (x86_64) Instruction-Based Sampling (IBS) support</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#misuse">4.9. Dangerous counter settings</a>
                     </span>
                   </dt>
                 </dl>
@@ -199,7 +227,7 @@
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#id4742565">1.3. Locating and managing binary images</a>
+                      <a href="#locating-and-managing-binary-images">1.3. Locating and managing binary images</a>
                     </span>
                   </dt>
                   <dt>
@@ -274,42 +302,47 @@
               </dd>
               <dt>
                 <span class="sect1">
-                  <a href="#opgprof">4. <span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)</a>
+                  <a href="#getting-jit-reports">4. OProfile results with JIT samples</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect1">
+                  <a href="#opgprof">5. <span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)</a>
                 </span>
               </dt>
               <dd>
                 <dl>
                   <dt>
                     <span class="sect2">
-                      <a href="#opgprof-details">4.1. Usage of <span><strong class="command">opgprof</strong></span></a>
+                      <a href="#opgprof-details">5.1. Usage of <span><strong class="command">opgprof</strong></span></a>
                     </span>
                   </dt>
                 </dl>
               </dd>
               <dt>
                 <span class="sect1">
-                  <a href="#oparchive">5. Archiving measurements (<span><strong class="command">oparchive</strong></span>)</a>
+                  <a href="#oparchive">6. Archiving measurements (<span><strong class="command">oparchive</strong></span>)</a>
                 </span>
               </dt>
               <dd>
                 <dl>
                   <dt>
                     <span class="sect2">
-                      <a href="#oparchive-details">5.1. Usage of <span><strong class="command">oparchive</strong></span></a>
+                      <a href="#oparchive-details">6.1. Usage of <span><strong class="command">oparchive</strong></span></a>
                     </span>
                   </dt>
                 </dl>
               </dd>
               <dt>
                 <span class="sect1">
-                  <a href="#opimport">6. Converting sample database files (<span><strong class="command">opimport</strong></span>)</a>
+                  <a href="#opimport">7. Converting sample database files (<span><strong class="command">opimport</strong></span>)</a>
                 </span>
               </dt>
               <dd>
                 <dl>
                   <dt>
                     <span class="sect2">
-                      <a href="#opimport-details">6.1. Usage of <span><strong class="command">opimport</strong></span></a>
+                      <a href="#opimport-details">7.1. Usage of <span><strong class="command">opimport</strong></span></a>
                     </span>
                   </dt>
                 </dl>
@@ -393,7 +426,12 @@
               </dt>
               <dt>
                 <span class="sect1">
-                  <a href="#hidden-cost">6. Other discrepancies</a>
+                  <a href="#overlapping-symbols">6. Overlapping symbols in JITed code</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect1">
+                  <a href="#hidden-cost">7. Other discrepancies</a>
                 </span>
               </dt>
             </dl>
@@ -423,6 +461,15 @@
                 <a href="#applications">1. Applications of OProfile</a>
               </span>
             </dt>
+            <dd>
+              <dl>
+                <dt>
+                  <span class="sect2">
+                    <a href="#jitsupport">1.1. Support for dynamically compiled (JIT) code</a>
+                  </span>
+                </dt>
+              </dl>
+            </dd>
             <dt>
               <span class="sect1">
                 <a href="#requirements">2. System requirements</a>
@@ -446,7 +493,7 @@
           </dl>
         </div>
         <p>
-This manual applies to OProfile version 0.9.3.
+This manual applies to OProfile version 0.9.6.
 OProfile is a profiling system for Linux 2.2/2.4/2.6 systems on a number of architectures. It is capable of profiling
 all parts of a running system, from the kernel (including modules and interrupt handlers) to shared libraries
 to binaries. It runs transparently in the background collecting information at a low overhead. These
@@ -487,6 +534,9 @@ OProfile is useful in a number of situations. You might want to use OProfile whe
                 <p>need to profile an application and its shared libraries</p>
               </li>
               <li>
+                <p>need to profile dynamically compiled code of supported virtual machines (see <a href="#jitsupport" title="1.1. Support for dynamically compiled (JIT) code">Section 1.1, &#8220;Support for dynamically compiled (JIT) code&#8221;</a>)</p>
+              </li>
+              <li>
                 <p>need to capture the performance behaviour of entire system</p>
               </li>
               <li>
@@ -524,9 +574,47 @@ OProfile is not a panacea. OProfile might not be a complete solution when you :
                 <p>cannot tolerate any disturbance to the system whatsoever</p>
               </li>
               <li>
-                <p>need to profile interpreted or dynamically compiled code such as Java or Python</p>
+                <p>need to profile interpreted or dynamically compiled code of non-supported virtual machines</p>
               </li>
             </ul>
+          </div>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="jitsupport"></a>1.1. Support for dynamically compiled (JIT) code</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+Older versions of OProfile were not capable of attributing samples to symbols from dynamically
+compiled code, i.e. "just-in-time (JIT) code". Typical JIT compilers load the JIT code into
+anonymous memory regions. OProfile reported the samples from such code, but the attribution
+provided was simply:
+        </p>
+            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+              <tr>
+                <td>
+                  <pre class="screen">"anon: &lt;tgid&gt;&lt;address range&gt;" </pre>
+                </td>
+              </tr>
+            </table>
+            <p>
+Due to this limitation, it wasn't possible to profile applications executed by virtual machines (VMs)
+like the Java Virtual Machine. OProfile now contains an infrastructure to support JITed code.
+A development library is provided to allow developers
+to add support for any VM that produces dynamically compiled code (see the <span class="emphasis"><em>OProfile JIT agent
+developer guide</em></span>).
+In addition, built-in support is included for the following:</p>
+            <div class="itemizedlist">
+              <ul type="disc">
+                <li>JVMTI agent library for Java (1.5 and higher)</li>
+                <li>JVMPI agent library for Java (1.5 and lower)</li>
+              </ul>
+            </div>
+            <p>
+For information on how to use OProfile's JIT support, see <a href="#setup-jit" title="2. Setting up the JIT profiling feature">Section 2, &#8220;Setting up the JIT profiling feature&#8221;</a>.
+</p>
           </div>
         </div>
         <div class="sect1" lang="en" xml:lang="en">
@@ -565,11 +653,19 @@ OProfile is not a panacea. OProfile might not be a complete solution when you :
                        of 2.6.22 or more recent.  Additionally, full support of SPE profiling requires a BFD library
                        from binutils code dated January 2007 or later.  To ensure the proper BFD support exists, run
                        the <code class="code">configure</code> utility with <code class="code">--with-target=cell-be</code>.
+
+		       Profiling the Cell Broadband Engine using SPU events requires a kernel version of 2.6.29-rc1
+		       or  more recent.
+
                        </p>
                 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>Attempting to profile SPEs with kernel versions older than 2.6.22 may cause the
                        system to crash.</div>
                 <p>
-		</p>
+                       </p>
+                <p>
+			Instruction-Based Sampling (IBS) profile on AMD family10h processors requires 
+			kernel version 2.6.28-rc2 or later.
+			</p>
               </dd>
               <dt>
                 <span class="term">modutils 2.4.6 or above</span>
@@ -589,12 +685,12 @@ OProfile is not a panacea. OProfile might not be a complete solution when you :
 			required. In marketing terms this translates to anything
 			between an Intel Pentium Pro (not Pentium Classics) and
 			a Pentium 4 / Xeon, including all Celerons.  The AMD
-			Athlon, and Duron CPUs are also supported.  Other IA32
+			Athlon, Opteron, Phenom, and Turion CPUs are also supported.  Other IA32
 			CPU types only support the RTC mode of OProfile; please
 			see later in this manual for details.  Hyper-threaded Pentium IVs
 			are not supported in 2.4. For 2.4 kernels, the Intel
 			IA-64 CPUs are also supported. For 2.6 kernels, there is additionally
-			support for Alpha processors, MIPS, ARM, x86-64, sparc64, ppc64, and,
+			support for Alpha processors, MIPS, ARM, x86-64, sparc64, ppc64, AVR32, and,
 			in timer mode, PA-RISC and s390.
 		</p>
               </dd>
@@ -614,6 +710,21 @@ OProfile is not a panacea. OProfile might not be a complete solution when you :
 			These libraries are required : <code class="filename">popt</code>, <code class="filename">bfd</code>,
 			<code class="filename">liberty</code> (debian users: libiberty is provided in binutils-dev package), <code class="filename">dl</code>,
 			plus the standard C++ libraries.
+		</p>
+              </dd>
+              <dt>
+                <span class="term">Required user account</span>
+              </dt>
+              <dd>
+                <p>
+			For secure processing of sample data from JIT virtual machines (e.g., Java),
+			the special user account "oprofile" must exist on the system.  The 'configure'
+			and 'make install' operations will print warning messages if this
+			account is not found.  If you intend to profile JITed code, you must create
+			a group account named 'oprofile' and then create the 'oprofile' user account,
+			setting the default group to 'oprofile'.  A runtime error message is printed to
+			the oprofile daemon log when processing JIT samples if this special user
+			account cannot be found.
 		</p>
               </dd>
               <dt>
@@ -734,6 +845,62 @@ is often all you need, but note these arguments to <span><strong class="command"
               </dd>
               <dt>
                 <span class="term">
+                  <code class="option">--with-java</code>
+                </span>
+              </dt>
+              <dd>
+                <p>
+			Use this option if you need to profile Java applications.  Also, see
+			<a href="#requirements" title="2. System requirements">Section 2, &#8220;System requirements&#8221;</a>, "Required user account".  This option
+			is used to specify the location of the Java Development Kit (JDK)
+			source tree you wish to use. This is necessary to get the interface description
+			of the JVMPI (or JVMTI) interface to compile the JIT support code successfully.
+			</p>
+                <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+                  <h3 class="title">Note</h3>
+                  <p>
+				The Java Runtime Environment (JRE) does not include the development
+				files that are required to compile the JIT support code, so the full
+				JDK must be installed in order to use this option.
+				</p>
+                </div>
+                <p>
+			By default, the Oprofile JIT support libraries will be installed in
+			<code class="filename">&lt;oprof_install_dir&gt;/lib/oprofile</code>.  To build
+			and install OProfile and the JIT support libraries as 64-bit, you can
+			do something like the following:
+			</p>
+                <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+                  <tr>
+                    <td>
+                      <pre class="screen">
+			# CFLAGS="-m64" CXXFLAGS="-m64" ./configure \
+			--with-kernel-support --with-java={my_jdk_installdir} \
+			--libdir=/usr/local/lib64
+			</pre>
+                    </td>
+                  </tr>
+                </table>
+                <p>
+			</p>
+                <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+                  <h3 class="title">Note</h3>
+                  <p>
+				If you encounter errors building 64-bit, you should
+				install libtool 1.5.26 or later since that release of
+				libtool fixes known problems for certain platforms.
+				If you install libtool into a non-standard location,
+				you'll need to edit the invocation of 'aclocal' in
+				OProfile's autogen.sh as follows (assume an install
+				location of /usr/local):
+				</p>
+                  <p>
+				<code class="code">aclocal -I m4 -I /usr/local/share/aclocal</code>
+				</p>
+                </div>
+              </dd>
+              <dt>
+                <span class="term">
                   <code class="option">--with-kernel-support</code>
                 </span>
               </dt>
@@ -787,7 +954,7 @@ You'll need to have a configured kernel source for the current kernel
 to build the module for 2.4 kernels.  Since all distributions provide different kernels it's unlikely the running kernel match the configured source
 you installed. The safest way is to recompile your own kernel, run it and compile oprofile. It is also recommended that if you have a
 uniprocessor machine, you enable the local APIC / IO_APIC support for
-your kernel (this is automatically enabled for SMP kernels). With many BIOS, kernel &gt;= 2.6.9 and UP kernel it's not sufficient to enable the local APIC you must also turn it on explicitely at boot time by providing "lapic" option to the kernel. On
+your kernel (this is automatically enabled for SMP kernels). With many BIOS, kernel &gt;= 2.6.9 and UP kernel it's not sufficient to enable the local APIC you must also turn it on explicitly at boot time by providing "lapic" option to the kernel. On
 machines with power management, such as laptops, the power management
 must be turned off when using OProfile with 2.4 kernels. The power management software
 in the BIOS cannot handle the non-maskable interrupts (NMIs) used by
@@ -987,6 +1154,16 @@ This section gives a brief description of the available OProfile utilities and t
               </dd>
               <dt>
                 <span class="term">
+                  <code class="filename">agent libraries</code>
+                </span>
+              </dt>
+              <dd>
+                <p>
+			Used by virtual machines (like the Java VM) to record information about JITed code being profiled. See <a href="#setup-jit" title="2. Setting up the JIT profiling feature">Section 2, &#8220;Setting up the JIT profiling feature&#8221;</a>.
+		</p>
+              </dd>
+              <dt>
+                <span class="term">
                   <code class="filename">opreport</code>
                 </span>
               </dt>
@@ -1016,7 +1193,7 @@ This section gives a brief description of the available OProfile utilities and t
               <dd>
                 <p>
 		This utility can output gprof-style data files for a binary, for use with
-		<span><strong class="command">gprof -p</strong></span>. See <a href="#opgprof" title="4. gprof-compatible output (opgprof)">Section 4, &#8220;<span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)&#8221;</a>.
+		<span><strong class="command">gprof -p</strong></span>. See <a href="#opgprof" title="5. gprof-compatible output (opgprof)">Section 5, &#8220;<span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)&#8221;</a>.
 	</p>
               </dd>
               <dt>
@@ -1030,7 +1207,7 @@ This section gives a brief description of the available OProfile utilities and t
 		and sample files and copy the files into an archive.
 		The archive is self-contained and can be moved to another
 		machine for further analysis.
-		See <a href="#oparchive" title="5. Archiving measurements (oparchive)">Section 5, &#8220;Archiving measurements (<span><strong class="command">oparchive</strong></span>)&#8221;</a>.
+		See <a href="#oparchive" title="6. Archiving measurements (oparchive)">Section 6, &#8220;Archiving measurements (<span><strong class="command">oparchive</strong></span>)&#8221;</a>.
 	</p>
               </dd>
               <dt>
@@ -1043,7 +1220,7 @@ This section gives a brief description of the available OProfile utilities and t
 		This utility converts sample database files from a foreign binary format (abi) to
 		the native format. This is useful only when moving sample files between hosts,
 		for analysis on platforms other than the one used for collection.
-		See <a href="#opimport" title="6. Converting sample database files (opimport)">Section 6, &#8220;Converting sample database files (<span><strong class="command">opimport</strong></span>)&#8221;</a>.
+		See <a href="#opimport" title="7. Converting sample database files (opimport)">Section 7, &#8220;Converting sample database files (<span><strong class="command">opimport</strong></span>)&#8221;</a>.
 	</p>
               </dd>
             </dl>
@@ -1084,54 +1261,73 @@ This section gives a brief description of the available OProfile utilities and t
             </dd>
             <dt>
               <span class="sect1">
-                <a href="#oprofile-gui">2. Using <span><strong class="command">oprof_start</strong></span></a>
-              </span>
-            </dt>
-            <dt>
-              <span class="sect1">
-                <a href="#detailed-parameters">3. Configuration details</a>
+                <a href="#setup-jit">2. Setting up the JIT profiling feature</a>
               </span>
             </dt>
             <dd>
               <dl>
                 <dt>
                   <span class="sect2">
-                    <a href="#hardware-counters">3.1. Hardware performance counters</a>
+                    <a href="#setup-jit-jvm">2.1. JVM instrumentation</a>
+                  </span>
+                </dt>
+              </dl>
+            </dd>
+            <dt>
+              <span class="sect1">
+                <a href="#oprofile-gui">3. Using <span><strong class="command">oprof_start</strong></span></a>
+              </span>
+            </dt>
+            <dt>
+              <span class="sect1">
+                <a href="#detailed-parameters">4. Configuration details</a>
+              </span>
+            </dt>
+            <dd>
+              <dl>
+                <dt>
+                  <span class="sect2">
+                    <a href="#hardware-counters">4.1. Hardware performance counters</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#rtc">3.2. OProfile in RTC mode</a>
+                    <a href="#rtc">4.2. OProfile in RTC mode</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#timer">3.3. OProfile in timer interrupt mode</a>
+                    <a href="#timer">4.3. OProfile in timer interrupt mode</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#p4">3.4. Pentium 4 support</a>
+                    <a href="#p4">4.4. Pentium 4 support</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#ia64">3.5. Intel Itanium 2 support</a>
+                    <a href="#ia64">4.5. Intel Itanium 2 support</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#ppc64">3.6. PowerPC64 support</a>
+                    <a href="#ppc64">4.6. PowerPC64 support</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#cell-be">3.7. Cell Broadband Engine support</a>
+                    <a href="#cell-be">4.7. Cell Broadband Engine support</a>
                   </span>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#misuse">3.8. Dangerous counter settings</a>
+                    <a href="#amd-ibs-support">4.8. AMD64 (x86_64) Instruction-Based Sampling (IBS) support</a>
+                  </span>
+                </dt>
+                <dt>
+                  <span class="sect2">
+                    <a href="#misuse">4.9. Dangerous counter settings</a>
                   </span>
                 </dt>
               </dl>
@@ -1662,7 +1858,8 @@ The <code class="option">--event</code> option to <span><strong class="command">
 takes a specification that indicates how the details of each
 hardware performance counter should be setup. If you want to
 revert to OProfile's default setting (<code class="option">--event</code>
-is strictly optional), use <code class="option">--event=default</code>.
+is strictly optional), use <code class="option">--event=default</code>. Use of this
+option over-rides all previous event selections.
 </p>
             <p>
 You can pass multiple event specifications. OProfile will allocate
@@ -1670,15 +1867,6 @@ hardware counters as necessary. Note that some combinations are not
 allowed by the CPU; running <span><strong class="command">opcontrol --list-events</strong></span> gives the details
 of each event. The event specification is a colon-separated string
 of the form <code class="option"><span class="emphasis"><em>name</em></span>:<span class="emphasis"><em>count</em></span>:<span class="emphasis"><em>unitmask</em></span>:<span class="emphasis"><em>kernel</em></span>:<span class="emphasis"><em>user</em></span></code> as described in this table:
-</p>
-            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-              <h3 class="title">Note</h3>
-              <p>
-For the PowerPC platforms, all events specified must be in the same group; i.e., the group number
-appended to the event name (e.g. <code class="constant">&lt;<span class="emphasis"><em>some-event-name</em></span>&gt;_GRP9</code>) must be the same.
-</p>
-            </div>
-            <p>
 </p>
             <div class="informaltable">
               <table border="1">
@@ -1725,6 +1913,13 @@ The last three values are optional, if you omit them (e.g. <code class="option">
 they will be set to the default values (a unit mask of 0, and profiling both kernel and
 userspace code). Note that some events require a unit mask.
 </p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+              <h3 class="title">Note</h3>
+              <p>
+For the PowerPC platforms, all events specified must be in the same group; i.e., the group number
+appended to the event name (e.g. <code class="constant">&lt;<span class="emphasis"><em>some-event-name</em></span>&gt;_GRP9</code>) must be the same.
+</p>
+            </div>
             <p>
 If OProfile is using RTC mode, and you want to alter the default counter value,
 you can use something like <code class="option">--event=RTC_INTERRUPTS:2048</code>. Note the last
@@ -1789,6 +1984,11 @@ The table below lists the events selected by default
                     <td>CPU_CYCLES:100000:0:1:1</td>
                   </tr>
                   <tr>
+                    <td>AVR32</td>
+                    <td>avr32</td>
+                    <td>CPU_CYCLES:100000:0:1:1</td>
+                  </tr>
+                  <tr>
                     <td>Athlon</td>
                     <td>i386/athlon</td>
                     <td>CPU_CLK_UNHALTED:100000:0:1:1</td>
@@ -1826,6 +2026,16 @@ The table below lists the events selected by default
                   <tr>
                     <td>Hammer</td>
                     <td>x86-64/hammer</td>
+                    <td>CPU_CLK_UNHALTED:100000:0:1:1</td>
+                  </tr>
+                  <tr>
+                    <td>Family10h</td>
+                    <td>x86-64/family10</td>
+                    <td>CPU_CLK_UNHALTED:100000:0:1:1</td>
+                  </tr>
+                  <tr>
+                    <td>Family11h</td>
+                    <td>x86-64/family11h</td>
                     <td>CPU_CLK_UNHALTED:100000:0:1:1</td>
                   </tr>
                   <tr>
@@ -1872,7 +2082,85 @@ The table below lists the events selected by default
           <div class="titlepage">
             <div>
               <div>
-                <h2 class="title" style="clear: both"><a id="oprofile-gui"></a>2. Using <span><strong class="command">oprof_start</strong></span></h2>
+                <h2 class="title" style="clear: both"><a id="setup-jit"></a>2. Setting up the JIT profiling feature</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+		To gather information about JITed code from a virtual machine,
+		it needs to be instrumented with an agent library. We use the
+		agent libraries for Java in the following example. To use the
+		Java profiling feature, you must build OProfile with the "--with-java" option
+                (<a href="#install" title="4. Installation">Section 4, &#8220;Installation&#8221;</a>).
+
+	</p>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="setup-jit-jvm"></a>2.1. JVM instrumentation</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+			Add this to the startup parameters of the JVM (for JVMTI):
+
+			</p>
+            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+              <tr>
+                <td>
+                  <pre class="screen"><code xmlns="http://www.w3.org/1999/xhtml" class="option">-agentpath:&lt;libdir&gt;/libjvmti_oprofile.so[=&lt;options&gt;]</code> </pre>
+                </td>
+              </tr>
+            </table>
+            <p>
+			or
+			</p>
+            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+              <tr>
+                <td>
+                  <pre class="screen"><code xmlns="http://www.w3.org/1999/xhtml" class="option">-agentlib:jvmti_oprofile[=&lt;options&gt;]</code> </pre>
+                </td>
+              </tr>
+            </table>
+            <p>
+		</p>
+            <p>
+			The JVMPI agent implementation is enabled with the command line option
+			</p>
+            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+              <tr>
+                <td>
+                  <pre class="screen"><code xmlns="http://www.w3.org/1999/xhtml" class="option">-Xrunjvmpi_oprofile[:&lt;options&gt;]</code> </pre>
+                </td>
+              </tr>
+            </table>
+            <p>
+		</p>
+            <p>
+			Currently, there is just one option available -- <code class="option">debug</code>. For JVMPI,
+			the convention for specifying an option is <code class="option">option_name=[yes|no]</code>.
+			For JVMTI, the option specification is simply the option name, implying
+			"yes"; no option specified implies "no".
+		</p>
+            <p>
+                        The agent library (installed in <code class="filename">&lt;oprof_install_dir&gt;/lib/oprofile</code>)
+                        needs to be in the library search path (e.g. add the library directory
+                        to <code class="constant">LD_LIBRARY_PATH</code>). If the command line of
+                        the JVM is not accessible, it may be buried within shell scripts or a
+                        launcher program. It may also be possible to set an environment variable to add
+                        the instrumentation.
+                        For Sun JVMs this is <code class="constant">JAVA_TOOL_OPTIONS</code>. Please check
+                        your JVM documentation for
+                        further information on the agent startup options.
+                </p>
+          </div>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="oprofile-gui"></a>3. Using <span><strong class="command">oprof_start</strong></span></h2>
               </div>
             </div>
           </div>
@@ -1885,7 +2173,7 @@ so it does not provide more services than the script itself.
 After <span><strong class="command">oprof_start</strong></span> is started you can select the event type for each counter;
 the sampling rate and other related parameters are explained in <a href="#controlling-daemon" title="1. Using opcontrol">Section 1, &#8220;Using <span><strong class="command">opcontrol</strong></span>&#8221;</a>.
 The "Configuration" section allows you to set general parameters such as the buffer size, kernel filename
-etc. The counter setup interface should be self-explanatory; <a href="#hardware-counters" title="3.1. Hardware performance counters">Section 3.1, &#8220;Hardware performance counters&#8221;</a> and related 
+etc. The counter setup interface should be self-explanatory; <a href="#hardware-counters" title="4.1. Hardware performance counters">Section 4.1, &#8220;Hardware performance counters&#8221;</a> and related 
 links contain information on using unit masks.
 </p>
           <p>
@@ -1902,7 +2190,7 @@ Your configuration is saved in the same file as <span><strong class="command">op
           <div class="titlepage">
             <div>
               <div>
-                <h2 class="title" style="clear: both"><a id="detailed-parameters"></a>3. Configuration details</h2>
+                <h2 class="title" style="clear: both"><a id="detailed-parameters"></a>4. Configuration details</h2>
               </div>
             </div>
           </div>
@@ -1910,7 +2198,7 @@ Your configuration is saved in the same file as <span><strong class="command">op
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="hardware-counters"></a>3.1. Hardware performance counters</h3>
+                  <h3 class="title"><a id="hardware-counters"></a>4.1. Hardware performance counters</h3>
                 </div>
               </div>
             </div>
@@ -1918,19 +2206,19 @@ Your configuration is saved in the same file as <span><strong class="command">op
               <h3 class="title">Note</h3>
               <p>
 Your CPU type may not include the requisite support for hardware performance counters, in which case
-you must use OProfile in RTC mode in 2.4 (see <a href="#rtc" title="3.2. OProfile in RTC mode">Section 3.2, &#8220;OProfile in RTC mode&#8221;</a>), or timer mode in 2.6 (see <a href="#timer" title="3.3. OProfile in timer interrupt mode">Section 3.3, &#8220;OProfile in timer interrupt mode&#8221;</a>). 
+you must use OProfile in RTC mode in 2.4 (see <a href="#rtc" title="4.2. OProfile in RTC mode">Section 4.2, &#8220;OProfile in RTC mode&#8221;</a>), or timer mode in 2.6 (see <a href="#timer" title="4.3. OProfile in timer interrupt mode">Section 4.3, &#8220;OProfile in timer interrupt mode&#8221;</a>). 
 You do not really need to read this section unless you are interested in using 
 events other than the default event chosen by OProfile.
 </p>
             </div>
             <p>
 The Intel hardware performance counters are detailed in the Intel IA-32 Architecture Manual, Volume 3, available
-from <a href="http://developer.intel.com/">http://developer.intel.com/</a>. The AMD Athlon/Duron
-implementation is detailed in <a href="http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/22007.pdf">
+from <a href="http://developer.intel.com/">http://developer.intel.com/</a>. 
+The AMD Athlon/Opteron/Phenom/Turion implementation is detailed in <a href="http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/22007.pdf">
 http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/22007.pdf</a>.
 For PowerPC64 processors in IBM iSeries, pSeries, and blade server systems, processor documentation
-is available at <a href="http://www-306.ibm.com/chips/techlib/techlib.nsf/productfamilies/PowerPC/">
-http://www-306.ibm.com/chips/techlib/techlib.nsf/productfamilies/PowerPC</a>.  (For example, the
+is available at <a href="http://www-01.ibm.com/chips/techlib/techlib.nsf/productfamilies/PowerPC/">
+http://www-01.ibm.com/chips/techlib/techlib.nsf/productfamilies/PowerPC</a>.  (For example, the
 specific publication containing information on the performance monitor unit for the PowerPC970 is 
 "IBM PowerPC 970FX RISC Microprocessor User's Manual.")
 These processors are capable of delivering an interrupt when a counter overflows.
@@ -1977,7 +2265,7 @@ Specifying too small a value can lead to higher performance overhead.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="rtc"></a>3.2. OProfile in RTC mode</h3>
+                  <h3 class="title"><a id="rtc"></a>4.2. OProfile in RTC mode</h3>
                 </div>
               </div>
             </div>
@@ -2019,7 +2307,7 @@ event to <span><strong class="command">opcontrol</strong></span>, e.g. :
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="timer"></a>3.3. OProfile in timer interrupt mode</h3>
+                  <h3 class="title"><a id="timer"></a>4.3. OProfile in timer interrupt mode</h3>
                 </div>
               </div>
             </div>
@@ -2045,7 +2333,7 @@ built-in).
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="p4"></a>3.4. Pentium 4 support</h3>
+                  <h3 class="title"><a id="p4"></a>4.4. Pentium 4 support</h3>
                 </div>
               </div>
             </div>
@@ -2056,7 +2344,7 @@ particular set of events which are to be recorded, and CCCRs bind ESCRs to count
 operation. Unfortunately the relationship between these registers is quite complex; they cannot all be used with one
 another at any time. There is, however, a subset of 8 counters, 8 ESCRs, and 8 CCCRs which can be used independently of
 one another, so OProfile only accesses those registers, treating them as a bank of 8 "normal" counters, similar
-to those in the P6 or Athlon families of CPU.
+to those in the P6 or Athlon/Opteron/Phenom/Turion families of CPU.
 </p>
             <p>
 There is currently no support for Precision Event-Based Sampling (PEBS), nor any advanced uses of the Debug Store
@@ -2070,7 +2358,7 @@ though).
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="ia64"></a>3.5. Intel Itanium 2 support</h3>
+                  <h3 class="title"><a id="ia64"></a>4.5. Intel Itanium 2 support</h3>
                 </div>
               </div>
             </div>
@@ -2094,7 +2382,7 @@ existing interrupt-based model to the PMU hardware.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="ppc64"></a>3.6. PowerPC64 support</h3>
+                  <h3 class="title"><a id="ppc64"></a>4.6. PowerPC64 support</h3>
                 </div>
               </div>
             </div>
@@ -2124,7 +2412,7 @@ results -- typically, zero (or near zero) samples in the generated report.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="cell-be"></a>3.7. Cell Broadband Engine support</h3>
+                  <h3 class="title"><a id="cell-be"></a>4.7. Cell Broadband Engine support</h3>
                 </div>
               </div>
             </div>
@@ -2150,6 +2438,12 @@ separation parameters (separate=cpu,lib) to ensure that sufficient information
 is collected in the sample data in order to generate a complete report.  The
 --merge=cpu option can be used to obtain a more readable report if analyzing
 the performance of each separate SPU is not necessary.
+</p>
+            <p>
+Profiling with an SPU event (events 4100 through 4163) is not compatible with any other
+event.  Further more, only one SPU event can be specified at a time.  The hardware only
+supports profiling on one SPU per node at a time.  The OProfile kernel code time slices
+between the eight SPUs to collect data on all SPUs.
 </p>
             <p>
 SPU profile reports have some unique characteristics compared to reports for
@@ -2180,7 +2474,101 @@ with -g to facilitate finding the right source file(s) on which to focus.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="misuse"></a>3.8. Dangerous counter settings</h3>
+                  <h3 class="title"><a id="amd-ibs-support"></a>4.8. AMD64 (x86_64) Instruction-Based Sampling (IBS) support</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+Instruction-Based Sampling (IBS) is a new performance measurement technique
+available on AMD Family 10h processors. Traditional performance counter
+sampling is not precise enough to isolate performance issues to individual
+instructions. IBS, however, precisely identifies instructions which are not
+making the best use of the processor pipeline and memory hierarchy.
+For more information, please refer to the "Instruction-Based Sampling:
+A New Performance Analysis Technique for AMD Family 10h Processors" (
+<a href="http://developer.amd.com/assets/AMD_IBS_paper_EN.pdf">
+http://developer.amd.com/assets/AMD_IBS_paper_EN.pdf</a>).
+There are two types of IBS profile types, described in the following sections.
+</p>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="ibs-fetch"></a>4.8.1. IBS Fetch</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
+IBS fetch sampling is a statistical sampling method which counts completed
+fetch operations. When the number of completed fetch operations reaches the
+maximum fetch count (the sampling period), IBS tags the fetch operation and
+monitors that operation until it either completes or aborts. When a tagged
+fetch completes or aborts, a sampling interrupt is generated and an IBS fetch
+sample is taken. An IBS fetch sample contains a timestamp, the identifier of
+the interrupted process, the virtual fetch address, and several event flags
+and values that describe what happened during the fetch operation. 
+</p>
+            </div>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="ibs-op"></a>4.8.2. IBS Op</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
+IBS op sampling selects, tags, and monitors macro-ops as issued from AMD64
+instructions. Two options are available for selecting ops for sampling:
+</p>
+              <div class="itemizedlist">
+                <ul type="disc">
+                  <li>
+Cycles-based selection counts CPU clock cycles. The op is tagged and monitored
+when the count reaches a threshold (the sampling period) and a valid op is
+available. 
+</li>
+                  <li>
+Dispatched op-based selection counts dispatched macro-ops.
+When the count reaches a threshold, the next valid op is tagged and monitored. 
+</li>
+                </ul>
+              </div>
+              <p>
+In both cases, an IBS sample is generated only if the tagged op retires.
+Thus, IBS op event information does not measure speculative execution activity.
+The execution stages of the pipeline monitor the tagged macro-op. When the
+tagged macro-op retires, a sampling interrupt is generated and an IBS op
+sample is taken. An IBS op sample contains a timestamp, the identifier of
+the interrupted process, the virtual address of the AMD64 instruction from
+which the op was issued, and several event flags and values that describe
+what happened when the macro-op executed.
+</p>
+            </div>
+            <p>
+Enabling IBS profiling is done simply by specifying IBS performance events
+through the "--event=" options. These events are listed in the
+<code class="function">opcontrol --list-events</code>.
+</p>
+            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+              <tr>
+                <td>
+                  <pre class="screen">
+opcontrol --event=IBS_FETCH_XXX:&lt;count&gt;:&lt;um&gt;:&lt;kernel&gt;:&lt;user&gt;
+opcontrol --event=IBS_OP_XXX:&lt;count&gt;:&lt;um&gt;:&lt;kernel&gt;:&lt;user&gt;
+
+Note: * All IBS fetch event must have the same event count and unitmask,
+        as do those for IBS op.
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="misuse"></a>4.9. Dangerous counter settings</h3>
                 </div>
               </div>
             </div>
@@ -2247,7 +2635,7 @@ is really dependent on the event type - if ever in doubt, e-mail </p>
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#id4742565">1.3. Locating and managing binary images</a>
+                    <a href="#locating-and-managing-binary-images">1.3. Locating and managing binary images</a>
                   </span>
                 </dt>
                 <dt>
@@ -2322,42 +2710,47 @@ is really dependent on the event type - if ever in doubt, e-mail </p>
             </dd>
             <dt>
               <span class="sect1">
-                <a href="#opgprof">4. <span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)</a>
+                <a href="#getting-jit-reports">4. OProfile results with JIT samples</a>
+              </span>
+            </dt>
+            <dt>
+              <span class="sect1">
+                <a href="#opgprof">5. <span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)</a>
               </span>
             </dt>
             <dd>
               <dl>
                 <dt>
                   <span class="sect2">
-                    <a href="#opgprof-details">4.1. Usage of <span><strong class="command">opgprof</strong></span></a>
+                    <a href="#opgprof-details">5.1. Usage of <span><strong class="command">opgprof</strong></span></a>
                   </span>
                 </dt>
               </dl>
             </dd>
             <dt>
               <span class="sect1">
-                <a href="#oparchive">5. Archiving measurements (<span><strong class="command">oparchive</strong></span>)</a>
+                <a href="#oparchive">6. Archiving measurements (<span><strong class="command">oparchive</strong></span>)</a>
               </span>
             </dt>
             <dd>
               <dl>
                 <dt>
                   <span class="sect2">
-                    <a href="#oparchive-details">5.1. Usage of <span><strong class="command">oparchive</strong></span></a>
+                    <a href="#oparchive-details">6.1. Usage of <span><strong class="command">oparchive</strong></span></a>
                   </span>
                 </dt>
               </dl>
             </dd>
             <dt>
               <span class="sect1">
-                <a href="#opimport">6. Converting sample database files (<span><strong class="command">opimport</strong></span>)</a>
+                <a href="#opimport">7. Converting sample database files (<span><strong class="command">opimport</strong></span>)</a>
               </span>
             </dt>
             <dd>
               <dl>
                 <dt>
                   <span class="sect2">
-                    <a href="#opimport-details">6.1. Usage of <span><strong class="command">opimport</strong></span></a>
+                    <a href="#opimport-details">7.1. Usage of <span><strong class="command">opimport</strong></span></a>
                   </span>
                 </dt>
               </dl>
@@ -2711,7 +3104,7 @@ Differential profile of an archived binary with the current session :
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="id4742565"></a>1.3. Locating and managing binary images</h3>
+                  <h3 class="title"><a id="locating-and-managing-binary-images"></a>1.3. Locating and managing binary images</h3>
                 </div>
               </div>
             </div>
@@ -2934,14 +3327,25 @@ You can restrict which events to list by appropriate use of the
               </div>
             </div>
             <p>
+This section provides details on how to use the OProfile callgraph feature.
+</p>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="op-cg1"></a>2.3.1. Callgraph details</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
 When using the <code class="option">opcontrol --callgraph</code> option, you can see what
 functions are calling other functions in the output. Consider the
 following program:
 </p>
-            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
-              <tr>
-                <td>
-                  <pre class="screen">
+              <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+                <tr>
+                  <td>
+                    <pre class="screen">
 #include &lt;string.h&gt;
 #include &lt;stdlib.h&gt;
 #include &lt;stdio.h&gt;
@@ -2973,19 +3377,19 @@ int main()
                 repeat();
 }
 </pre>
-                </td>
-              </tr>
-            </table>
-            <p>
+                  </td>
+                </tr>
+              </table>
+              <p>
 When running with the call-graph option, OProfile will
 record the function stack every time it takes a sample.
 <span><strong class="command">opreport --callgraph</strong></span> outputs an entry for each
 function, where each entry looks similar to:
 </p>
-            <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
-              <tr>
-                <td>
-                  <pre class="screen">
+              <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+                <tr>
+                  <td>
+                    <pre class="screen">
 samples  %        image name               symbol name
   197       0.1548  cg                       main
   127036   99.8452  cg                       repeat
@@ -2995,16 +3399,16 @@ samples  %        image name               symbol name
   3475      2.7312  libc-2.3.2.so            __i686.get_pc_thunk.bx
 -------------------------------------------------------------------------------
 </pre>
-                </td>
-              </tr>
-            </table>
-            <p>
+                  </td>
+                </tr>
+              </table>
+              <p>
 Here the non-indented line is the function we're focussing upon
 (<code class="function">strfry()</code>). This
 line is the same as you'd get from a normal <span><strong class="command">opreport</strong></span>
 output.
 </p>
-            <p>
+              <p>
 Above the non-indented line we find the functions that called this
 function (for example, <code class="function">repeat()</code> calls
 <code class="function">strfry()</code>). The samples and percentage values here
@@ -3015,7 +3419,7 @@ function we're focussing on. Note that these values are
 every time a sample is taken; that is, if a call is found in the stack
 at the time of a sample, it is recorded in this count.
 </p>
-            <p>
+              <p>
 Below the line are functions that are called by
 <code class="function">strfry()</code> (called <span class="emphasis"><em>callees</em></span>).
 It's clear here that <code class="function">strfry()</code> calls
@@ -3027,11 +3431,55 @@ calls. Note that if a function calls itself, then it will appear in the
 list of callees of itself, but without the "[self]" marker; so recursive
 calls are still clearly separable.
 </p>
-            <p>
+              <p>
 You may have noticed that the output lists <code class="function">main()</code>
 as calling <code class="function">strfry()</code>, but it's clear from the source
 that this doesn't actually happen. See <a href="#interpreting-callgraph" title="3. Interpreting call-graph profiles">Section 3, &#8220;Interpreting call-graph profiles&#8221;</a> for an explanation.
 </p>
+            </div>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="cg-with-jitsupport"></a>2.3.2. Callgraph and JIT support</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
+Callgraph output where anonymously mapped code is in the callstack can sometimes be misleading.
+For all such code, the samples for the anonymously mapped code are stored in a samples subdirectory
+named <code class="filename">{anon:anon}/&lt;tgid&gt;.&lt;begin_addr&gt;.&lt;end_addr&gt;</code>.
+As stated earlier, if this anonymously mapped code is JITed code from a supported VM like Java,
+OProfile creates an ELF file to provide a (somewhat) permanent backing file for the code.
+However, when viewing callgraph output, any anonymously mapped code in the callstack
+will be attributed to <code class="filename">anon (&lt;tgid&gt;: range:&lt;begin_addr&gt;-&lt;end_addr&gt;</code>,
+even if a <code class="filename">.jo</code> ELF file had been created for it.  See the example below.
+</p>
+              <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+                <tr>
+                  <td>
+                    <pre class="screen">
+-------------------------------------------------------------------------------
+  1         2.2727  libj9ute23.so            java.bin                 traceV
+  2         4.5455  libj9ute23.so            java.bin                 utsTraceV
+  4         9.0909  libj9trc23.so            java.bin                 fillInUTInterfaces
+  37       84.0909  libj9trc23.so            java.bin                 twGetSequenceCounter
+8         0.0154  libj9prt23.so            java.bin                 j9time_hires_clock
+  27       61.3636  anon (tgid:10014 range:0x100000-0x103000) java.bin                 (no symbols)
+  9        20.4545  libc-2.4.so              java.bin                 gettimeofday
+  8        18.1818  libj9prt23.so            java.bin                 j9time_hires_clock [self]
+-------------------------------------------------------------------------------
+</pre>
+                  </td>
+                </tr>
+              </table>
+              <p>
+The output shows that "anon (tgid:10014 range:0x100000-0x103000)" was a callee of
+<code class="code">j9time_hires_clock</code>, even though the ELF file <code class="filename">10014.jo</code> was
+created for this profile run.  Unfortunately, there is currently no way to correlate
+that anonymous callgraph entry with its corresponding <code class="filename">.jo</code> file.
+</p>
+            </div>
           </div>
           <div class="sect2" lang="en" xml:lang="en">
             <div class="titlepage">
@@ -3144,37 +3592,43 @@ considered different.
             </div>
             <p>
 Many applications, typically ones involving dynamic compilation into
-machine code, have executable mappings that are not backed by an ELF
-file. <span><strong class="command">opreport</strong></span> has basic support for showing the
+machine code (just-in-time, or "JIT", compilation), have executable mappings that
+are not backed by an ELF file. <span><strong class="command">opreport</strong></span> has basic support for showing the
 samples taken in these regions; for example:
 </p>
             <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
               <tr>
                 <td>
                   <pre class="screen">
-$ opreport /usr/jre1.5.0/bin/java
-CPU: PIII, speed 863.195 MHz (estimated)
-Counted CPU_CLK_UNHALTED events (clocks processor is not halted) with a unit mask of 0x00 (No unit mask) count 100000
-CPU_CLK_UNHALT...|
-  samples|      %|
-------------------
-    27344 100.000 java
-        CPU_CLK_UNHALT...|
-          samples|      %|
-        ------------------
-            27236  99.605 anon (tgid:12135 range:0xb2cb8000-0xb2e80000)
-              108  0.3949 java
+$ opreport /usr/bin/mono -l
+CPU: ppc64 POWER5, speed 1654.34 MHz (estimated)
+Counted CYCLES events (Processor Cycles using continuous sampling) with a unit mask of 0x00 (No unit mask) count 100000
+samples  %        image name    		                symbol name
+47       58.7500  mono                     			(no symbols)
+14       17.5000  anon (tgid:3189 range:0xf72aa000-0xf72fa000)  (no symbols)
+9        11.2500  anon (tgid:3189 range:0xf6cca000-0xf6dd9000)  (no symbols)
+.	 .	  .						.
 </pre>
                 </td>
               </tr>
             </table>
             <p>
-Currently, there is no support for getting symbol-based summaries for
-such regions. Note that, since such mappings are dependent upon
-individual invocations of a binary, these mappings are always listed as
-a dependent image, even when using <code class="option">--separate=none</code>.
+</p>
+            <p>
+Note that, since such mappings are dependent upon individual invocations of
+a binary, these mappings are always listed as a dependent image,
+even when using <code class="option">--separate=none</code>.
 Equally, the results are not affected by the <code class="option">--merge</code>
 option.
+</p>
+            <p>
+As shown in the opreport output above, OProfile is unable to attribute the samples to any
+symbol(s) because there is no ELF file for this code.
+Enhanced support for JITed code is now available for some virtual machines; 
+e.g., the Java Virtual Machine.  For details about OProfile output for
+JITed code, see <a href="#getting-jit-reports" title="4. OProfile results with JIT samples">Section 4, &#8220;OProfile results with JIT samples&#8221;</a>.
+</p>
+            <p>For more information about JIT support in OProfile, see <a href="#jitsupport" title="1.1. Support for dynamically compiled (JIT) code">Section 1.1, &#8220;Support for dynamically compiled (JIT) code&#8221;</a>.
 </p>
           </div>
           <div class="sect2" lang="en" xml:lang="en">
@@ -3190,7 +3644,7 @@ The -xml option can be used to generate XML instead of the usual
 text format.  This allows opreport to eliminate some of the constraints
 dictated by the two dimensional text format.  For example, it is possible
 to separate the sample data across multiple events, cpus and threads.  The XML
-schema implemented by opreport is found in doc/opreport.1.0.xsd. It contains
+schema implemented by opreport is found in doc/opreport.xsd. It contains
 more detailed comments about the structure of the XML generated by opreport.
 </p>
             <p>
@@ -3318,6 +3772,16 @@ Show help message.
                   <p>
 Comma-separated list of additional paths to search for binaries.
 This is needed to find modules in kernels 2.6 and upwards.
+</p>
+                </dd>
+                <dt>
+                  <span class="term">
+                    <code class="option">--root / -R [path]</code>
+                  </span>
+                </dt>
+                <dd>
+                  <p>
+A path to a filesystem to search for additional binaries.
 </p>
                 </dd>
                 <dt>
@@ -3484,7 +3948,7 @@ If the binary doesn't contain sufficient debug information, you can still
 use <span><strong class="command">opannotate <code class="option">--assembly</code></strong></span> to get annotated assembly.
 </p>
           <p>
-Note that for the reason explained in <a href="#hardware-counters" title="3.1. Hardware performance counters">Section 3.1, &#8220;Hardware performance counters&#8221;</a> the results can be
+Note that for the reason explained in <a href="#hardware-counters" title="4.1. Hardware performance counters">Section 4.1, &#8220;Hardware performance counters&#8221;</a> the results can be
 inaccurate. The debug information itself can add other problems; for example, the line number for a symbol can be
 incorrect. Assembly instructions can be re-ordered and moved by the compiler, and this can lead to
 crediting source lines with samples not really "owned" by this line. Also see
@@ -3684,6 +4148,16 @@ This is needed to find modules in kernels 2.6 and upwards.
                 </dd>
                 <dt>
                   <span class="term">
+                    <code class="option">--root / -R [path]</code>
+                  </span>
+                </dt>
+                <dd>
+                  <p>
+A path to a filesystem to search for additional binaries.
+</p>
+                </dd>
+                <dt>
+                  <span class="term">
                     <code class="option">--include-file [files]</code>
                   </span>
                 </dt>
@@ -3784,7 +4258,90 @@ Show version.
           <div class="titlepage">
             <div>
               <div>
-                <h2 class="title" style="clear: both"><a id="opgprof"></a>4. <span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)</h2>
+                <h2 class="title" style="clear: both"><a id="getting-jit-reports"></a>4. OProfile results with JIT samples</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+		After profiling a Java (or other supported VM) application, the command
+		</p>
+          <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+            <tr>
+              <td>
+                <pre class="screen"><span xmlns="http://www.w3.org/1999/xhtml"><strong class="command">"opcontrol --dump"</strong></span> </pre>
+              </td>
+            </tr>
+          </table>
+          <p>
+		flushes the sample buffers and creates ELF binaries from the
+		intermediate files that were written by the agent library.
+		The ELF binaries are named <code class="filename">&lt;tgid&gt;.jo</code>.
+		With the symbol information stored in these ELF files, it is
+		possible to map samples to the appropriate symbols.
+	</p>
+          <p>
+		The usual analysis tools (<span><strong class="command">opreport</strong></span> and/or 
+		<span><strong class="command">opannotate</strong></span>) can now be used
+		to get symbols and assembly code for the instrumented VM processes.
+	</p>
+          <p>
+Below is an example of a profile report of a Java application that has been
+instrumented with the provided agent library.
+</p>
+          <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+            <tr>
+              <td>
+                <pre class="screen">
+$ opreport -l /usr/lib/jvm/jre-1.5.0-ibm/bin/java
+CPU: Core Solo / Duo, speed 2167 MHz (estimated)
+Counted CPU_CLK_UNHALTED events (Unhalted clock cycles) with a unit mask of 0x00 (Unhalted core cycles) count 100000
+samples  %        image name               symbol name
+186020   50.0523  no-vmlinux               no-vmlinux               (no symbols)
+34333     9.2380  7635.jo                  java                     void test.f1()
+19022     5.1182  libc-2.5.so              libc-2.5.so              _IO_file_xsputn@@GLIBC_2.1
+18762     5.0483  libc-2.5.so              libc-2.5.so              vfprintf
+16408     4.4149  7635.jo                  java                     void test$HelloThread.run()
+16250     4.3724  7635.jo                  java                     void test$test_1.f2(int)
+15303     4.1176  7635.jo                  java                     void test.f2(int, int)
+13252     3.5657  7635.jo                  java                     void test.f2(int)
+5165      1.3897  7635.jo                  java                     void test.f4()
+955       0.2570  7635.jo                  java                     void test$HelloThread.run()~
+
+</pre>
+              </td>
+            </tr>
+          </table>
+          <p>
+</p>
+          <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+            <h3 class="title">Note</h3>
+            <p>
+	  Depending on the JVM that is used, certain options of opreport and opannotate
+	  do NOT work since they rely on debug information (e.g. source code line number)
+	  that is not always available. The Sun JVM does provide the necessary debug
+	  information via the JVMTI[PI] interface,
+	  but other JVMs do not.
+  </p>
+          </div>
+          <p>
+		As you can see in the opreport output, the JIT support agent for Java
+		generates symbols to include the class and method signature.
+		A symbol with the suffix &#732;&lt;n&gt; (e.g.
+		<code class="code">void test$HelloThread.run()&#732;1</code>) means that this is
+		the &lt;n&gt;th occurrence of the identical name. This happens if a method is re-JITed.
+		A symbol with the suffix %&lt;n&gt;, means that the address space of this symbol
+		was reused during the sample session (see <a href="#overlapping-symbols" title="6. Overlapping symbols in JITed code">Section 6, &#8220;Overlapping symbols in JITed code&#8221;</a>).
+		The value &lt;n&gt; is the percentage of time that this symbol/code was present in
+		relation to the total lifetime of all overlapping other symbols. A symbol of the form
+		<code class="code">&lt;return_val&gt; &lt;class_name&gt;$&lt;method_sig&gt;</code> denotes an
+		inner class.
+	</p>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="opgprof"></a>5. <span><strong class="command">gprof</strong></span>-compatible output (<span><strong class="command">opgprof</strong></span>)</h2>
               </div>
             </div>
           </div>
@@ -3819,7 +4376,7 @@ Each sample counts as 1 samples.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="opgprof-details"></a>4.1. Usage of <span><strong class="command">opgprof</strong></span></h3>
+                  <h3 class="title"><a id="opgprof-details"></a>5.1. Usage of <span><strong class="command">opgprof</strong></span></h3>
                 </div>
               </div>
             </div>
@@ -3844,6 +4401,16 @@ Show help message.
                   <p>
 Comma-separated list of additional paths to search for binaries.
 This is needed to find modules in kernels 2.6 and upwards.
+</p>
+                </dd>
+                <dt>
+                  <span class="term">
+                    <code class="option">--root / -R [path]</code>
+                  </span>
+                </dt>
+                <dd>
+                  <p>
+A path to a filesystem to search for additional binaries.
 </p>
                 </dd>
                 <dt>
@@ -3895,7 +4462,7 @@ Show version.
           <div class="titlepage">
             <div>
               <div>
-                <h2 class="title" style="clear: both"><a id="oparchive"></a>5. Archiving measurements (<span><strong class="command">oparchive</strong></span>)</h2>
+                <h2 class="title" style="clear: both"><a id="oparchive"></a>6. Archiving measurements (<span><strong class="command">oparchive</strong></span>)</h2>
               </div>
             </div>
           </div>
@@ -3924,7 +4491,7 @@ Show version.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="oparchive-details"></a>5.1. Usage of <span><strong class="command">oparchive</strong></span></h3>
+                  <h3 class="title"><a id="oparchive-details"></a>6.1. Usage of <span><strong class="command">oparchive</strong></span></h3>
                 </div>
               </div>
             </div>
@@ -3961,6 +4528,16 @@ used --separate.
                   <p>
 Comma-separated list of additional paths to search for binaries.
 This is needed to find modules in kernels 2.6 and upwards.
+</p>
+                </dd>
+                <dt>
+                  <span class="term">
+                    <code class="option">--root / -R [path]</code>
+                  </span>
+                </dt>
+                <dd>
+                  <p>
+A path to a filesystem to search for additional binaries.
 </p>
                 </dd>
                 <dt>
@@ -4011,7 +4588,7 @@ Show version.
           <div class="titlepage">
             <div>
               <div>
-                <h2 class="title" style="clear: both"><a id="opimport"></a>6. Converting sample database files (<span><strong class="command">opimport</strong></span>)</h2>
+                <h2 class="title" style="clear: both"><a id="opimport"></a>7. Converting sample database files (<span><strong class="command">opimport</strong></span>)</h2>
               </div>
             </div>
           </div>
@@ -4040,7 +4617,7 @@ Show version.
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="opimport-details"></a>6.1. Usage of <span><strong class="command">opimport</strong></span></h3>
+                  <h3 class="title"><a id="opimport-details"></a>7.1. Usage of <span><strong class="command">opimport</strong></span></h3>
                 </div>
               </div>
             </div>
@@ -4198,7 +4775,12 @@ Show version.
             </dt>
             <dt>
               <span class="sect1">
-                <a href="#hidden-cost">6. Other discrepancies</a>
+                <a href="#overlapping-symbols">6. Overlapping symbols in JITed code</a>
+              </span>
+            </dt>
+            <dt>
+              <span class="sect1">
+                <a href="#hidden-cost">7. Other discrepancies</a>
               </span>
             </dt>
           </dl>
@@ -4318,7 +4900,7 @@ problem and OProfile can do nothing about it.
             </div>
             <p>
 OProfile uses non-maskable interrupts (NMI) on the P6 generation, Pentium 4,
-Athlon and Duron processors. These interrupts can occur even in section of the
+Athlon, Opteron, Phenom, and Turion processors. These interrupts can occur even in section of the
 Linux where interrupts are disabled, allowing collection of samples in virtually
 all executable code.  The RTC, timer interrupt mode, and Itanium 2 collection mechanisms
 use maskable interrupts. Thus, the RTC and Itanium 2 data collection mechanism have "sample
@@ -4722,7 +5304,37 @@ Note that OProfile does not need the global attribute, only the function attribu
           <div class="titlepage">
             <div>
               <div>
-                <h2 class="title" style="clear: both"><a id="hidden-cost"></a>6. Other discrepancies</h2>
+                <h2 class="title" style="clear: both"><a id="overlapping-symbols"></a>6. Overlapping symbols in JITed code</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+	Some virtual machines (e.g., Java) may re-JIT a method, resulting in previously
+	allocated space for a piece of compiled code to be reused. This means that, at one distinct
+	code address, multiple symbols/methods may be present during the run time of the application.
+	</p>
+          <p>
+	Since OProfile samples are buffered and don&#8242;t have timing information, there is no way
+	to correlate samples with the (possibly) varying address ranges in which the code for a symbol
+	may reside.
+	An alternative would be flushing the OProfile sampling buffer when we get an unload event,
+	but this could result in high overhead.
+	</p>
+          <p>
+	To moderate the problem of overlapping symbols, OProfile tries to select the symbol that was
+	present at this address range most of the time. Additionally, other overlapping symbols
+	are truncated in the overlapping area.
+	This gives reasonable results, because in reality, address reuse typically takes place
+	during phase changes of the application -- in particular, during application  startup.
+	Thus, for optimum profiling results, start the sampling session after application startup
+	and burn in.
+	</p>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="hidden-cost"></a>7. Other discrepancies</h2>
               </div>
             </div>
           </div>
@@ -4735,7 +5347,7 @@ list: mis-predicted branch, TLB cache miss, partial register stall,
 partial register dependencies, memory mismatch stall, re-executed µops. If you want to write
 programs at the assembly level, be sure to take a look at the Intel and
 AMD documentation at <a href="http://developer.intel.com/">http://developer.intel.com/</a>
-and <a href="http://www.amd.com/products/cpg/athlon/techdocs/">http://www.amd.com/products/cpg/athlon/techdocs/</a>.
+and <a href="http://developer.amd.com/devguides.jsp/">http://developer.amd.com/devguides.jsp</a>.
 </p>
         </div>
       </div>

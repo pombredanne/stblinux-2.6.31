@@ -135,8 +135,8 @@ public:
 	void caller_sym(symbol_index_t i) {
 		sym = symbol_entry();
 
-		unsigned long start;
-		unsigned long end;
+		unsigned long long start;
+		unsigned long long end;
 		b.get_symbol_range(i, start, end);
 
 		samples.clear();
@@ -164,7 +164,7 @@ public:
 
 		sym.size = end - start;
 		sym.name = symbol_names.create(b.syms[i].name());
-		sym.sample.vma = b.sym_offset(i, start) + b.syms[i].vma();
+		sym.sample.vma = b.syms[i].vma();
 
 		finish_sym(i, start);
 
@@ -179,7 +179,7 @@ public:
 	bool callee_sym(u32 off) {
 		sym = symbol_entry();
 
-		symbol_index_t i;
+		symbol_index_t i = 0;
 		op_bfd_symbol const * bfdsym =
 			get_symbol_by_filepos(b, boffset, off, i);
 
@@ -386,26 +386,26 @@ process(count_array_t total, double threshold,
 }
 
 
-const symbol_collection & arc_recorder::get_symbols() const
+symbol_collection const & arc_recorder::get_symbols() const
 {
 	return cg_syms;
 }
 
 
-void callgraph_container::populate(string const & archive_path, 
-   list<inverted_profile> const & iprofiles,
+void callgraph_container::populate(list<inverted_profile> const & iprofiles,
    extra_images const & extra, bool debug_info, double threshold,
    bool merge_lib, string_filter const & sym_filter)
 {
+	this->extra_found_images = extra;
 	// non callgraph samples container, we record sample at symbol level
 	// not at vma level.
-	profile_container pc(debug_info, false);
+	profile_container pc(debug_info, false, extra_found_images);
 
 	list<inverted_profile>::const_iterator it;
 	list<inverted_profile>::const_iterator const end = iprofiles.end();
 	for (it = iprofiles.begin(); it != end; ++it) {
 		// populate_caller_image take care about empty sample filename
-		populate_for_image(archive_path, pc, *it, sym_filter, 0);
+		populate_for_image(pc, *it, sym_filter, 0);
 	}
 
 	add_symbols(pc);
@@ -414,7 +414,7 @@ void callgraph_container::populate(string const & archive_path,
 
 	for (it = iprofiles.begin(); it != end; ++it) {
 		for (size_t i = 0; i < it->groups.size(); ++i) {
-			populate(archive_path, it->groups[i], it->image, extra,
+			populate(it->groups[i], it->image,
 				i, pc, debug_info, merge_lib);
 		}
 	}
@@ -423,9 +423,8 @@ void callgraph_container::populate(string const & archive_path,
 }
 
 
-void callgraph_container::populate(string const & archive_path,
-	list<image_set> const & lset,
-	string const & app_image, extra_images const & extra, size_t pclass,
+void callgraph_container::populate(list<image_set> const & lset,
+	string const & app_image, size_t pclass,
 	profile_container const & pc, bool debug_info, bool merge_lib)
 {
 	list<image_set>::const_iterator lit;
@@ -435,16 +434,15 @@ void callgraph_container::populate(string const & archive_path,
 		list<profile_sample_files>::const_iterator pend
 			= lit->files.end();
 		for (pit = lit->files.begin(); pit != pend; ++pit) {
-			populate(archive_path, pit->cg_files, app_image,
-				 extra, pclass, pc, debug_info, merge_lib);
+			populate(pit->cg_files, app_image,
+				 pclass, pc, debug_info, merge_lib);
 		}
 	}
 }
 
 
-void callgraph_container::populate(string const & archive_path,
-	list<string> const & cg_files,
-	string const & app_image, extra_images const & extra, size_t pclass,
+void callgraph_container::populate(list<string> const & cg_files,
+	string const & app_image, size_t pclass,
 	profile_container const & pc, bool debug_info, bool merge_lib)
 {
 	list<string>::const_iterator it;
@@ -452,39 +450,42 @@ void callgraph_container::populate(string const & archive_path,
 	for (it = cg_files.begin(); it != end; ++it) {
 		cverb << vdebug << "samples file : " << *it << endl;
 
-		parsed_filename caller_file = parse_filename(*it);
+		parsed_filename caller_file =
+			parse_filename(*it, extra_found_images);
 		string const app_name = caller_file.image;
 
 		image_error error;
-		string caller_binary =
-			find_image_path(archive_path, caller_file.lib_image,
-					extra, error);
+		extra_found_images.find_image_path(caller_file.lib_image,
+				error, false);
 
 		if (error != image_ok)
-			report_image_error(archive_path + caller_file.lib_image,
-					   error, false);
+			report_image_error(caller_file.lib_image,
+					   error, false, extra_found_images);
 
 		bool caller_bfd_ok = true;
-		op_bfd caller_bfd(archive_path, caller_binary,
-				  string_filter(), caller_bfd_ok);
+		op_bfd caller_bfd(caller_file.lib_image,
+			string_filter(), extra_found_images, caller_bfd_ok);
 		if (!caller_bfd_ok)
-			report_image_error(caller_binary,
-			                   image_format_failure, false);
+			report_image_error(caller_file.lib_image,
+			                   image_format_failure, false,
+					   extra_found_images);
 
-		parsed_filename callee_file = parse_filename(*it);
+		parsed_filename callee_file =
+			parse_filename(*it, extra_found_images);
 
-		string callee_binary =
-			find_image_path(archive_path, callee_file.cg_image,
-			                extra, error);
+		extra_found_images.find_image_path(callee_file.cg_image,
+				error, false);
 		if (error != image_ok)
-			report_image_error(callee_file.cg_image, error, false);
+			report_image_error(callee_file.cg_image,
+					   error, false, extra_found_images);
 
 		bool callee_bfd_ok = true;
-		op_bfd callee_bfd(archive_path, callee_binary,
-				  string_filter(), callee_bfd_ok);
+		op_bfd callee_bfd(callee_file.cg_image,
+			string_filter(), extra_found_images, callee_bfd_ok);
 		if (!callee_bfd_ok)
-			report_image_error(callee_binary,
-		                           image_format_failure, false);
+			report_image_error(callee_file.cg_image,
+		                           image_format_failure, false,
+					   extra_found_images);
 
 		profile_t profile;
 		// We can't use start_offset support in profile_t, give
@@ -515,17 +516,17 @@ add(profile_t const & profile, op_bfd const & caller_bfd, bool caller_bfd_ok,
 
 	// We must handle start_offset, this offset can be different for the
 	// caller and the callee: kernel sample traversing the syscall barrier.
-	u32 caller_offset = 0;
+	u32 caller_offset;
+	if (header.is_kernel)
+		caller_offset = caller_bfd.get_start_offset(0);
+	else
+		caller_offset = header.anon_start;
 
-	if (header.is_kernel || header.anon_start)
-		caller_offset = caller_bfd.get_start_offset(header.anon_start);
-
-	u32 callee_offset = 0;
-
-	if (header.cg_to_is_kernel || header.cg_to_anon_start) {
-		callee_offset =
-			callee_bfd.get_start_offset(header.cg_to_anon_start);
-	}
+	u32 callee_offset;
+	if (header.cg_to_is_kernel)
+		callee_offset = callee_bfd.get_start_offset(0);
+	else
+		callee_offset = header.cg_to_anon_start;
 
 	image_name_id image_id = image_names.create(image_name);
 	image_name_id callee_image_id = image_names.create(callee_bfd.get_filename());
@@ -599,7 +600,7 @@ count_array_t callgraph_container::samples_count() const
 }
 
 
-const symbol_collection & callgraph_container::get_symbols() const
+symbol_collection const & callgraph_container::get_symbols() const
 {
 	return recorder.get_symbols();
 }

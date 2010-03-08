@@ -310,6 +310,12 @@
 #define SPANSION_S30ML128P_08   0x73    //x8 mode
 #define SPANSION_S30ML128P_16   0x53    //x16 mode
 
+
+/* -------- Toshiba NAND E2PROM -----------------*/
+#define FLASHTYPE_TOSHIBA		0x98
+
+#define TOSHIBA_TC58NVG0S3ETA00	0xD1
+
 //Command Opcode
 #define OP_PAGE_READ                0x01000000
 #define OP_SPARE_AREA_READ          0x02000000

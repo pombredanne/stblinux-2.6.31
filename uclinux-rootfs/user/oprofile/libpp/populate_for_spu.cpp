@@ -46,12 +46,12 @@ static int spu_profile = unknown_profile;
 void
 populate_spu_profile_from_files(list<profile_sample_files> const & files,
 				string const app_image,
-				string const & archive_path,
 				profile_container & samples,
 				inverted_profile const & ip,
 				string_filter const & symbol_filter,
 				size_t ip_grp_num, bool * has_debug_info)
 {
+	string archive_path = samples.extra_found_images.get_archive_path();
 	bool ok = ip.error == image_ok;
 	op_bfd * abfd = NULL;
 	string fname_to_check;
@@ -65,16 +65,16 @@ populate_spu_profile_from_files(list<profile_sample_files> const & files,
 		profile.add_sample_file(it->sample_filename);
 		opd_header header = profile.get_header();
 		if (header.embedded_offset) {
-			abfd = new op_bfd(archive_path,
-					  header.embedded_offset,
+			abfd = new op_bfd(header.embedded_offset,
 					  ip.image,
 					  symbol_filter,
+					  samples.extra_found_images,
 					  ok);
 			fname_to_check = ip.image;
 		} else {
-			abfd = new op_bfd(archive_path,
-					  ip.image,
+			abfd = new op_bfd(ip.image,
 					  symbol_filter,
+					  samples.extra_found_images,
 					  ok);
 			fname_to_check = abfd->get_filename();
 		}
@@ -83,12 +83,17 @@ populate_spu_profile_from_files(list<profile_sample_files> const & files,
 			ip.error = image_format_failure;
 
 		if (ip.error == image_format_failure)
-			report_image_error(ip, false);
+			report_image_error(ip, false,
+					   samples.extra_found_images);
 
 		samples.add(profile, *abfd, app_image, ip_grp_num);
-		if (ip.error == image_ok)
-			check_mtime(archive_path + fname_to_check,
-				    profile.get_header());
+		if (ip.error == image_ok) {
+			image_error error;
+			string filename =
+				samples.extra_found_images.find_image_path(
+					fname_to_check, error, true);
+			check_mtime(filename, profile.get_header());
+		}
 
 		if (has_debug_info && !*has_debug_info)
 			*has_debug_info = abfd->has_debug_info();
@@ -98,8 +103,7 @@ populate_spu_profile_from_files(list<profile_sample_files> const & files,
 }  // anon namespace
 
 void
-populate_for_spu_image(string const & archive_path,
-		       profile_container & samples,
+populate_for_spu_image(profile_container & samples,
 		       inverted_profile const & ip,
 		       string_filter const & symbol_filter,
 		       bool * has_debug_info)
@@ -113,7 +117,7 @@ populate_for_spu_image(string const & archive_path,
 
 		for (; it != end; ++it)
 			populate_spu_profile_from_files(it->files,
-				it->app_image, archive_path, samples, ip,
+				it->app_image, samples, ip,
 				symbol_filter, i, has_debug_info);
 	}
 }
@@ -128,17 +132,16 @@ bool is_spu_profile(inverted_profile const & ip)
 	if (!ip.groups.size())
 		return false;
 
-        for (size_t i = 0; i < ip.groups.size(); ++i) {
-                list<image_set>::const_iterator grp_it
-                        = ip.groups[i].begin();
-                list<image_set>::const_iterator const grp_end
-                        = ip.groups[i].end();
+	for (size_t i = 0; i < ip.groups.size(); ++i) {
+		list<image_set>::const_iterator grp_it
+			= ip.groups[i].begin();
+		list<image_set>::const_iterator const grp_end
+			= ip.groups[i].end();
 
-
-                for (; grp_it != grp_end; ++grp_it) {
-        		list<profile_sample_files>::const_iterator sfiles_it =
+		for (; grp_it != grp_end; ++grp_it) {
+			list<profile_sample_files>::const_iterator sfiles_it =
 				grp_it->files.begin();
-		        list<profile_sample_files>::const_iterator sfiles_end =
+			list<profile_sample_files>::const_iterator sfiles_end =
 				grp_it->files.end();
 			for (; sfiles_it != sfiles_end; ++sfiles_it) {
 				if (!sfiles_it->sample_filename.empty()) {
@@ -151,7 +154,7 @@ bool is_spu_profile(inverted_profile const & ip)
 	goto out;
 
 do_check:
-        spu_profile = profile_t::is_spu_sample_file(sfname);
+	spu_profile = profile_t::is_spu_sample_file(sfname);
 
 	if (spu_profile == cell_spu_profile)
 		retval = true;

@@ -11,9 +11,9 @@ export CC CFLAGS
 .PHONY: all
 all::
 	if [ ! -e Makefile ]; then \
-		./configure || exit 1 ; \
+		./configure --host=$(MACHINE)-linux || exit 1 ; \
 	fi
-	$(MAKE) -f Makefile
+	$(MAKE) -f Makefile CC=$(CC) CFLAGS=$(CFLAGS)
 
 # no shared version; nothing to install
 .PHONY: romfs

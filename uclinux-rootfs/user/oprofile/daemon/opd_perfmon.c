@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #ifdef HAVE_SCHED_SETAFFINITY
 #include <sched.h>
 #endif
@@ -98,7 +100,6 @@ static struct child * children;
 static void perfmon_start_child(int ctx_fd)
 {
 	if (perfmonctl(ctx_fd, PFM_START, 0, 0) == -1) {
-		perror("Couldn't start perfmon: ");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -107,7 +108,6 @@ static void perfmon_start_child(int ctx_fd)
 static void perfmon_stop_child(int ctx_fd)
 {
 	if (perfmonctl(ctx_fd, PFM_STOP, 0, 0) == -1) {
-		perror("Couldn't stop perfmon: ");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -141,7 +141,6 @@ static void child_sigusr2(int val __attribute__((unused)))
 
 static void child_sigterm(int val __attribute__((unused)))
 {
-	printf("Child received SIGTERM, killing parent.\n");
 	kill(getppid(), SIGTERM);
 }
 
@@ -149,15 +148,15 @@ static void child_sigterm(int val __attribute__((unused)))
 static void set_affinity(size_t cpu)
 {
 	cpu_set_t set;
+	int err;
 
 	CPU_ZERO(&set);
 	CPU_SET(cpu, &set);
 
-	int err = sched_setaffinity(getpid(), sizeof(set), &set);
+	err = sched_setaffinity(getpid(), sizeof(set), &set);
 
 	if (err == -1) {
-		fprintf(stderr, "Failed to set affinity: %s\n",
-			    strerror(errno));
+		perror("Failed to set affinity");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -178,7 +177,7 @@ static void setup_signals(void)
 	sigemptyset(&act.sa_mask);
 
 	if (sigaction(SIGUSR1, &act, NULL)) {
-		perror("oprofiled: install of SIGUSR1 handler failed: ");
+		perror("oprofiled: install of SIGUSR1 handler failed");
 		exit(EXIT_FAILURE);
 	}
 
@@ -187,7 +186,7 @@ static void setup_signals(void)
 	sigemptyset(&act.sa_mask);
 
 	if (sigaction(SIGUSR2, &act, NULL)) {
-		perror("oprofiled: install of SIGUSR2 handler failed: ");
+		perror("oprofiled: install of SIGUSR2 handler failed");
 		exit(EXIT_FAILURE);
 	}
 
@@ -196,7 +195,7 @@ static void setup_signals(void)
 	sigemptyset(&act.sa_mask);
 
 	if (sigaction(SIGTERM, &act, NULL)) {
-		perror("oprofiled: install of SIGTERM handler failed: ");
+		perror("oprofiled: install of SIGTERM handler failed");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -214,8 +213,7 @@ static void create_context(struct child * self)
 
 	err = perfmonctl(0, PFM_CREATE_CONTEXT, &ctx, 1);
 	if (err == -1) {
-		fprintf(stderr, "CREATE_CONTEXT failed: %s\n",
-		        strerror(errno));
+		perror("CREATE_CONTEXT failed");
 		exit(EXIT_FAILURE);
 	}
 
@@ -268,13 +266,13 @@ static void write_pmu(struct child * self)
 
 	err = perfmonctl(self->ctx_fd, PFM_WRITE_PMCS, pc, i);
 	if (err == -1) {
-		perror("Couldn't write PMCs: ");
+		perror("Couldn't write PMCs");
 		exit(EXIT_FAILURE);
 	}
 
 	err = perfmonctl(self->ctx_fd, PFM_WRITE_PMDS, pd, i);
 	if (err == -1) {
-		perror("Couldn't write PMDs: ");
+		perror("Couldn't write PMDs");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -290,7 +288,7 @@ static void load_context(struct child * self)
 
 	err = perfmonctl(self->ctx_fd, PFM_LOAD_CONTEXT, &load_args, 1);
 	if (err == -1) {
-		perror("Couldn't load context: ");
+		perror("Couldn't load context");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -304,13 +302,17 @@ static void notify_parent(struct child * self, size_t cpu)
 		if (ret == sizeof(size_t))
 			break;
 		if (ret < 0 && errno != EINTR) {
-			fprintf(stderr, "Failed to write child pipe with %s\n",
-			        strerror(errno));
+			perror("Failed to write child pipe:");
 			exit(EXIT_FAILURE);
 		}
 	}
 }
 
+static struct child * inner_child;
+void close_pipe(void)
+{
+	close(inner_child->up_pipe[1]);
+}
 
 static void run_child(size_t cpu)
 {
@@ -320,6 +322,19 @@ static void run_child(size_t cpu)
 	self->sigusr1 = 0;
 	self->sigusr2 = 0;
 	self->sigterm = 0;
+
+	inner_child = self;
+	if (atexit(close_pipe)){
+		close_pipe();
+		exit(EXIT_FAILURE);
+	}
+
+	umask(0);
+	/* Change directory to allow directory to be removed */
+	if (chdir("/") < 0) {
+		perror("Unable to chdir to \"/\"");
+		exit(EXIT_FAILURE);
+	}
 
 	setup_signals();
 
@@ -333,6 +348,11 @@ static void run_child(size_t cpu)
 
 	notify_parent(self, cpu);
 
+	/* Redirect standard files to /dev/null */
+	freopen( "/dev/null", "r", stdin);
+	freopen( "/dev/null", "w", stdout);
+	freopen( "/dev/null", "w", stderr);
+
 	for (;;) {
 		sigset_t sigmask;
 		sigfillset(&sigmask);
@@ -341,15 +361,11 @@ static void run_child(size_t cpu)
 		sigdelset(&sigmask, SIGTERM);
 
 		if (self->sigusr1) {
-			printf("PFM_START on CPU%d\n", (int)cpu);
-			fflush(stdout);
 			perfmon_start_child(self->ctx_fd);
 			self->sigusr1 = 0;
 		}
 
 		if (self->sigusr2) {
-			printf("PFM_STOP on CPU%d\n", (int)cpu);
-			fflush(stdout);
 			perfmon_stop_child(self->ctx_fd);
 			self->sigusr2 = 0;
 		}
@@ -367,9 +383,8 @@ static void wait_for_child(struct child * child)
 		ret = read(child->up_pipe[0], &tmp, sizeof(size_t));
 		if (ret == sizeof(size_t))
 			break;
-		if (ret < 0 && errno != EINTR) {
-			fprintf(stderr, "Failed to read child pipe with %s\n",
-			        strerror(errno));
+		if ((ret < 0 && errno != EINTR) || ret == 0 ) {
+			perror("Failed to read child pipe");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -377,9 +392,9 @@ static void wait_for_child(struct child * child)
 	fflush(stdout);
 
 	close(child->up_pipe[0]);
-	close(child->up_pipe[1]);
 }
 
+static struct child* xen_ctx;
 
 void perfmon_init(void)
 {
@@ -388,6 +403,24 @@ void perfmon_init(void)
 
 	if (cpu_type == CPU_TIMER_INT)
 		return;
+
+	if (!no_xen) {
+		xen_ctx = xmalloc(sizeof(struct child));
+		xen_ctx->pid = getpid();
+		xen_ctx->up_pipe[0] = -1;
+		xen_ctx->up_pipe[1] = -1;
+		xen_ctx->sigusr1 = 0;
+		xen_ctx->sigusr2 = 0;
+		xen_ctx->sigterm = 0;
+
+		create_context(xen_ctx);
+
+		write_pmu(xen_ctx);
+		
+		load_context(xen_ctx);
+		return;
+	}
+	
 
 	nr = sysconf(_SC_NPROCESSORS_ONLN);
 	if (nr == -1) {
@@ -398,25 +431,26 @@ void perfmon_init(void)
 	nr_cpus = nr;
 
 	children = xmalloc(sizeof(struct child) * nr_cpus);
+	bzero(children, sizeof(struct child) * nr_cpus);
 
 	for (i = 0; i < nr_cpus; ++i) {
 		int ret;
 
 		if (pipe(children[i].up_pipe)) {
-			perror("Couldn't create child pipe.\n");
+			perror("Couldn't create child pipe");
 			exit(EXIT_FAILURE);
 		}
 
 		ret = fork();
 		if (ret == -1) {
-			fprintf(stderr, "Couldn't fork perfmon child.\n");
+			perror("Couldn't fork perfmon child");
 			exit(EXIT_FAILURE);
 		} else if (ret == 0) {
-			printf("Running perfmon child on CPU%d.\n", (int)i);
-			fflush(stdout);
+			close(children[i].up_pipe[0]);
 			run_child(i);
 		} else {
 			children[i].pid = ret;
+			close(children[i].up_pipe[1]);
 			printf("Waiting on CPU%d\n", (int)i);
 			wait_for_child(&children[i]);
 		}
@@ -431,9 +465,16 @@ void perfmon_exit(void)
 	if (cpu_type == CPU_TIMER_INT)
 		return;
 
+	if (!no_xen)
+		return;
+
 	for (i = 0; i < nr_cpus; ++i) {
-		kill(children[i].pid, SIGKILL);
-		waitpid(children[i].pid, NULL, 0);
+		if (children[i].pid) {
+			int c_pid = children[i].pid;
+			children[i].pid = 0;
+			if (kill(c_pid, SIGKILL)==0)
+				waitpid(c_pid, NULL, 0);
+		}
 	}
 }
 
@@ -445,8 +486,17 @@ void perfmon_start(void)
 	if (cpu_type == CPU_TIMER_INT)
 		return;
 
-	for (i = 0; i < nr_cpus; ++i)
-		kill(children[i].pid, SIGUSR1);
+	if (!no_xen) {
+		perfmon_start_child(xen_ctx->ctx_fd);
+		return;
+	}
+
+	for (i = 0; i < nr_cpus; ++i) {
+		if (kill(children[i].pid, SIGUSR1)) {
+			perror("Unable to start perfmon");
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 
@@ -457,8 +507,16 @@ void perfmon_stop(void)
 	if (cpu_type == CPU_TIMER_INT)
 		return;
 
+	if (!no_xen) {
+		perfmon_stop_child(xen_ctx->ctx_fd);
+		return;
+	}
+	
 	for (i = 0; i < nr_cpus; ++i)
-		kill(children[i].pid, SIGUSR2);
+		if (kill(children[i].pid, SIGUSR2)) {
+			perror("Unable to stop perfmon");
+			exit(EXIT_FAILURE);
+		}
 }
 
 #endif /* __ia64__ */

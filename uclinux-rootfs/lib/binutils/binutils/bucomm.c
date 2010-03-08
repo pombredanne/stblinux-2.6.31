@@ -1,13 +1,13 @@
 /* bucomm.c -- Bin Utils COMmon code.
    Copyright 1991, 1992, 1993, 1994, 1995, 1997, 1998, 2000, 2001, 2002,
-   2003, 2006
+   2003, 2006, 2007
    Free Software Foundation, Inc.
 
    This file is part of GNU Binutils.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -23,16 +23,16 @@
 /* We might put this in a library someday so it could be dynamically
    loaded, but for now it's not necessary.  */
 
+#include "sysdep.h"
 #include "bfd.h"
-#include "bfdver.h"
 #include "libiberty.h"
-#include "bucomm.h"
 #include "filenames.h"
 #include "libbfd.h"
 
 #include <sys/stat.h>
 #include <time.h>		/* ctime, maybe time_t */
 #include <assert.h>
+#include "bucomm.h"
 
 #ifndef HAVE_TIME_T_IN_TIME_H
 #ifndef HAVE_TIME_T_IN_TYPES_H
@@ -58,6 +58,52 @@ bfd_nonfatal (const char *string)
     fprintf (stderr, "%s: %s: %s\n", program_name, string, errmsg);
   else
     fprintf (stderr, "%s: %s\n", program_name, errmsg);
+}
+
+/* Issue a non fatal error message.  FILENAME, or if NULL then BFD,
+   are used to indicate the problematic file.  SECTION, if non NULL,
+   is used to provide a section name.  If FORMAT is non-null, then it
+   is used to print additional information via vfprintf.  Finally the
+   bfd error message is printed.  In summary, error messages are of
+   one of the following forms:
+
+   PROGRAM:file: bfd-error-message
+   PROGRAM:file[section]: bfd-error-message
+   PROGRAM:file: printf-message: bfd-error-message
+   PROGRAM:file[section]: printf-message: bfd-error-message
+*/
+
+void
+bfd_nonfatal_message (const char *filename,
+		      const bfd *bfd, const asection *section,
+		      const char *format, ...)
+{
+  const char *errmsg = bfd_errmsg (bfd_get_error ());
+  const char *section_name = NULL;
+  va_list args;
+
+  va_start (args, format);
+  fprintf (stderr, "%s", program_name);
+  
+  if (bfd)
+    {
+      if (!filename)
+	filename = bfd_get_filename (bfd);
+      if (section)
+	section_name = bfd_get_section_name (bfd, section);
+    }
+  if (section_name)
+    fprintf (stderr, ":%s[%s]", filename, section_name);
+  else
+    fprintf (stderr, ":%s", filename);
+
+  if (format)
+    {
+      fprintf (stderr, ": ");
+      vfprintf (stderr, format, args);
+    }
+  fprintf (stderr, ": %s\n", errmsg);
+  va_end (args);
 }
 
 void
@@ -149,16 +195,18 @@ list_supported_targets (const char *name, FILE *f)
 void
 list_supported_architectures (const char *name, FILE *f)
 {
-  const char **arch;
+  const char ** arch;
+  const char ** arches;
 
   if (name == NULL)
     fprintf (f, _("Supported architectures:"));
   else
     fprintf (f, _("%s: supported architectures:"), name);
 
-  for (arch = bfd_arch_list (); *arch; arch++)
+  for (arch = arches = bfd_arch_list (); *arch; arch++)
     fprintf (f, " %s", *arch);
   fprintf (f, "\n");
+  free (arches);
 }
 
 /* The length of the longest architecture name + 1.  */

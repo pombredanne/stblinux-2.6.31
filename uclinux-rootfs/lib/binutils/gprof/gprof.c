@@ -27,8 +27,9 @@
  * SUCH DAMAGE.
  */
 
-#include "libiberty.h"
 #include "gprof.h"
+#include "libiberty.h"
+#include "bfdver.h"
 #include "search_list.h"
 #include "source.h"
 #include "symtab.h"
@@ -59,7 +60,6 @@ int output_style = 0;
 int output_width = 80;
 bfd_boolean bsd_style_output = FALSE;
 bfd_boolean demangle = TRUE;
-bfd_boolean discard_underscores = TRUE;
 bfd_boolean ignore_direct_calls = FALSE;
 bfd_boolean ignore_static_funcs = FALSE;
 bfd_boolean ignore_zeros = TRUE;
@@ -170,7 +170,7 @@ Usage: %s [-[abcDhilLsTvwxyz]] [-[ACeEfFJnNOpPqQZ][name]] [-I dirs]\n\
 	[--demangle[=STYLE]] [--no-demangle] [@FILE]\n\
 	[image-file] [profile-file...]\n"),
 	   whoami);
-  if (status == 0)
+  if (REPORT_BUGS_TO[0] && status == 0)
     fprintf (stream, _("Report bugs to %s\n"), REPORT_BUGS_TO);
   done (status);
 }
@@ -411,7 +411,7 @@ main (int argc, char **argv)
 	  break;
 	case 'v':
 	  /* This output is intended to follow the GNU standards document.  */
-	  printf (_("GNU gprof %s\n"), VERSION);
+	  printf (_("GNU gprof %s\n"), BFD_VERSION_STRING);
 	  printf (_("Based on BSD gprof, copyright 1983 Regents of the University of California.\n"));
 	  printf (_("\
 This program is free software.  This program has absolutely no warranty.\n"));

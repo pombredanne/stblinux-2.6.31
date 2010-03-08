@@ -1,6 +1,6 @@
 /* bfd back-end for HP PA-RISC SOM objects.
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
-   2000, 2001, 2002, 2003, 2004, 2005, 2006
+   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
    Free Software Foundation, Inc.
 
    Contributed by the Center for Software Science at the
@@ -10,7 +10,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -23,9 +23,8 @@
    Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA
    02110-1301, USA.  */
 
-#include "alloca-conf.h"
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 
 #if defined (HOST_HPPAHPUX) || defined (HOST_HPPABSD) || defined (HOST_HPPAOSF) || defined(HOST_HPPAMPEIX)
 
@@ -37,6 +36,32 @@
 #include <signal.h>
 #include <machine/reg.h>
 #include <sys/file.h>
+
+/* This is the code recommended in the autoconf documentation, almost
+   verbatim.  */
+
+#ifndef __GNUC__
+# if HAVE_ALLOCA_H
+#  include <alloca.h>
+# else
+#  ifdef _AIX
+/* Indented so that pre-ansi C compilers will ignore it, rather than
+   choke on it.  Some versions of AIX require this to be the first
+   thing in the file.  */
+ #pragma alloca
+#  else
+#   ifndef alloca /* predefined by HP cc +Olibcalls */
+#    if !defined (__STDC__) && !defined (__hpux)
+extern char *alloca ();
+#    else
+extern void *alloca ();
+#    endif /* __STDC__, __hpux */
+#   endif /* alloca */
+#  endif /* _AIX */
+# endif /* HAVE_ALLOCA_H */
+#else
+extern void *alloca (size_t);
+#endif /* __GNUC__ */
 
 static bfd_reloc_status_type hppa_som_reloc
   (bfd *, arelent *, asymbol *, void *, asection *, bfd *, char **);
@@ -328,7 +353,7 @@ static const struct fixup_format som_fixup_formats[256] =
   /* R_DATA_ONE_SYMBOL.  */
   {  0, "L4=Sb=" },		/* 0x25 */
   {  1, "L4=Sd=" },		/* 0x26 */
-  /* R_DATA_PLEBEL.  */
+  /* R_DATA_PLABEL.  */
   {  0, "L4=Sb=" },		/* 0x27 */
   {  1, "L4=Sd=" },		/* 0x28 */
   /* R_SPACE_REF.  */
@@ -412,8 +437,9 @@ static const struct fixup_format som_fixup_formats[256] =
   { 31, "L4=SD=" },		/* 0x6f */
   { 32, "L4=Sb=" },		/* 0x70 */
   { 33, "L4=Sd=" },		/* 0x71 */
+  /* R_DATA_GPREL.  */
+  {  0, "L4=Sd=" },		/* 0x72 */
   /* R_RESERVED.  */
-  {  0, "" },			/* 0x72 */
   {  0, "" },			/* 0x73 */
   {  0, "" },			/* 0x74 */
   {  0, "" },			/* 0x75 */
@@ -800,7 +826,7 @@ static reloc_howto_type som_hppa_howto_table[] =
   SOM_HOWTO (R_DP_RELATIVE, "R_DP_RELATIVE"),
   SOM_HOWTO (R_DP_RELATIVE, "R_DP_RELATIVE"),
   SOM_HOWTO (R_DP_RELATIVE, "R_DP_RELATIVE"),
-  SOM_HOWTO (R_DP_RELATIVE, "R_DP_RELATIVE"),
+  SOM_HOWTO (R_DATA_GPREL, "R_DATA_GPREL"),
   SOM_HOWTO (R_RESERVED, "R_RESERVED"),
   SOM_HOWTO (R_RESERVED, "R_RESERVED"),
   SOM_HOWTO (R_RESERVED, "R_RESERVED"),
@@ -1546,6 +1572,8 @@ hppa_som_gen_reloc_type (bfd *abfd,
 	  || field == e_lpsel
 	  || field == e_rpsel)
 	*final_type = R_DATA_PLABEL;
+      else if (field == e_fsel && format == 32)
+	*final_type = R_DATA_GPREL;
       break;
 
     case R_HPPA_COMPLEX:
@@ -1622,6 +1650,22 @@ som_bfd_reloc_type_lookup (bfd *abfd ATTRIBUTE_UNUSED,
       BFD_ASSERT ((int) som_hppa_howto_table[(int) code].type == (int) code);
       return &som_hppa_howto_table[(int) code];
     }
+
+  return NULL;
+}
+
+static reloc_howto_type *
+som_bfd_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+			   const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < sizeof (som_hppa_howto_table) / sizeof (som_hppa_howto_table[0]);
+       i++)
+    if (som_hppa_howto_table[i].name != NULL
+	&& strcasecmp (som_hppa_howto_table[i].name, r_name) == 0)
+      return &som_hppa_howto_table[i];
 
   return NULL;
 }
@@ -2749,6 +2793,24 @@ som_write_fixups (bfd *abfd,
 		  else if (sym_num < 0x10000000)
 		    {
 		      bfd_put_8 (abfd, bfd_reloc->howto->type + 33, p);
+		      bfd_put_8 (abfd, sym_num >> 16, p + 1);
+		      bfd_put_16 (abfd, (bfd_vma) sym_num, p + 2);
+		      p = try_prev_fixup (abfd, &subspace_reloc_size,
+					  p, 4, reloc_queue);
+		    }
+		  else
+		    abort ();
+		  break;
+
+		case R_DATA_GPREL:
+		  /* Account for any addend.  */
+		  if (bfd_reloc->addend)
+		    p = som_reloc_addend (abfd, bfd_reloc->addend, p,
+					  &subspace_reloc_size, reloc_queue);
+
+		  if (sym_num < 0x10000000)
+		    {
+		      bfd_put_8 (abfd, bfd_reloc->howto->type, p);
 		      bfd_put_8 (abfd, sym_num >> 16, p + 1);
 		      bfd_put_16 (abfd, (bfd_vma) sym_num, p + 2);
 		      p = try_prev_fixup (abfd, &subspace_reloc_size,
@@ -4923,8 +4985,11 @@ som_get_reloc_upper_bound (bfd *abfd, sec_ptr asect)
 	return -1;
       return (asect->reloc_count + 1) * sizeof (arelent *);
     }
-  /* There are no relocations.  */
-  return 0;
+
+  /* There are no relocations.  Return enough space to hold the
+     NULL pointer which will be installed if som_canonicalize_reloc
+     is called.  */
+  return sizeof (arelent *);
 }
 
 /* Convert relocations from SOM (external) form into BFD internal
@@ -5315,15 +5380,57 @@ som_set_arch_mach (bfd *abfd,
 }
 
 static bfd_boolean
-som_find_nearest_line (bfd *abfd ATTRIBUTE_UNUSED,
-		       asection *section ATTRIBUTE_UNUSED,
-		       asymbol **symbols ATTRIBUTE_UNUSED,
-		       bfd_vma offset ATTRIBUTE_UNUSED,
-		       const char **filename_ptr ATTRIBUTE_UNUSED,
-		       const char **functionname_ptr ATTRIBUTE_UNUSED,
-		       unsigned int *line_ptr ATTRIBUTE_UNUSED)
+som_find_nearest_line (bfd *abfd,
+		       asection *section,
+		       asymbol **symbols,
+		       bfd_vma offset,
+		       const char **filename_ptr,
+		       const char **functionname_ptr,
+		       unsigned int *line_ptr)
 {
-  return FALSE;
+  bfd_boolean found;
+  asymbol *func;
+  bfd_vma low_func;
+  asymbol **p;
+
+  if (! _bfd_stab_section_find_nearest_line (abfd, symbols, section, offset,
+                                             & found, filename_ptr,
+                                             functionname_ptr, line_ptr,
+                                             & somdata (abfd).line_info))
+    return FALSE;
+
+  if (found)
+    return TRUE;
+
+  if (symbols == NULL)
+    return FALSE;
+
+  /* Fallback: find function name from symbols table.  */
+  func = NULL;
+  low_func = 0;
+
+  for (p = symbols; *p != NULL; p++)
+    { 
+      som_symbol_type *q = (som_symbol_type *) *p;
+  
+      if (q->som_type == SYMBOL_TYPE_ENTRY
+	  && q->symbol.section == section
+	  && q->symbol.value >= low_func
+	  && q->symbol.value <= offset)
+	{
+	  func = (asymbol *) q;
+	  low_func = q->symbol.value;
+	}
+    }
+
+  if (func == NULL)
+    return FALSE;
+
+  *filename_ptr = NULL;
+  *functionname_ptr = bfd_asymbol_name (func);
+  *line_ptr = 0;
+
+  return TRUE;
 }
 
 static int
@@ -5752,7 +5859,7 @@ som_bfd_prep_for_ar_write (bfd *abfd,
       if (curr_bfd->format != bfd_object
 	  || curr_bfd->xvec->flavour != bfd_target_som_flavour)
 	{
-	  curr_bfd = curr_bfd->next;
+	  curr_bfd = curr_bfd->archive_next;
 	  continue;
 	}
 
@@ -5797,7 +5904,7 @@ som_bfd_prep_for_ar_write (bfd *abfd,
 	    (*stringsize)++;
 	}
 
-      curr_bfd = curr_bfd->next;
+      curr_bfd = curr_bfd->archive_next;
     }
   return TRUE;
 }
@@ -5906,7 +6013,7 @@ som_bfd_ar_write_symbol_stuff (bfd *abfd,
       if (curr_bfd->format != bfd_object
 	  || curr_bfd->xvec->flavour != bfd_target_som_flavour)
 	{
-	  curr_bfd = curr_bfd->next;
+	  curr_bfd = curr_bfd->archive_next;
 	  continue;
 	}
 
@@ -6022,7 +6129,7 @@ som_bfd_ar_write_symbol_stuff (bfd *abfd,
 	 linker requires objects begin on an even boundary.  So round
 	 up the current offset as necessary.  */
       curr_som_offset = (curr_som_offset + 0x1) &~ (unsigned) 1;
-      curr_bfd = curr_bfd->next;
+      curr_bfd = curr_bfd->archive_next;
       som_index++;
     }
 
@@ -6128,7 +6235,7 @@ som_write_armap (bfd *abfd,
       if (curr_bfd->format == bfd_object
 	  && curr_bfd->xvec->flavour == bfd_target_som_flavour)
 	lst.module_count++;
-      curr_bfd = curr_bfd->next;
+      curr_bfd = curr_bfd->archive_next;
     }
   lst.module_limit = lst.module_count;
   lst.dir_loc = lst_size;

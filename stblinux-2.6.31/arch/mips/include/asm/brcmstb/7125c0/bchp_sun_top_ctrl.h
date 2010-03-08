@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:17 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:31:22 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_sun_top_ctrl.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:55p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,122 +43,122 @@
 #define BCHP_SUN_TOP_CTRL_H__
 
 /***************************************************************************
- *SUN_TOP_CTRL
+ *SUN_TOP_CTRL - Top Control registers
  ***************************************************************************/
-#define BCHP_SUN_TOP_CTRL_PROD_REVISION          0x00404000
-#define BCHP_SUN_TOP_CTRL_SUN_REVISION           0x00404004
-#define BCHP_SUN_TOP_CTRL_RESET_CTRL             0x00404008
-#define BCHP_SUN_TOP_CTRL_NMI_CTRL               0x00404010
-#define BCHP_SUN_TOP_CTRL_SW_RESET               0x00404014
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY          0x00404018
-#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_0          0x0040401c
-#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1          0x00404020
-#define BCHP_SUN_TOP_CTRL_BOND_STATUS            0x00404024
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0      0x00404028
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1      0x0040402c
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0    0x00404030
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1    0x00404034
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_0            0x00404038
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_1            0x0040403c
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_2            0x00404040
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_3            0x00404044
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_4            0x00404048
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_5            0x0040404c
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_6            0x00404050
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_7            0x00404054
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_8            0x00404058
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_9            0x0040405c
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_10           0x00404060
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_11           0x00404064
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_12           0x00404068
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_13           0x0040406c
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_14           0x00404070
-#define BCHP_SUN_TOP_CTRL_SEMAPHORE_15           0x00404074
-#define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_0         0x00404078
-#define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_1         0x0040407c
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0         0x00404080
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_1         0x00404084
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2         0x00404088
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3         0x0040408c
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4         0x00404090
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_5         0x00404094
-#define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_0       0x00404098
-#define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_1       0x0040409c
-#define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_2       0x004040a0
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0 0x004040a4
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1 0x004040a8
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2 0x004040ac
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_3 0x004040b0
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_4 0x004040b4
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_5 0x004040b8
-#define BCHP_SUN_TOP_CTRL_UNCLEARED_SCRATCH      0x004040bc
-#define BCHP_SUN_TOP_CTRL_SPARE_CTRL             0x004040c0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0         0x00404100
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1         0x00404104
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2         0x00404108
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3         0x0040410c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_4         0x00404110
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_5         0x00404114
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6         0x00404118
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_7         0x0040411c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8         0x00404120
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9         0x00404124
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10        0x00404128
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11        0x0040412c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12        0x00404130
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13        0x00404134
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14        0x00404138
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_15        0x0040413c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_16        0x00404140
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17        0x00404144
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_18        0x00404148
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_19        0x0040414c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_20        0x00404150
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0     0x00404154
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_1     0x00404158
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2     0x0040415c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_3     0x00404160
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_4     0x00404164
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_5     0x00404168
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6     0x0040416c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7     0x00404170
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8     0x00404174
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_9     0x00404178
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10    0x0040417c
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_11    0x00404180
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_12    0x00404184
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_13    0x00404188
-#define BCHP_SUN_TOP_CTRL_BYP_CLK_UNSELECT_0     0x0040418c
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL         0x00404200
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_PEEK     0x00404204
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_POKE     0x00404208
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_PEEK      0x0040420c
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_POKE      0x00404210
-#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN         0x00404214
-#define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL       0x00404218
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL        0x0040421c
-#define BCHP_SUN_TOP_CTRL_SSP_CONFIG             0x00404300
-#define BCHP_SUN_TOP_CTRL_SERS_REV               0x00404320
-#define BCHP_SUN_TOP_CTRL_SERS_CFG               0x00404324
-#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL      0x00404400
-#define BCHP_SUN_TOP_CTRL_TEST_MODE_CTRL         0x00404500
-#define BCHP_SUN_TOP_CTRL_TEST_MODE              0x00404504
-#define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE          0x00404508
-#define BCHP_SUN_TOP_CTRL_LATCHED_TEST_MODE      0x0040450c
-#define BCHP_SUN_TOP_CTRL_LATCHED_SUB_TEST_MODE  0x00404510
-#define BCHP_SUN_TOP_CTRL_PM_CTRL                0x00404600
-#define BCHP_SUN_TOP_CTRL_PM_IRQ_INPUT_STATUS    0x00404604
-#define BCHP_SUN_TOP_CTRL_PM_MIPS_WAIT_COUNT     0x00404608
+#define BCHP_SUN_TOP_CTRL_PROD_REVISION          0x00404000 /* Product Revision ID */
+#define BCHP_SUN_TOP_CTRL_SUN_REVISION           0x00404004 /* Sundry Revision ID */
+#define BCHP_SUN_TOP_CTRL_RESET_CTRL             0x00404008 /* Reset control */
+#define BCHP_SUN_TOP_CTRL_NMI_CTRL               0x00404010 /* Control register for NMI */
+#define BCHP_SUN_TOP_CTRL_SW_RESET               0x00404014 /* Software reset register */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY          0x00404018 /* Reset history */
+#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_0          0x0040401c /* Strapping values */
+#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1          0x00404020 /* Strapping values */
+#define BCHP_SUN_TOP_CTRL_BOND_STATUS            0x00404024 /* Bond option value register */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0      0x00404028 /* OTP option test register */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1      0x0040402c /* OTP option test register */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0    0x00404030 /* OTP option status register */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1    0x00404034 /* OTP option status register */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_0            0x00404038 /* Semaphore channel 0 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_1            0x0040403c /* Semaphore channel 1 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_2            0x00404040 /* Semaphore channel 2 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_3            0x00404044 /* Semaphore channel 3 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_4            0x00404048 /* Semaphore channel 4 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_5            0x0040404c /* Semaphore channel 5 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_6            0x00404050 /* Semaphore channel 6 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_7            0x00404054 /* Semaphore channel 7 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_8            0x00404058 /* Semaphore channel 8 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_9            0x0040405c /* Semaphore channel 9 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_10           0x00404060 /* Semaphore channel 10 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_11           0x00404064 /* Semaphore channel 11 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_12           0x00404068 /* Semaphore channel 12 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_13           0x0040406c /* Semaphore channel 13 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_14           0x00404070 /* Semaphore channel 14 */
+#define BCHP_SUN_TOP_CTRL_SEMAPHORE_15           0x00404074 /* Semaphore channel 15 */
+#define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_0         0x00404078 /* General watchdog timer 0 */
+#define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_1         0x0040407c /* General watchdog timer 1 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0         0x00404080 /* General control register 0 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_1         0x00404084 /* General control register 1 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2         0x00404088 /* General control register 2 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3         0x0040408c /* General control register 3 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4         0x00404090 /* General control register 4 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_5         0x00404094 /* General control register 5 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_0       0x00404098 /* General status register 0 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_1       0x0040409c /* General status register 1 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_2       0x004040a0 /* General status register 2 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0 0x004040a4 /* General control register without scan 0 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1 0x004040a8 /* General control register without scan 1 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2 0x004040ac /* General control register without scan 2 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_3 0x004040b0 /* General control register without scan 3 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_4 0x004040b4 /* General control register without scan 4 */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_5 0x004040b8 /* General control register without scan 5 */
+#define BCHP_SUN_TOP_CTRL_UNCLEARED_SCRATCH      0x004040bc /* Scratch register */
+#define BCHP_SUN_TOP_CTRL_SPARE_CTRL             0x004040c0 /* Spare control bits reserved for future use */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0         0x00404100 /* Pinmux control register 0 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1         0x00404104 /* Pinmux control register 1 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2         0x00404108 /* Pinmux control register 2 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3         0x0040410c /* Pinmux control register 3 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_4         0x00404110 /* Pinmux control register 4 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_5         0x00404114 /* Pinmux control register 5 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6         0x00404118 /* Pinmux control register 6 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_7         0x0040411c /* Pinmux control register 7 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8         0x00404120 /* Pinmux control register 8 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9         0x00404124 /* Pinmux control register 9 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10        0x00404128 /* Pinmux control register 10 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11        0x0040412c /* Pinmux control register 11 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12        0x00404130 /* Pinmux control register 12 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13        0x00404134 /* Pinmux control register 13 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14        0x00404138 /* Pinmux control register 14 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_15        0x0040413c /* Pinmux control register 15 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_16        0x00404140 /* Pinmux control register 16 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17        0x00404144 /* Pinmux control register 17 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_18        0x00404148 /* Pinmux control register 18 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_19        0x0040414c /* Pinmux control register 19 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_20        0x00404150 /* Pinmux control register 20 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0     0x00404154 /* Pad pull-up/pull-down control register 0 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_1     0x00404158 /* Pad pull-up/pull-down control register 1 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2     0x0040415c /* Pad pull-up/pull-down control register 2 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_3     0x00404160 /* Pad pull-up/pull-down control register 3 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_4     0x00404164 /* Pad pull-up/pull-down control register 4 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_5     0x00404168 /* Pad pull-up/pull-down control register 5 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6     0x0040416c /* Pad pull-up/pull-down control register 6 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7     0x00404170 /* Pad pull-up/pull-down control register 7 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8     0x00404174 /* Pad pull-up/pull-down control register 8 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_9     0x00404178 /* Pad pull-up/pull-down control register 9 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10    0x0040417c /* Pad pull-up/pull-down control register 10 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_11    0x00404180 /* Pad pull-up/pull-down control register 11 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_12    0x00404184 /* Pad pull-up/pull-down control register 12 */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_13    0x00404188 /* Pad pull-up/pull-down control register 13 */
+#define BCHP_SUN_TOP_CTRL_BYP_CLK_UNSELECT_0     0x0040418c /* Bypass clock unselect register 0 */
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL         0x00404200 /* Test port control */
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_PEEK     0x00404204 /* Testport peek register */
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_POKE     0x00404208 /* Testport poke register */
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_PEEK      0x0040420c /* Testport peek register */
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_POKE      0x00404210 /* Testport poke register */
+#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN         0x00404214 /* EJTAG input bus enables */
+#define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL       0x00404218 /* EJTAG output select */
+#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL        0x0040421c /* UART Router select */
+#define BCHP_SUN_TOP_CTRL_SSP_CONFIG             0x00404300 /* Serial Slave Port configuration register */
+#define BCHP_SUN_TOP_CTRL_SERS_REV               0x00404320 /* SERS Revision Register */
+#define BCHP_SUN_TOP_CTRL_SERS_CFG               0x00404324 /* SERS Configuration Register */
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL      0x00404400 /* Block select for RO testmode */
+#define BCHP_SUN_TOP_CTRL_TEST_MODE_CTRL         0x00404500 /* Test_mode control register */
+#define BCHP_SUN_TOP_CTRL_TEST_MODE              0x00404504 /* Register source for test_mode */
+#define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE          0x00404508 /* Register source for sub_test_mode */
+#define BCHP_SUN_TOP_CTRL_LATCHED_TEST_MODE      0x0040450c /* Final latched testmode value */
+#define BCHP_SUN_TOP_CTRL_LATCHED_SUB_TEST_MODE  0x00404510 /* Final latched sub-testmode value */
+#define BCHP_SUN_TOP_CTRL_PM_CTRL                0x00404600 /* Control register for Power Controller */
+#define BCHP_SUN_TOP_CTRL_PM_IRQ_INPUT_STATUS    0x00404604 /* Power Management IRQ input status */
+#define BCHP_SUN_TOP_CTRL_PM_MIPS_WAIT_COUNT     0x00404608 /* Power Management Wait counter in place of Wait for MIPS IRQ */
 
 /***************************************************************************
- *PROD_REVISION
+ *PROD_REVISION - Product Revision ID
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PROD_REVISION :: product_revision [31:00] */
 #define BCHP_SUN_TOP_CTRL_PROD_REVISION_product_revision_MASK      0xffffffff
 #define BCHP_SUN_TOP_CTRL_PROD_REVISION_product_revision_SHIFT     0
 
 /***************************************************************************
- *SUN_REVISION
+ *SUN_REVISION - Sundry Revision ID
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SUN_REVISION :: reserved0 [31:16] */
 #define BCHP_SUN_TOP_CTRL_SUN_REVISION_reserved0_MASK              0xffff0000
@@ -166,7 +169,7 @@
 #define BCHP_SUN_TOP_CTRL_SUN_REVISION_sundry_revision_SHIFT       0
 
 /***************************************************************************
- *RESET_CTRL
+ *RESET_CTRL - Reset control
  ***************************************************************************/
 /* SUN_TOP_CTRL :: RESET_CTRL :: reset_outb_monitor [31:31] */
 #define BCHP_SUN_TOP_CTRL_RESET_CTRL_reset_outb_monitor_MASK       0x80000000
@@ -241,7 +244,7 @@
 #define BCHP_SUN_TOP_CTRL_RESET_CTRL_sc_insert_reset_en_SHIFT      0
 
 /***************************************************************************
- *NMI_CTRL
+ *NMI_CTRL - Control register for NMI
  ***************************************************************************/
 /* SUN_TOP_CTRL :: NMI_CTRL :: nmi_config_lock [31:31] */
 #define BCHP_SUN_TOP_CTRL_NMI_CTRL_nmi_config_lock_MASK            0x80000000
@@ -264,7 +267,7 @@
 #define BCHP_SUN_TOP_CTRL_NMI_CTRL_disable_pad_nmi_SHIFT           0
 
 /***************************************************************************
- *SW_RESET
+ *SW_RESET - Software reset register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SW_RESET :: chip_master_reset [31:31] */
 #define BCHP_SUN_TOP_CTRL_SW_RESET_chip_master_reset_MASK          0x80000000
@@ -391,7 +394,7 @@
 #define BCHP_SUN_TOP_CTRL_SW_RESET_sundry_sw_reset_SHIFT           0
 
 /***************************************************************************
- *RESET_HISTORY
+ *RESET_HISTORY - Reset history
  ***************************************************************************/
 /* SUN_TOP_CTRL :: RESET_HISTORY :: reserved0 [31:12] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_reserved0_MASK             0xfffff000
@@ -446,7 +449,7 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_power_on_reset_SHIFT       0
 
 /***************************************************************************
- *STRAP_VALUE_0
+ *STRAP_VALUE_0 - Strapping values
  ***************************************************************************/
 /* SUN_TOP_CTRL :: STRAP_VALUE_0 :: reserved0 [31:13] */
 #define BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_reserved0_MASK             0xffffe000
@@ -485,7 +488,7 @@
 #define BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_system_big_endian_SHIFT 0
 
 /***************************************************************************
- *STRAP_VALUE_1
+ *STRAP_VALUE_1 - Strapping values
  ***************************************************************************/
 /* SUN_TOP_CTRL :: STRAP_VALUE_1 :: reserved0 [31:03] */
 #define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_reserved0_MASK             0xfffffff8
@@ -504,7 +507,7 @@
 #define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_xtal_highpass_up_SHIFT 0
 
 /***************************************************************************
- *BOND_STATUS
+ *BOND_STATUS - Bond option value register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: BOND_STATUS :: reserved0 [31:01] */
 #define BCHP_SUN_TOP_CTRL_BOND_STATUS_reserved0_MASK               0xfffffffe
@@ -515,7 +518,7 @@
 #define BCHP_SUN_TOP_CTRL_BOND_STATUS_bond_reserved_SHIFT          0
 
 /***************************************************************************
- *OTP_OPTION_TEST_0
+ *OTP_OPTION_TEST_0 - OTP option test register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: reserved0 [31:24] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_reserved0_MASK         0xff000000
@@ -598,7 +601,7 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_product_id_SHIFT 0
 
 /***************************************************************************
- *OTP_OPTION_TEST_1
+ *OTP_OPTION_TEST_1 - OTP option test register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_1 :: reserved0 [31:24] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_reserved0_MASK         0xff000000
@@ -657,7 +660,7 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_otp_option1_spare_bsp_otp_0_SHIFT 0
 
 /***************************************************************************
- *OTP_OPTION_STATUS_0
+ *OTP_OPTION_STATUS_0 - OTP option status register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: reserved0 [31:24] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_reserved0_MASK       0xff000000
@@ -740,7 +743,7 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_product_id_SHIFT 0
 
 /***************************************************************************
- *OTP_OPTION_STATUS_1
+ *OTP_OPTION_STATUS_1 - OTP option status register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_1 :: reserved0 [31:24] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_reserved0_MASK       0xff000000
@@ -799,7 +802,7 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_otp_option1_spare_bsp_otp_0_SHIFT 0
 
 /***************************************************************************
- *SEMAPHORE_0
+ *SEMAPHORE_0 - Semaphore channel 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_0 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_0_reserved0_MASK               0xffffff00
@@ -810,7 +813,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_0_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_1
+ *SEMAPHORE_1 - Semaphore channel 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_1 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_1_reserved0_MASK               0xffffff00
@@ -821,7 +824,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_1_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_2
+ *SEMAPHORE_2 - Semaphore channel 2
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_2 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_2_reserved0_MASK               0xffffff00
@@ -832,7 +835,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_2_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_3
+ *SEMAPHORE_3 - Semaphore channel 3
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_3 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_3_reserved0_MASK               0xffffff00
@@ -843,7 +846,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_3_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_4
+ *SEMAPHORE_4 - Semaphore channel 4
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_4 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_4_reserved0_MASK               0xffffff00
@@ -854,7 +857,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_4_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_5
+ *SEMAPHORE_5 - Semaphore channel 5
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_5 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_5_reserved0_MASK               0xffffff00
@@ -865,7 +868,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_5_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_6
+ *SEMAPHORE_6 - Semaphore channel 6
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_6 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_6_reserved0_MASK               0xffffff00
@@ -876,7 +879,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_6_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_7
+ *SEMAPHORE_7 - Semaphore channel 7
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_7 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_7_reserved0_MASK               0xffffff00
@@ -887,7 +890,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_7_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_8
+ *SEMAPHORE_8 - Semaphore channel 8
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_8 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_8_reserved0_MASK               0xffffff00
@@ -898,7 +901,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_8_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_9
+ *SEMAPHORE_9 - Semaphore channel 9
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_9 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_9_reserved0_MASK               0xffffff00
@@ -909,7 +912,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_9_semaphore_ctrl_SHIFT         0
 
 /***************************************************************************
- *SEMAPHORE_10
+ *SEMAPHORE_10 - Semaphore channel 10
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_10 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_10_reserved0_MASK              0xffffff00
@@ -920,7 +923,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_10_semaphore_ctrl_SHIFT        0
 
 /***************************************************************************
- *SEMAPHORE_11
+ *SEMAPHORE_11 - Semaphore channel 11
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_11 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_11_reserved0_MASK              0xffffff00
@@ -931,7 +934,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_11_semaphore_ctrl_SHIFT        0
 
 /***************************************************************************
- *SEMAPHORE_12
+ *SEMAPHORE_12 - Semaphore channel 12
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_12 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_12_reserved0_MASK              0xffffff00
@@ -942,7 +945,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_12_semaphore_ctrl_SHIFT        0
 
 /***************************************************************************
- *SEMAPHORE_13
+ *SEMAPHORE_13 - Semaphore channel 13
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_13 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_13_reserved0_MASK              0xffffff00
@@ -953,7 +956,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_13_semaphore_ctrl_SHIFT        0
 
 /***************************************************************************
- *SEMAPHORE_14
+ *SEMAPHORE_14 - Semaphore channel 14
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_14 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_14_reserved0_MASK              0xffffff00
@@ -964,7 +967,7 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_14_semaphore_ctrl_SHIFT        0
 
 /***************************************************************************
- *SEMAPHORE_15
+ *SEMAPHORE_15 - Semaphore channel 15
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SEMAPHORE_15 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_15_reserved0_MASK              0xffffff00
@@ -975,21 +978,21 @@
 #define BCHP_SUN_TOP_CTRL_SEMAPHORE_15_semaphore_ctrl_SHIFT        0
 
 /***************************************************************************
- *GEN_WATCHDOG_0
+ *GEN_WATCHDOG_0 - General watchdog timer 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GEN_WATCHDOG_0 :: watchdog_timeout_value [31:00] */
 #define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_0_watchdog_timeout_value_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_0_watchdog_timeout_value_SHIFT 0
 
 /***************************************************************************
- *GEN_WATCHDOG_1
+ *GEN_WATCHDOG_1 - General watchdog timer 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GEN_WATCHDOG_1 :: watchdog_timeout_value [31:00] */
 #define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_1_watchdog_timeout_value_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_GEN_WATCHDOG_1_watchdog_timeout_value_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_0
+ *GENERAL_CTRL_0 - General control register 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_reserved0_MASK            0xfffffffc
@@ -1004,7 +1007,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_general_ctrl0_0_SHIFT     0
 
 /***************************************************************************
- *GENERAL_CTRL_1
+ *GENERAL_CTRL_1 - General control register 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_1 :: reserved0 [31:16] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_1_reserved0_MASK            0xffff0000
@@ -1075,7 +1078,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_1_reserved1_SHIFT           0
 
 /***************************************************************************
- *GENERAL_CTRL_2
+ *GENERAL_CTRL_2 - General control register 2
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_2 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_reserved0_MASK            0xfffffffc
@@ -1090,7 +1093,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_general_ctrl2_0_SHIFT     0
 
 /***************************************************************************
- *GENERAL_CTRL_3
+ *GENERAL_CTRL_3 - General control register 3
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: reserved0 [31:16] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_reserved0_MASK            0xffff0000
@@ -1105,7 +1108,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_diag_lo_sel_SHIFT         0
 
 /***************************************************************************
- *GENERAL_CTRL_4
+ *GENERAL_CTRL_4 - General control register 4
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_4 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_reserved0_MASK            0xfffffffc
@@ -1120,7 +1123,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_general_ctrl4_0_SHIFT     0
 
 /***************************************************************************
- *GENERAL_CTRL_5
+ *GENERAL_CTRL_5 - General control register 5
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_5 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_5_reserved0_MASK            0xfffffffc
@@ -1135,7 +1138,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_5_general_ctrl5_0_SHIFT     0
 
 /***************************************************************************
- *GENERAL_STATUS_0
+ *GENERAL_STATUS_0 - General status register 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_STATUS_0 :: reserved0 [31:03] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_0_reserved0_MASK          0xfffffff8
@@ -1154,7 +1157,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_0_hif_strap_invalid_SHIFT 0
 
 /***************************************************************************
- *GENERAL_STATUS_1
+ *GENERAL_STATUS_1 - General status register 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_STATUS_1 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_1_reserved0_MASK          0xfffffffc
@@ -1169,7 +1172,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_1_general_status1_0_SHIFT 0
 
 /***************************************************************************
- *GENERAL_STATUS_2
+ *GENERAL_STATUS_2 - General status register 2
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_STATUS_2 :: reserved0 [31:08] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_2_reserved0_MASK          0xffffff00
@@ -1208,7 +1211,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_STATUS_2_general_status2_00_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_NO_SCAN_0
+ *GENERAL_CTRL_NO_SCAN_0 - General control register without scan 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: pad_mode_gpio_074 [31:31] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_pad_mode_gpio_074_MASK 0x80000000
@@ -1339,7 +1342,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_pad_mode_gpio_043_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_NO_SCAN_1
+ *GENERAL_CTRL_NO_SCAN_1 - General control register without scan 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: reserved0 [31:07] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_reserved0_MASK    0xffffff80
@@ -1370,7 +1373,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_rgmii_pad_mode_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_NO_SCAN_2
+ *GENERAL_CTRL_NO_SCAN_2 - General control register without scan 2
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved0_MASK    0xfffffffc
@@ -1385,7 +1388,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_0_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_NO_SCAN_3
+ *GENERAL_CTRL_NO_SCAN_3 - General control register without scan 3
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_3 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_3_reserved0_MASK    0xfffffffc
@@ -1400,7 +1403,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_3_general_ctrl_no_scan3_0_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_NO_SCAN_4
+ *GENERAL_CTRL_NO_SCAN_4 - General control register without scan 4
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_4 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_4_reserved0_MASK    0xfffffffc
@@ -1415,7 +1418,7 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_4_general_ctrl_no_scan4_0_SHIFT 0
 
 /***************************************************************************
- *GENERAL_CTRL_NO_SCAN_5
+ *GENERAL_CTRL_NO_SCAN_5 - General control register without scan 5
  ***************************************************************************/
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_5 :: reserved0 [31:02] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_5_reserved0_MASK    0xfffffffc
@@ -1430,14 +1433,14 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_5_general_ctrl_no_scan5_0_SHIFT 0
 
 /***************************************************************************
- *UNCLEARED_SCRATCH
+ *UNCLEARED_SCRATCH - Scratch register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: UNCLEARED_SCRATCH :: uncleared_scratch [31:00] */
 #define BCHP_SUN_TOP_CTRL_UNCLEARED_SCRATCH_uncleared_scratch_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_UNCLEARED_SCRATCH_uncleared_scratch_SHIFT 0
 
 /***************************************************************************
- *SPARE_CTRL
+ *SPARE_CTRL - Spare control bits reserved for future use
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SPARE_CTRL :: spare_ctrl_31 [31:31] */
 #define BCHP_SUN_TOP_CTRL_SPARE_CTRL_spare_ctrl_31_MASK            0x80000000
@@ -1568,7 +1571,7 @@
 #define BCHP_SUN_TOP_CTRL_SPARE_CTRL_spare_ctrl_00_SHIFT           0
 
 /***************************************************************************
- *PIN_MUX_CTRL_0
+ *PIN_MUX_CTRL_0 - Pinmux control register 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_0 :: pci_ad04 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_pci_ad04_MASK             0xf0000000
@@ -1629,7 +1632,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_11_RC_TP_IN_1        5
 
 /***************************************************************************
- *PIN_MUX_CTRL_1
+ *PIN_MUX_CTRL_1 - Pinmux control register 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_1 :: pci_ad12 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_pci_ad12_MASK             0xf0000000
@@ -1688,7 +1691,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_pci_ad05_RC_ALT_TP_IN_5   2
 
 /***************************************************************************
- *PIN_MUX_CTRL_2
+ *PIN_MUX_CTRL_2 - Pinmux control register 2
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_2 :: pci_ad20 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_pci_ad20_MASK             0xf0000000
@@ -1747,7 +1750,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_pci_ad13_RC_ALT_TP_IN_13  2
 
 /***************************************************************************
- *PIN_MUX_CTRL_3
+ *PIN_MUX_CTRL_3 - Pinmux control register 3
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_3 :: pci_ad28 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_pci_ad28_MASK             0xf0000000
@@ -1806,7 +1809,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_pci_ad21_RC_ALT_TP_IN_21  2
 
 /***************************************************************************
- *PIN_MUX_CTRL_4
+ *PIN_MUX_CTRL_4 - Pinmux control register 4
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_4 :: pkt_clk0 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_4_pkt_clk0_MASK             0xf0000000
@@ -1876,7 +1879,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_4_pci_ad29_RC_ALT_TP_IN_29  2
 
 /***************************************************************************
- *PIN_MUX_CTRL_5
+ *PIN_MUX_CTRL_5 - Pinmux control register 5
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_5 :: gpio_103 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_5_gpio_103_MASK             0xf0000000
@@ -1945,7 +1948,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_5_pkt_data0_RC_ALT_TP_OUT_1 4
 
 /***************************************************************************
- *PIN_MUX_CTRL_6
+ *PIN_MUX_CTRL_6 - Pinmux control register 6
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_6 :: gpio_07 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_07_MASK              0xf0000000
@@ -2021,7 +2024,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_104_PM_GPIO_104      2
 
 /***************************************************************************
- *PIN_MUX_CTRL_7
+ *PIN_MUX_CTRL_7 - Pinmux control register 7
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_7 :: sc0_vcc [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_7_sc0_vcc_MASK              0xf0000000
@@ -2100,7 +2103,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_7_gpio_08_RC_TP_IN_11       6
 
 /***************************************************************************
- *PIN_MUX_CTRL_8
+ *PIN_MUX_CTRL_8 - Pinmux control register 8
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_8 :: uart_1_rxd [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_uart_1_rxd_MASK           0xf0000000
@@ -2166,7 +2169,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_13_RC_ALT_TP_OUT_13  4
 
 /***************************************************************************
- *PIN_MUX_CTRL_9
+ *PIN_MUX_CTRL_9 - Pinmux control register 9
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_9 :: gpio_20 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_20_MASK              0xf0000000
@@ -2250,7 +2253,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_uart_1_txd_RC_ALT_TP_OUT_21 3
 
 /***************************************************************************
- *PIN_MUX_CTRL_10
+ *PIN_MUX_CTRL_10 - Pinmux control register 10
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_10 :: sgpio_06 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_sgpio_06_MASK            0xf0000000
@@ -2309,7 +2312,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_21_RC_TP_IN_20      6
 
 /***************************************************************************
- *PIN_MUX_CTRL_11
+ *PIN_MUX_CTRL_11 - Pinmux control register 11
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_11 :: gpio_30 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_30_MASK             0xf0000000
@@ -2382,7 +2385,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_sgpio_07_BNM_M_SDA       2
 
 /***************************************************************************
- *PIN_MUX_CTRL_12
+ *PIN_MUX_CTRL_12 - Pinmux control register 12
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_12 :: gpio_38 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_38_MASK             0xf0000000
@@ -2485,7 +2488,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_31_RC_TP_IN_30      8
 
 /***************************************************************************
- *PIN_MUX_CTRL_13
+ *PIN_MUX_CTRL_13 - Pinmux control register 13
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_13 :: gpio_100 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_100_MASK            0xf0000000
@@ -2566,7 +2569,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_39_RC_ALT_TP_OUT_30 7
 
 /***************************************************************************
- *PIN_MUX_CTRL_14
+ *PIN_MUX_CTRL_14 - Pinmux control register 14
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_14 :: gpio_48 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_48_MASK             0xf0000000
@@ -2647,7 +2650,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_101_PM_GPIO_101     3
 
 /***************************************************************************
- *PIN_MUX_CTRL_15
+ *PIN_MUX_CTRL_15 - Pinmux control register 15
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_15 :: gpio_56 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_15_gpio_56_MASK             0xf0000000
@@ -2737,7 +2740,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_15_gpio_49_RC_TP_OUT_6      6
 
 /***************************************************************************
- *PIN_MUX_CTRL_16
+ *PIN_MUX_CTRL_16 - Pinmux control register 16
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_16 :: gpio_64 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_16_gpio_64_MASK             0xf0000000
@@ -2830,7 +2833,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_16_gpio_57_RC_TP_OUT_14     6
 
 /***************************************************************************
- *PIN_MUX_CTRL_17
+ *PIN_MUX_CTRL_17 - Pinmux control register 17
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_17 :: gpio_72 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_gpio_72_MASK             0xf0000000
@@ -2924,7 +2927,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_gpio_65_RC_TP_OUT_22     6
 
 /***************************************************************************
- *PIN_MUX_CTRL_18
+ *PIN_MUX_CTRL_18 - Pinmux control register 18
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_18 :: gpio_80 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_18_gpio_80_MASK             0xf0000000
@@ -3011,7 +3014,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_18_gpio_73_RC_TP_OUT_30     7
 
 /***************************************************************************
- *PIN_MUX_CTRL_19
+ *PIN_MUX_CTRL_19 - Pinmux control register 19
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_19 :: gpio_88 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_19_gpio_88_MASK             0xf0000000
@@ -3082,7 +3085,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_19_gpio_81_RC_TBUS_IO_0     4
 
 /***************************************************************************
- *PIN_MUX_CTRL_20
+ *PIN_MUX_CTRL_20 - Pinmux control register 20
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_20 :: gpio_96 [31:28] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_20_gpio_96_MASK             0xf0000000
@@ -3157,7 +3160,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_20_gpio_89_RC_TP_IN_26      4
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_0
+ *PIN_MUX_PAD_CTRL_0 - Pad pull-up/pull-down control register 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_0 :: spare_pad_ctrl_0 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_spare_pad_ctrl_0_MASK 0xc0000000
@@ -3203,7 +3206,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_moca_link_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_1
+ *PIN_MUX_PAD_CTRL_1 - Pad pull-up/pull-down control register 1
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_1 :: spare_pad_ctrl_1 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_1_spare_pad_ctrl_1_MASK 0xc0000000
@@ -3217,7 +3220,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_1_reserved0_SHIFT       0
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_2
+ *PIN_MUX_PAD_CTRL_2 - Pad pull-up/pull-down control register 2
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_2 :: spare_pad_ctrl_2 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2_spare_pad_ctrl_2_MASK 0xc0000000
@@ -3231,7 +3234,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2_reserved0_SHIFT       0
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_3
+ *PIN_MUX_PAD_CTRL_3 - Pad pull-up/pull-down control register 3
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_3 :: spare_pad_ctrl_3 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_3_spare_pad_ctrl_3_MASK 0xc0000000
@@ -3343,7 +3346,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_3_ebi_ta2b_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_4
+ *PIN_MUX_PAD_CTRL_4 - Pad pull-up/pull-down control register 4
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_4 :: spare_pad_ctrl_4 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_4_spare_pad_ctrl_4_MASK 0xc0000000
@@ -3424,7 +3427,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_4_reserved1_SHIFT       0
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_5
+ *PIN_MUX_PAD_CTRL_5 - Pad pull-up/pull-down control register 5
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_5 :: spare_pad_ctrl_5 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_5_spare_pad_ctrl_5_MASK 0xc0000000
@@ -3539,7 +3542,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_5_gpio_103_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_6
+ *PIN_MUX_PAD_CTRL_6 - Pad pull-up/pull-down control register 6
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_6 :: spare_pad_ctrl_6 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6_spare_pad_ctrl_6_MASK 0xc0000000
@@ -3654,7 +3657,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6_sc0_pres_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_7
+ *PIN_MUX_PAD_CTRL_7 - Pad pull-up/pull-down control register 7
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_7 :: spare_pad_ctrl_7 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7_spare_pad_ctrl_7_MASK 0xc0000000
@@ -3717,7 +3720,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7_gpio_18_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_8
+ *PIN_MUX_PAD_CTRL_8 - Pad pull-up/pull-down control register 8
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_8 :: spare_pad_ctrl_8 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8_spare_pad_ctrl_8_MASK 0xc0000000
@@ -3832,7 +3835,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8_gpio_25_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_9
+ *PIN_MUX_PAD_CTRL_9 - Pad pull-up/pull-down control register 9
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_9 :: spare_pad_ctrl_9 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_9_spare_pad_ctrl_9_MASK 0xc0000000
@@ -3947,7 +3950,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_9_gpio_42_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_10
+ *PIN_MUX_PAD_CTRL_10 - Pad pull-up/pull-down control register 10
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_10 :: spare_pad_ctrl_10 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10_spare_pad_ctrl_10_MASK 0xc0000000
@@ -4062,7 +4065,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10_gpio_51_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_11
+ *PIN_MUX_PAD_CTRL_11 - Pad pull-up/pull-down control register 11
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_11 :: spare_pad_ctrl_11 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_11_spare_pad_ctrl_11_MASK 0xc0000000
@@ -4177,7 +4180,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_11_gpio_66_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_12
+ *PIN_MUX_PAD_CTRL_12 - Pad pull-up/pull-down control register 12
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_12 :: spare_pad_ctrl_12 [31:30] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_12_spare_pad_ctrl_12_MASK 0xc0000000
@@ -4292,7 +4295,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_12_gpio_81_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *PIN_MUX_PAD_CTRL_13
+ *PIN_MUX_PAD_CTRL_13 - Pad pull-up/pull-down control register 13
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_13 :: reserved0 [31:04] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_13_reserved0_MASK       0xfffffff0
@@ -4313,7 +4316,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_13_gpio_96_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
- *BYP_CLK_UNSELECT_0
+ *BYP_CLK_UNSELECT_0 - Bypass clock unselect register 0
  ***************************************************************************/
 /* SUN_TOP_CTRL :: BYP_CLK_UNSELECT_0 :: reserved0 [31:18] */
 #define BCHP_SUN_TOP_CTRL_BYP_CLK_UNSELECT_0_reserved0_MASK        0xfffc0000
@@ -4392,7 +4395,7 @@
 #define BCHP_SUN_TOP_CTRL_BYP_CLK_UNSELECT_0_unsel_byp_clk_on_moca_link_SHIFT 0
 
 /***************************************************************************
- *TEST_PORT_CTRL
+ *TEST_PORT_CTRL - Test port control
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_PORT_CTRL :: sundry_local_tp_out_sel [31:28] */
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_sundry_local_tp_out_sel_MASK 0xf0000000
@@ -4474,35 +4477,35 @@
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_UNUSED_127 127
 
 /***************************************************************************
- *TEST_PORT_OUT_PEEK
+ *TEST_PORT_OUT_PEEK - Testport peek register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_PORT_OUT_PEEK :: test_port_out_peek_value [31:00] */
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_PEEK_test_port_out_peek_value_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_PEEK_test_port_out_peek_value_SHIFT 0
 
 /***************************************************************************
- *TEST_PORT_OUT_POKE
+ *TEST_PORT_OUT_POKE - Testport poke register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_PORT_OUT_POKE :: test_port_out_poke_value [31:00] */
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_POKE_test_port_out_poke_value_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_OUT_POKE_test_port_out_poke_value_SHIFT 0
 
 /***************************************************************************
- *TEST_PORT_IN_PEEK
+ *TEST_PORT_IN_PEEK - Testport peek register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_PORT_IN_PEEK :: test_port_in_peek_value [31:00] */
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_PEEK_test_port_in_peek_value_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_PEEK_test_port_in_peek_value_SHIFT 0
 
 /***************************************************************************
- *TEST_PORT_IN_POKE
+ *TEST_PORT_IN_POKE - Testport poke register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_PORT_IN_POKE :: test_port_in_poke_value [31:00] */
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_POKE_test_port_in_poke_value_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_IN_POKE_test_port_in_poke_value_SHIFT 0
 
 /***************************************************************************
- *EJTAG_INPUT_EN
+ *EJTAG_INPUT_EN - EJTAG input bus enables
  ***************************************************************************/
 /* SUN_TOP_CTRL :: EJTAG_INPUT_EN :: reserved0 [31:07] */
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_reserved0_MASK            0xffffff80
@@ -4520,7 +4523,7 @@
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_DTP_CPU_ONE_HOT 64
 
 /***************************************************************************
- *EJTAG_OUTPUT_SEL
+ *EJTAG_OUTPUT_SEL - EJTAG output select
  ***************************************************************************/
 /* SUN_TOP_CTRL :: EJTAG_OUTPUT_SEL :: reserved0 [31:03] */
 #define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_reserved0_MASK          0xfffffff8
@@ -4538,7 +4541,7 @@
 #define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_DTP_CPU 6
 
 /***************************************************************************
- *UART_ROUTER_SEL
+ *UART_ROUTER_SEL - UART Router select
  ***************************************************************************/
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_7_cpu_sel [31:28] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_MASK      0xf0000000
@@ -4701,7 +4704,7 @@
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_0_cpu_sel_UNUSED_15 15
 
 /***************************************************************************
- *SSP_CONFIG
+ *SSP_CONFIG - Serial Slave Port configuration register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SSP_CONFIG :: reserved0 [31:11] */
 #define BCHP_SUN_TOP_CTRL_SSP_CONFIG_reserved0_MASK                0xfffff800
@@ -4728,7 +4731,7 @@
 #define BCHP_SUN_TOP_CTRL_SSP_CONFIG_ssp_module_enable_SHIFT       0
 
 /***************************************************************************
- *SERS_REV
+ *SERS_REV - SERS Revision Register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SERS_REV :: reserved0 [31:16] */
 #define BCHP_SUN_TOP_CTRL_SERS_REV_reserved0_MASK                  0xffff0000
@@ -4743,7 +4746,7 @@
 #define BCHP_SUN_TOP_CTRL_SERS_REV_BLOCK_SERS_REVISION_SHIFT       0
 
 /***************************************************************************
- *SERS_CFG
+ *SERS_CFG - SERS Configuration Register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SERS_CFG :: reserved_for_eco0 [31:29] */
 #define BCHP_SUN_TOP_CTRL_SERS_CFG_reserved_for_eco0_MASK          0xe0000000
@@ -4822,7 +4825,7 @@
 #define BCHP_SUN_TOP_CTRL_SERS_CFG_SOFT_SER_ADR_SHIFT              0
 
 /***************************************************************************
- *SERS_CMD_BUF_%i - 
+ *SERS_CMD_BUF_%i - Host Serial Write Command Buffer
  ***************************************************************************/
 #define BCHP_SUN_TOP_CTRL_SERS_CMD_BUF_i_ARRAY_BASE                0x00404328
 #define BCHP_SUN_TOP_CTRL_SERS_CMD_BUF_i_ARRAY_START               0
@@ -4830,7 +4833,7 @@
 #define BCHP_SUN_TOP_CTRL_SERS_CMD_BUF_i_ARRAY_ELEMENT_SIZE        32
 
 /***************************************************************************
- *SERS_CMD_BUF_%i - 
+ *SERS_CMD_BUF_%i - Host Serial Write Command Buffer
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SERS_CMD_BUF_i :: SERS_CMD_BUF [31:00] */
 #define BCHP_SUN_TOP_CTRL_SERS_CMD_BUF_i_SERS_CMD_BUF_MASK         0xffffffff
@@ -4838,7 +4841,7 @@
 
 
 /***************************************************************************
- *SERS_STAT_BUF_%i - 
+ *SERS_STAT_BUF_%i - Host Serial Read Status Buffer
  ***************************************************************************/
 #define BCHP_SUN_TOP_CTRL_SERS_STAT_BUF_i_ARRAY_BASE               0x00404348
 #define BCHP_SUN_TOP_CTRL_SERS_STAT_BUF_i_ARRAY_START              0
@@ -4846,7 +4849,7 @@
 #define BCHP_SUN_TOP_CTRL_SERS_STAT_BUF_i_ARRAY_ELEMENT_SIZE       32
 
 /***************************************************************************
- *SERS_STAT_BUF_%i - 
+ *SERS_STAT_BUF_%i - Host Serial Read Status Buffer
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SERS_STAT_BUF_i :: SERS_STAT_BUF [31:00] */
 #define BCHP_SUN_TOP_CTRL_SERS_STAT_BUF_i_SERS_STAT_BUF_MASK       0xffffffff
@@ -4854,7 +4857,7 @@
 
 
 /***************************************************************************
- *RO_TEST_BLOCK_SEL
+ *RO_TEST_BLOCK_SEL - Block select for RO testmode
  ***************************************************************************/
 /* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: reserved0 [31:05] */
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_reserved0_MASK         0xffffffe0
@@ -4877,7 +4880,7 @@
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_block_select_SATA_RO_TEST_ID 7
 
 /***************************************************************************
- *TEST_MODE_CTRL
+ *TEST_MODE_CTRL - Test_mode control register
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_MODE_CTRL :: reserved0 [31:01] */
 #define BCHP_SUN_TOP_CTRL_TEST_MODE_CTRL_reserved0_MASK            0xfffffffe
@@ -4888,7 +4891,7 @@
 #define BCHP_SUN_TOP_CTRL_TEST_MODE_CTRL_use_test_mode_reg_src_SHIFT 0
 
 /***************************************************************************
- *TEST_MODE
+ *TEST_MODE - Register source for test_mode
  ***************************************************************************/
 /* SUN_TOP_CTRL :: TEST_MODE :: reserved0 [31:04] */
 #define BCHP_SUN_TOP_CTRL_TEST_MODE_reserved0_MASK                 0xfffffff0
@@ -4899,7 +4902,7 @@
 #define BCHP_SUN_TOP_CTRL_TEST_MODE_test_mode_SHIFT                0
 
 /***************************************************************************
- *SUB_TEST_MODE
+ *SUB_TEST_MODE - Register source for sub_test_mode
  ***************************************************************************/
 /* SUN_TOP_CTRL :: SUB_TEST_MODE :: reserved0 [31:09] */
 #define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_reserved0_MASK             0xfffffe00
@@ -4938,21 +4941,21 @@
 #define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_sub_test_mode_bsp_debug_SHIFT 0
 
 /***************************************************************************
- *LATCHED_TEST_MODE
+ *LATCHED_TEST_MODE - Final latched testmode value
  ***************************************************************************/
 /* SUN_TOP_CTRL :: LATCHED_TEST_MODE :: latched_test_mode [31:00] */
 #define BCHP_SUN_TOP_CTRL_LATCHED_TEST_MODE_latched_test_mode_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_LATCHED_TEST_MODE_latched_test_mode_SHIFT 0
 
 /***************************************************************************
- *LATCHED_SUB_TEST_MODE
+ *LATCHED_SUB_TEST_MODE - Final latched sub-testmode value
  ***************************************************************************/
 /* SUN_TOP_CTRL :: LATCHED_SUB_TEST_MODE :: latched_sub_test_mode [31:00] */
 #define BCHP_SUN_TOP_CTRL_LATCHED_SUB_TEST_MODE_latched_sub_test_mode_MASK 0xffffffff
 #define BCHP_SUN_TOP_CTRL_LATCHED_SUB_TEST_MODE_latched_sub_test_mode_SHIFT 0
 
 /***************************************************************************
- *PM_CTRL
+ *PM_CTRL - Control register for Power Controller
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PM_CTRL :: pm_wait_count_upper_bits [31:20] */
 #define BCHP_SUN_TOP_CTRL_PM_CTRL_pm_wait_count_upper_bits_MASK    0xfff00000
@@ -5036,7 +5039,7 @@
 #define BCHP_SUN_TOP_CTRL_PM_CTRL_pm_start_pwrdn_SHIFT             0
 
 /***************************************************************************
- *PM_IRQ_INPUT_STATUS
+ *PM_IRQ_INPUT_STATUS - Power Management IRQ input status
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PM_IRQ_INPUT_STATUS :: reserved0 [31:12] */
 #define BCHP_SUN_TOP_CTRL_PM_IRQ_INPUT_STATUS_reserved0_MASK       0xfffff000
@@ -5091,7 +5094,7 @@
 #define BCHP_SUN_TOP_CTRL_PM_IRQ_INPUT_STATUS_cec_wakeup_SHIFT     0
 
 /***************************************************************************
- *PM_MIPS_WAIT_COUNT
+ *PM_MIPS_WAIT_COUNT - Power Management Wait counter in place of Wait for MIPS IRQ
  ***************************************************************************/
 /* SUN_TOP_CTRL :: PM_MIPS_WAIT_COUNT :: reserved0 [31:16] */
 #define BCHP_SUN_TOP_CTRL_PM_MIPS_WAIT_COUNT_reserved0_MASK        0xffff0000

@@ -1,5 +1,5 @@
 /* Renesas / SuperH specific support for Symbian 32-bit ELF files
-   Copyright 2004, 2005, 2006
+   Copyright 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
    Contributed by Red Hat
 
@@ -7,7 +7,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -17,7 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
+
 
 /* Stop elf32-sh.c from defining any target vectors.  */
 #define SH_TARGET_ALREADY_DEFINED
@@ -603,7 +605,8 @@ sh_symbian_relocate_section (bfd *                  output_bfd,
 		BFD_ASSERT (ptr->new_symndx);
 		if (SYMBIAN_DEBUG)
 		  fprintf (stderr, "convert reloc %lx from using index %ld to using index %ld\n",
-			   (long) rel->r_info, (long) ELF32_R_SYM (rel->r_info), ptr->new_symndx);
+			   (unsigned long) rel->r_info,
+			   (long) ELF32_R_SYM (rel->r_info), ptr->new_symndx);
 		rel->r_info = ELF32_R_INFO (ptr->new_symndx, r_type);
 		break;
 	      }

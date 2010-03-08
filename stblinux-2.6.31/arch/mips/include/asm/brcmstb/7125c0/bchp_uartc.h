@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:23:14 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_uartc.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:59p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,20 +43,20 @@
 #define BCHP_UARTC_H__
 
 /***************************************************************************
- *UARTC
+ *UARTC - UART C
  ***************************************************************************/
-#define BCHP_UARTC_RBR                           0x00406b80
-#define BCHP_UARTC_THR                           0x00406b80
-#define BCHP_UARTC_DLH                           0x00406b84
-#define BCHP_UARTC_DLL                           0x00406b80
-#define BCHP_UARTC_IER                           0x00406b84
-#define BCHP_UARTC_IIR                           0x00406b88
-#define BCHP_UARTC_FCR                           0x00406b88
-#define BCHP_UARTC_LCR                           0x00406b8c
-#define BCHP_UARTC_MCR                           0x00406b90
-#define BCHP_UARTC_LSR                           0x00406b94
-#define BCHP_UARTC_MSR                           0x00406b98
-#define BCHP_UARTC_SCR                           0x00406b9c
+#define BCHP_UARTC_RBR                           0x00406b80 /* Receive Buffer Register */
+#define BCHP_UARTC_THR                           0x00406b80 /* Transmit Holding Register */
+#define BCHP_UARTC_DLH                           0x00406b84 /* Divisor Latch High */
+#define BCHP_UARTC_DLL                           0x00406b80 /* Divisor Latch Low */
+#define BCHP_UARTC_IER                           0x00406b84 /* Interrupt Enable Register */
+#define BCHP_UARTC_IIR                           0x00406b88 /* Interrupt Identity Register */
+#define BCHP_UARTC_FCR                           0x00406b88 /* FIFO Control Register */
+#define BCHP_UARTC_LCR                           0x00406b8c /* Line Control Register */
+#define BCHP_UARTC_MCR                           0x00406b90 /* Modem Control Register */
+#define BCHP_UARTC_LSR                           0x00406b94 /* Line Status Register */
+#define BCHP_UARTC_MSR                           0x00406b98 /* Modem Status Register */
+#define BCHP_UARTC_SCR                           0x00406b9c /* Scratchpad Register */
 
 #endif /* #ifndef BCHP_UARTC_H__ */
 

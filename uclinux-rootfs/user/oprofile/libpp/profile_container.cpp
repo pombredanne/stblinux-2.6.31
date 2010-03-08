@@ -49,12 +49,14 @@ struct filename_by_samples {
 }  // anon namespace
 
 
-profile_container::profile_container(bool debug_info_, bool need_details_)
+profile_container::profile_container(bool debug_info_, bool need_details_,
+				     extra_images const & extra_)
 	:
 	symbols(new symbol_container),
 	samples(new sample_container),
 	debug_info(debug_info_),
-	need_details(need_details_)
+	need_details(need_details_),
+	extra_found_images(extra_)
 {
 }
 
@@ -77,14 +79,13 @@ void profile_container::add(profile_t const & profile,
 
 	for (symbol_index_t i = 0; i < abfd.syms.size(); ++i) {
 
-		unsigned long start, end;
+		unsigned long long start = 0, end = 0;
 		symbol_entry symb_entry;
 
 		abfd.get_symbol_range(i, start, end);
 
 		profile_t::iterator_pair p_it =
 			profile.samples_range(start, end);
-
 		count_type count = accumulate(p_it.first, p_it.second, 0ull);
 
 		// skip entries with no samples
@@ -103,7 +104,7 @@ void profile_container::add(profile_t const & profile,
 		if (debug_info) {
 			string filename;
 			if (abfd.get_linenr(i, start, filename,
-			    symb_entry.sample.file_loc.linenr)) {
+				symb_entry.sample.file_loc.linenr)) {
 				symb_entry.sample.file_loc.filename =
 					debug_names.create(filename);
 			}
@@ -112,9 +113,7 @@ void profile_container::add(profile_t const & profile,
 		symb_entry.image_name = image_names.create(image_name);
 		symb_entry.app_name = image_names.create(app_name);
 
-		bfd_vma base_vma = abfd.syms[i].vma();
-
-		symb_entry.sample.vma = abfd.sym_offset(i, start) + base_vma;
+		symb_entry.sample.vma = abfd.syms[i].vma();
 		if ((header.spu_profile == cell_spu_profile) &&
 		    header.embedded_offset) {
 			symb_entry.spu_offset = header.embedded_offset;
@@ -126,7 +125,7 @@ void profile_container::add(profile_t const & profile,
 		symbol_entry const * symbol = symbols->insert(symb_entry);
 
 		if (need_details)
-			add_samples(abfd, i, p_it, symbol, pclass);
+			add_samples(abfd, i, p_it, symbol, pclass, start);
 	}
 }
 
@@ -134,7 +133,8 @@ void profile_container::add(profile_t const & profile,
 void
 profile_container::add_samples(op_bfd const & abfd, symbol_index_t sym_index,
                                profile_t::iterator_pair const & p_it,
-                               symbol_entry const * symbol, size_t pclass)
+                               symbol_entry const * symbol, size_t pclass,
+			       unsigned long start)
 {
 	bfd_vma base_vma = abfd.syms[sym_index].vma();
 
@@ -148,13 +148,13 @@ profile_container::add_samples(op_bfd const & abfd, symbol_index_t sym_index,
 		if (debug_info) {
 			string filename;
 			if (abfd.get_linenr(sym_index, it.vma(), filename,
-					    sample.file_loc.linenr)) {
+					sample.file_loc.linenr)) {
 				sample.file_loc.filename =
 					debug_names.create(filename);
 			}
 		}
 
-		sample.vma = abfd.sym_offset(sym_index, it.vma()) + base_vma;
+		sample.vma = (it.vma() - start) + base_vma;
 
 		samples->insert(symbol, sample);
 	}

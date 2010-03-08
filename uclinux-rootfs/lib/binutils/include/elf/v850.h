@@ -1,5 +1,5 @@
 /* V850 ELF support for BFD.
-   Copyright 1997, 1998, 2000, 2002, 2003, 2004
+   Copyright 1997, 1998, 2000, 2002, 2003, 2004, 2007, 2008
    Free Software Foundation, Inc.
    Created by Michael Meissner, Cygnus Support <meissner@cygnus.com>
 
@@ -41,10 +41,9 @@
 
 
 /* Flags for the st_other field.  */
-#define V850_OTHER_SDA		0x01	/* Symbol had SDA relocations.  */
-#define V850_OTHER_ZDA		0x02	/* Symbol had ZDA relocations.  */
-#define V850_OTHER_TDA		0x04	/* Symbol had TDA relocations.  */
-#define V850_OTHER_TDA_BYTE	0x08	/* Symbol had TDA byte relocations.  */
+#define V850_OTHER_SDA		0x10	/* Symbol had SDA relocations.  */
+#define V850_OTHER_ZDA		0x20	/* Symbol had ZDA relocations.  */
+#define V850_OTHER_TDA		0x40	/* Symbol had TDA relocations.  */
 #define V850_OTHER_ERROR	0x80	/* Symbol had an error reported.  */
 
 /* V850 relocations.  */
@@ -89,13 +88,13 @@ END_RELOC_NUMBERS (R_V850_max)
    values have a special meaning.  */
 
 /* Small data area common symbol.  */
-#define SHN_V850_SCOMMON	0xff00
+#define SHN_V850_SCOMMON	SHN_LORESERVE
 
 /* Tiny data area common symbol.  */
-#define SHN_V850_TCOMMON	0xff01
+#define SHN_V850_TCOMMON	(SHN_LORESERVE + 1)
 
 /* Zero data area common symbol.  */
-#define SHN_V850_ZCOMMON	0xff02
+#define SHN_V850_ZCOMMON	(SHN_LORESERVE + 2)
 
 
 /* Processor specific section types.  */

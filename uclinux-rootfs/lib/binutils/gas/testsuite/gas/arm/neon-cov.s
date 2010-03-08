@@ -456,7 +456,7 @@
 	mov_imm vmvn 0x0077ffff .i32
 	mov_imm vmov 0x77 .i8
 	mov_imm vmov 0xff0000ff000000ff .i64
-	mov_imm vmov 0x40880000 .f32
+	mov_imm vmov 4.25 .f32
 
 	mov_imm vmov 0xa5a5 .i16
 	mov_imm vmvn 0xa5a5 .i16
@@ -561,6 +561,7 @@
 	vext.8 q0,q0,q0,0
 	vextq.8 q0,q0,q0,0
 	vext.8 d0,d0,d0,0
+	vext.8 q0,q0,q0,8
 
 	.macro revs op opq vtype
 	\op\vtype q0,q0

@@ -387,7 +387,9 @@ typedef struct tDmaRegs
 #endif
 	unsigned long tdma_ctrl;
 	unsigned long tdma_status;
+#ifndef CONFIG_BRCM_HAS_GENET2
 	unsigned long unused;
+#endif
 	unsigned long tdma_scb_burst_size;
 	unsigned long tdma_activity;
 	unsigned long tdma_mask;

@@ -7,14 +7,23 @@
  *
  * @author John Levon
  * @author Philippe Elie
+ * @Modifications Daniel Hansel
  */
 
+#include <cstring>
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
 #include <set>
 #include <sstream>
+#include <cstring>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include "op_config.h"
 #include "op_exception.h"
 #include "odb.h"
 #include "op_cpu_type.h"
@@ -24,8 +33,11 @@
 #include "string_manip.h"
 #include "format_output.h"
 #include "xml_utils.h"
+#include "cverb.h"
 
 using namespace std;
+
+extern verbose vbfd;
 
 void op_check_header(opd_header const & h1, opd_header const & h2,
 		     string const & filename)
@@ -44,13 +56,9 @@ void op_check_header(opd_header const & h1, opd_header const & h2,
 		   << filename << "\n";
 		throw op_fatal_error(os.str());
 	}
-
-	if  (h1.anon_start != h2.anon_start) {
-		ostringstream os;
-		os << "header anon_start flags are different for "
-		   << filename << "\n";
-		throw op_fatal_error(os.str());
-	}
+	
+	// Note that in the generated ELF file for anonymous code the vma
+	// of the symbol is exaclty the same vma as the code had during sampling.
 	
 	// Note that we don't check CPU speed since that can vary
 	// freely on the same machine
@@ -63,6 +71,19 @@ set<string> warned_files;
 
 }
 
+bool is_jit_sample(string const & filename)
+{
+	// suffix for JIT sample files (see FIXME in check_mtime() below)
+	string suf = ".jo";
+	
+	string::size_type pos;
+	pos = filename.rfind(suf);
+	// for JIT sample files do not output the warning to stderr.
+	if (pos != string::npos && pos == filename.size() - suf.size())
+		return true;
+	else
+		return false;
+}
 
 void check_mtime(string const & file, opd_header const & header)
 {
@@ -78,9 +99,18 @@ void check_mtime(string const & file, opd_header const & header)
 
 	// Files we couldn't get mtime of have zero mtime
 	if (!header.mtime) {
-		cerr << "warning: could not check that the binary file "
-		     << file << " has not been modified since "
-			"the profile was taken. Results may be inaccurate.\n";
+		// FIXME: header.mtime for JIT sample files is 0. The problem could be that
+		//        in opd_mangling.c:opd_open_sample_file() the call of fill_header()
+		//        think that the JIT sample file is not a binary file.
+		if (is_jit_sample(file)) {
+			cverb << vbfd << "warning: could not check that the binary file "
+			      << file << " has not been modified since "
+			      "the profile was taken. Results may be inaccurate.\n";
+		} else {
+			cerr << "warning: could not check that the binary file "
+			     << file << " has not been modified since "
+			     "the profile was taken. Results may be inaccurate.\n";
+		}
 	} else {
 		static bool warned_already = false;
 
@@ -99,19 +129,28 @@ void check_mtime(string const & file, opd_header const & header)
 
 opd_header const read_header(string const & sample_filename)
 {
-	odb_t samples_db;
+	int fd = open(sample_filename.c_str(), O_RDONLY);
+	if (fd < 0)
+		throw op_fatal_error("Can't open sample file:" +
+				     sample_filename);
 
-	int rc = odb_open(&samples_db, sample_filename.c_str(), ODB_RDONLY,
-		sizeof(struct opd_header));
+	opd_header header;
+	if (read(fd, &header, sizeof(header)) != sizeof(header)) {
+		close(fd);
+		throw op_fatal_error("Can't read sample file header:" +
+				     sample_filename);
+	}
 
-	if (rc)
-		throw op_fatal_error(sample_filename + ": " + strerror(rc));
+	if (memcmp(header.magic, OPD_MAGIC, sizeof(header.magic))) {
+		throw op_fatal_error("Invalid sample file, "
+				     "bad magic number: " +
+				     sample_filename);
+		close(fd);
+	}
 
-	opd_header head = *static_cast<opd_header *>(samples_db.data->base_memory);
+	close(fd);
 
-	odb_close(&samples_db);
-
-	return head;
+	return header;
 }
 
 
@@ -126,11 +165,15 @@ string const op_print_event(op_cpu cpu_type, u32 type, u32 um, u32 count)
 		return str;
 	}
 
-	struct op_event * event = op_find_event(cpu_type, type);
+	struct op_event * event = op_find_event(cpu_type, type, um);
 
 	if (!event) {
-		cerr << "Could not locate event " << int(type) << endl;
-		return str;
+		event = op_find_event_any(cpu_type, type);
+		if (!event) { 
+			cerr << "Could not locate event " << int(type) << endl;
+			str = "Unknown event";
+			return str;
+		}
 	}
 
 	char const * um_desc = 0;
@@ -166,10 +209,13 @@ string const op_xml_print_event(op_cpu cpu_type, u32 type, u32 um, u32 count)
 	if (cpu_type == CPU_TIMER_INT || cpu_type == CPU_RTC)
 		return xml_utils::get_timer_setup((size_t)count);
 
-	struct op_event * event = op_find_event(cpu_type, type);
+	struct op_event * event = op_find_event(cpu_type, type, um);
 	if (!event) {
-		cerr << "Could not locate event " << int(type) << endl;
-		return "";
+		event = op_find_event_any(cpu_type, type);
+		if (!event) { 
+			cerr << "Could not locate event " << int(type) << endl;
+			return "";
+		}
 	}
 
 	if (cpu_type != CPU_RTC) {

@@ -6,11 +6,15 @@
 /* Defined if you have the version of bfd_openr_iovec with 7 parameters */
 #undef HAVE_BFD_OPENR_IOVEC_WITH_7PARMS
 
+/* Define to 1 if you have the declaration of `basename', and to 0 if you
+   don't. */
+#undef HAVE_DECL_BASENAME
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `bfd' library (-lbfd). */
-#undef HAVE_LIBBFD
 
 /* Define to 1 if you have the `iberty' library (-liberty). */
 #undef HAVE_LIBIBERTY

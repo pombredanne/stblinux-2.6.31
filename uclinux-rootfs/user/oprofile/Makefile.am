@@ -1,8 +1,11 @@
+#### ATTENTION ####
+#    The agents directory must be kept as the last subdir
 SUBDIRS = \
 	. \
 	m4 \
 	libutil \
 	libop \
+	libopagent \
 	libdb \
 	libutil++ \
 	libopt++ \
@@ -11,10 +14,16 @@ SUBDIRS = \
 	utils \
 	libregex \
 	libpp \
+	opjitconv \
 	pp \
 	events \
 	doc \
-	gui
+	gui \
+	agents
+#### ATTENTION ####
+#    The agents directory must be kept as the last subdir
+
+
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -53,7 +62,10 @@ EXTRA_DIST = \
 	ChangeLog-2004 \
 	ChangeLog-2005 \
         ChangeLog-2006 \
+	ChangeLog-2007 \
+	ChangeLog-2008 \
 	autogen.sh \
+	README_PACKAGERS \
 	include/sstream \
 	module/Makefile.in \
 	module/compat.c \

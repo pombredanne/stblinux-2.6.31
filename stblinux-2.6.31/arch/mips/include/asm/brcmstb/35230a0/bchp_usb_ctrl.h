@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Oct 26 15:51:36 2009
- *                 MD5 Checksum         5fd0cb0aa6450b45d64f0dc6066fbcc8
+ * Date:           Generated on         Tue Dec  8 18:12:35 2009
+ *                 MD5 Checksum         f964e2b5f58a23cbbab787311eff1ba2
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35230/rdb/a0/bchp_usb_ctrl.h $
  * 
- * Hydra_Software_Devel/2   10/29/09 4:49p albertl
- * SW35230-5: Updated to match RDB.
+ * Hydra_Software_Devel/4   12/10/09 7:02p albertl
+ * SW35230-30: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -72,8 +72,12 @@
 #define BCHP_USB_CTRL_SETUP_OC_DISABLE_MASK                        0x70000000
 #define BCHP_USB_CTRL_SETUP_OC_DISABLE_SHIFT                       28
 
-/* USB_CTRL :: SETUP :: SETUP_SPARE [27:09] */
-#define BCHP_USB_CTRL_SETUP_SETUP_SPARE_MASK                       0x0ffffe00
+/* USB_CTRL :: SETUP :: SRAM_CS_DIS [27:26] */
+#define BCHP_USB_CTRL_SETUP_SRAM_CS_DIS_MASK                       0x0c000000
+#define BCHP_USB_CTRL_SETUP_SRAM_CS_DIS_SHIFT                      26
+
+/* USB_CTRL :: SETUP :: SETUP_SPARE [25:09] */
+#define BCHP_USB_CTRL_SETUP_SETUP_SPARE_MASK                       0x03fffe00
 #define BCHP_USB_CTRL_SETUP_SETUP_SPARE_SHIFT                      9
 
 /* USB_CTRL :: SETUP :: utmi_bkward_en [08:08] */
@@ -119,9 +123,9 @@
 #define BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK                  0x80000000
 #define BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_SHIFT                 31
 
-/* USB_CTRL :: PLL_CTL :: PLL_RESET [30:30] */
-#define BCHP_USB_CTRL_PLL_CTL_PLL_RESET_MASK                       0x40000000
-#define BCHP_USB_CTRL_PLL_CTL_PLL_RESET_SHIFT                      30
+/* USB_CTRL :: PLL_CTL :: PLL_RESETB [30:30] */
+#define BCHP_USB_CTRL_PLL_CTL_PLL_RESETB_MASK                      0x40000000
+#define BCHP_USB_CTRL_PLL_CTL_PLL_RESETB_SHIFT                     30
 
 /* USB_CTRL :: PLL_CTL :: PHYPLL_BYP [29:29] */
 #define BCHP_USB_CTRL_PLL_CTL_PHYPLL_BYP_MASK                      0x20000000

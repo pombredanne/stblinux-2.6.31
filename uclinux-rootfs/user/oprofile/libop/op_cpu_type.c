@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "op_cpu_type.h"
+#include "op_hw_specific.h"
 
 struct cpu_descr {
 	char const * pretty;
@@ -72,11 +73,18 @@ static struct cpu_descr const cpu_descrs[MAX_CPU_TYPE] = {
 	{ "ARM MPCore", "arm/mpcore", CPU_ARM_MPCORE, 2 },
 	{ "ARM V6 PMU", "arm/armv6", CPU_ARM_V6, 3 },
 	{ "ppc64 POWER5++", "ppc64/power5++", CPU_PPC64_POWER5pp, 6 },
-	{ "Broadcom 7038", "mips/bcm7038", CPU_MIPS_BCM7038, 2},
-	{ "Broadcom 4350", "mips/bcm4350", CPU_MIPS_BCM4350, 4},
-	{ "Broadcom 3300", "mips/bcm3300", CPU_MIPS_BCM3300, 4},
-	{ "Broadcom 4380", "mips/bcm4380", CPU_MIPS_BCM4380, 4},
-	{ "Broadcom 5000", "mips/bcm5000", CPU_MIPS_BCM5000, 4},
+	{ "e300", "ppc/e300", CPU_PPC_E300, 4 },
+	{ "AVR32", "avr32", CPU_AVR32, 3 },
+	{ "ARM V7 PMNC", "arm/armv7", CPU_ARM_V7, 5 },
+ 	{ "Intel Architectural Perfmon", "i386/arch_perfmon", CPU_ARCH_PERFMON, 0},
+	{ "AMD64 family11h", "x86-64/family11h", CPU_FAMILY11H, 4 },
+	{ "ppc64 POWER7", "ppc64/power7", CPU_PPC64_POWER7, 6 },
+	{ "ppc64 compat version 1", "ppc64/ibm-compat-v1", CPU_PPC64_IBM_COMPAT_V1, 4 },
+   	{ "Intel Core/i7", "i386/core_i7", CPU_CORE_I7, 4 },
+   	{ "Intel Atom", "i386/atom", CPU_ATOM, 2 },
+	{ "Broadcom BMIPS3300", "mips/bmips3300", CPU_BMIPS3300, 4 },
+	{ "Broadcom BMIPS4380", "mips/bmips4380", CPU_BMIPS4380, 4 },
+	{ "Broadcom BMIPS5000", "mips/bmips5000", CPU_BMIPS5000, 4 },
 };
  
 static size_t const nr_cpu_descrs = sizeof(cpu_descrs) / sizeof(struct cpu_descr);
@@ -154,8 +162,14 @@ char const * op_get_cpu_name(op_cpu cpu_type)
 
 int op_get_nr_counters(op_cpu cpu_type)
 {
+	int cnt;
+
 	if (cpu_type <= CPU_NO_GOOD || cpu_type >= MAX_CPU_TYPE)
 		return 0;
+
+	cnt = arch_num_counters(cpu_type);
+	if (cnt >= 0)
+		return cnt;
 
 	return cpu_descrs[cpu_type].nr_counters;
 }

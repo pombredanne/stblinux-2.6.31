@@ -9,10 +9,13 @@
  * @author Philippe Elie
  */
 
+#include <cstdlib>
+
 #include <vector>
 #include <list>
 #include <iterator>
 #include <iostream>
+#include <cstdlib>
 
 #include "profile_spec.h"
 #include "arrange_profiles.h"
@@ -26,7 +29,6 @@ using namespace std;
 profile_classes classes;
 
 namespace options {
-	string archive_path;
 	demangle_type demangle = dmt_normal;
 	string output_dir;
 	vector<string> search_dirs;
@@ -120,12 +122,12 @@ void handle_options(options::spec const & spec)
 	options::file_filter = path_filter(include_file, exclude_file);
 
 	profile_spec const pspec =
-		profile_spec::create(spec.common, options::extra_found_images);
+		profile_spec::create(spec.common, options::image_path,
+				     options::root_path);
 
 	list<string> sample_files = pspec.generate_file_list(exclude_dependent, true);
 
-	archive_path = pspec.get_archive_path();
-	cverb << vsfile << "Archive: " << archive_path << endl;
+	cverb << vsfile << "Archive: " << pspec.get_archive_path() << endl;
 
 	cverb << vsfile << "Matched sample files: " << sample_files.size()
 	      << endl;
@@ -138,7 +140,8 @@ void handle_options(options::spec const & spec)
 	// or assembly point of view the result will be merged anyway
 	merge_by = handle_merge_option(mergespec, false, exclude_dependent);
 
-	classes = arrange_profiles(sample_files, merge_by);
+	classes = arrange_profiles(sample_files, merge_by,
+				   pspec.extra_found_images);
 
 	cverb << vsfile << "profile_classes:\n" << classes << endl;
 

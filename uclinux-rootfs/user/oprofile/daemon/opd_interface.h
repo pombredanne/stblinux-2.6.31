@@ -27,8 +27,22 @@
 /* Code 9 used to be TRACE_END_CODE which is not used anymore  */
 /* Code 9 is now considered an unknown escape code             */
 #define XEN_ENTER_SWITCH_CODE		10
+/*
+ * Ugly work-around for the unfortunate collision between Xenoprof's
+ * DOMAIN_SWITCH_CODE (in use on x86) and Cell's SPU_PROFILING_CODE
+ * (in use with Power):
+ */
+#if defined(__powerpc__)
 #define SPU_PROFILING_CODE		11
 #define SPU_CTX_SWITCH_CODE		12
-#define LAST_CODE			13
+#else
+#define DOMAIN_SWITCH_CODE		11
+/* Code 12 is now considered an unknown escape code */
+#endif
+
+/* AMD's Instruction-Based Sampling (IBS) escape code */
+#define IBS_FETCH_SAMPLE		13
+#define IBS_OP_SAMPLE			14
+#define LAST_CODE			15
  
 #endif /* OPD_INTERFACE_H */

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Oct 26 15:29:54 2009
- *                 MD5 Checksum         5fd0cb0aa6450b45d64f0dc6066fbcc8
+ * Date:           Generated on         Sat Dec  5 04:01:21 2009
+ *                 MD5 Checksum         9437f18f3328c688f4d21c20465093b8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35230/rdb/a0/bchp_usb_ehci1.h $
  * 
- * Hydra_Software_Devel/1   10/29/09 3:48p albertl
- * SW35230-5: Initial revision.
+ * Hydra_Software_Devel/2   12/7/09 8:16p albertl
+ * SW35230-30: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -56,7 +56,6 @@
 #define BCHP_USB_EHCI1_ASYNCLISTADDR             0x00210528 /* Asynchronous List Address */
 #define BCHP_USB_EHCI1_CONFIGFLAG                0x00210550 /* Configured Flag Register */
 #define BCHP_USB_EHCI1_PORTSC_0                  0x00210554 /* Port Status/Control Register for Port 0 */
-#define BCHP_USB_EHCI1_PORTSC_1                  0x00210558 /* Port Status/Control Register for Port 1 */
 #define BCHP_USB_EHCI1_INSNREG00                 0x00210590 /* Microframe Base Value Register */
 #define BCHP_USB_EHCI1_INSNREG01                 0x00210594 /* Packet Buffer OUT/IN Threshold Register */
 #define BCHP_USB_EHCI1_INSNREG02                 0x00210598 /* Packet Buffer Depth Register */

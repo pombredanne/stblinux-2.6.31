@@ -1,98 +1,60 @@
 include $(ROOTDIR)/config.arch
 
-TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
+BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
 
-ifneq (,$(findstring linux,$(CROSS)))
-	TARGET=$(CROSS:linux-=linux)
-	TARGET_ARCH ?= $(CROSS:-linux-=)
-else
-	ifneq (,$(findstring uclibc,$(CROSS)))
-		TARGET_ARCH ?= $(CROSS:-uclibc-=)
-		TARGET=$(TARGET_ARCH)-linux
-	else
-		echo "FIXME: Cannot determine target architecture"
-		exit 99
-	endif
-endif
-UCLIBC_INC = -I$(ROOTDIR)/uClibc/include
-LINUX_INC=-I$(ROOTDIR)/$(LINUXDIR)/include
-GCC_INC=-I$(TOOL_DIR_PREFIX)/$(TARGET)/include
-GXX_INC=-I$(TOOL_DIR_PREFIX)/$(TARGET)/include/c++/4.2.0 -I$(TOOL_DIR_PREFIX)/$(TARGET)/include
-# THT: For libiberty.h
-BFD_INCLUDE=-I$(ROOTDIR)/lib/binutils/bfd -I$(ROOTDIR)/lib/binutils/include
-# THT: Order is important, as we want to use the uClibc headers first,
-# and the headers from gcc last.
-MY_CFLAGS += $(BFD_INCLUDE) -I$(ROOTDIR)/user/popt $(GCC_INC)
-MY_CPPFLAGS += $(MY_CFLAGS)
-MY_CXXFLAGS = $(GXX_INC) $(MY_CFLAGS)
-MY_LDFLAGS += \
-	-Bstatic -L$(ROOTDIR)/lib/binutils/intl \
-	-L$(ROOTDIR)/user/popt/.libs \
-	-L$(ROOTDIR)/lib/binutils/bfd \
-	-L$(ROOTDIR)/lib/binutils/libiberty \
-	-L$(ROOTDIR)/uClibc/lib
+CC			:= $(MACHINE)-linux-gcc
+STRIP			:= $(MACHINE)-linux-strip
 
-TARGET_PREFIX=/usr/local/share/oprofile/
-BUILD_PREFIX=$(ROOTDIR)/romfs/$(TARGET_PREFIX)
+CFLAGS			:= -I$(ROOTDIR)/lib/popt
+CFLAGS			+= -I$(ROOTDIR)/lib/zlib
+CFLAGS			+= -I$(ROOTDIR)/lib/binutils/include
+CFLAGS			+= -I$(ROOTDIR)/lib/binutils/bfd
 
-RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
-	html-recursive info-recursive install-data-recursive \
-	install-exec-recursive install-info-recursive \
-	install-recursive installcheck-recursive installdirs-recursive \
-	pdf-recursive ps-recursive uninstall-info-recursive \
-	uninstall-recursive
+CXXFLAGS		:= $(CFLAGS)
 
-all:
-	# This is optional software, so it may not be cleaned even with a make distclean
-	# and will faile to build if we switch from LE to BE build and vice versa.
-	-test -f Makefile && make -f Makefile distclean
-	-rm -f Makefile config.cache config.h config.status
-	CC=$(CC) LD=$(LD) CFLAGS="$(MY_CFLAGS)" LDFLAGS="$(MY_LDFLAGS)" CXXFLAGS="$(MY_CXXFLAGS)" CPPFLAGS="$(MY_CPPFLAGS)"\
-	VERSION=\"0.9.1\" PACKAGE=\"oprofile\" \
-		./configure \
-		--target=$(TARGET)		\
-		--host=$(TARGET)	\
-		--build=i386-linux \
-		--prefix=/usr/local \
-		--with-kernel-support \
-		--with-linux=$(ROOTDIR)/$(LINUX_DIR) \
-		--with-module-dir=$(ROOTDIR)/romfs/lib/modules \
-		--with-package=yes \
-		--with-binutils=$(ROOTDIR)/lib/binutils \
-#		--cache-file=config.cache.brcmstb.$(TARGET_ARCH)
-	make -f Makefile
+LDFLAGS			:= -L$(ROOTDIR)/lib/popt/.libs
+LDFLAGS			+= -L$(ROOTDIR)/lib/zlib
+LDFLAGS			+= -L$(ROOTDIR)/lib/binutils/bfd
+LDFLAGS			+= -L$(ROOTDIR)/lib/binutils/libiberty
+LDFLAGS			+= -L$(ROOTDIR)/lib/binutils/intl
+LDFLAGS			+= -lintl
 
-#libiberty.a: libiberty-$(TARGET_ARCH).a
-#	-rm $@
-#	ln -s $< $@
+export CC CFLAGS CXXFLAGS
 
-clean:
-	make -f Makefile clean
+.PHONY: all
+all::
+	if [ ! -e Makefile ]; then \
+		./configure --host=$(MACHINE)-linux --disable-shared \
+			--prefix=/usr CXXFLAGS="$(CXXFLAGS)" \
+			CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" || exit 1 ; \
+	fi
+	$(MAKE) -f Makefile
 
-distclean: clean
-	make -f Makefile distclean
-	-rm -f Makefile config.cache config.h config.status
+.PHONY: romfs
+romfs::
+	$(STRIP) pp/opannotate pp/oparchive pp/opgprof pp/opreport \
+		utils/ophelp daemon/oprofiled
+	chmod 0755 utils/opcontrol
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE pp/opannotate \
+		/bin/opannotate
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE pp/opgprof \
+		/bin/opgprof
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE pp/opreport \
+		/bin/opreport
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE utils/ophelp \
+		/bin/ophelp
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE utils/opcontrol \
+		/bin/opcontrol
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE daemon/oprofiled \
+		/bin/oprofiled
+	mkdir -p $(ROMFSDIR)/usr/share/oprofile
+	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE events/mips \
+		/usr/share/oprofile/mips
 
-$(RECURSIVE_TARGETS) all-am am--refresh:
-	make -f Makefile $@
+# These targets must not be passed through to the original Makefile
+.PHONY: $(BOGUS_TARGETS)
+$(BOGUS_TARGETS)::
 
-romfs:
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE_FULL ./pp/opannotate /usr/bin/opannotate
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE_FULL ./pp/oparchive /usr/bin//oparchive
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE -p 555 ./utils/opcontrol /usr/bin/opcontrol
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE_FULL ./pp/opgprof /usr/bin/opgprof
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE ./utils/ophelp /usr/bin/ophelp
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE ./pp/opreport /usr/bin/opreport
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE ./daemon/oprofiled /usr/bin/oprofiled
-	# Installed in lib
-	#$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE \
-	#	$(TOOL_DIR_PREFIX)/$(TARGET)-uclibc/lib/libstdc++.so.6 \
-	#	/lib/libstdc++.so.6
-	#$(ROMFSINST) -s ./libstdc++.so.6 /lib/libstdc++.so
-	#$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE \
-	#	$(TOOL_DIR_PREFIX)/$(TARGET)-uclibc/lib/libgcc_s.so.1 \
-	#	/lib/libgcc_s.so.1
-	#$(ROMFSINST) -s ./libgcc_s.so.1 /lib/libgcc_s.so
-	# Provide objdump since we already built it
-	$(ROMFSINST) -e CONFIG_USER_PROFILE_OPROFILE $(ROOTDIR)/lib/binutils/binutils/objdump /usr/bin/objdump
-
+# Everything else (maybe including clean, distclean) does get passed through
+%:: FORCE
+	$(MAKE) -f Makefile $@

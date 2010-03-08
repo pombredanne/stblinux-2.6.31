@@ -91,13 +91,14 @@ bool extract_linenr_info(string const & info, string & file, size_t & line)
 
 namespace format_output {
 
-formatter::formatter()
+formatter::formatter(extra_images const & extra)
 	:
 	nr_classes(1),
 	flags(ff_none),
 	vma_64(false),
 	long_filenames(false),
-	need_header(true)
+	need_header(true),
+	extra_found_images(extra)
 {
 	format_map[ff_vma] = field_description(9, "vma", &formatter::format_vma);
 	format_map[ff_nr_samples] = field_description(9, "samples", &formatter::format_nr_samples);
@@ -274,13 +275,21 @@ string formatter::format_symb_name(field_datum const & f)
 
 string formatter::format_image_name(field_datum const & f)
 {
-	return get_image_name(f.symbol.image_name, long_filenames);
+	return get_image_name(f.symbol.image_name, 
+		long_filenames 
+			? image_name_storage::int_real_filename
+			: image_name_storage::int_real_basename,
+		extra_found_images);
 }
 
  
 string formatter::format_app_name(field_datum const & f)
 {
-	return get_image_name(f.symbol.app_name, long_filenames);
+	return get_image_name(f.symbol.app_name,
+		long_filenames 
+			? image_name_storage::int_real_filename
+			: image_name_storage::int_real_basename,
+		extra_found_images);
 }
 
  
@@ -346,15 +355,10 @@ string formatter::format_cumulated_percent_details(field_datum const & f)
 
 string formatter::format_diff(field_datum const & f)
 {
-	if (f.diff == INFINITY) {
-		ostringstream out;
-		out << "+++";
-		return out.str();
-	} else if (f.diff == -INFINITY) {
-		ostringstream out;
-		out << "---";
-		return out.str();
-	}
+	if (f.diff == INFINITY)
+		return "+++";
+	else if (f.diff == -INFINITY)
+		return "---";
 
 	return ::format_percent(f.diff, percent_int_width,
                                 percent_fract_width, true);
@@ -368,13 +372,14 @@ do_output(ostream & out, symbol_entry const & symb, sample_entry const & sample,
 	size_t padding = 0;
 
 	// first output the vma field
-	field_datum datum(symb, sample, 0, c);
+	field_datum datum(symb, sample, 0, c, extra_found_images);
 	if (flags & ff_vma)
 		padding = output_field(out, datum, ff_vma, padding, false);
 
 	// repeated fields for each profile class
 	for (size_t pclass = 0 ; pclass < nr_classes; ++pclass) {
-		field_datum datum(symb, sample, pclass, c, diffs[pclass]);
+		field_datum datum(symb, sample, pclass, c,
+				  extra_found_images, diffs[pclass]);
 
 		if (flags & ff_nr_samples)
 			padding = output_field(out, datum,
@@ -428,6 +433,7 @@ do_output(ostream & out, symbol_entry const & symb, sample_entry const & sample,
 
 opreport_formatter::opreport_formatter(profile_container const & p)
 	:
+	formatter(p.extra_found_images),
 	profile(p),
 	need_details(false)
 {
@@ -484,6 +490,8 @@ output_details(ostream & out, symbol_entry const * symb)
 
  
 cg_formatter::cg_formatter(callgraph_container const & profile)
+	:
+	formatter(profile.extra_found_images)
 {
 	counts.total = profile.samples_count();
 }
@@ -502,7 +510,7 @@ void cg_formatter::output(ostream & out, symbol_collection const & syms)
 	symbol_collection::const_iterator end = syms.end();
 
 	for (it = syms.begin(); it < end; ++it) {
-		cg_symbol const *sym = dynamic_cast<const cg_symbol *>(*it);
+		cg_symbol const * sym = dynamic_cast<cg_symbol const *>(*it);
 
 		cg_symbol::children::const_iterator cit;
 		cg_symbol::children::const_iterator cend = sym->callers.end();
@@ -538,7 +546,10 @@ void cg_formatter::output(ostream & out, symbol_collection const & syms)
 }
 
 
-diff_formatter::diff_formatter(diff_container const & profile)
+diff_formatter::diff_formatter(diff_container const & profile,
+			       extra_images const & extra)
+	:
+	formatter(extra)
 {
 	counts.total = profile.samples_count();
 }
@@ -592,11 +603,14 @@ size_t detail_table_index = 0;
 
 xml_formatter::
 xml_formatter(profile_container const * p,
-		symbol_collection & s)
+	      symbol_collection & s, extra_images const & extra,
+	      string_filter const & sf)
 	:
+	formatter(extra),
 	profile(p),
 	symbols(s),
-	need_details(false)
+	need_details(false),
+	symbol_filter(sf)
 {
 	if (profile)
 		counts.total = profile->samples_count();
@@ -640,49 +654,126 @@ void xml_formatter::output(ostream & out)
 	out << close_element(PROFILE);
 }
 
+bool
+xml_formatter::get_bfd_object(symbol_entry const * symb, op_bfd * & abfd) const
+{
+	bool ok = true;
+
+	string const & image_name = get_image_name(symb->image_name,
+		image_name_storage::int_filename, extra_found_images);
+	if (symb->spu_offset) {
+		// FIXME: what about archive:tmp, actually it's not supported
+		// for spu since oparchive doesn't archive the real file but
+		// in future it would work ?
+		string tmp = get_image_name(symb->embedding_filename, 
+			image_name_storage::int_filename, extra_found_images);
+		if (abfd && abfd->get_filename() == tmp)
+			return true;
+		delete abfd;
+		abfd = new op_bfd(symb->spu_offset, tmp,
+				  symbol_filter, extra_found_images, ok);
+	} else {
+		if (abfd && abfd->get_filename() == image_name)
+			return true;
+		delete abfd;
+		abfd = new op_bfd(image_name, symbol_filter,
+				  extra_found_images, ok);
+
+	}
+
+	if (!ok) {
+		report_image_error(image_name, image_format_failure,
+				   false, extra_found_images);
+		delete abfd;
+		abfd = 0;
+		return false;
+	}
+
+	return true;
+}
+
+void xml_formatter::
+output_the_symbol_data(ostream & out, symbol_entry const * symb, op_bfd * & abfd)
+{
+	string const name = symbol_names.name(symb->name);
+	assert(name.size() > 0);
+
+	string const image = get_image_name(symb->image_name,
+		image_name_storage::int_filename, extra_found_images);
+	string const qname = image + ":" + name;
+	map<string, size_t>::iterator sd_it = symbol_data_table.find(qname);
+
+	if (sd_it != symbol_data_table.end()) {
+		// first time we've seen this symbol
+		out << open_element(SYMBOL_DATA, true);
+		out << init_attr(TABLE_ID, sd_it->second);
+
+		field_datum datum(*symb, symb->sample, 0, counts,
+				  extra_found_images);
+
+		output_attribute(out, datum, ff_symb_name, NAME);
+
+		if (flags & ff_linenr_info) {
+			output_attribute(out, datum, ff_linenr_info, SOURCE_FILE);
+			output_attribute(out, datum, ff_linenr_info, SOURCE_LINE);
+		}
+
+		if (name.size() > 0 && name[0] != '?') {
+			output_attribute(out, datum, ff_vma, STARTING_ADDR);
+
+			if (need_details) {
+				get_bfd_object(symb, abfd);
+				if (abfd && abfd->symbol_has_contents(symb->sym_index))
+					xml_support->output_symbol_bytes(bytes_out, symb, sd_it->second, *abfd);
+			}
+		}
+		out << close_element();
+
+		// seen so remove (otherwise get several "no symbols")
+		symbol_data_table.erase(qname);
+	}
+}
+
+void xml_formatter::output_cg_children(ostream & out, 
+	cg_symbol::children const cg_symb, op_bfd * & abfd)
+{
+	cg_symbol::children::const_iterator cit;
+	cg_symbol::children::const_iterator cend = cg_symb.end();
+
+	for (cit = cg_symb.begin(); cit != cend; ++cit) {
+		string const name = symbol_names.name(cit->name);
+		string const image = get_image_name(cit->image_name,
+			image_name_storage::int_filename, extra_found_images);
+		string const qname = image + ":" + name;
+		map<string, size_t>::iterator sd_it = symbol_data_table.find(qname);
+
+		if (sd_it != symbol_data_table.end()) {
+			symbol_entry const * child = &(*cit);
+			output_the_symbol_data(out, child, abfd);
+		}
+	}
+}
 
 void xml_formatter::output_symbol_data(ostream & out)
 {
+	op_bfd * abfd = NULL;
 	sym_iterator it = symbols.begin();
 	sym_iterator end = symbols.end();
 
 	out << open_element(SYMBOL_TABLE);
 	for ( ; it != end; ++it) {
 		symbol_entry const * symb = *it;
-		string const name = symbol_names.name(symb->name);
-		assert(name.size() > 0);
-
-		string const image = get_image_name(symb->image_name, true);
-		string const qname = image + ":" + name;
-		map<string, size_t>::iterator sd_it = symbol_data_table.find(qname);
-
-		if (sd_it != symbol_data_table.end()) {
-			// first time we've seen this symbol
-			out << open_element(SYMBOL_DATA, true);
-			out << init_attr(TABLE_ID, sd_it->second);
-
-			field_datum datum(*symb, symb->sample, 0, counts);
-
-			output_attribute(out, datum, ff_symb_name, NAME);
-
-			if (flags & ff_linenr_info) {
-				output_attribute(out, datum, ff_linenr_info, SOURCE_FILE);
-				output_attribute(out, datum, ff_linenr_info, SOURCE_LINE);
-			}
-
-			if (name.size() > 0 && name[0] != '?') {
-				output_attribute(out, datum, ff_vma, STARTING_ADDR);
-
-				if (need_details)
-					xml_support->output_symbol_bytes(bytes_out, symb, sd_it->second);
-			}
-			out << close_element();
-
-			// seen so remove (otherwise get several "no symbols")
-			symbol_data_table.erase(qname);
+		cg_symbol const * cg_symb = dynamic_cast<cg_symbol const *>(symb);
+		output_the_symbol_data(out, symb, abfd);
+		if (cg_symb) {
+			/* make sure callers/callees are included in SYMBOL_TABLE */
+			output_cg_children(out, cg_symb->callers, abfd);
+			output_cg_children(out, cg_symb->callees, abfd);
 		}
 	}
 	out << close_element(SYMBOL_TABLE);
+
+	delete abfd;
 }
 
 string  xml_formatter::
@@ -708,7 +799,8 @@ output_symbol_details(symbol_entry const * symb,
 			str << init_attr(TABLE_ID, detail_index++);
 
 			// first output the vma field
-			field_datum datum(*symb, it->second, 0, c, 0.0);
+			field_datum datum(*symb, it->second, 0, c, 
+					  extra_found_images, 0.0);
 			output_attribute(str, datum, ff_vma, VMA);
 			if (ff_linenr_info) {
 				string sym_file;
@@ -732,7 +824,7 @@ output_symbol_details(symbol_entry const * symb,
 			str << close_element(NONE, true);
 
 			// output buffered sample data
-			output_sample_data(str, *symb, it->second, p);
+			output_sample_data(str, it->second, p);
 
 			str << close_element(DETAIL_DATA);
 		}
@@ -768,7 +860,8 @@ output_symbol(ostream & out,
 	string const name = symbol_names.name(symb->name);
 	assert(name.size() > 0);
 	
-	string const image = get_image_name(symb->image_name, true);
+	string const image = get_image_name(symb->image_name,
+		image_name_storage::int_filename, extra_found_images);
 	string const qname = image + ":" + name;
 
 	indx = xml_get_symbol_index(qname);
@@ -802,12 +895,8 @@ output_symbol(ostream & out,
 
 
 void xml_formatter::
-output_sample_data(ostream & out, symbol_entry const & symb,
-                   sample_entry const & sample, size_t pclass)
+output_sample_data(ostream & out, sample_entry const & sample, size_t pclass)
 {
-	counts_t c;
-	field_datum datum(symb, sample, 0, c, 0.0);
-
 	out << open_element(COUNT, true);
 	out << init_attr(CLASS, classes.v[pclass].name);
 	out << close_element(NONE, true);
@@ -841,34 +930,33 @@ output_attribute(ostream & out, field_datum const & datum,
 }
 
 xml_cg_formatter::
-xml_cg_formatter(callgraph_container const * cg, symbol_collection & s)
+xml_cg_formatter(callgraph_container const & cg, symbol_collection & s,
+		 string_filter const & sf)
 	:
-	xml_formatter(0, s),
+	xml_formatter(0, s, cg.extra_found_images, sf),
 	callgraph(cg)
 {
-	counts.total = callgraph->samples_count();
+	counts.total = callgraph.samples_count();
 }
 
 void xml_cg_formatter::
 output_symbol_core(ostream & out, cg_symbol::children const cg_symb,
-	string const selfname, string const qname,
-	size_t lo, size_t hi, bool is_module, tag_t tag)
+       string const selfname, string const qname,
+       size_t lo, size_t hi, bool is_module, tag_t tag)
 {
 	cg_symbol::children::const_iterator cit;
 	cg_symbol::children::const_iterator cend = cg_symb.end();
 
 	for (cit = cg_symb.begin(); cit != cend; ++cit) {
-		string const & module = get_image_name((cit)->image_name, true);
-		bool got_samples = false;
+		string const & module = get_image_name((cit)->image_name,
+			image_name_storage::int_filename, extra_found_images);
 		bool self = false;
 		ostringstream str;
 		size_t indx;
 
+		// output symbol's summary data for each profile class
 		for (size_t p = lo; p <= hi; ++p)
-			got_samples |= xml_support->output_summary_data(str, cit->sample.counts, p);
-
-		if (!got_samples)
-			continue;
+			xml_support->output_summary_data(str, cit->sample.counts, p);
 
 		if (cverb << vxml)
 			out << "<!-- symbol_ref=" << symbol_names.name(cit->name) <<
@@ -887,7 +975,7 @@ output_symbol_core(ostream & out, cg_symbol::children const cg_symb,
 		string const symqname = module + ":" + symname;
 
 		// Find any self references and handle
-	        if ((symname == selfname) && (tag == CALLEES)) {
+		if ((symname == selfname) && (tag == CALLEES)) {
 			self = true;
 			indx = xml_get_symbol_index(qname);
 		} else {
@@ -918,15 +1006,8 @@ output_symbol(ostream & out,
 	size_t indx;
 
 	// output symbol's summary data for each profile class
-	bool got_samples = false;
-
-	for (size_t p = lo; p <= hi; ++p) {
-		got_samples |= xml_support->output_summary_data(str,
-		    symb->sample.counts, p);
-	}
-
-	if (!got_samples)
-		return;
+	for (size_t p = lo; p <= hi; ++p)
+		xml_support->output_summary_data(str, symb->sample.counts, p);
 
 	if (cverb << vxml)
 		out << "<!-- symbol_ref=" << symbol_names.name(symb->name) <<
@@ -937,7 +1018,8 @@ output_symbol(ostream & out,
 	string const name = symbol_names.name(symb->name);
 	assert(name.size() > 0);
 
-	string const image = get_image_name(symb->image_name, true);
+	string const image = get_image_name(symb->image_name,
+		image_name_storage::int_filename, extra_found_images);
 	string const qname = image + ":" + name;
 
 	string const selfname = symbol_names.demangle(symb->name) + " [self]";

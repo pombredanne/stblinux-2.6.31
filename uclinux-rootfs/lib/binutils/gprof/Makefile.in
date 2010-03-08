@@ -48,12 +48,19 @@ DIST_COMMON = $(srcdir)/../config.guess $(srcdir)/../config.sub README \
 	$(gprof_TEXINFOS) $(noinst_HEADERS)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/../bfd/warning.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/../bfd/warning.m4 \
+	$(top_srcdir)/../config/depstand.m4 \
+	$(top_srcdir)/../config/extensions.m4 \
 	$(top_srcdir)/../config/gettext-sister.m4 \
-	$(top_srcdir)/../config/nls.m4 $(top_srcdir)/../config/po.m4 \
+	$(top_srcdir)/../config/lead-dot.m4 \
+	$(top_srcdir)/../config/nls.m4 \
+	$(top_srcdir)/../config/override.m4 \
+	$(top_srcdir)/../config/po.m4 \
+	$(top_srcdir)/../config/proginstall.m4 \
 	$(top_srcdir)/../config/progtest.m4 \
-	$(top_srcdir)/../libtool.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/../libtool.m4 $(top_srcdir)/../ltoptions.m4 \
+	$(top_srcdir)/../ltsugar.m4 $(top_srcdir)/../ltversion.m4 \
+	$(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -80,11 +87,11 @@ depcomp =
 am__depfiles_maybe =
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
+LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
 	$(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(gprof_SOURCES)
 INFO_DEPS = gprof.info
@@ -95,11 +102,6 @@ PDFS = gprof.pdf
 PSS = gprof.ps
 HTMLS = gprof.html
 TEXINFOS = gprof.texi
-TEXI2DVI = `if test -f $(top_srcdir)/../texinfo/util/texi2dvi; then \
-             echo $(top_srcdir)/../texinfo/util/texi2dvi; \
-           else \
-             echo texi2dvi; \
-           fi`
 TEXI2PDF = $(TEXI2DVI) --pdf --batch
 MAKEINFOHTML = $(MAKEINFO) --html
 AM_MAKEINFOHTMLFLAGS = $(AM_MAKEINFOFLAGS)
@@ -121,6 +123,7 @@ ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
+AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -136,11 +139,13 @@ CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+FGREP = @FGREP@
 GENCAT = @GENCAT@
 GENINSRC_NEVER_FALSE = @GENINSRC_NEVER_FALSE@
 GENINSRC_NEVER_TRUE = @GENINSRC_NEVER_TRUE@
@@ -152,6 +157,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INSTOBJEXT = @INSTOBJEXT@
+LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBINTL = @LIBINTL@
 LIBINTL_DEP = @LIBINTL_DEP@
@@ -167,6 +173,7 @@ MAKEINFO = @MAKEINFO@
 MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+NM = @NM@
 NO_WERROR = @NO_WERROR@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -178,6 +185,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 POSUB = @POSUB@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -185,7 +193,11 @@ USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 WARN_CFLAGS = @WARN_CFLAGS@
 XGETTEXT = @XGETTEXT@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+ac_ct_RANLIB = @ac_ct_RANLIB@
+ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@
@@ -202,7 +214,6 @@ build_vendor = @build_vendor@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
-dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
@@ -215,15 +226,13 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-localedir = @localedir@
 localstatedir = @localstatedir@
+lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
-pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
-psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
@@ -233,6 +242,7 @@ target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
 AUTOMAKE_OPTIONS = cygnus
+ACLOCAL_AMFLAGS = -I .. -I ../config -I ../bfd
 SUFFIXES = .m
 SUBDIRS = po
 BASEDIR = $(srcdir)/..
@@ -240,7 +250,10 @@ BFDDIR = $(BASEDIR)/bfd
 INCDIR = $(BASEDIR)/include
 AM_CFLAGS = $(WARN_CFLAGS)
 MKDEP = gcc -MM
-INCLUDES = -D_GNU_SOURCE -DDEBUG -I../bfd -I$(srcdir)/../include -I$(srcdir)/../bfd @INCINTL@ -I. -DLOCALEDIR="\"$(datadir)/locale\""
+INCLUDES = -DDEBUG -I../bfd -I$(srcdir)/../include \
+	-I$(srcdir)/../bfd @INCINTL@ -I. \
+	-DLOCALEDIR="\"$(datadir)/locale\""
+
 sources = basic_blocks.c call_graph.c cg_arcs.c cg_dfn.c \
 	cg_print.c corefile.c gmon_io.c gprof.c hertz.c hist.c source.c \
 	search_list.c symtab.c sym_ids.c utils.c \
@@ -258,11 +271,13 @@ BUILT_SOURCES = flat_bl.c bsd_callg_bl.c fsf_callg_bl.c
 EXTRA_DIST = $(BUILT_SOURCES) bbconv.pl $(man_MANS)
 POTFILES = $(sources) $(noinst_HEADERS)
 MANCONF = -Dman
-TEXI2POD = perl $(srcdir)/../etc/texi2pod.pl
+TEXI2POD = perl $(srcdir)/../etc/texi2pod.pl $(AM_MAKEINFOFLAGS)
 POD2MAN = pod2man --center="GNU" --release="binutils-$(VERSION)" --section=1
 info_TEXINFOS = gprof.texi
 gprof_TEXINFOS = config.texi
 man_MANS = gprof.1
+AM_MAKEINFOFLAGS = -I "$(srcdir)" -I "$(top_srcdir)/../bfd/doc" -I ../bfd/doc
+TEXI2DVI = texi2dvi -I "$(srcdir)" -I "$(top_srcdir)/../bfd/doc" -I ../bfd/doc
 html__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 CLEANFILES = dep.sed DEP DEPA DEP1 DEP2
 MAINTAINERCLEANFILES = gprof.info
@@ -812,7 +827,7 @@ diststuff: $(BUILT_SOURCES) info $(man_MANS)
 	    FUNCTION=`(echo $*|sed -e 's,.*/,,g' -e 's/_bl//')`_blurb \
 	    FILE=$*.m $(srcdir)/$*.m
 po/POTFILES.in: @MAINT@ Makefile
-	for f in $(POTFILES); do echo $$f; done | LC_COLLATE= sort > tmp \
+	for f in $(POTFILES); do echo $$f; done | LC_ALL=C sort > tmp \
 	  && mv tmp $(srcdir)/po/POTFILES.in
 
 config.texi:
@@ -927,113 +942,106 @@ dep-am: DEP
 
 # DO NOT DELETE THIS LINE -- mkdep uses it.
 # DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
-basic_blocks.o: basic_blocks.c $(INCDIR)/libiberty.h \
-  $(INCDIR)/ansidecl.h gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
-  $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h ../bfd/bfd.h \
-  $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h basic_blocks.h \
-  corefile.h gmon_io.h gmon_out.h search_list.h source.h \
-  symtab.h sym_ids.h
+basic_blocks.o: basic_blocks.c gprof.h $(BFDDIR)/sysdep.h \
+  ../bfd/config.h $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h \
+  $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
+  gconfig.h $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
+  basic_blocks.h corefile.h gmon_io.h gmon_out.h search_list.h \
+  source.h symtab.h sym_ids.h
 call_graph.o: call_graph.c gprof.h $(BFDDIR)/sysdep.h \
-  $(INCDIR)/ansidecl.h ../bfd/config.h $(INCDIR)/fopen-same.h \
+  ../bfd/config.h $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h \
   $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h cg_arcs.h call_graph.h corefile.h gmon_io.h \
-  gmon_out.h sym_ids.h
-cg_arcs.o: cg_arcs.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h $(INCDIR)/fopen-same.h \
-  $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h call_graph.h cg_arcs.h cg_dfn.h cg_print.h \
-  utils.h sym_ids.h
-cg_dfn.o: cg_dfn.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h $(INCDIR)/fopen-same.h \
-  $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h cg_arcs.h cg_dfn.h utils.h
-cg_print.o: cg_print.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h $(INCDIR)/fopen-same.h \
-  $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h cg_arcs.h cg_print.h hist.h utils.h corefile.h
-corefile.o: corefile.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h $(INCDIR)/fopen-same.h \
-  $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h corefile.h
-gmon_io.o: gmon_io.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
+  gconfig.h search_list.h source.h symtab.h cg_arcs.h \
+  call_graph.h corefile.h gmon_io.h gmon_out.h sym_ids.h
+cg_arcs.o: cg_arcs.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h search_list.h source.h symtab.h \
+  call_graph.h cg_arcs.h cg_dfn.h cg_print.h utils.h \
+  sym_ids.h
+cg_dfn.o: cg_dfn.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h search_list.h source.h symtab.h \
+  cg_arcs.h cg_dfn.h utils.h
+cg_print.o: cg_print.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h search_list.h source.h symtab.h \
+  cg_arcs.h cg_print.h hist.h utils.h corefile.h
+corefile.o: corefile.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h search_list.h source.h symtab.h \
+  hist.h corefile.h $(INCDIR)/safe-ctype.h
+gmon_io.o: gmon_io.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/binary-io.h \
   search_list.h source.h symtab.h cg_arcs.h basic_blocks.h \
   corefile.h call_graph.h gmon_io.h gmon_out.h gmon.h \
-  hertz.h hist.h $(INCDIR)/libiberty.h
-gprof.o: gprof.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h $(INCDIR)/fopen-same.h \
+  hertz.h hist.h $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h
+gprof.o: gprof.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h ../bfd/bfdver.h search_list.h \
+  source.h symtab.h basic_blocks.h call_graph.h cg_arcs.h \
+  cg_print.h corefile.h gmon_io.h hertz.h hist.h sym_ids.h \
+  $(INCDIR)/demangle.h $(INCDIR)/libiberty.h
+hertz.o: hertz.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h hertz.h
+hist.o: hist.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h search_list.h source.h symtab.h \
+  corefile.h gmon_io.h gmon_out.h hist.h sym_ids.h utils.h
+source.o: source.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h search_list.h source.h
+search_list.o: search_list.c gprof.h $(BFDDIR)/sysdep.h \
+  ../bfd/config.h $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h \
   $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h basic_blocks.h call_graph.h cg_arcs.h cg_print.h \
-  corefile.h gmon_io.h hertz.h hist.h sym_ids.h $(INCDIR)/demangle.h
-hertz.o: hertz.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  hertz.h
-hist.o: hist.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h $(INCDIR)/fopen-same.h \
-  $(INCDIR)/filenames.h ../bfd/bfd.h $(INCDIR)/symcat.h \
-  gconfig.h $(INCDIR)/bin-bugs.h search_list.h source.h \
-  symtab.h corefile.h gmon_io.h gmon_out.h hist.h sym_ids.h \
-  utils.h
-source.o: source.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  $(INCDIR)/libiberty.h search_list.h source.h
-search_list.o: search_list.c $(INCDIR)/libiberty.h \
-  $(INCDIR)/ansidecl.h gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
-  $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h ../bfd/bfd.h \
-  $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h search_list.h
-symtab.o: symtab.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h
-sym_ids.o: sym_ids.c $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
-  $(INCDIR)/safe-ctype.h gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
-  $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h ../bfd/bfd.h \
-  $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h search_list.h \
-  source.h symtab.h cg_arcs.h sym_ids.h
-utils.o: utils.c $(INCDIR)/demangle.h $(INCDIR)/libiberty.h \
-  $(INCDIR)/ansidecl.h gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
-  $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h ../bfd/bfd.h \
-  $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h search_list.h \
-  source.h symtab.h cg_arcs.h utils.h
-i386.o: i386.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h \
-  hist.h
-alpha.o: alpha.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h \
-  hist.h
-vax.o: vax.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h \
-  hist.h
-tahoe.o: tahoe.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h \
-  hist.h
-sparc.o: sparc.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h \
-  hist.h
-mips.o: mips.c gprof.h $(BFDDIR)/sysdep.h $(INCDIR)/ansidecl.h \
-  ../bfd/config.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
-  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/bin-bugs.h \
-  search_list.h source.h symtab.h cg_arcs.h corefile.h \
-  hist.h
+  gconfig.h $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h \
+  search_list.h
+symtab.o: symtab.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h
+sym_ids.o: sym_ids.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/libiberty.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/safe-ctype.h search_list.h \
+  source.h symtab.h cg_arcs.h sym_ids.h corefile.h
+utils.o: utils.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h $(INCDIR)/demangle.h \
+  $(INCDIR)/libiberty.h $(INCDIR)/ansidecl.h search_list.h \
+  source.h symtab.h cg_arcs.h utils.h corefile.h
+i386.o: i386.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h hist.h
+alpha.o: alpha.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h hist.h
+vax.o: vax.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h hist.h
+tahoe.o: tahoe.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h hist.h
+sparc.o: sparc.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h hist.h
+mips.o: mips.c gprof.h $(BFDDIR)/sysdep.h ../bfd/config.h \
+  $(INCDIR)/ansidecl.h $(INCDIR)/fopen-same.h $(INCDIR)/filenames.h \
+  ../bfd/bfd.h $(INCDIR)/symcat.h gconfig.h search_list.h \
+  source.h symtab.h cg_arcs.h corefile.h hist.h
 flat_bl.o: flat_bl.c $(INCDIR)/ansidecl.h
 bsd_callg_bl.o: bsd_callg_bl.c $(INCDIR)/ansidecl.h
 fsf_callg_bl.o: fsf_callg_bl.c $(INCDIR)/ansidecl.h

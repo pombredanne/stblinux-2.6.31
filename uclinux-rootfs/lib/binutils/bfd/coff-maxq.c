@@ -1,5 +1,5 @@
 /* BFD back-end for MAXQ COFF binaries.
-   Copyright 2004    Free Software Foundation, Inc.
+   Copyright 2004, 2007, 2008  Free Software Foundation, Inc.
 
    Contributed by Vineet Sharma (vineets@noida.hcltech.com) Inderpreet S.
    (inderpreetb@noida.hcltech.com)
@@ -10,7 +10,7 @@
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the Free 
-   Software Foundation; either version 2 of the License, or (at your option)
+   Software Foundation; either version 3 of the License, or (at your option)
    any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -22,8 +22,8 @@
    with this program; if not, write to the Free Software Foundation, Inc., 
    51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "coff/maxq.h"
 #include "coff/internal.h"
@@ -407,11 +407,29 @@ maxq_reloc_type_lookup (bfd * abfd ATTRIBUTE_UNUSED,
     }
 }
 
+static reloc_howto_type *
+maxq_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED, const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0; i < sizeof (howto_table) / sizeof (howto_table[0]); i++)
+    if (howto_table[i].name != NULL
+	&& strcasecmp (howto_table[i].name, r_name) == 0)
+      return &howto_table[i];
+
+  return NULL;
+}
+
 #define coff_bfd_reloc_type_lookup maxq_reloc_type_lookup
+#define coff_bfd_reloc_name_lookup maxq_reloc_name_lookup
 
 /* Perform any necessary magic to the addend in a reloc entry.  */
 #define CALC_ADDEND(abfd, symbol, ext_reloc, cache_ptr) \
  cache_ptr->addend =  ext_reloc.r_offset;
+
+#ifndef bfd_pe_print_pdata
+#define bfd_pe_print_pdata	NULL
+#endif
 
 #include "coffcode.h"
 

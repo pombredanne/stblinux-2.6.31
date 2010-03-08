@@ -169,6 +169,8 @@ void __init bchip_check_compat(void)
 	ALT_CHIP_ID(7220, b0);
 	ALT_CHIP_ID(7410, b0);
 	MAIN_CHIP_ID(7420, b0);
+#elif defined(CONFIG_BCM7420C0)
+	MAIN_CHIP_ID(7420, c0);
 #elif defined(CONFIG_BCM7468)
 	MAIN_CHIP_ID(7468, a0);
 #elif defined(CONFIG_BCM7550)
@@ -330,7 +332,7 @@ void __init bchip_sdio_init(void)
 }
 #endif
 
-#ifdef CONFIG_BCM7420
+#ifdef CONFIG_BCM7420B0
 static int __init smp_setup(char *str)
 {
 	brcm_smp_enabled = 1;
@@ -399,7 +401,7 @@ void __init bchip_set_features(void)
 	}
 #endif
 
-#ifdef CONFIG_BCM7420 // A0 only
+#ifdef CONFIG_BCM7420B0
 	brcm_smp_enabled = 0;
 #endif
 

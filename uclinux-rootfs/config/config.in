@@ -849,15 +849,18 @@ bool 'build debugable applications'	CONFIG_USER_DEBUG
 comment "Debug tools"
 
 bool 'tpt'				CONFIG_USER_TIMEPEG_TPT
-bool 'oprofile'			CONFIG_USER_PROFILE_OPROFILE
+bool 'Oprofile'				CONFIG_USER_PROFILE_OPROFILE
+bool 'LTTng'				CONFIG_USER_LTT_CONTROL
 
 endmenu
+
 if [ "$CONFIG_USER_PROFILE_OPROFILE" = "y" ]; then
-	define_bool CONFIG_USER_PROFILE_POFT y
-	# THT: Use from binutils define_bool	CONFIG_USER_GDB_LIBBFD y
+	define_bool CONFIG_LIB_ZLIB y
+	define_bool CONFIG_LIB_POPT y
 	define_bool CONFIG_LIB_LIBBFD y
-	define_bool	CONFIG_LIB_LIBIBERTY y
-	define_bool CONFIG_LIB_LIBCPLUSPLUS y
+	define_bool CONFIG_LIB_LIBIBERTY y
+	define_bool CONFIG_LIB_LIBSTDCXX y
+	define_bool CONFIG_LIB_BINUTILS_OBJDUMP y
 fi
 
 #############################################################################

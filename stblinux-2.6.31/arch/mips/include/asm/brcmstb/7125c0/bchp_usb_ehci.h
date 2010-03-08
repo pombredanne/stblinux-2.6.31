@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:15:15 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_usb_ehci.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 10:07p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,29 +43,29 @@
 #define BCHP_USB_EHCI_H__
 
 /***************************************************************************
- *USB_EHCI
+ *USB_EHCI - USB EHCI 1 Control Registers
  ***************************************************************************/
-#define BCHP_USB_EHCI_HCCAPBASE                  0x00488300
-#define BCHP_USB_EHCI_HCSPARAMS                  0x00488304
-#define BCHP_USB_EHCI_HCCPARAMS                  0x00488308
-#define BCHP_USB_EHCI_USBCMD                     0x00488310
-#define BCHP_USB_EHCI_USBSTS                     0x00488314
-#define BCHP_USB_EHCI_USBINTR                    0x00488318
-#define BCHP_USB_EHCI_FRINDEX                    0x0048831c
-#define BCHP_USB_EHCI_PERIODICLISTBASE           0x00488324
-#define BCHP_USB_EHCI_ASYNCLISTADDR              0x00488328
-#define BCHP_USB_EHCI_CONFIGFLAG                 0x00488350
-#define BCHP_USB_EHCI_PORTSC_0                   0x00488354
-#define BCHP_USB_EHCI_PORTSC_1                   0x00488358
-#define BCHP_USB_EHCI_INSNREG00                  0x00488390
-#define BCHP_USB_EHCI_INSNREG01                  0x00488394
-#define BCHP_USB_EHCI_INSNREG02                  0x00488398
-#define BCHP_USB_EHCI_INSNREG03                  0x0048839c
-#define BCHP_USB_EHCI_INSNREG04                  0x004883a0
-#define BCHP_USB_EHCI_INSNREG05                  0x004883a4
+#define BCHP_USB_EHCI_HCCAPBASE                  0x00488300 /* EHCI Capability Register */
+#define BCHP_USB_EHCI_HCSPARAMS                  0x00488304 /* EHCI Structural Parameter */
+#define BCHP_USB_EHCI_HCCPARAMS                  0x00488308 /* EHCI Capability Parameter */
+#define BCHP_USB_EHCI_USBCMD                     0x00488310 /* USB Command Register */
+#define BCHP_USB_EHCI_USBSTS                     0x00488314 /* USB Status  Register */
+#define BCHP_USB_EHCI_USBINTR                    0x00488318 /* USB Interrupt Enable Register */
+#define BCHP_USB_EHCI_FRINDEX                    0x0048831c /* USB Frame Index Register */
+#define BCHP_USB_EHCI_PERIODICLISTBASE           0x00488324 /* Periodic Frame List Base Address Register */
+#define BCHP_USB_EHCI_ASYNCLISTADDR              0x00488328 /* Asynchronous List Address */
+#define BCHP_USB_EHCI_CONFIGFLAG                 0x00488350 /* Configured Flag Register */
+#define BCHP_USB_EHCI_PORTSC_0                   0x00488354 /* Port Status/Control Register for Port 0 */
+#define BCHP_USB_EHCI_PORTSC_1                   0x00488358 /* Port Status/Control Register for Port 1 */
+#define BCHP_USB_EHCI_INSNREG00                  0x00488390 /* Microframe Base Value Register */
+#define BCHP_USB_EHCI_INSNREG01                  0x00488394 /* Packet Buffer OUT/IN Threshold Register */
+#define BCHP_USB_EHCI_INSNREG02                  0x00488398 /* Packet Buffer Depth Register */
+#define BCHP_USB_EHCI_INSNREG03                  0x0048839c /* Break Memory Transfer Register */
+#define BCHP_USB_EHCI_INSNREG04                  0x004883a0 /* Debug Register */
+#define BCHP_USB_EHCI_INSNREG05                  0x004883a4 /* UTMI Control and Status Register */
 
 /***************************************************************************
- *HCCAPBASE
+ *HCCAPBASE - EHCI Capability Register
  ***************************************************************************/
 /* USB_EHCI :: HCCAPBASE :: HCIVERSION [31:16] */
 #define BCHP_USB_EHCI_HCCAPBASE_HCIVERSION_MASK                    0xffff0000
@@ -77,7 +80,7 @@
 #define BCHP_USB_EHCI_HCCAPBASE_CAPLENGTH_SHIFT                    0
 
 /***************************************************************************
- *HCSPARAMS
+ *HCSPARAMS - EHCI Structural Parameter
  ***************************************************************************/
 /* USB_EHCI :: HCSPARAMS :: reserved0 [31:24] */
 #define BCHP_USB_EHCI_HCSPARAMS_reserved0_MASK                     0xff000000
@@ -120,7 +123,7 @@
 #define BCHP_USB_EHCI_HCSPARAMS_N_PORTS_SHIFT                      0
 
 /***************************************************************************
- *HCCPARAMS
+ *HCCPARAMS - EHCI Capability Parameter
  ***************************************************************************/
 /* USB_EHCI :: HCCPARAMS :: reserved0 [31:16] */
 #define BCHP_USB_EHCI_HCCPARAMS_reserved0_MASK                     0xffff0000
@@ -151,7 +154,7 @@
 #define BCHP_USB_EHCI_HCCPARAMS_SIXTY_FOUR_BIT_ADDRESSING_CAPABILITY_SHIFT 0
 
 /***************************************************************************
- *USBCMD
+ *USBCMD - USB Command Register
  ***************************************************************************/
 /* USB_EHCI :: USBCMD :: reserved3 [31:24] */
 #define BCHP_USB_EHCI_USBCMD_reserved3_MASK                        0xff000000
@@ -206,7 +209,7 @@
 #define BCHP_USB_EHCI_USBCMD_RUN_STOP_SHIFT                        0
 
 /***************************************************************************
- *USBSTS
+ *USBSTS - USB Status  Register
  ***************************************************************************/
 /* USB_EHCI :: USBSTS :: reserved0 [31:16] */
 #define BCHP_USB_EHCI_USBSTS_reserved0_MASK                        0xffff0000
@@ -257,7 +260,7 @@
 #define BCHP_USB_EHCI_USBSTS_USBINT_SHIFT                          0
 
 /***************************************************************************
- *USBINTR
+ *USBINTR - USB Interrupt Enable Register
  ***************************************************************************/
 /* USB_EHCI :: USBINTR :: reserved0 [31:06] */
 #define BCHP_USB_EHCI_USBINTR_reserved0_MASK                       0xffffffc0
@@ -288,7 +291,7 @@
 #define BCHP_USB_EHCI_USBINTR_USB_INTERRUPT_ENABLE_SHIFT           0
 
 /***************************************************************************
- *FRINDEX
+ *FRINDEX - USB Frame Index Register
  ***************************************************************************/
 /* USB_EHCI :: FRINDEX :: reserved0 [31:14] */
 #define BCHP_USB_EHCI_FRINDEX_reserved0_MASK                       0xffffc000
@@ -299,7 +302,7 @@
 #define BCHP_USB_EHCI_FRINDEX_FRAME_INDEX_SHIFT                    0
 
 /***************************************************************************
- *PERIODICLISTBASE
+ *PERIODICLISTBASE - Periodic Frame List Base Address Register
  ***************************************************************************/
 /* USB_EHCI :: PERIODICLISTBASE :: BASE_ADDRESS_LOW [31:12] */
 #define BCHP_USB_EHCI_PERIODICLISTBASE_BASE_ADDRESS_LOW_MASK       0xfffff000
@@ -310,7 +313,7 @@
 #define BCHP_USB_EHCI_PERIODICLISTBASE_reserved0_SHIFT             0
 
 /***************************************************************************
- *ASYNCLISTADDR
+ *ASYNCLISTADDR - Asynchronous List Address
  ***************************************************************************/
 /* USB_EHCI :: ASYNCLISTADDR :: LPL [31:05] */
 #define BCHP_USB_EHCI_ASYNCLISTADDR_LPL_MASK                       0xffffffe0
@@ -321,7 +324,7 @@
 #define BCHP_USB_EHCI_ASYNCLISTADDR_reserved0_SHIFT                0
 
 /***************************************************************************
- *CONFIGFLAG
+ *CONFIGFLAG - Configured Flag Register
  ***************************************************************************/
 /* USB_EHCI :: CONFIGFLAG :: reserved0 [31:01] */
 #define BCHP_USB_EHCI_CONFIGFLAG_reserved0_MASK                    0xfffffffe
@@ -332,7 +335,7 @@
 #define BCHP_USB_EHCI_CONFIGFLAG_CONFIGURE_FLAG_SHIFT              0
 
 /***************************************************************************
- *PORTSC_0
+ *PORTSC_0 - Port Status/Control Register for Port 0
  ***************************************************************************/
 /* USB_EHCI :: PORTSC_0 :: reserved0 [31:23] */
 #define BCHP_USB_EHCI_PORTSC_0_reserved0_MASK                      0xff800000
@@ -411,7 +414,7 @@
 #define BCHP_USB_EHCI_PORTSC_0_CURRENT_CONNECT_STATUS_SHIFT        0
 
 /***************************************************************************
- *PORTSC_1
+ *PORTSC_1 - Port Status/Control Register for Port 1
  ***************************************************************************/
 /* USB_EHCI :: PORTSC_1 :: reserved0 [31:23] */
 #define BCHP_USB_EHCI_PORTSC_1_reserved0_MASK                      0xff800000
@@ -490,42 +493,42 @@
 #define BCHP_USB_EHCI_PORTSC_1_CURRENT_CONNECT_STATUS_SHIFT        0
 
 /***************************************************************************
- *INSNREG00
+ *INSNREG00 - Microframe Base Value Register
  ***************************************************************************/
 /* USB_EHCI :: INSNREG00 :: INSNREG00 [31:00] */
 #define BCHP_USB_EHCI_INSNREG00_INSNREG00_MASK                     0xffffffff
 #define BCHP_USB_EHCI_INSNREG00_INSNREG00_SHIFT                    0
 
 /***************************************************************************
- *INSNREG01
+ *INSNREG01 - Packet Buffer OUT/IN Threshold Register
  ***************************************************************************/
 /* USB_EHCI :: INSNREG01 :: INSNREG01 [31:00] */
 #define BCHP_USB_EHCI_INSNREG01_INSNREG01_MASK                     0xffffffff
 #define BCHP_USB_EHCI_INSNREG01_INSNREG01_SHIFT                    0
 
 /***************************************************************************
- *INSNREG02
+ *INSNREG02 - Packet Buffer Depth Register
  ***************************************************************************/
 /* USB_EHCI :: INSNREG02 :: INSNREG02 [31:00] */
 #define BCHP_USB_EHCI_INSNREG02_INSNREG02_MASK                     0xffffffff
 #define BCHP_USB_EHCI_INSNREG02_INSNREG02_SHIFT                    0
 
 /***************************************************************************
- *INSNREG03
+ *INSNREG03 - Break Memory Transfer Register
  ***************************************************************************/
 /* USB_EHCI :: INSNREG03 :: INSNREG03 [31:00] */
 #define BCHP_USB_EHCI_INSNREG03_INSNREG03_MASK                     0xffffffff
 #define BCHP_USB_EHCI_INSNREG03_INSNREG03_SHIFT                    0
 
 /***************************************************************************
- *INSNREG04
+ *INSNREG04 - Debug Register
  ***************************************************************************/
 /* USB_EHCI :: INSNREG04 :: INSNREG04 [31:00] */
 #define BCHP_USB_EHCI_INSNREG04_INSNREG04_MASK                     0xffffffff
 #define BCHP_USB_EHCI_INSNREG04_INSNREG04_SHIFT                    0
 
 /***************************************************************************
- *INSNREG05
+ *INSNREG05 - UTMI Control and Status Register
  ***************************************************************************/
 /* USB_EHCI :: INSNREG05 :: INSNREG05 [31:00] */
 #define BCHP_USB_EHCI_INSNREG05_INSNREG05_MASK                     0xffffffff

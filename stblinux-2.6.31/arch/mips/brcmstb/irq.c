@@ -372,7 +372,7 @@ void __init arch_init_irq(void)
 	/* 7405 style - shared with L2 */
 	BDEV_WR(BCHP_IRQ0_IRQEN, BCHP_IRQ0_IRQEN_uarta_irqen_MASK
 		| BCHP_IRQ0_IRQEN_uartb_irqen_MASK
-#if defined(BCHP_IRQ0_UART_IRQEN_uartc_MASK)
+#if defined(BCHP_IRQ0_IRQEN_uartc_irqen_MASK)
 		| BCHP_IRQ0_IRQEN_uartc_irqen_MASK
 #endif
 		);

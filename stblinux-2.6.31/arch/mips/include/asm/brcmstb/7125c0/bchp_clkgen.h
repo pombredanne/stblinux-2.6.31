@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:21:02 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_clkgen.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 7:37p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,66 +43,66 @@
 #define BCHP_CLKGEN_H__
 
 /***************************************************************************
- *CLKGEN
+ *CLKGEN - Clkgen registers
  ***************************************************************************/
-#define BCHP_CLKGEN_ACC_PAD_CLK_PM_CTRL          0x00470000
-#define BCHP_CLKGEN_AVD_CLK_PM_CTRL              0x00470004
-#define BCHP_CLKGEN_BNM_SCB_BRIDGE_CLK_PM_CTRL   0x00470008
-#define BCHP_CLKGEN_BVN_CLK_PM_CTRL              0x0047000c
-#define BCHP_CLKGEN_CGM_CLK_PM_CTRL              0x00470010
-#define BCHP_CLKGEN_CLK_27_OUT_PM_CTRL           0x00470014
-#define BCHP_CLKGEN_CML_BUF_CLK_PM_CTRL          0x00470018
-#define BCHP_CLKGEN_CPU_CLK_PM_CTRL              0x0047001c
-#define BCHP_CLKGEN_DDR23_APHY_CLK_PM_CTRL       0x00470020
-#define BCHP_CLKGEN_DSMAC_FPM_CLK_PM_CTRL        0x00470024
-#define BCHP_CLKGEN_DVP_HT_CLK_PM_CTRL           0x00470028
-#define BCHP_CLKGEN_GFX_CLK_PM_CTRL              0x0047002c
-#define BCHP_CLKGEN_GFX_3D_OTP_CLK_PM_CTRL       0x00470030
-#define BCHP_CLKGEN_HIF_CLK_PM_CTRL              0x00470034
-#define BCHP_CLKGEN_MEMC_CLK_PM_CTRL             0x00470038
-#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL             0x0047003c
-#define BCHP_CLKGEN_PINMUX_CLK_PM_CTRL           0x00470040
-#define BCHP_CLKGEN_RPTD_AIO_CLK_PM_CTRL         0x00470044
-#define BCHP_CLKGEN_SATA_CLK_PM_CTRL             0x00470048
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL           0x0047004c
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL       0x00470050
-#define BCHP_CLKGEN_SUN_CLK_PM_CTRL              0x00470054
-#define BCHP_CLKGEN_SUN_SC_CLK_PM_CTRL           0x00470058
-#define BCHP_CLKGEN_TDAC0_CLK_PM_CTRL            0x0047005c
-#define BCHP_CLKGEN_TDAC1_CLK_PM_CTRL            0x00470060
-#define BCHP_CLKGEN_USB_CLK_PM_CTRL              0x00470064
-#define BCHP_CLKGEN_USMAC_TC_CLK_PM_CTRL         0x00470068
-#define BCHP_CLKGEN_VCXO_CLK_PM_CTRL             0x0047006c
-#define BCHP_CLKGEN_VEC_CLK_PM_CTRL              0x00470070
-#define BCHP_CLKGEN_XPT_CLK_PM_CTRL              0x00470074
-#define BCHP_CLKGEN_PLL_MOCA_CTRL                0x00470080
-#define BCHP_CLKGEN_PLL_MOCA_CTLBUS_HI           0x00470084
-#define BCHP_CLKGEN_PLL_MOCA_CTLBUS_LO           0x00470088
-#define BCHP_CLKGEN_PLL_MOCA_CH3_PM_CTRL         0x00470094
-#define BCHP_CLKGEN_PLL_MOCA_CH4_PM_CTRL         0x00470098
-#define BCHP_CLKGEN_PLL_MOCA_CH5_PM_CTRL         0x0047009c
-#define BCHP_CLKGEN_PLL_MOCA_CH6_PM_CTRL         0x004700a0
-#define BCHP_CLKGEN_PLL_MAIN_CTRL                0x004700b0
-#define BCHP_CLKGEN_PLL_MAIN_CH3_PM_CTRL         0x004700b4
-#define BCHP_CLKGEN_PLL_MAIN_CH4_PM_CTRL         0x004700b8
-#define BCHP_CLKGEN_PLL_MAIN_CH5_PM_CTRL         0x004700bc
-#define BCHP_CLKGEN_PLL_MAIN_CH6_PM_CTRL         0x004700c0
-#define BCHP_CLKGEN_PAD_CLOCK                    0x004700d0
-#define BCHP_CLKGEN_HIF_CLOCK_SEL                0x004700d4
-#define BCHP_CLKGEN_MISC_CLOCK_SELECTS           0x004700d8
-#define BCHP_CLKGEN_PLL_TEST_CTRL                0x004700dc
-#define BCHP_CLKGEN_DIFFOSC_TEST_CTRL            0x004700e0
-#define BCHP_CLKGEN_MIPS_PLL_CTRL                0x004700e4
-#define BCHP_CLKGEN_D2CDIFF_AC_CTRL              0x004700e8
-#define BCHP_CLKGEN_SMARTCARD_CLOCK_CTRL         0x004700ec
-#define BCHP_CLKGEN_PLL_TIMER_SELECT             0x004700f0
-#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL             0x004700f4
-#define BCHP_CLKGEN_PM_CLOCK_216_108_ALIVE_SEL   0x004700f8
-#define BCHP_CLKGEN_REVISION                     0x00470100
-#define BCHP_CLKGEN_SCRATCH_REG                  0x00470104
+#define BCHP_CLKGEN_ACC_PAD_CLK_PM_CTRL          0x00470000 /* Clock Disable Control Register for ACC Pad Clock */
+#define BCHP_CLKGEN_AVD_CLK_PM_CTRL              0x00470004 /* Clock Disable Control Register for AVD */
+#define BCHP_CLKGEN_BNM_SCB_BRIDGE_CLK_PM_CTRL   0x00470008 /* Clock Disable Control Register for BNM_SCB_BRIDGE */
+#define BCHP_CLKGEN_BVN_CLK_PM_CTRL              0x0047000c /* Clock Disable Control Register for BVN */
+#define BCHP_CLKGEN_CGM_CLK_PM_CTRL              0x00470010 /* Clock Disable Control Register for CGM */
+#define BCHP_CLKGEN_CLK_27_OUT_PM_CTRL           0x00470014 /* Clock Disable Control Register for CLK_27_OUT Pad clock */
+#define BCHP_CLKGEN_CML_BUF_CLK_PM_CTRL          0x00470018 /* Clock Disable Control Register for CML Buffers */
+#define BCHP_CLKGEN_CPU_CLK_PM_CTRL              0x0047001c /* Clock Disable Control Register for CPU */
+#define BCHP_CLKGEN_DDR23_APHY_CLK_PM_CTRL       0x00470020 /* Clock Disable Control Register for DDR23_APHY */
+#define BCHP_CLKGEN_DSMAC_FPM_CLK_PM_CTRL        0x00470024 /* Clock Disable Control Register for DSMAC_FPM */
+#define BCHP_CLKGEN_DVP_HT_CLK_PM_CTRL           0x00470028 /* Clock Disable Control Register for DVP_HT */
+#define BCHP_CLKGEN_GFX_CLK_PM_CTRL              0x0047002c /* Clock Disable Control Register for GFX */
+#define BCHP_CLKGEN_GFX_3D_OTP_CLK_PM_CTRL       0x00470030 /* Clock Disable Control Register for 3D_OTP GFX */
+#define BCHP_CLKGEN_HIF_CLK_PM_CTRL              0x00470034 /* Clock Disable Control Register for HIF */
+#define BCHP_CLKGEN_MEMC_CLK_PM_CTRL             0x00470038 /* Clock Disable Control Register for MEMC */
+#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL             0x0047003c /* Clock Disable Control Register for MOCA */
+#define BCHP_CLKGEN_PINMUX_CLK_PM_CTRL           0x00470040 /* Clock Disable Control Register for PINMUX */
+#define BCHP_CLKGEN_RPTD_AIO_CLK_PM_CTRL         0x00470044 /* Clock Disable Control Register for RTPD_AIO */
+#define BCHP_CLKGEN_SATA_CLK_PM_CTRL             0x00470048 /* Clock Disable Control Register for SATA */
+#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL           0x0047004c /* Clock Disable Control Register for SECTOP */
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL       0x00470050 /* Clock Disable Control Register for SECTOP_DMA */
+#define BCHP_CLKGEN_SUN_CLK_PM_CTRL              0x00470054 /* Clock Disable Control Register for SUN */
+#define BCHP_CLKGEN_SUN_SC_CLK_PM_CTRL           0x00470058 /* Clock Disable Control Register for SUN_SC */
+#define BCHP_CLKGEN_TDAC0_CLK_PM_CTRL            0x0047005c /* Clock Disable Control Register for TDAC0 */
+#define BCHP_CLKGEN_TDAC1_CLK_PM_CTRL            0x00470060 /* Clock Disable Control Register for TDAC1 */
+#define BCHP_CLKGEN_USB_CLK_PM_CTRL              0x00470064 /* Clock Disable Control Register for USB */
+#define BCHP_CLKGEN_USMAC_TC_CLK_PM_CTRL         0x00470068 /* Clock Disable Control Register for USMAC_TC */
+#define BCHP_CLKGEN_VCXO_CLK_PM_CTRL             0x0047006c /* Clock Disable Control Register for VCXO */
+#define BCHP_CLKGEN_VEC_CLK_PM_CTRL              0x00470070 /* Clock Disable Control Register for VEC */
+#define BCHP_CLKGEN_XPT_CLK_PM_CTRL              0x00470074 /* Clock Disable Control Register for XPT */
+#define BCHP_CLKGEN_PLL_MOCA_CTRL                0x00470080 /* MOCA PLL m3div, m4div, reset */
+#define BCHP_CLKGEN_PLL_MOCA_CTLBUS_HI           0x00470084 /* MOCA PLL control bus higher word */
+#define BCHP_CLKGEN_PLL_MOCA_CTLBUS_LO           0x00470088 /* MOCA PLL control bus lower word */
+#define BCHP_CLKGEN_PLL_MOCA_CH3_PM_CTRL         0x00470094 /* MOCA PLL channel 3: 225 MHz MocA PHY differential clocks,  PLL source post divider powerdown, channel gate on/off and cml buffer enable */
+#define BCHP_CLKGEN_PLL_MOCA_CH4_PM_CTRL         0x00470098 /* MOCA PLL channel 4: 225 MHz MocA CPU differential clocks,  PLL source post divider powerdown, channel gate on/off and cml buffer enable */
+#define BCHP_CLKGEN_PLL_MOCA_CH5_PM_CTRL         0x0047009c /* MOCA PLL channel 5: 50 MHz USDS PLL reference clocks,  PLL source post divider powerdown, channel gate on/off and cml buffer enable */
+#define BCHP_CLKGEN_PLL_MOCA_CH6_PM_CTRL         0x004700a0 /* MOCA PLL channel 6: 100 MHz MocA digital clock,  PLL source post divider powerdown, channel gate on/off and cml buffer enable */
+#define BCHP_CLKGEN_PLL_MAIN_CTRL                0x004700b0 /* PLL_MAIN Reset Status & DLY */
+#define BCHP_CLKGEN_PLL_MAIN_CH3_PM_CTRL         0x004700b4 /* PLL_MAIN Powerdown 81MHz Main clock */
+#define BCHP_CLKGEN_PLL_MAIN_CH4_PM_CTRL         0x004700b8 /* PLL_MAIN Powerdown 48MHz USB clock */
+#define BCHP_CLKGEN_PLL_MAIN_CH5_PM_CTRL         0x004700bc /* PLL_MAIN Powerdown 32.4MHz Soft Modem clock */
+#define BCHP_CLKGEN_PLL_MAIN_CH6_PM_CTRL         0x004700c0 /* PLL_MAIN Powerdown 99p7MHz HIF/SATA clock */
+#define BCHP_CLKGEN_PAD_CLOCK                    0x004700d0 /* PAD Clock Control Register */
+#define BCHP_CLKGEN_HIF_CLOCK_SEL                0x004700d4 /* Select 108/99.7 clock to HIF */
+#define BCHP_CLKGEN_MISC_CLOCK_SELECTS           0x004700d8 /* Misc clock selects in chip. */
+#define BCHP_CLKGEN_PLL_TEST_CTRL                0x004700dc /* PLL_TEST_CTRL Control Register */
+#define BCHP_CLKGEN_DIFFOSC_TEST_CTRL            0x004700e0 /* DIFFOSC_TEST_CTRL Control Register */
+#define BCHP_CLKGEN_MIPS_PLL_CTRL                0x004700e4 /* MIPS_PLL_CTRL Register */
+#define BCHP_CLKGEN_D2CDIFF_AC_CTRL              0x004700e8 /* AC_CTRL for D2CDIFF */
+#define BCHP_CLKGEN_SMARTCARD_CLOCK_CTRL         0x004700ec /* SMARTCARD_CLOCK_CTRL Register */
+#define BCHP_CLKGEN_PLL_TIMER_SELECT             0x004700f0 /* Select the delay after reset before using PLL */
+#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL             0x004700f4 /* Program the PLLs to be alive in standby */
+#define BCHP_CLKGEN_PM_CLOCK_216_108_ALIVE_SEL   0x004700f8 /* Program the 216/108 clocks to be alive in standby */
+#define BCHP_CLKGEN_REVISION                     0x00470100 /* Chip Revision */
+#define BCHP_CLKGEN_SCRATCH_REG                  0x00470104 /* Scratch Register */
 
 /***************************************************************************
- *ACC_PAD_CLK_PM_CTRL
+ *ACC_PAD_CLK_PM_CTRL - Clock Disable Control Register for ACC Pad Clock
  ***************************************************************************/
 /* CLKGEN :: ACC_PAD_CLK_PM_CTRL :: reserved0 [31:01] */
 #define BCHP_CLKGEN_ACC_PAD_CLK_PM_CTRL_reserved0_MASK             0xfffffffe
@@ -110,7 +113,7 @@
 #define BCHP_CLKGEN_ACC_PAD_CLK_PM_CTRL_DIS_CLK_ACC_SHIFT          0
 
 /***************************************************************************
- *AVD_CLK_PM_CTRL
+ *AVD_CLK_PM_CTRL - Clock Disable Control Register for AVD
  ***************************************************************************/
 /* CLKGEN :: AVD_CLK_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_AVD_CLK_PM_CTRL_reserved0_MASK                 0xfffffff8
@@ -129,7 +132,7 @@
 #define BCHP_CLKGEN_AVD_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *BNM_SCB_BRIDGE_CLK_PM_CTRL
+ *BNM_SCB_BRIDGE_CLK_PM_CTRL - Clock Disable Control Register for BNM_SCB_BRIDGE
  ***************************************************************************/
 /* CLKGEN :: BNM_SCB_BRIDGE_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_BNM_SCB_BRIDGE_CLK_PM_CTRL_reserved0_MASK      0xfffffffc
@@ -144,7 +147,7 @@
 #define BCHP_CLKGEN_BNM_SCB_BRIDGE_CLK_PM_CTRL_DIS_CLK_216_SHIFT   0
 
 /***************************************************************************
- *BVN_CLK_PM_CTRL
+ *BVN_CLK_PM_CTRL - Clock Disable Control Register for BVN
  ***************************************************************************/
 /* CLKGEN :: BVN_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_BVN_CLK_PM_CTRL_reserved0_MASK                 0xfffffffc
@@ -159,7 +162,7 @@
 #define BCHP_CLKGEN_BVN_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *CGM_CLK_PM_CTRL
+ *CGM_CLK_PM_CTRL - Clock Disable Control Register for CGM
  ***************************************************************************/
 /* CLKGEN :: CGM_CLK_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_CGM_CLK_PM_CTRL_reserved0_MASK                 0xfffffff8
@@ -178,7 +181,7 @@
 #define BCHP_CLKGEN_CGM_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *CLK_27_OUT_PM_CTRL
+ *CLK_27_OUT_PM_CTRL - Clock Disable Control Register for CLK_27_OUT Pad clock
  ***************************************************************************/
 /* CLKGEN :: CLK_27_OUT_PM_CTRL :: reserved0 [31:01] */
 #define BCHP_CLKGEN_CLK_27_OUT_PM_CTRL_reserved0_MASK              0xfffffffe
@@ -189,7 +192,7 @@
 #define BCHP_CLKGEN_CLK_27_OUT_PM_CTRL_DIS_CLK_27_OUT_SHIFT        0
 
 /***************************************************************************
- *CML_BUF_CLK_PM_CTRL
+ *CML_BUF_CLK_PM_CTRL - Clock Disable Control Register for CML Buffers
  ***************************************************************************/
 /* CLKGEN :: CML_BUF_CLK_PM_CTRL :: reserved0 [31:04] */
 #define BCHP_CLKGEN_CML_BUF_CLK_PM_CTRL_reserved0_MASK             0xfffffff0
@@ -200,7 +203,7 @@
 #define BCHP_CLKGEN_CML_BUF_CLK_PM_CTRL_DIS_CLK_PM_SHIFT           0
 
 /***************************************************************************
- *CPU_CLK_PM_CTRL
+ *CPU_CLK_PM_CTRL - Clock Disable Control Register for CPU
  ***************************************************************************/
 /* CLKGEN :: CPU_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_CPU_CLK_PM_CTRL_reserved0_MASK                 0xfffffffc
@@ -215,7 +218,7 @@
 #define BCHP_CLKGEN_CPU_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *DDR23_APHY_CLK_PM_CTRL
+ *DDR23_APHY_CLK_PM_CTRL - Clock Disable Control Register for DDR23_APHY
  ***************************************************************************/
 /* CLKGEN :: DDR23_APHY_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_DDR23_APHY_CLK_PM_CTRL_reserved0_MASK          0xfffffffc
@@ -230,7 +233,7 @@
 #define BCHP_CLKGEN_DDR23_APHY_CLK_PM_CTRL_DIS_CLK_216_SHIFT       0
 
 /***************************************************************************
- *DSMAC_FPM_CLK_PM_CTRL
+ *DSMAC_FPM_CLK_PM_CTRL - Clock Disable Control Register for DSMAC_FPM
  ***************************************************************************/
 /* CLKGEN :: DSMAC_FPM_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_DSMAC_FPM_CLK_PM_CTRL_reserved0_MASK           0xfffffffc
@@ -245,7 +248,7 @@
 #define BCHP_CLKGEN_DSMAC_FPM_CLK_PM_CTRL_DIS_CLK_216_SHIFT        0
 
 /***************************************************************************
- *DVP_HT_CLK_PM_CTRL
+ *DVP_HT_CLK_PM_CTRL - Clock Disable Control Register for DVP_HT
  ***************************************************************************/
 /* CLKGEN :: DVP_HT_CLK_PM_CTRL :: reserved0 [31:07] */
 #define BCHP_CLKGEN_DVP_HT_CLK_PM_CTRL_reserved0_MASK              0xffffff80
@@ -280,7 +283,7 @@
 #define BCHP_CLKGEN_DVP_HT_CLK_PM_CTRL_DIS_CLK_216_SHIFT           0
 
 /***************************************************************************
- *GFX_CLK_PM_CTRL
+ *GFX_CLK_PM_CTRL - Clock Disable Control Register for GFX
  ***************************************************************************/
 /* CLKGEN :: GFX_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_GFX_CLK_PM_CTRL_reserved0_MASK                 0xfffffffc
@@ -295,7 +298,7 @@
 #define BCHP_CLKGEN_GFX_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *GFX_3D_OTP_CLK_PM_CTRL
+ *GFX_3D_OTP_CLK_PM_CTRL - Clock Disable Control Register for 3D_OTP GFX
  ***************************************************************************/
 /* CLKGEN :: GFX_3D_OTP_CLK_PM_CTRL :: reserved0 [31:01] */
 #define BCHP_CLKGEN_GFX_3D_OTP_CLK_PM_CTRL_reserved0_MASK          0xfffffffe
@@ -306,7 +309,7 @@
 #define BCHP_CLKGEN_GFX_3D_OTP_CLK_PM_CTRL_DIS_CLK_216_3D_OTP_SHIFT 0
 
 /***************************************************************************
- *HIF_CLK_PM_CTRL
+ *HIF_CLK_PM_CTRL - Clock Disable Control Register for HIF
  ***************************************************************************/
 /* CLKGEN :: HIF_CLK_PM_CTRL :: reserved0 [31:06] */
 #define BCHP_CLKGEN_HIF_CLK_PM_CTRL_reserved0_MASK                 0xffffffc0
@@ -333,7 +336,7 @@
 #define BCHP_CLKGEN_HIF_CLK_PM_CTRL_reserved_for_eco1_SHIFT        0
 
 /***************************************************************************
- *MEMC_CLK_PM_CTRL
+ *MEMC_CLK_PM_CTRL - Clock Disable Control Register for MEMC
  ***************************************************************************/
 /* CLKGEN :: MEMC_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_MEMC_CLK_PM_CTRL_reserved0_MASK                0xfffffffc
@@ -348,7 +351,7 @@
 #define BCHP_CLKGEN_MEMC_CLK_PM_CTRL_DIS_CLK_216_SHIFT             0
 
 /***************************************************************************
- *MOCA_CLK_PM_CTRL
+ *MOCA_CLK_PM_CTRL - Clock Disable Control Register for MOCA
  ***************************************************************************/
 /* CLKGEN :: MOCA_CLK_PM_CTRL :: reserved0 [31:12] */
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_reserved0_MASK                0xfffff000
@@ -370,9 +373,9 @@
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_UNIMAC_SYS_TX_MASK    0x00000100
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_UNIMAC_SYS_TX_SHIFT   8
 
-/* CLKGEN :: MOCA_CLK_PM_CTRL :: DIS_CLK_ISDMA [07:07] */
-#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_ISDMA_MASK            0x00000080
-#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_ISDMA_SHIFT           7
+/* CLKGEN :: MOCA_CLK_PM_CTRL :: reserved_for_eco1 [07:07] */
+#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_reserved_for_eco1_MASK        0x00000080
+#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_reserved_for_eco1_SHIFT       7
 
 /* CLKGEN :: MOCA_CLK_PM_CTRL :: DIS_CLK_L2_INTR [06:06] */
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_L2_INTR_MASK          0x00000040
@@ -386,9 +389,9 @@
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_GMII_MASK             0x00000010
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_GMII_SHIFT            4
 
-/* CLKGEN :: MOCA_CLK_PM_CTRL :: DIS_CLK_27X_PM [03:03] */
-#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_27X_PM_MASK           0x00000008
-#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_27X_PM_SHIFT          3
+/* CLKGEN :: MOCA_CLK_PM_CTRL :: reserved_for_eco2 [03:03] */
+#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_reserved_for_eco2_MASK        0x00000008
+#define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_reserved_for_eco2_SHIFT       3
 
 /* CLKGEN :: MOCA_CLK_PM_CTRL :: DIS_CLK_54 [02:02] */
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_54_MASK               0x00000004
@@ -403,7 +406,7 @@
 #define BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_216_SHIFT             0
 
 /***************************************************************************
- *PINMUX_CLK_PM_CTRL
+ *PINMUX_CLK_PM_CTRL - Clock Disable Control Register for PINMUX
  ***************************************************************************/
 /* CLKGEN :: PINMUX_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_PINMUX_CLK_PM_CTRL_reserved0_MASK              0xfffffffc
@@ -418,7 +421,7 @@
 #define BCHP_CLKGEN_PINMUX_CLK_PM_CTRL_reserved1_SHIFT             0
 
 /***************************************************************************
- *RPTD_AIO_CLK_PM_CTRL
+ *RPTD_AIO_CLK_PM_CTRL - Clock Disable Control Register for RTPD_AIO
  ***************************************************************************/
 /* CLKGEN :: RPTD_AIO_CLK_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_RPTD_AIO_CLK_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -437,7 +440,7 @@
 #define BCHP_CLKGEN_RPTD_AIO_CLK_PM_CTRL_DIS_CLK_216_SHIFT         0
 
 /***************************************************************************
- *SATA_CLK_PM_CTRL
+ *SATA_CLK_PM_CTRL - Clock Disable Control Register for SATA
  ***************************************************************************/
 /* CLKGEN :: SATA_CLK_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_SATA_CLK_PM_CTRL_reserved0_MASK                0xfffffff8
@@ -456,37 +459,21 @@
 #define BCHP_CLKGEN_SATA_CLK_PM_CTRL_DIS_CLK_216_SHIFT             0
 
 /***************************************************************************
- *SECTOP_CLK_PM_CTRL
+ *SECTOP_CLK_PM_CTRL - Clock Disable Control Register for SECTOP
  ***************************************************************************/
-/* CLKGEN :: SECTOP_CLK_PM_CTRL :: reserved0 [31:03] */
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_reserved0_MASK              0xfffffff8
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_reserved0_SHIFT             3
-
-/* CLKGEN :: SECTOP_CLK_PM_CTRL :: DIS_CLK_27X_PM [02:02] */
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_DIS_CLK_27X_PM_MASK         0x00000004
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_DIS_CLK_27X_PM_SHIFT        2
-
-/* CLKGEN :: SECTOP_CLK_PM_CTRL :: reserved_for_eco1 [01:00] */
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_reserved_for_eco1_MASK      0x00000003
-#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_reserved_for_eco1_SHIFT     0
+/* CLKGEN :: SECTOP_CLK_PM_CTRL :: reserved0 [31:00] */
+#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_reserved0_MASK              0xffffffff
+#define BCHP_CLKGEN_SECTOP_CLK_PM_CTRL_reserved0_SHIFT             0
 
 /***************************************************************************
- *SECTOP_DMA_CLK_PM_CTRL
+ *SECTOP_DMA_CLK_PM_CTRL - Clock Disable Control Register for SECTOP_DMA
  ***************************************************************************/
-/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: reserved0 [31:02] */
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_MASK          0xfffffffc
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_SHIFT         2
-
-/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: DIS_CLK_108 [01:01] */
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_108_MASK        0x00000002
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_108_SHIFT       1
-
-/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: DIS_CLK_216 [00:00] */
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_216_MASK        0x00000001
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_216_SHIFT       0
+/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: reserved0 [31:00] */
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_MASK          0xffffffff
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_SHIFT         0
 
 /***************************************************************************
- *SUN_CLK_PM_CTRL
+ *SUN_CLK_PM_CTRL - Clock Disable Control Register for SUN
  ***************************************************************************/
 /* CLKGEN :: SUN_CLK_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_SUN_CLK_PM_CTRL_reserved0_MASK                 0xfffffff8
@@ -505,7 +492,7 @@
 #define BCHP_CLKGEN_SUN_CLK_PM_CTRL_reserved_for_eco1_SHIFT        0
 
 /***************************************************************************
- *SUN_SC_CLK_PM_CTRL
+ *SUN_SC_CLK_PM_CTRL - Clock Disable Control Register for SUN_SC
  ***************************************************************************/
 /* CLKGEN :: SUN_SC_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_SUN_SC_CLK_PM_CTRL_reserved0_MASK              0xfffffffc
@@ -520,7 +507,7 @@
 #define BCHP_CLKGEN_SUN_SC_CLK_PM_CTRL_DIS_CLK_40_27X_SC0_SHIFT    0
 
 /***************************************************************************
- *TDAC0_CLK_PM_CTRL
+ *TDAC0_CLK_PM_CTRL - Clock Disable Control Register for TDAC0
  ***************************************************************************/
 /* CLKGEN :: TDAC0_CLK_PM_CTRL :: reserved0 [31:01] */
 #define BCHP_CLKGEN_TDAC0_CLK_PM_CTRL_reserved0_MASK               0xfffffffe
@@ -531,7 +518,7 @@
 #define BCHP_CLKGEN_TDAC0_CLK_PM_CTRL_DIS_CLK_216_SHIFT            0
 
 /***************************************************************************
- *TDAC1_CLK_PM_CTRL
+ *TDAC1_CLK_PM_CTRL - Clock Disable Control Register for TDAC1
  ***************************************************************************/
 /* CLKGEN :: TDAC1_CLK_PM_CTRL :: reserved0 [31:01] */
 #define BCHP_CLKGEN_TDAC1_CLK_PM_CTRL_reserved0_MASK               0xfffffffe
@@ -542,7 +529,7 @@
 #define BCHP_CLKGEN_TDAC1_CLK_PM_CTRL_DIS_CLK_216_SHIFT            0
 
 /***************************************************************************
- *USB_CLK_PM_CTRL
+ *USB_CLK_PM_CTRL - Clock Disable Control Register for USB
  ***************************************************************************/
 /* CLKGEN :: USB_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_USB_CLK_PM_CTRL_reserved0_MASK                 0xfffffffc
@@ -557,7 +544,7 @@
 #define BCHP_CLKGEN_USB_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *USMAC_TC_CLK_PM_CTRL
+ *USMAC_TC_CLK_PM_CTRL - Clock Disable Control Register for USMAC_TC
  ***************************************************************************/
 /* CLKGEN :: USMAC_TC_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_USMAC_TC_CLK_PM_CTRL_reserved0_MASK            0xfffffffc
@@ -572,7 +559,7 @@
 #define BCHP_CLKGEN_USMAC_TC_CLK_PM_CTRL_DIS_CLK_216_SHIFT         0
 
 /***************************************************************************
- *VCXO_CLK_PM_CTRL
+ *VCXO_CLK_PM_CTRL - Clock Disable Control Register for VCXO
  ***************************************************************************/
 /* CLKGEN :: VCXO_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_VCXO_CLK_PM_CTRL_reserved0_MASK                0xfffffffc
@@ -587,7 +574,7 @@
 #define BCHP_CLKGEN_VCXO_CLK_PM_CTRL_DIS_CLK_216_SHIFT             0
 
 /***************************************************************************
- *VEC_CLK_PM_CTRL
+ *VEC_CLK_PM_CTRL - Clock Disable Control Register for VEC
  ***************************************************************************/
 /* CLKGEN :: VEC_CLK_PM_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_VEC_CLK_PM_CTRL_reserved0_MASK                 0xfffffffc
@@ -602,7 +589,7 @@
 #define BCHP_CLKGEN_VEC_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *XPT_CLK_PM_CTRL
+ *XPT_CLK_PM_CTRL - Clock Disable Control Register for XPT
  ***************************************************************************/
 /* CLKGEN :: XPT_CLK_PM_CTRL :: reserved0 [31:07] */
 #define BCHP_CLKGEN_XPT_CLK_PM_CTRL_reserved0_MASK                 0xffffff80
@@ -637,7 +624,7 @@
 #define BCHP_CLKGEN_XPT_CLK_PM_CTRL_DIS_CLK_216_SHIFT              0
 
 /***************************************************************************
- *PLL_MOCA_CTRL
+ *PLL_MOCA_CTRL - MOCA PLL m3div, m4div, reset
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CTRL :: reserved0 [31:29] */
 #define BCHP_CLKGEN_PLL_MOCA_CTRL_reserved0_MASK                   0xe0000000
@@ -678,7 +665,7 @@
 #define BCHP_CLKGEN_PLL_MOCA_CTRL_ARESET_Normal                    0
 
 /***************************************************************************
- *PLL_MOCA_CTLBUS_HI
+ *PLL_MOCA_CTLBUS_HI - MOCA PLL control bus higher word
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CTLBUS_HI :: reserved0 [31:06] */
 #define BCHP_CLKGEN_PLL_MOCA_CTLBUS_HI_reserved0_MASK              0xffffffc0
@@ -689,14 +676,14 @@
 #define BCHP_CLKGEN_PLL_MOCA_CTLBUS_HI_CTL_BITS_37_32_SHIFT        0
 
 /***************************************************************************
- *PLL_MOCA_CTLBUS_LO
+ *PLL_MOCA_CTLBUS_LO - MOCA PLL control bus lower word
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CTLBUS_LO :: CTL_BITS_31_0 [31:00] */
 #define BCHP_CLKGEN_PLL_MOCA_CTLBUS_LO_CTL_BITS_31_0_MASK          0xffffffff
 #define BCHP_CLKGEN_PLL_MOCA_CTLBUS_LO_CTL_BITS_31_0_SHIFT         0
 
 /***************************************************************************
- *PLL_MOCA_CH3_PM_CTRL
+ *PLL_MOCA_CH3_PM_CTRL - MOCA PLL channel 3: 225 MHz MocA PHY differential clocks,  PLL source post divider powerdown, channel gate on/off and cml buffer enable
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CH3_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MOCA_CH3_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -717,7 +704,7 @@
 #define BCHP_CLKGEN_PLL_MOCA_CH3_PM_CTRL_EN_CMLBUF_SHIFT           0
 
 /***************************************************************************
- *PLL_MOCA_CH4_PM_CTRL
+ *PLL_MOCA_CH4_PM_CTRL - MOCA PLL channel 4: 225 MHz MocA CPU differential clocks,  PLL source post divider powerdown, channel gate on/off and cml buffer enable
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CH4_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MOCA_CH4_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -738,7 +725,7 @@
 #define BCHP_CLKGEN_PLL_MOCA_CH4_PM_CTRL_EN_CMLBUF_SHIFT           0
 
 /***************************************************************************
- *PLL_MOCA_CH5_PM_CTRL
+ *PLL_MOCA_CH5_PM_CTRL - MOCA PLL channel 5: 50 MHz USDS PLL reference clocks,  PLL source post divider powerdown, channel gate on/off and cml buffer enable
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CH5_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MOCA_CH5_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -759,7 +746,7 @@
 #define BCHP_CLKGEN_PLL_MOCA_CH5_PM_CTRL_EN_CMLBUF_SHIFT           0
 
 /***************************************************************************
- *PLL_MOCA_CH6_PM_CTRL
+ *PLL_MOCA_CH6_PM_CTRL - MOCA PLL channel 6: 100 MHz MocA digital clock,  PLL source post divider powerdown, channel gate on/off and cml buffer enable
  ***************************************************************************/
 /* CLKGEN :: PLL_MOCA_CH6_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MOCA_CH6_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -780,7 +767,7 @@
 #define BCHP_CLKGEN_PLL_MOCA_CH6_PM_CTRL_EN_CMLBUF_SHIFT           0
 
 /***************************************************************************
- *PLL_MAIN_CTRL
+ *PLL_MAIN_CTRL - PLL_MAIN Reset Status & DLY
  ***************************************************************************/
 /* CLKGEN :: PLL_MAIN_CTRL :: reserved0 [31:07] */
 #define BCHP_CLKGEN_PLL_MAIN_CTRL_reserved0_MASK                   0xffffff80
@@ -815,7 +802,7 @@
 #define BCHP_CLKGEN_PLL_MAIN_CTRL_RST_STATUS_SHIFT                 0
 
 /***************************************************************************
- *PLL_MAIN_CH3_PM_CTRL
+ *PLL_MAIN_CH3_PM_CTRL - PLL_MAIN Powerdown 81MHz Main clock
  ***************************************************************************/
 /* CLKGEN :: PLL_MAIN_CH3_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MAIN_CH3_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -830,7 +817,7 @@
 #define BCHP_CLKGEN_PLL_MAIN_CH3_PM_CTRL_reserved_for_eco1_SHIFT   0
 
 /***************************************************************************
- *PLL_MAIN_CH4_PM_CTRL
+ *PLL_MAIN_CH4_PM_CTRL - PLL_MAIN Powerdown 48MHz USB clock
  ***************************************************************************/
 /* CLKGEN :: PLL_MAIN_CH4_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MAIN_CH4_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -849,7 +836,7 @@
 #define BCHP_CLKGEN_PLL_MAIN_CH4_PM_CTRL_EN_CMLBUF_SHIFT           0
 
 /***************************************************************************
- *PLL_MAIN_CH5_PM_CTRL
+ *PLL_MAIN_CH5_PM_CTRL - PLL_MAIN Powerdown 32.4MHz Soft Modem clock
  ***************************************************************************/
 /* CLKGEN :: PLL_MAIN_CH5_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MAIN_CH5_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -864,7 +851,7 @@
 #define BCHP_CLKGEN_PLL_MAIN_CH5_PM_CTRL_reserved_for_eco1_SHIFT   0
 
 /***************************************************************************
- *PLL_MAIN_CH6_PM_CTRL
+ *PLL_MAIN_CH6_PM_CTRL - PLL_MAIN Powerdown 99p7MHz HIF/SATA clock
  ***************************************************************************/
 /* CLKGEN :: PLL_MAIN_CH6_PM_CTRL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PLL_MAIN_CH6_PM_CTRL_reserved0_MASK            0xfffffff8
@@ -879,7 +866,7 @@
 #define BCHP_CLKGEN_PLL_MAIN_CH6_PM_CTRL_reserved_for_eco1_SHIFT   0
 
 /***************************************************************************
- *PAD_CLOCK
+ *PAD_CLOCK - PAD Clock Control Register
  ***************************************************************************/
 /* CLKGEN :: PAD_CLOCK :: reserved0 [31:13] */
 #define BCHP_CLKGEN_PAD_CLOCK_reserved0_MASK                       0xffffe000
@@ -914,7 +901,7 @@
 #define BCHP_CLKGEN_PAD_CLOCK_CLK_27_OUT_SEL_SHIFT                 0
 
 /***************************************************************************
- *HIF_CLOCK_SEL
+ *HIF_CLOCK_SEL - Select 108/99.7 clock to HIF
  ***************************************************************************/
 /* CLKGEN :: HIF_CLOCK_SEL :: reserved0 [31:01] */
 #define BCHP_CLKGEN_HIF_CLOCK_SEL_reserved0_MASK                   0xfffffffe
@@ -925,7 +912,7 @@
 #define BCHP_CLKGEN_HIF_CLOCK_SEL_HIF_CLOCK_SEL_SHIFT              0
 
 /***************************************************************************
- *MISC_CLOCK_SELECTS
+ *MISC_CLOCK_SELECTS - Misc clock selects in chip.
  ***************************************************************************/
 /* CLKGEN :: MISC_CLOCK_SELECTS :: reserved0 [31:02] */
 #define BCHP_CLKGEN_MISC_CLOCK_SELECTS_reserved0_MASK              0xfffffffc
@@ -940,7 +927,7 @@
 #define BCHP_CLKGEN_MISC_CLOCK_SELECTS_CLOCK_SEL_GMII_CG_MOCA_SHIFT 0
 
 /***************************************************************************
- *PLL_TEST_CTRL
+ *PLL_TEST_CTRL - PLL_TEST_CTRL Control Register
  ***************************************************************************/
 /* CLKGEN :: PLL_TEST_CTRL :: reserved0 [31:10] */
 #define BCHP_CLKGEN_PLL_TEST_CTRL_reserved0_MASK                   0xfffffc00
@@ -967,7 +954,7 @@
 #define BCHP_CLKGEN_PLL_TEST_CTRL_reserved_for_eco1_SHIFT          0
 
 /***************************************************************************
- *DIFFOSC_TEST_CTRL
+ *DIFFOSC_TEST_CTRL - DIFFOSC_TEST_CTRL Control Register
  ***************************************************************************/
 /* CLKGEN :: DIFFOSC_TEST_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_DIFFOSC_TEST_CTRL_reserved0_MASK               0xfffffffc
@@ -982,7 +969,7 @@
 #define BCHP_CLKGEN_DIFFOSC_TEST_CTRL_TEST_EN_DIFFOSC_SHIFT        0
 
 /***************************************************************************
- *MIPS_PLL_CTRL
+ *MIPS_PLL_CTRL - MIPS_PLL_CTRL Register
  ***************************************************************************/
 /* CLKGEN :: MIPS_PLL_CTRL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_MIPS_PLL_CTRL_reserved0_MASK                   0xfffffffc
@@ -993,7 +980,7 @@
 #define BCHP_CLKGEN_MIPS_PLL_CTRL_LDO_CTRL_SHIFT                   0
 
 /***************************************************************************
- *D2CDIFF_AC_CTRL
+ *D2CDIFF_AC_CTRL - AC_CTRL for D2CDIFF
  ***************************************************************************/
 /* CLKGEN :: D2CDIFF_AC_CTRL :: reserved0 [31:14] */
 #define BCHP_CLKGEN_D2CDIFF_AC_CTRL_reserved0_MASK                 0xffffc000
@@ -1052,7 +1039,7 @@
 #define BCHP_CLKGEN_D2CDIFF_AC_CTRL_MAIN_XOR_SHIFT                 0
 
 /***************************************************************************
- *SMARTCARD_CLOCK_CTRL
+ *SMARTCARD_CLOCK_CTRL - SMARTCARD_CLOCK_CTRL Register
  ***************************************************************************/
 /* CLKGEN :: SMARTCARD_CLOCK_CTRL :: reserved0 [31:05] */
 #define BCHP_CLKGEN_SMARTCARD_CLOCK_CTRL_reserved0_MASK            0xffffffe0
@@ -1071,7 +1058,7 @@
 #define BCHP_CLKGEN_SMARTCARD_CLOCK_CTRL_SMARTCARD_CLOCK_1_SOURCE_SEL_SHIFT 0
 
 /***************************************************************************
- *PLL_TIMER_SELECT
+ *PLL_TIMER_SELECT - Select the delay after reset before using PLL
  ***************************************************************************/
 /* CLKGEN :: PLL_TIMER_SELECT :: reserved0 [31:02] */
 #define BCHP_CLKGEN_PLL_TIMER_SELECT_reserved0_MASK                0xfffffffc
@@ -1082,7 +1069,7 @@
 #define BCHP_CLKGEN_PLL_TIMER_SELECT_TIMER_SHIFT                   0
 
 /***************************************************************************
- *PM_PLL_ALIVE_SEL
+ *PM_PLL_ALIVE_SEL - Program the PLLs to be alive in standby
  ***************************************************************************/
 /* CLKGEN :: PM_PLL_ALIVE_SEL :: reserved0 [31:03] */
 #define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_reserved0_MASK                0xfffffff8
@@ -1101,7 +1088,7 @@
 #define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_MAIN_PLL_SHIFT                0
 
 /***************************************************************************
- *PM_CLOCK_216_108_ALIVE_SEL
+ *PM_CLOCK_216_108_ALIVE_SEL - Program the 216/108 clocks to be alive in standby
  ***************************************************************************/
 /* CLKGEN :: PM_CLOCK_216_108_ALIVE_SEL :: reserved0 [31:02] */
 #define BCHP_CLKGEN_PM_CLOCK_216_108_ALIVE_SEL_reserved0_MASK      0xfffffffc
@@ -1116,7 +1103,7 @@
 #define BCHP_CLKGEN_PM_CLOCK_216_108_ALIVE_SEL_CLOCK_216_CG_XPT_SHIFT 0
 
 /***************************************************************************
- *REVISION
+ *REVISION - Chip Revision
  ***************************************************************************/
 /* CLKGEN :: REVISION :: reserved0 [31:16] */
 #define BCHP_CLKGEN_REVISION_reserved0_MASK                        0xffff0000
@@ -1131,7 +1118,7 @@
 #define BCHP_CLKGEN_REVISION_MINOR_SHIFT                           0
 
 /***************************************************************************
- *SCRATCH_REG
+ *SCRATCH_REG - Scratch Register
  ***************************************************************************/
 /* CLKGEN :: SCRATCH_REG :: VALUE [31:00] */
 #define BCHP_CLKGEN_SCRATCH_REG_VALUE_MASK                         0xffffffff

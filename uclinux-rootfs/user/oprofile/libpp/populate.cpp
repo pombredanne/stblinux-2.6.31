@@ -56,21 +56,23 @@ populate_from_files(profile_t & profile, op_bfd const & abfd,
 
 
 void
-populate_for_image(string const & archive_path, profile_container & samples,
-   inverted_profile const & ip, string_filter const & symbol_filter,
-   bool * has_debug_info)
+populate_for_image(profile_container & samples, inverted_profile const & ip,
+	string_filter const & symbol_filter, bool * has_debug_info)
 {
-	if (is_spu_profile(ip))
-		return populate_for_spu_image(archive_path, samples, ip,
-					      symbol_filter, has_debug_info);
+	if (is_spu_profile(ip)) {
+		populate_for_spu_image(samples, ip, symbol_filter,
+				       has_debug_info);
+		return;
+	}
 
 	bool ok = ip.error == image_ok;
-	op_bfd abfd(archive_path, ip.image, symbol_filter, ok);
+	op_bfd abfd(ip.image, symbol_filter,
+		    samples.extra_found_images, ok);
 	if (!ok && ip.error == image_ok)
 		ip.error = image_format_failure;
 
 	if (ip.error == image_format_failure)
-		report_image_error(ip, false);
+		report_image_error(ip, false, samples.extra_found_images);
 
 	opd_header header;
 
@@ -95,8 +97,13 @@ populate_for_image(string const & archive_path, profile_container & samples,
 		}
 	}
 
-	if (found == true && ip.error == image_ok)
-		check_mtime(archive_path + abfd.get_filename(), header);
+	if (found == true && ip.error == image_ok) {
+		image_error error;
+		string filename =
+			samples.extra_found_images.find_image_path(
+				ip.image, error, true);
+		check_mtime(filename, header);
+	}
 
 	if (has_debug_info)
 		*has_debug_info = abfd.has_debug_info();

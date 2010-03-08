@@ -9,9 +9,12 @@
  * @author Philippe Elie
  */
 
+#include <cstdlib>
+
 #include <iostream>
 #include <sstream>
 #include <iterator>
+#include <cstdlib>
 
 #include "op_config.h"
 #include "locate_images.h"
@@ -24,12 +27,12 @@
 using namespace std;
 
 namespace options {
-	extra_images extra_found_images;
 	double threshold = 0.0;
 	string threshold_opt;
 	string session_dir = OP_SESSION_DIR_DEFAULT;
 	string command_options;
 	vector<string> image_path;
+	string root_path;
 }
 
 namespace {
@@ -44,6 +47,8 @@ popt::option common_options_array[] = {
 		     "specify session path to hold samples database and session data (" OP_SESSION_DIR_DEFAULT ")", "path"),
 	popt::option(options::image_path, "image-path", 'p',
 		     "comma-separated path to search missing binaries", "path"),
+	popt::option(options::root_path, "root", 'R',
+		     "path to filesystem to search for missing binaries", "path"),
 };
 
 
@@ -174,20 +179,6 @@ options::spec get_options(int argc, char const * argv[])
 		cerr << "unknown --verbose= options\n";
 		exit(EXIT_FAILURE);
 	}
-
-	bool ok = true;
-	vector<string>::const_iterator it = options::image_path.begin();
-	for ( ; it != options::image_path.end(); ++it) {
-		if (!is_directory(*it)) {
-			cerr << *it << " isn't a valid directory\n";
-			ok = false;
-		}
-	}
-
-	if (!ok)
-		throw op_runtime_error("invalid --image-path= options");
-
-	options::extra_found_images.populate(options::image_path);
 
 	// XML generator needs command line options for its header
 	ostringstream str;

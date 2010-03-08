@@ -339,7 +339,7 @@ void output_summaries(summary_container const & summaries)
 }
 
 
-format_flags const get_format_flags(column_flags const & cf)
+format_flags get_format_flags(column_flags const & cf)
 {
 	format_flags flags(ff_none);
 	flags = format_flags(flags | ff_nr_samples);
@@ -378,7 +378,8 @@ void output_symbols(profile_container const & pc, bool multiple_apps)
 	format_output::opreport_formatter * text_out = 0;
 
 	if (options::xml) {
-		xml_out = new format_output::xml_formatter(&pc, symbols);
+		xml_out = new format_output::xml_formatter(&pc, symbols,
+			pc.extra_found_images, options::symbol_filter);
 		xml_out->show_details(options::details);
 		out = xml_out;
 		// for XML always output long filenames
@@ -403,7 +404,7 @@ void output_symbols(profile_container const & pc, bool multiple_apps)
 
 	if (options::xml) {
 		xml_support = new xml_utils(xml_out, symbols, nr_classes,
-			&options::symbol_filter, options::archive_path);
+			pc.extra_found_images);
 		xml_out->output(cout);
 	} else {
 		text_out->output(cout, symbols);
@@ -425,7 +426,10 @@ void output_diff_symbols(profile_container const & pc1,
 	if (multiple_apps)
 		flags = format_flags(flags | ff_app_name);
 
-	format_output::diff_formatter out(dc);
+	// With diff profile we output only filename coming from the first
+	// profile session, internally we use only name derived from the sample
+	// filename so image name can match.
+	format_output::diff_formatter out(dc, pc1.extra_found_images);
 
 	out.set_nr_classes(nr_classes);
 	out.show_long_filenames(options::long_filenames);
@@ -455,7 +459,8 @@ void output_cg_symbols(callgraph_container const & cg, bool multiple_apps)
 	format_output::cg_formatter * text_out = 0;
 
 	if (options::xml) {
-		xml_out = new format_output::xml_cg_formatter(&cg, symbols);
+		xml_out = new format_output::xml_cg_formatter(cg, symbols,
+			options::symbol_filter);
 		xml_out->show_details(options::details);
 		out = xml_out;
 		// for XML always output long filenames
@@ -479,7 +484,7 @@ void output_cg_symbols(callgraph_container const & cg, bool multiple_apps)
 
 	if (options::xml) {
 		xml_support = new xml_utils(xml_out, symbols, nr_classes,
-			&options::symbol_filter, options::archive_path);
+			cg.extra_found_images);
 		xml_out->output(cout);
 	} else {
 		text_out->output(cout, symbols);
@@ -510,11 +515,9 @@ int opreport(options::spec const & spec)
 			multiple_apps = true;
 	}
 
-	list<inverted_profile> iprofiles
-		= invert_profiles(options::archive_path, classes,
-				  options::extra_found_images);
+	list<inverted_profile> iprofiles = invert_profiles(classes);
 
-	report_image_errors(iprofiles);
+	report_image_errors(iprofiles, classes.extra_found_images);
 
 	if (options::xml) {
 		xml_utils::output_xml_header(options::command_options,
@@ -529,48 +532,48 @@ int opreport(options::spec const & spec)
 				multiple_apps |= true;
 		}
 
-		profile_container pc1(options::debug_info, options::details);
+		profile_container pc1(options::debug_info, options::details,
+				      classes.extra_found_images);
 
 		list<inverted_profile>::iterator it = iprofiles.begin();
 		list<inverted_profile>::iterator const end = iprofiles.end();
 
 		for (; it != end; ++it)
-			populate_for_image(options::archive_path, pc1,
-				*it, options::symbol_filter, 0);
+			populate_for_image(pc1, *it,
+					   options::symbol_filter, 0);
 
-		list<inverted_profile> iprofiles2
-			= invert_profiles(options::archive_path2, classes2,
-				  options::extra_found_images);
+		list<inverted_profile> iprofiles2 = invert_profiles(classes2);
 
-		report_image_errors(iprofiles2);
+		report_image_errors(iprofiles2, classes2.extra_found_images);
 
-		profile_container pc2(options::debug_info, options::details);
+		profile_container pc2(options::debug_info, options::details,
+				      classes2.extra_found_images);
 
 		list<inverted_profile>::iterator it2 = iprofiles2.begin();
 		list<inverted_profile>::iterator const end2 = iprofiles2.end();
 
 		for (; it2 != end2; ++it2)
-			populate_for_image(options::archive_path2, pc2,
-				*it2, options::symbol_filter, 0);
+			populate_for_image(pc2, *it2,
+					   options::symbol_filter, 0);
 
 		output_diff_symbols(pc1, pc2, multiple_apps);
 	} else if (options::callgraph) {
 		callgraph_container cg_container;
-		cg_container.populate(options::archive_path, iprofiles,
-			options::extra_found_images,
+		cg_container.populate(iprofiles, classes.extra_found_images,
 			options::debug_info, options::threshold,
 			options::merge_by.lib, options::symbol_filter);
 
 		output_cg_symbols(cg_container, multiple_apps);
 	} else {
-		profile_container samples(options::debug_info, options::details);
+		profile_container samples(options::debug_info,
+			options::details, classes.extra_found_images);
 
 		list<inverted_profile>::iterator it = iprofiles.begin();
 		list<inverted_profile>::iterator const end = iprofiles.end();
 
 		for (; it != end; ++it)
-			populate_for_image(options::archive_path, samples,
-				*it, options::symbol_filter, 0);
+			populate_for_image(samples, *it,
+					   options::symbol_filter, 0);
 
 		output_symbols(samples, multiple_apps);
 	}

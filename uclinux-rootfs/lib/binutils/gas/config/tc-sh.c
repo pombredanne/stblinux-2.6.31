@@ -1,12 +1,12 @@
 /* tc-sh.c -- Assemble code for the Renesas / SuperH SH
    Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-   2003, 2004, 2005, 2006  Free Software Foundation, Inc.
+   2003, 2004, 2005, 2006, 2007  Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -825,8 +825,97 @@ sh_elf_cons (register int nbytes)
   else
     demand_empty_rest_of_line ();
 }
-#endif /* OBJ_ELF */
 
+/* The regular frag_offset_fixed_p doesn't work for rs_align_test
+   frags.  */
+
+static bfd_boolean
+align_test_frag_offset_fixed_p (const fragS *frag1, const fragS *frag2,
+				bfd_vma *offset)
+{
+  const fragS *frag;
+  bfd_vma off;
+
+  /* Start with offset initialised to difference between the two frags.
+     Prior to assigning frag addresses this will be zero.  */
+  off = frag1->fr_address - frag2->fr_address;
+  if (frag1 == frag2)
+    {
+      *offset = off;
+      return TRUE;
+    }
+
+  /* Maybe frag2 is after frag1.  */
+  frag = frag1;
+  while (frag->fr_type == rs_fill
+	 || frag->fr_type == rs_align_test)
+    {
+      if (frag->fr_type == rs_fill)
+	off += frag->fr_fix + frag->fr_offset * frag->fr_var;
+      else
+	off += frag->fr_fix;
+      frag = frag->fr_next;
+      if (frag == NULL)
+	break;
+      if (frag == frag2)
+	{
+	  *offset = off;
+	  return TRUE;
+	}
+    }
+
+  /* Maybe frag1 is after frag2.  */
+  off = frag1->fr_address - frag2->fr_address;
+  frag = frag2;
+  while (frag->fr_type == rs_fill
+	 || frag->fr_type == rs_align_test)
+    {
+      if (frag->fr_type == rs_fill)
+	off -= frag->fr_fix + frag->fr_offset * frag->fr_var;
+      else
+	off -= frag->fr_fix;
+      frag = frag->fr_next;
+      if (frag == NULL)
+	break;
+      if (frag == frag1)
+	{
+	  *offset = off;
+	  return TRUE;
+	}
+    }
+
+  return FALSE;
+}
+
+/* Optimize a difference of symbols which have rs_align_test frag if
+   possible.  */
+
+int
+sh_optimize_expr (expressionS *l, operatorT op, expressionS *r)
+{
+  bfd_vma frag_off;
+
+  if (op == O_subtract
+      && l->X_op == O_symbol
+      && r->X_op == O_symbol
+      && S_GET_SEGMENT (l->X_add_symbol) == S_GET_SEGMENT (r->X_add_symbol)
+      && (SEG_NORMAL (S_GET_SEGMENT (l->X_add_symbol))
+	  || r->X_add_symbol == l->X_add_symbol)
+      && align_test_frag_offset_fixed_p (symbol_get_frag (l->X_add_symbol),
+					 symbol_get_frag (r->X_add_symbol),
+					 &frag_off))
+    {
+      l->X_add_number -= r->X_add_number;
+      l->X_add_number -= frag_off / OCTETS_PER_BYTE;
+      l->X_add_number += (S_GET_VALUE (l->X_add_symbol)
+			  - S_GET_VALUE (r->X_add_symbol));
+      l->X_op = O_constant;
+      l->X_add_symbol = 0;
+      return 1;
+    }
+  return 0;
+}
+#endif /* OBJ_ELF */
 
 /* This function is called once, at assembler startup time.  This should
    set up all the tables, etc that the MD part of the assembler needs.  */
@@ -2956,61 +3045,11 @@ md_undefined_symbol (char *name ATTRIBUTE_UNUSED)
 }
 
 /* Various routines to kill one day.  */
-/* Equal to MAX_PRECISION in atof-ieee.c.  */
-#define MAX_LITTLENUMS 6
-
-/* Turn a string in input_line_pointer into a floating point constant
-   of type TYPE, and store the appropriate bytes in *LITP.  The number
-   of LITTLENUMS emitted is stored in *SIZEP .  An error message is
-   returned, or NULL on OK.  */
 
 char *
 md_atof (int type, char *litP, int *sizeP)
 {
-  int prec;
-  LITTLENUM_TYPE words[4];
-  char *t;
-  int i;
-
-  switch (type)
-    {
-    case 'f':
-      prec = 2;
-      break;
-
-    case 'd':
-      prec = 4;
-      break;
-
-    default:
-      *sizeP = 0;
-      return _("bad call to md_atof");
-    }
-
-  t = atof_ieee (input_line_pointer, type, words);
-  if (t)
-    input_line_pointer = t;
-
-  *sizeP = prec * 2;
-
-  if (! target_big_endian)
-    {
-      for (i = prec - 1; i >= 0; i--)
-	{
-	  md_number_to_chars (litP, (valueT) words[i], 2);
-	  litP += 2;
-	}
-    }
-  else
-    {
-      for (i = 0; i < prec; i++)
-	{
-	  md_number_to_chars (litP, (valueT) words[i], 2);
-	  litP += 2;
-	}
-    }
-
-  return NULL;
+  return ieee_md_atof (type, litP, sizeP, target_big_endian);
 }
 
 /* Handle the .uses pseudo-op.  This pseudo-op is used just before a
@@ -3057,6 +3096,7 @@ enum options
   OPTION_NO_EXPAND,
   OPTION_PT32,
 #endif
+  OPTION_H_TICK_HEX,
   OPTION_DUMMY  /* Not used.  This is just here to make it easy to add and subtract options from this enum.  */
 };
 
@@ -3083,6 +3123,7 @@ struct option md_longopts[] =
   {"no-expand",              no_argument, NULL, OPTION_NO_EXPAND},
   {"expand-pt32",            no_argument, NULL, OPTION_PT32},
 #endif /* HAVE_SH64 */
+  { "h-tick-hex", no_argument,	      NULL, OPTION_H_TICK_HEX  },
 
   {NULL, no_argument, NULL, 0}
 };
@@ -3212,6 +3253,10 @@ md_parse_option (int c, char *arg ATTRIBUTE_UNUSED)
       sh64_pt32 = TRUE;
       break;
 #endif /* HAVE_SH64 */
+
+    case OPTION_H_TICK_HEX:
+      enable_h_tick_hex = 1;
+      break;
 
     default:
       return 0;
@@ -3686,7 +3731,7 @@ sh_handle_align (fragS *frag)
   else if (frag->fr_type == rs_align_test)
     {
       if (bytes != 0)
-	as_warn_where (frag->fr_file, frag->fr_line, _("misaligned data"));
+	as_bad_where (frag->fr_file, frag->fr_line, _("misaligned data"));
     }
 
   if (sh_relax
@@ -3979,6 +4024,23 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)
       break;
 
     case BFD_RELOC_SH_PCRELIMM8BY4:
+      /* If we are dealing with a known destination ... */
+      if ((fixP->fx_addsy == NULL || S_IS_DEFINED (fixP->fx_addsy))
+	  && (fixP->fx_subsy == NULL || S_IS_DEFINED (fixP->fx_addsy)))
+      {
+	/* Don't silently move the destination due to misalignment.
+	   The absolute address is the fragment base plus the offset into
+	   the fragment plus the pc relative offset to the label.  */
+	if ((fixP->fx_frag->fr_address + fixP->fx_where + val) & 3)
+	  as_bad_where (fixP->fx_file, fixP->fx_line,
+			_("offset to unaligned destination"));
+
+	/* The displacement cannot be zero or backward even if aligned.
+	   Allow -2 because val has already been adjusted somewhere.  */
+	if (val < -2)
+	  as_bad_where (fixP->fx_file, fixP->fx_line, _("negative offset"));
+      }
+
       /* The lower two bits of the PC are cleared before the
          displacement is added in.  We can assume that the destination
          is on a 4 byte boundary.  If this instruction is also on a 4

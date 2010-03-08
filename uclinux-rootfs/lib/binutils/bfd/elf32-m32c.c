@@ -1,12 +1,12 @@
 /* M16C/M32C specific support for 32-bit ELF.
-   Copyright (C) 2005, 2006
+   Copyright (C) 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -18,8 +18,8 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "elf-bfd.h"
 #include "elf/m32c.h"
@@ -272,6 +272,21 @@ m32c_reloc_type_lookup
   return NULL;
 }
 
+static reloc_howto_type *
+m32c_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED, const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < sizeof (m32c_elf_howto_table) / sizeof (m32c_elf_howto_table[0]);
+       i++)
+    if (m32c_elf_howto_table[i].name != NULL
+	&& strcasecmp (m32c_elf_howto_table[i].name, r_name) == 0)
+      return &m32c_elf_howto_table[i];
+
+  return NULL;
+}
+
 /* Set the howto pointer for an M32C ELF reloc.  */
 
 static void
@@ -372,31 +387,11 @@ m32c_elf_relocate_section
       
       r_symndx = ELF32_R_SYM (rel->r_info);
 
-      if (info->relocatable)
-	{
-	  /* This is a relocatable link.  We don't have to change
-             anything, unless the reloc is against a section symbol,
-             in which case we have to adjust according to where the
-             section symbol winds up in the output section.  */
-	  if (r_symndx < symtab_hdr->sh_info)
-	    {
-	      sym = local_syms + r_symndx;
-	      
-	      if (ELF_ST_TYPE (sym->st_info) == STT_SECTION)
-		{
-		  sec = local_sections [r_symndx];
-		  rel->r_addend += sec->output_offset + sym->st_value;
-		}
-	    }
-
-	  continue;
-	}
-
-      /* This is a final link.  */
       howto  = m32c_elf_howto_table + ELF32_R_TYPE (rel->r_info);
       h      = NULL;
       sym    = NULL;
       sec    = NULL;
+      relocation = 0;
 
       if (r_symndx < symtab_hdr->sh_info)
 	{
@@ -429,17 +424,36 @@ m32c_elf_relocate_section
 			    + sec->output_offset);
 	    }
 	  else if (h->root.type == bfd_link_hash_undefweak)
-	    {
-	      relocation = 0;
-	    }
-	  else
+	    ;
+	  else if (!info->relocatable)
 	    {
 	      if (! ((*info->callbacks->undefined_symbol)
 		     (info, h->root.root.string, input_bfd,
 		      input_section, rel->r_offset, TRUE)))
 		return FALSE;
-	      relocation = 0;
 	    }
+	}
+
+      if (sec != NULL && elf_discarded_section (sec))
+	{
+	  /* For relocs against symbols from removed linkonce sections,
+	     or sections discarded by a linker script, we just want the
+	     section contents zeroed.  Avoid any special processing.  */
+	  _bfd_clear_contents (howto, input_bfd, contents + rel->r_offset);
+	  rel->r_info = 0;
+	  rel->r_addend = 0;
+	  continue;
+	}
+
+      if (info->relocatable)
+	{
+	  /* This is a relocatable link.  We don't have to change
+             anything, unless the reloc is against a section symbol,
+             in which case we have to adjust according to where the
+             section symbol winds up in the output section.  */
+	  if (sym != NULL && ELF_ST_TYPE (sym->st_info) == STT_SECTION)
+	    rel->r_addend += sec->output_offset;
+	  continue;
 	}
 
       switch (ELF32_R_TYPE (rel->r_info))
@@ -583,7 +597,6 @@ m32c_elf_check_relocs
 {
   Elf_Internal_Shdr *           symtab_hdr;
   struct elf_link_hash_entry ** sym_hashes;
-  struct elf_link_hash_entry ** sym_hashes_end;
   const Elf_Internal_Rela *     rel;
   const Elf_Internal_Rela *     rel_end;
   bfd_vma *local_plt_offsets;
@@ -599,10 +612,6 @@ m32c_elf_check_relocs
   splt = NULL;
   dynobj = elf_hash_table(info)->dynobj;
 
-  sym_hashes_end = sym_hashes + symtab_hdr->sh_size/sizeof (Elf32_External_Sym);
-  if (!elf_bad_symtab (abfd))
-    sym_hashes_end -= symtab_hdr->sh_info;
- 
   rel_end = relocs + sec->reloc_count;
   for (rel = relocs; rel < rel_end; rel++)
     {
@@ -838,7 +847,7 @@ m32c_elf_print_private_bfd_data (bfd *abfd, PTR ptr)
   _bfd_elf_print_private_bfd_data (abfd, ptr);
 
   flags = elf_elfheader (abfd)->e_flags;
-  fprintf (file, _("private flags = 0x%lx:"), (long)flags);
+  fprintf (file, _("private flags = 0x%lx:"), (unsigned long) flags);
 
   switch (flags & EF_M32C_CPU_MASK)
     {
@@ -1976,9 +1985,20 @@ m32c_elf_relax_delete_bytes
   return TRUE;
 }
 
+/* This is for versions of gcc prior to 4.3.  */
+static unsigned int
+_bfd_m32c_elf_eh_frame_address_size (bfd *abfd, asection *sec ATTRIBUTE_UNUSED)
+{
+  if ((elf_elfheader (abfd)->e_flags & EF_M32C_CPU_MASK) == EF_M32C_CPU_M16C)
+    return 2;
+  return 4;
+}
+
+
 
 #define ELF_ARCH		bfd_arch_m32c
 #define ELF_MACHINE_CODE	EM_M32C
+#define ELF_MACHINE_ALT1	EM_M32C_OLD
 #define ELF_MAXPAGESIZE		0x1000
 
 #if 0
@@ -2002,8 +2022,10 @@ m32c_elf_relax_delete_bytes
   m32c_elf_finish_dynamic_sections
 
 #define elf_backend_can_gc_sections		1
+#define elf_backend_eh_frame_address_size _bfd_m32c_elf_eh_frame_address_size
 
 #define bfd_elf32_bfd_reloc_type_lookup		m32c_reloc_type_lookup
+#define bfd_elf32_bfd_reloc_name_lookup	m32c_reloc_name_lookup
 #define bfd_elf32_bfd_relax_section		m32c_elf_relax_section
 #define bfd_elf32_bfd_set_private_flags		m32c_elf_set_private_flags
 #define bfd_elf32_bfd_merge_private_bfd_data	m32c_elf_merge_private_bfd_data

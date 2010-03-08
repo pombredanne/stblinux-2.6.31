@@ -112,7 +112,7 @@
                   </dt>
                   <dt>
                     <span class="sect2">
-                      <a href="#id4695112">2.2. IA64 and perfmon</a>
+                      <a href="#id4669490">2.2. IA64 and perfmon</a>
                     </span>
                   </dt>
                 </dl>
@@ -254,6 +254,68 @@
             </dl>
           </dd>
           <dt>
+            <span class="chapter">
+              <a href="#ext">6. Extended Feature Interface</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect1">
+                  <a href="#ext-intro">1. Introduction</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect1">
+                  <a href="#ext-name-and-handlers">2. Feature Name and Handlers</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect1">
+                  <a href="#ext-enable">3. Enabling Features</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect1">
+                  <a href="#ext-types-of-handlers">4. Type of Handlers</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#ext_init">4.1. ext_init Handler</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#ext_print_stats">4.2. ext_print_stats Handler</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#ext_sfile_handlers">4.3. ext_sfile Handler</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect1">
+                  <a href="#ext-implementation">5. Extended Feature Reference Implementation</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect2">
+                      <a href="#ext-ibs">5.1. Instruction-Based Sampling (IBS)</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
             <span class="glossary">
               <a href="#glossary">Glossary of OProfile source concepts and types</a>
             </span>
@@ -265,7 +327,7 @@
           <b>List of Figures</b>
         </p>
         <dl>
-          <dt>3.1. <a href="#id4695284">The OProfile buffers</a></dt>
+          <dt>3.1. <a href="#id4669660">The OProfile buffers</a></dt>
         </dl>
       </div>
       <div class="chapter" lang="en" xml:lang="en">
@@ -323,7 +385,7 @@
           </dl>
         </div>
         <p>
-This document is current for OProfile version 0.9.3.
+This document is current for OProfile version 0.9.6.
 This document provides some details on the internal workings of OProfile for the
 interested hacker. This document assumes strong C, working C++, plus some knowledge of
 kernel internals and CPU hardware.
@@ -544,7 +606,7 @@ information.
                 </dt>
                 <dt>
                   <span class="sect2">
-                    <a href="#id4695112">2.2. IA64 and perfmon</a>
+                    <a href="#id4669490">2.2. IA64 and perfmon</a>
                   </span>
                 </dt>
               </dl>
@@ -688,7 +750,7 @@ or enable on a per-counter basis, unlike the PPro models).
             <div class="titlepage">
               <div>
                 <div>
-                  <h3 class="title"><a id="id4695112"></a>2.2. IA64 and perfmon</h3>
+                  <h3 class="title"><a id="id4669490"></a>2.2. IA64 and perfmon</h3>
                 </div>
               </div>
             </div>
@@ -842,7 +904,7 @@ iterator. This provides an entirely lock-free method for extracting data
 from the CPU buffers. This process is described in detail later in this chapter.
 </p>
           <div class="figure">
-            <a id="id4695284"></a>
+            <a id="id4669660"></a>
             <p class="title">
               <b>Figure 3.1. The OProfile buffers</b>
             </p>
@@ -1526,6 +1588,335 @@ for each entry, the selected fields (as set by the
 <code class="varname">format_flags</code> options) are output by calling the
 field formatters, with the <code class="varname">symbol_entry</code> passed in.
 </p>
+        </div>
+      </div>
+      <div class="chapter" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h2 class="title"><a id="ext"></a>Chapter 6. Extended Feature Interface</h2>
+            </div>
+          </div>
+        </div>
+        <div class="toc">
+          <p>
+            <b>Table of Contents</b>
+          </p>
+          <dl>
+            <dt>
+              <span class="sect1">
+                <a href="#ext-intro">1. Introduction</a>
+              </span>
+            </dt>
+            <dt>
+              <span class="sect1">
+                <a href="#ext-name-and-handlers">2. Feature Name and Handlers</a>
+              </span>
+            </dt>
+            <dt>
+              <span class="sect1">
+                <a href="#ext-enable">3. Enabling Features</a>
+              </span>
+            </dt>
+            <dt>
+              <span class="sect1">
+                <a href="#ext-types-of-handlers">4. Type of Handlers</a>
+              </span>
+            </dt>
+            <dd>
+              <dl>
+                <dt>
+                  <span class="sect2">
+                    <a href="#ext_init">4.1. ext_init Handler</a>
+                  </span>
+                </dt>
+                <dt>
+                  <span class="sect2">
+                    <a href="#ext_print_stats">4.2. ext_print_stats Handler</a>
+                  </span>
+                </dt>
+                <dt>
+                  <span class="sect2">
+                    <a href="#ext_sfile_handlers">4.3. ext_sfile Handler</a>
+                  </span>
+                </dt>
+              </dl>
+            </dd>
+            <dt>
+              <span class="sect1">
+                <a href="#ext-implementation">5. Extended Feature Reference Implementation</a>
+              </span>
+            </dt>
+            <dd>
+              <dl>
+                <dt>
+                  <span class="sect2">
+                    <a href="#ext-ibs">5.1. Instruction-Based Sampling (IBS)</a>
+                  </span>
+                </dt>
+              </dl>
+            </dd>
+          </dl>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="ext-intro"></a>1. Introduction</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+The Extended Feature Interface is a standard callback interface 
+designed to allow extension to the OProfile daemon's sample processing. 
+Each feature defines a set of callback handlers which can be enabled or 
+disabled through the OProfile daemon's command-line option.
+This interface can be used to implement support for architecture-specific
+features or features not commonly used by general OProfile users. 
+</p>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="ext-name-and-handlers"></a>2. Feature Name and Handlers</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+Each extended feature has an entry in the <code class="varname">ext_feature_table</code>
+in <code class="filename">opd_extended.cpp</code>. Each entry contains a feature name,
+and a corresponding set of handlers. Feature name is a unique string, which is
+used to identify a feature in the table. Each feature provides a set
+of handlers, which will be executed by the OProfile daemon from pre-determined
+locations to perform certain tasks. At runtime, the OProfile daemon calls a feature
+handler wrapper from one of the predetermined locations to check whether
+an extended feature is enabled, and whether a particular handler exists.
+Only the handlers of the enabled feature will be executed.
+</p>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="ext-enable"></a>3. Enabling Features</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+Each feature is enabled using the OProfile daemon (oprofiled) command-line
+option "--ext-feature=&lt;extended-feature-name&gt;:[args]". The
+"extended-feature-name" is used to determine the feature to be enabled.
+The optional "args" is passed into the feature-specific initialization handler
+(<code class="function">ext_init</code>). Currently, only one extended feature can be
+enabled at a time.
+</p>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="ext-types-of-handlers"></a>4. Type of Handlers</h2>
+              </div>
+            </div>
+          </div>
+          <p>
+Each feature is responsible for providing its own set of handlers.
+Types of handler are:
+</p>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="ext_init"></a>4.1. ext_init Handler</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+"ext_init" handles initialization of an extended feature. It takes
+"args" parameter which is passed in through the "oprofiled --ext-feature=&lt;
+extended-feature-name&gt;:[args]". This handler is executed in the function
+<code class="function">opd_options()</code> in the file <code class="filename">daemon/oprofiled.c
+</code>.
+</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+              <h3 class="title">Note</h3>
+              <p>
+The ext_init handler is required for all features.
+</p>
+            </div>
+          </div>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="ext_print_stats"></a>4.2. ext_print_stats Handler</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+"ext_print_stats" handles the extended feature statistics report. It adds
+a new section in the OProfile daemon statistics report, which is normally
+outputed to the file
+<code class="filename">/var/lib/oprofile/samples/oprofiled.log</code>.
+This handler is executed in the function <code class="function">opd_print_stats()</code>
+in the file <code class="filename">daemon/opd_stats.c</code>.
+</p>
+          </div>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="ext_sfile_handlers"></a>4.3. ext_sfile Handler</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+"ext_sfile" contains a set of handlers related to operations on the extended
+sample files (sample files for events related to extended feature).
+These operations include <code class="function">create_sfile()</code>,
+<code class="function">sfile_dup()</code>, <code class="function">close_sfile()</code>,
+<code class="function">sync_sfile()</code>, and <code class="function">get_file()</code>
+as defined in <code class="filename">daemon/opd_sfile.c</code>.
+An additional field, <code class="varname">odb_t * ext_file</code>, is added to the 
+<code class="varname">struct sfile</code> for storing extended sample files
+information. 
+
+</p>
+          </div>
+        </div>
+        <div class="sect1" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h2 class="title" style="clear: both"><a id="ext-implementation"></a>5. Extended Feature Reference Implementation</h2>
+              </div>
+            </div>
+          </div>
+          <div class="sect2" lang="en" xml:lang="en">
+            <div class="titlepage">
+              <div>
+                <div>
+                  <h3 class="title"><a id="ext-ibs"></a>5.1. Instruction-Based Sampling (IBS)</h3>
+                </div>
+              </div>
+            </div>
+            <p>
+An example of extended feature implementation can be seen by
+examining the AMD Instruction-Based Sampling support.
+</p>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="ibs-init"></a>5.1.1. IBS Initialization</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
+Instruction-Based Sampling (IBS) is a new performance measurement technique
+available on AMD Family 10h processors. Enabling IBS profiling is done simply
+by specifying IBS performance events through the "--event=" options.
+</p>
+              <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+                <tr>
+                  <td>
+                    <pre class="screen">
+opcontrol --event=IBS_FETCH_XXX:&lt;count&gt;:&lt;um&gt;:&lt;kernel&gt;:&lt;user&gt;
+opcontrol --event=IBS_OP_XXX:&lt;count&gt;:&lt;um&gt;:&lt;kernel&gt;:&lt;user&gt;
+
+Note: * Count and unitmask for all IBS fetch events must be the same,
+	as do those for IBS op.
+</pre>
+                  </td>
+                </tr>
+              </table>
+              <p>
+IBS performance events are listed in <code class="function">opcontrol --list-events</code>.
+When users specify these events, opcontrol verifies them using ophelp, which
+checks for the <code class="varname">ext:ibs_fetch</code> or <code class="varname">ext:ibs_op</code>
+tag in <code class="filename">events/x86-64/family10/events</code> file.
+Then, it configures the driver interface (/dev/oprofile/ibs_fetch/... and
+/dev/oprofile/ibs_op/...) and starts the OProfile daemon as follows.
+</p>
+              <table xmlns="" border="0" style="background: #E0E0E0;" width="90%">
+                <tr>
+                  <td>
+                    <pre class="screen">
+oprofiled \
+    --ext-feature=ibs:\
+	fetch:&lt;IBS_FETCH_EVENT1&gt;,&lt;IBS_FETCH_EVENT2&gt;,...,:&lt;IBS fetch count&gt;:&lt;IBS Fetch um&gt;|\
+	op:&lt;IBS_OP_EVENT1&gt;,&lt;IBS_OP_EVENT2&gt;,...,:&lt;IBS op count&gt;:&lt;IBS op um&gt;
+</pre>
+                  </td>
+                </tr>
+              </table>
+              <p>
+Here, the OProfile daemon parses the <code class="varname">--ext-feature</code>
+option and checks the feature name ("ibs") before calling the 
+the initialization function to handle the string
+containing IBS events, counts, and unitmasks.
+Then, it stores each event in the IBS virtual-counter table
+(<code class="varname">struct opd_event ibs_vc[OP_MAX_IBS_COUNTERS]</code>) and
+stores the event index in the IBS Virtual Counter Index (VCI) map
+(<code class="varname">ibs_vci_map[OP_MAX_IBS_COUNTERS]</code>) with IBS event value
+as the map key.
+</p>
+            </div>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="ibs-data-processing"></a>5.1.2. IBS Data Processing</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
+During a profile session, the OProfile daemon identifies IBS samples in the 
+event buffer using the <code class="varname">"IBS_FETCH_CODE"</code> or 
+<code class="varname">"IBS_OP_CODE"</code>. These codes trigger the handlers 
+<code class="function">code_ibs_fetch_sample()</code> or 
+<code class="function">code_ibs_op_sample()</code> listed in the
+<code class="varname">handler_t handlers[]</code> vector in 
+<code class="filename">daemon/opd_trans.c </code>. These handlers are responsible for
+processing IBS samples and translate them into IBS performance events.
+</p>
+              <p>
+Unlike traditional performance events, each IBS sample can be derived into 
+multiple IBS performance events. For each event that the user specifies,
+a combination of bits from Model-Specific Registers (MSR) are checked
+against the bitmask defining the event. If the condition is met, the event
+will then be recorded. The derivation logic is in the files
+<code class="filename">daemon/opd_ibs_macro.h</code> and
+<code class="filename">daemon/opd_ibs_trans.[h,c]</code>. 
+</p>
+            </div>
+            <div class="sect3" lang="en" xml:lang="en">
+              <div class="titlepage">
+                <div>
+                  <div>
+                    <h4 class="title"><a id="ibs-sample-file"></a>5.1.3. IBS Sample File</h4>
+                  </div>
+                </div>
+              </div>
+              <p>
+Traditionally, sample file information <code class="varname">(odb_t)</code> is stored
+in the <code class="varname">struct sfile::odb_t file[OP_MAX_COUNTER]</code>.
+Currently, <code class="varname">OP_MAX_COUNTER</code> is 8 on non-alpha, and 20 on
+alpha-based system. Event index (the counter number on which the event
+is configured) is used to access the corresponding entry in the array.
+Unlike the traditional performance event, IBS does not use the actual
+counter registers (i.e. <code class="filename">/dev/oprofile/0,1,2,3</code>).
+Also, the number of performance events generated by IBS could be larger than
+<code class="varname">OP_MAX_COUNTER</code> (currently upto 13 IBS-fetch and 46 IBS-op 
+events). Therefore IBS requires a special data structure and sfile
+handlers (<code class="varname">struct opd_ext_sfile_handlers</code>) for managing
+IBS sample files. IBS-sample-file information is stored in a memory 
+allocated by handler <code class="function">ibs_sfile_create()</code>, which can
+be accessed through <code class="varname">struct sfile::odb_t * ext_files</code>.
+</p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="glossary">

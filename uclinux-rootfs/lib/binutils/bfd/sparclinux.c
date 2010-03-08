@@ -1,12 +1,12 @@
 /* BFD back-end for linux flavored sparc a.out binaries.
    Copyright 1992, 1993, 1994, 1995, 1996, 1997, 1999, 2000, 2001, 2002,
-   2003, 2004, 2006 Free Software Foundation, Inc.
+   2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301,
-   USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #define TARGET_PAGE_SIZE	4096
 #define ZMAGIC_DISK_BLOCK_SIZE	1024
@@ -27,8 +27,8 @@
 
 #define MACHTYPE_OK(mtype) ((mtype) == M_SPARC || (mtype) == M_UNKNOWN)
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "aout/aout64.h"
 #include "aout/stab_gnu.h"
@@ -346,9 +346,9 @@ linux_add_one_symbol (info, abfd, name, flags, section, value, string,
      If we do, and the defining entry is from a shared library, we
      need to create the dynamic sections.
 
-     FIXME: What if abfd->xvec != info->hash->creator?  We may want to
-     be able to link Linux a.out and ELF objects together, but serious
-     confusion is possible.  */
+     FIXME: What if abfd->xvec != info->output_bfd->xvec?  We may
+     want to be able to link Linux a.out and ELF objects together,
+     but serious confusion is possible.  */
 
   insert = FALSE;
 
@@ -356,7 +356,7 @@ linux_add_one_symbol (info, abfd, name, flags, section, value, string,
       && linux_hash_table (info)->dynobj == NULL
       && strcmp (name, SHARABLE_CONFLICTS) == 0
       && (flags & BSF_CONSTRUCTOR) != 0
-      && abfd->xvec == info->hash->creator)
+      && abfd->xvec == info->output_bfd->xvec)
     {
       if (! linux_link_create_dynamic_sections (abfd, info))
 	return FALSE;
@@ -365,7 +365,7 @@ linux_add_one_symbol (info, abfd, name, flags, section, value, string,
     }
 
   if (bfd_is_abs_section (section)
-      && abfd->xvec == info->hash->creator)
+      && abfd->xvec == info->output_bfd->xvec)
     {
       h = linux_link_hash_lookup (linux_hash_table (info), name, FALSE,
 				  FALSE, FALSE);

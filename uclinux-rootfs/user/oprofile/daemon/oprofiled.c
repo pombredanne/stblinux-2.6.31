@@ -17,6 +17,7 @@
 #include "oprofiled.h"
 #include "opd_printf.h"
 #include "opd_events.h"
+#include "opd_extended.h"
 
 #include "op_config.h"
 #include "op_version.h"
@@ -46,16 +47,19 @@
 sig_atomic_t signal_alarm;
 sig_atomic_t signal_hup;
 sig_atomic_t signal_term;
+sig_atomic_t signal_child;
 sig_atomic_t signal_usr1;
 sig_atomic_t signal_usr2;
 
 uint op_nr_counters;
 op_cpu cpu_type;
+int no_event_ok;
 int vsfile;
 int vsamples;
 int varcs;
 int vmodule;
 int vmisc;
+int vext;
 int separate_lib;
 int separate_kernel;
 int separate_thread;
@@ -70,6 +74,7 @@ char * xen_range;
 static char * verbose;
 static char * binary_name_filter;
 static char * events;
+static char * ext_feature;
 static int showvers;
 static struct oprofiled_ops * opd_ops;
 extern struct oprofiled_ops opd_24_ops;
@@ -93,6 +98,7 @@ static struct poptOption options[] = {
 	{ "events", 'e', POPT_ARG_STRING, &events, 0, "events list", "[events]" },
 	{ "version", 'v', POPT_ARG_NONE, &showvers, 0, "show version", NULL, },
 	{ "verbose", 'V', POPT_ARG_STRING, &verbose, 0, "be verbose in log file", "all,sfile,arcs,samples,module,misc", },
+	{ "ext-feature", 'x', POPT_ARG_STRING, &ext_feature, 1, "enable extended feature", "<extended-feature-name>:[args]", },
 	POPT_AUTOHELP
 	{ NULL, 0, 0, NULL, 0, NULL, NULL, },
 };
@@ -186,6 +192,11 @@ static void opd_sigterm(int val __attribute__((unused)))
 {
 	signal_term = 1;
 }
+
+static void opd_sigchild(int val __attribute__((unused)))
+{
+	signal_child = 1;
+}
  
 
 static void opd_sigusr1(int val __attribute__((unused)))
@@ -233,6 +244,16 @@ static void opd_setup_signals(void)
 		exit(EXIT_FAILURE);
 	}
 
+	act.sa_handler = opd_sigchild;
+	act.sa_flags = 0;
+	sigemptyset(&act.sa_mask);
+	sigaddset(&act.sa_mask, SIGCHLD);
+
+	if (sigaction(SIGCHLD, &act, NULL)) {
+		perror("oprofiled: install of SIGCHLD handler failed: ");
+		exit(EXIT_FAILURE);
+	}
+
 	act.sa_handler = opd_sigusr1;
 	act.sa_flags = 0;
 	sigemptyset(&act.sa_mask);
@@ -249,7 +270,7 @@ static void opd_setup_signals(void)
 	sigaddset(&act.sa_mask, SIGTERM);
 
 	if (sigaction(SIGUSR2, &act, NULL)) {
-		perror("oprofiled: install of SIGUSR1 handler failed: ");
+		perror("oprofiled: install of SIGUSR2 handler failed: ");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -337,6 +358,7 @@ static void opd_handle_verbose_option(char const * name)
 		varcs = 1;
 		vmodule = 1;
 		vmisc = 1;
+		vext= 1;
 	} else if (!strcmp(name, "sfile")) {
 		vsfile = 1;
 	} else if (!strcmp(name, "arcs")) {
@@ -347,6 +369,8 @@ static void opd_handle_verbose_option(char const * name)
 		vmodule = 1;
 	} else if (!strcmp(name, "misc")) {
 		vmisc = 1;
+	} else if (!strcmp(name, "ext")) {
+		vext= 1;
 	} else {
 		fprintf(stderr, "unknown verbose options\n");
 		exit(EXIT_FAILURE);
@@ -410,7 +434,10 @@ static void opd_options(int argc, char const * argv[])
 		}
 	}
 
-	if (events == NULL) {
+	if(opd_ext_initialize(ext_feature) != EXIT_SUCCESS)
+		exit(EXIT_FAILURE);
+
+	if (events == NULL && no_event_ok == 0) {
 		fprintf(stderr, "oprofiled: no events specified.\n");
 		poptPrintHelp(optcon, stderr, 0);
 		exit(EXIT_FAILURE);
@@ -435,7 +462,8 @@ static void opd_options(int argc, char const * argv[])
 		}
 	}
 
-	opd_parse_events(events);
+	if (events != NULL)
+		opd_parse_events(events);
 
 	opd_parse_image_filter();
 

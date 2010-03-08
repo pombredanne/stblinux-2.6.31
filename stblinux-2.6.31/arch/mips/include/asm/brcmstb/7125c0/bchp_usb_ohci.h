@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:28:39 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_usb_ohci.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 10:09p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,41 +43,41 @@
 #define BCHP_USB_OHCI_H__
 
 /***************************************************************************
- *USB_OHCI
+ *USB_OHCI - USB OHCI 1 Control Registers
  ***************************************************************************/
-#define BCHP_USB_OHCI_HcRevision                 0x00488400
-#define BCHP_USB_OHCI_HcControl                  0x00488404
-#define BCHP_USB_OHCI_HcCommandStatus            0x00488408
-#define BCHP_USB_OHCI_HcInterruptStatus          0x0048840c
-#define BCHP_USB_OHCI_HcInterruptEnable          0x00488410
-#define BCHP_USB_OHCI_HcInterruptDisable         0x00488414
-#define BCHP_USB_OHCI_HcHCCA                     0x00488418
-#define BCHP_USB_OHCI_HcPeriodCurrentED          0x0048841c
-#define BCHP_USB_OHCI_HcControlHeadED            0x00488420
-#define BCHP_USB_OHCI_HcControlCurrentED         0x00488424
-#define BCHP_USB_OHCI_HcBulkHeadED               0x00488428
-#define BCHP_USB_OHCI_HcBulkCurrentED            0x0048842c
-#define BCHP_USB_OHCI_HcDoneHead                 0x00488430
-#define BCHP_USB_OHCI_HcFmInterval               0x00488434
-#define BCHP_USB_OHCI_HcFmRemaining              0x00488438
-#define BCHP_USB_OHCI_HcFmNumber                 0x0048843c
-#define BCHP_USB_OHCI_HcPeriodicStart            0x00488440
-#define BCHP_USB_OHCI_HcLSThreshold              0x00488444
-#define BCHP_USB_OHCI_HcRhDescriptorA            0x00488448
-#define BCHP_USB_OHCI_HcRhDescriptorB            0x0048844c
-#define BCHP_USB_OHCI_HcRhStatus                 0x00488450
-#define BCHP_USB_OHCI_HcRhPortStatus1            0x00488454
-#define BCHP_USB_OHCI_HcRhPortStatus2            0x00488458
+#define BCHP_USB_OHCI_HcRevision                 0x00488400 /* Host Controller Revision Register */
+#define BCHP_USB_OHCI_HcControl                  0x00488404 /* Host Controller Control Register */
+#define BCHP_USB_OHCI_HcCommandStatus            0x00488408 /* Host Controller Command Status Register */
+#define BCHP_USB_OHCI_HcInterruptStatus          0x0048840c /* Host Controller Interrupt Status Register */
+#define BCHP_USB_OHCI_HcInterruptEnable          0x00488410 /* Host Controller Interrupt Enable Register */
+#define BCHP_USB_OHCI_HcInterruptDisable         0x00488414 /* Host Controller Interrupt Disable Register */
+#define BCHP_USB_OHCI_HcHCCA                     0x00488418 /* Host Controller Communication Area Register */
+#define BCHP_USB_OHCI_HcPeriodCurrentED          0x0048841c /* Current Isochronous or Interrupt Endpoint Descriptor Register */
+#define BCHP_USB_OHCI_HcControlHeadED            0x00488420 /* First Endpoint Descriptor of the Control List */
+#define BCHP_USB_OHCI_HcControlCurrentED         0x00488424 /* Current Endpoint Descriptor of the Control List */
+#define BCHP_USB_OHCI_HcBulkHeadED               0x00488428 /* First Endpoint Descriptor of the Bulk List */
+#define BCHP_USB_OHCI_HcBulkCurrentED            0x0048842c /* Current Endpoint Descriptor of the Bulk List */
+#define BCHP_USB_OHCI_HcDoneHead                 0x00488430 /* Last Completed Transfer Descriptor Added to the Done Queue */
+#define BCHP_USB_OHCI_HcFmInterval               0x00488434 /* Frame Bit Time Interval Register */
+#define BCHP_USB_OHCI_HcFmRemaining              0x00488438 /* Bit Time Remaining in the Current Frame */
+#define BCHP_USB_OHCI_HcFmNumber                 0x0048843c /* Frame Number Register */
+#define BCHP_USB_OHCI_HcPeriodicStart            0x00488440 /* Register to Start Processing the Periodic List */
+#define BCHP_USB_OHCI_HcLSThreshold              0x00488444 /* LS Packet Threshold Register */
+#define BCHP_USB_OHCI_HcRhDescriptorA            0x00488448 /* Root Hub Descriptor A Register */
+#define BCHP_USB_OHCI_HcRhDescriptorB            0x0048844c /* Root Hub Descriptor B Register */
+#define BCHP_USB_OHCI_HcRhStatus                 0x00488450 /* Root Hub Status Register */
+#define BCHP_USB_OHCI_HcRhPortStatus1            0x00488454 /* Root Hub Port Status Register for Port 1 */
+#define BCHP_USB_OHCI_HcRhPortStatus2            0x00488458 /* Root Hub Port Status Register for Port 2 */
 
 /***************************************************************************
- *HcRevision
+ *HcRevision - Host Controller Revision Register
  ***************************************************************************/
 /* USB_OHCI :: HcRevision :: REV [31:00] */
 #define BCHP_USB_OHCI_HcRevision_REV_MASK                          0xffffffff
 #define BCHP_USB_OHCI_HcRevision_REV_SHIFT                         0
 
 /***************************************************************************
- *HcControl
+ *HcControl - Host Controller Control Register
  ***************************************************************************/
 /* USB_OHCI :: HcControl :: reserved0 [31:11] */
 #define BCHP_USB_OHCI_HcControl_reserved0_MASK                     0xfffff800
@@ -117,7 +120,7 @@
 #define BCHP_USB_OHCI_HcControl_CBSR_SHIFT                         0
 
 /***************************************************************************
- *HcCommandStatus
+ *HcCommandStatus - Host Controller Command Status Register
  ***************************************************************************/
 /* USB_OHCI :: HcCommandStatus :: reserved0 [31:18] */
 #define BCHP_USB_OHCI_HcCommandStatus_reserved0_MASK               0xfffc0000
@@ -148,7 +151,7 @@
 #define BCHP_USB_OHCI_HcCommandStatus_HCR_SHIFT                    0
 
 /***************************************************************************
- *HcInterruptStatus
+ *HcInterruptStatus - Host Controller Interrupt Status Register
  ***************************************************************************/
 /* USB_OHCI :: HcInterruptStatus :: reserved0 [31:31] */
 #define BCHP_USB_OHCI_HcInterruptStatus_reserved0_MASK             0x80000000
@@ -191,7 +194,7 @@
 #define BCHP_USB_OHCI_HcInterruptStatus_SO_SHIFT                   0
 
 /***************************************************************************
- *HcInterruptEnable
+ *HcInterruptEnable - Host Controller Interrupt Enable Register
  ***************************************************************************/
 /* USB_OHCI :: HcInterruptEnable :: MIE [31:31] */
 #define BCHP_USB_OHCI_HcInterruptEnable_MIE_MASK                   0x80000000
@@ -234,7 +237,7 @@
 #define BCHP_USB_OHCI_HcInterruptEnable_SO_SHIFT                   0
 
 /***************************************************************************
- *HcInterruptDisable
+ *HcInterruptDisable - Host Controller Interrupt Disable Register
  ***************************************************************************/
 /* USB_OHCI :: HcInterruptDisable :: MIE [31:31] */
 #define BCHP_USB_OHCI_HcInterruptDisable_MIE_MASK                  0x80000000
@@ -277,7 +280,7 @@
 #define BCHP_USB_OHCI_HcInterruptDisable_SO_SHIFT                  0
 
 /***************************************************************************
- *HcHCCA
+ *HcHCCA - Host Controller Communication Area Register
  ***************************************************************************/
 /* USB_OHCI :: HcHCCA :: HCCA [31:08] */
 #define BCHP_USB_OHCI_HcHCCA_HCCA_MASK                             0xffffff00
@@ -288,7 +291,7 @@
 #define BCHP_USB_OHCI_HcHCCA_reserved0_SHIFT                       0
 
 /***************************************************************************
- *HcPeriodCurrentED
+ *HcPeriodCurrentED - Current Isochronous or Interrupt Endpoint Descriptor Register
  ***************************************************************************/
 /* USB_OHCI :: HcPeriodCurrentED :: PCED [31:04] */
 #define BCHP_USB_OHCI_HcPeriodCurrentED_PCED_MASK                  0xfffffff0
@@ -299,7 +302,7 @@
 #define BCHP_USB_OHCI_HcPeriodCurrentED_reserved0_SHIFT            0
 
 /***************************************************************************
- *HcControlHeadED
+ *HcControlHeadED - First Endpoint Descriptor of the Control List
  ***************************************************************************/
 /* USB_OHCI :: HcControlHeadED :: CHED [31:04] */
 #define BCHP_USB_OHCI_HcControlHeadED_CHED_MASK                    0xfffffff0
@@ -310,7 +313,7 @@
 #define BCHP_USB_OHCI_HcControlHeadED_reserved0_SHIFT              0
 
 /***************************************************************************
- *HcControlCurrentED
+ *HcControlCurrentED - Current Endpoint Descriptor of the Control List
  ***************************************************************************/
 /* USB_OHCI :: HcControlCurrentED :: CCED [31:04] */
 #define BCHP_USB_OHCI_HcControlCurrentED_CCED_MASK                 0xfffffff0
@@ -321,7 +324,7 @@
 #define BCHP_USB_OHCI_HcControlCurrentED_reserved0_SHIFT           0
 
 /***************************************************************************
- *HcBulkHeadED
+ *HcBulkHeadED - First Endpoint Descriptor of the Bulk List
  ***************************************************************************/
 /* USB_OHCI :: HcBulkHeadED :: BHED [31:04] */
 #define BCHP_USB_OHCI_HcBulkHeadED_BHED_MASK                       0xfffffff0
@@ -332,7 +335,7 @@
 #define BCHP_USB_OHCI_HcBulkHeadED_reserved0_SHIFT                 0
 
 /***************************************************************************
- *HcBulkCurrentED
+ *HcBulkCurrentED - Current Endpoint Descriptor of the Bulk List
  ***************************************************************************/
 /* USB_OHCI :: HcBulkCurrentED :: BCED [31:04] */
 #define BCHP_USB_OHCI_HcBulkCurrentED_BCED_MASK                    0xfffffff0
@@ -343,7 +346,7 @@
 #define BCHP_USB_OHCI_HcBulkCurrentED_reserved0_SHIFT              0
 
 /***************************************************************************
- *HcDoneHead
+ *HcDoneHead - Last Completed Transfer Descriptor Added to the Done Queue
  ***************************************************************************/
 /* USB_OHCI :: HcDoneHead :: DH [31:04] */
 #define BCHP_USB_OHCI_HcDoneHead_DH_MASK                           0xfffffff0
@@ -354,7 +357,7 @@
 #define BCHP_USB_OHCI_HcDoneHead_reserved0_SHIFT                   0
 
 /***************************************************************************
- *HcFmInterval
+ *HcFmInterval - Frame Bit Time Interval Register
  ***************************************************************************/
 /* USB_OHCI :: HcFmInterval :: FIT [31:31] */
 #define BCHP_USB_OHCI_HcFmInterval_FIT_MASK                        0x80000000
@@ -373,7 +376,7 @@
 #define BCHP_USB_OHCI_HcFmInterval_FI_SHIFT                        0
 
 /***************************************************************************
- *HcFmRemaining
+ *HcFmRemaining - Bit Time Remaining in the Current Frame
  ***************************************************************************/
 /* USB_OHCI :: HcFmRemaining :: FRT [31:31] */
 #define BCHP_USB_OHCI_HcFmRemaining_FRT_MASK                       0x80000000
@@ -388,7 +391,7 @@
 #define BCHP_USB_OHCI_HcFmRemaining_FR_SHIFT                       0
 
 /***************************************************************************
- *HcFmNumber
+ *HcFmNumber - Frame Number Register
  ***************************************************************************/
 /* USB_OHCI :: HcFmNumber :: reserved0 [31:16] */
 #define BCHP_USB_OHCI_HcFmNumber_reserved0_MASK                    0xffff0000
@@ -399,7 +402,7 @@
 #define BCHP_USB_OHCI_HcFmNumber_FN_SHIFT                          0
 
 /***************************************************************************
- *HcPeriodicStart
+ *HcPeriodicStart - Register to Start Processing the Periodic List
  ***************************************************************************/
 /* USB_OHCI :: HcPeriodicStart :: reserved0 [31:14] */
 #define BCHP_USB_OHCI_HcPeriodicStart_reserved0_MASK               0xffffc000
@@ -410,7 +413,7 @@
 #define BCHP_USB_OHCI_HcPeriodicStart_PS_SHIFT                     0
 
 /***************************************************************************
- *HcLSThreshold
+ *HcLSThreshold - LS Packet Threshold Register
  ***************************************************************************/
 /* USB_OHCI :: HcLSThreshold :: reserved0 [31:12] */
 #define BCHP_USB_OHCI_HcLSThreshold_reserved0_MASK                 0xfffff000
@@ -421,7 +424,7 @@
 #define BCHP_USB_OHCI_HcLSThreshold_LST_SHIFT                      0
 
 /***************************************************************************
- *HcRhDescriptorA
+ *HcRhDescriptorA - Root Hub Descriptor A Register
  ***************************************************************************/
 /* USB_OHCI :: HcRhDescriptorA :: POTPGT [31:24] */
 #define BCHP_USB_OHCI_HcRhDescriptorA_POTPGT_MASK                  0xff000000
@@ -456,7 +459,7 @@
 #define BCHP_USB_OHCI_HcRhDescriptorA_NDP_SHIFT                    0
 
 /***************************************************************************
- *HcRhDescriptorB
+ *HcRhDescriptorB - Root Hub Descriptor B Register
  ***************************************************************************/
 /* USB_OHCI :: HcRhDescriptorB :: PPCM [31:16] */
 #define BCHP_USB_OHCI_HcRhDescriptorB_PPCM_MASK                    0xffff0000
@@ -467,7 +470,7 @@
 #define BCHP_USB_OHCI_HcRhDescriptorB_DR_SHIFT                     0
 
 /***************************************************************************
- *HcRhStatus
+ *HcRhStatus - Root Hub Status Register
  ***************************************************************************/
 /* USB_OHCI :: HcRhStatus :: CRWE [31:31] */
 #define BCHP_USB_OHCI_HcRhStatus_CRWE_MASK                         0x80000000
@@ -502,7 +505,7 @@
 #define BCHP_USB_OHCI_HcRhStatus_LPS_SHIFT                         0
 
 /***************************************************************************
- *HcRhPortStatus1
+ *HcRhPortStatus1 - Root Hub Port Status Register for Port 1
  ***************************************************************************/
 /* USB_OHCI :: HcRhPortStatus1 :: reserved0 [31:21] */
 #define BCHP_USB_OHCI_HcRhPortStatus1_reserved0_MASK               0xffe00000
@@ -565,7 +568,7 @@
 #define BCHP_USB_OHCI_HcRhPortStatus1_CCS_SHIFT                    0
 
 /***************************************************************************
- *HcRhPortStatus2
+ *HcRhPortStatus2 - Root Hub Port Status Register for Port 2
  ***************************************************************************/
 /* USB_OHCI :: HcRhPortStatus2 :: reserved0 [31:21] */
 #define BCHP_USB_OHCI_HcRhPortStatus2_reserved0_MASK               0xffe00000

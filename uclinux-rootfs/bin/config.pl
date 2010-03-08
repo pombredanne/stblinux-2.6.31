@@ -51,6 +51,9 @@ $busybox_config = "user/busybox/.config";
 $vendor_config = "config/.config";
 $arch_config = "config.arch";
 
+@patchlist = ("lttng");
+%use_patch = ( );
+
 %defsuf = (
 	"7118"	=> "-docsis",
 	"7125"	=> "-docsis",
@@ -468,6 +471,19 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$linux{"CONFIG_NET"} = "n";
 			$vendor{"CONFIG_USER_NONFREE_MOCA"} = "n";
 			$vendor{"CONFIG_USER_NONFREE_WLAN"} = "n";
+		} elsif($mod eq "lttng") {
+
+			# Enable LTTng
+
+			$use_patch{'lttng'} = 1;
+
+			read_cfg("defaults/override.linux-lttng", \%linux_o);
+			override_cfg(\%linux, \%linux_o);
+
+			$vendor{"CONFIG_USER_LTT_CONTROL"} = "y";
+			
+			$busybox{"CONFIG_FEATURE_FIND_PRUNE"} = "y";
+			$busybox{"CONFIG_FEATURE_FIND_PATH"} = "y";
 		} else {
 			print "\n";
 			print "ERROR: Unrecognized suffix '$mod' in '$tgt'\n";
@@ -570,6 +586,38 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 		}
 		unlink(".target");
 	}
+
+	# apply/reverse kernel patches
+
+	my $cwd = getcwd();
+	chdir("linux-2.6.x") or die;
+
+	foreach $x (@patchlist) {
+		if(defined($use_patch{$x})) {
+			if(! -e "patch/.applied-$x") {
+				system("patch -p1 < patch/$x.patch");
+
+				my $ret = WEXITSTATUS($?);
+				if($ret != 0) {
+					die "patch exited with code $ret";
+				}
+				open(F, ">patch/.applied-$x") or die;
+				close(F);
+			}
+		} else {
+			if(-e "patch/.applied-$x") {
+				system("patch -R -p1 < patch/$x.patch");
+
+				my $ret = WEXITSTATUS($?);
+				if($ret != 0) {
+					die "patch exited with code $ret";
+				}
+				unlink("patch/.applied-$x") or die;
+			}
+		}
+	}
+	chdir($cwd) or die;
+
 	open(F, ">.target") or die "can't write .target";
 	print F "$tgt\n";
 	close(F);

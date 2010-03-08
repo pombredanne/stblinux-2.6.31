@@ -1,33 +1,29 @@
 /* BFD back-end for IBM RS/6000 "XCOFF" files.
-   Copyright 1990-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
-   FIXME: Can someone provide a transliteration of this name into ASCII?
-   Using the following chars caused a compiler warning on HIUX (so I replaced
-   them with octal escapes), and isn't useful without an understanding of what
-   character set it is.
-   Written by Metin G. Ozisik, Mimi Ph\373\364ng-Th\345o V\365,
-     and John Gilmore.
+   Copyright 1990-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
+   2008  Free Software Foundation, Inc.
+   Written by Metin G. Ozisik, Mimi Phuong-Thao Vo, and John Gilmore.
    Archive support from Damon A. Permezel.
    Contributed by IBM Corporation and Cygnus Support.
 
-This file is part of BFD, the Binary File Descriptor library.
+   This file is part of BFD, the Binary File Descriptor library.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 #include "coff/internal.h"
@@ -98,6 +94,7 @@ void xcoff_rtype2howto
 #define coff_bfd_copy_private_bfd_data _bfd_xcoff_copy_private_bfd_data
 #define coff_bfd_is_local_label_name _bfd_xcoff_is_local_label_name
 #define coff_bfd_reloc_type_lookup _bfd_xcoff_reloc_type_lookup
+#define coff_bfd_reloc_name_lookup _bfd_xcoff_reloc_name_lookup
 #ifdef AIX_CORE
 extern const bfd_target * rs6000coff_core_p
   PARAMS ((bfd *abfd));
@@ -130,6 +127,10 @@ extern int rs6000coff_core_file_failing_signal
 #define coff_swap_reloc_in xcoff_swap_reloc_in
 #define coff_swap_reloc_out xcoff_swap_reloc_out
 #define NO_COFF_RELOCS
+
+#ifndef bfd_pe_print_pdata
+#define bfd_pe_print_pdata	NULL
+#endif
 
 #include "coffcode.h"
 
@@ -1051,6 +1052,21 @@ _bfd_xcoff_reloc_type_lookup (abfd, code)
     }
 }
 
+static reloc_howto_type *
+_bfd_xcoff_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+			      const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < sizeof (xcoff_howto_table) / sizeof (xcoff_howto_table[0]);
+       i++)
+    if (xcoff_howto_table[i].name != NULL
+	&& strcasecmp (xcoff_howto_table[i].name, r_name) == 0)
+      return &xcoff_howto_table[i];
+
+  return NULL;
+}
 
 /* XCOFF archive support.  The original version of this code was by
    Damon A. Permezel.  It was enhanced to permit cross support, and
@@ -1638,7 +1654,7 @@ xcoff_write_armap_old (abfd, elength, map, orl_count, stridx)
 		  + SXCOFFARFMAG
 		  + arelt_size (sub));
       fileoff = (fileoff + 1) &~ 1;
-      sub = sub->next;
+      sub = sub->archive_next;
     }
 
   for (i = 0; i < orl_count; i++)
@@ -1809,7 +1825,7 @@ xcoff_write_armap_big (abfd, elength, map, orl_count, stridx)
 	    }
 	  i++;
 	}
-      current_bfd = current_bfd->next;
+      current_bfd = current_bfd->archive_next;
       if (current_bfd != NULL)
 	arch_info = bfd_get_arch_info (current_bfd);
     }
@@ -1913,7 +1929,7 @@ xcoff_write_armap_big (abfd, elength, map, orl_count, stridx)
 		      + SXCOFFARFMAG
 		      + arelt_size (current_bfd));
 	  fileoff += fileoff & 1;
-	  current_bfd = current_bfd->next;
+	  current_bfd = current_bfd->archive_next;
 	  if (current_bfd != NULL)
 	    arch_info = bfd_get_arch_info (current_bfd);
 	}
@@ -1934,7 +1950,7 @@ xcoff_write_armap_big (abfd, elength, map, orl_count, stridx)
 		}
 	      i++;
 	    }
-	  current_bfd = current_bfd->next;
+	  current_bfd = current_bfd->archive_next;
 	  if (current_bfd != NULL)
 	    arch_info = bfd_get_arch_info (current_bfd);
 	}
@@ -2009,7 +2025,7 @@ xcoff_write_armap_big (abfd, elength, map, orl_count, stridx)
 		      + SXCOFFARFMAG
 		      + arelt_size (current_bfd));
 	  fileoff += fileoff & 1;
-	  current_bfd = current_bfd->next;
+	  current_bfd = current_bfd->archive_next;
 	  if (current_bfd != NULL)
 	    arch_info = bfd_get_arch_info (current_bfd);
 	}
@@ -2030,7 +2046,7 @@ xcoff_write_armap_big (abfd, elength, map, orl_count, stridx)
 		}
 	      i++;
 	    }
-	  current_bfd = current_bfd->next;
+	  current_bfd = current_bfd->archive_next;
 	  if (current_bfd != NULL)
 	    arch_info = bfd_get_arch_info (current_bfd);
 	}
@@ -2089,7 +2105,7 @@ xcoff_write_archive_contents_old (abfd)
 
   count = 0;
   total_namlen = 0;
-  for (sub = abfd->archive_head; sub != NULL; sub = sub->next)
+  for (sub = abfd->archive_head; sub != NULL; sub = sub->archive_next)
     {
       ++count;
       total_namlen += strlen (normalize_filename (sub)) + 1;
@@ -2105,7 +2121,9 @@ xcoff_write_archive_contents_old (abfd)
   hasobjects = FALSE;
   prevoff = 0;
   nextoff = SIZEOF_AR_FILE_HDR;
-  for (sub = abfd->archive_head, i = 0; sub != NULL; sub = sub->next, i++)
+  for (sub = abfd->archive_head, i = 0;
+       sub != NULL;
+       sub = sub->archive_next, i++)
     {
       const char *name;
       bfd_size_type namlen;
@@ -2253,7 +2271,7 @@ xcoff_write_archive_contents_old (abfd)
 		      abfd) != XCOFFARMAG_ELEMENT_SIZE)
 	return FALSE;
     }
-  for (sub = abfd->archive_head; sub != NULL; sub = sub->next)
+  for (sub = abfd->archive_head; sub != NULL; sub = sub->archive_next)
     {
       const char *name;
       bfd_size_type namlen;
@@ -2323,7 +2341,7 @@ xcoff_write_archive_contents_big (abfd)
   hasobjects = FALSE;
   for (current_bfd = abfd->archive_head, count = 0, total_namlen = 0;
        current_bfd != NULL;
-       current_bfd = current_bfd->next, count++)
+       current_bfd = current_bfd->archive_next, count++)
     {
       total_namlen += strlen (normalize_filename (current_bfd)) + 1;
 
@@ -2345,7 +2363,7 @@ xcoff_write_archive_contents_big (abfd)
   nextoff = SIZEOF_AR_FILE_HDR_BIG;
   for (current_bfd = abfd->archive_head, i = 0;
        current_bfd != NULL;
-       current_bfd = current_bfd->next, i++)
+       current_bfd = current_bfd->archive_next, i++)
     {
       const char *name;
       bfd_size_type namlen;
@@ -2512,8 +2530,9 @@ xcoff_write_archive_contents_big (abfd)
       offsets = NULL;
     }
 
-  for (current_bfd = abfd->archive_head; current_bfd != NULL;
-       current_bfd = current_bfd->next)
+  for (current_bfd = abfd->archive_head;
+       current_bfd != NULL;
+       current_bfd = current_bfd->archive_next)
     {
       const char *name;
       size_t namlen;
@@ -4019,7 +4038,8 @@ static const struct xcoff_backend_data_rec bfd_xcoff_backend_data =
       NULL,			/* _bfd_coff_adjust_symndx */
       _bfd_generic_link_add_one_symbol,
       coff_link_output_has_begun,
-      coff_final_link_postscript
+      coff_final_link_postscript,
+      NULL			/* print_pdata.  */
     },
 
     0x01DF,			/* magic number */
@@ -4178,6 +4198,7 @@ const bfd_target rs6000coff_vec =
     coff_get_reloc_upper_bound,
     coff_canonicalize_reloc,
     _bfd_xcoff_reloc_type_lookup,
+    _bfd_xcoff_reloc_name_lookup,
 
     /* Write */
     coff_set_arch_mach,
@@ -4269,7 +4290,8 @@ static const struct xcoff_backend_data_rec bfd_pmac_xcoff_backend_data =
       NULL,			/* _bfd_coff_adjust_symndx */
       _bfd_generic_link_add_one_symbol,
       coff_link_output_has_begun,
-      coff_final_link_postscript
+      coff_final_link_postscript,
+      NULL			/* print_pdata.  */
     },
 
     0x01DF,			/* magic number */
@@ -4428,6 +4450,7 @@ const bfd_target pmac_xcoff_vec =
     coff_get_reloc_upper_bound,
     coff_canonicalize_reloc,
     _bfd_xcoff_reloc_type_lookup,
+    _bfd_xcoff_reloc_name_lookup,
 
     /* Write */
     coff_set_arch_mach,

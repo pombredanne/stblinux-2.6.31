@@ -557,13 +557,35 @@ UDItype __umulsidi3 (USItype, USItype);
 #endif /* __mc88110__ */
 #endif /* __m88000__ */
 
+/* Test for gcc >= maj.min, as per __GNUC_PREREQ in glibc */
+#if defined (__GNUC__) && defined (__GNUC_MINOR__)
+#define __GNUC_PREREQ(maj, min) \
+	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+#else
+#define __GNUC_PREREQ(maj, min)  0
+#endif
+
+/***************************************
+ **************  MIPS  *****************
+ ***************************************/
 #if defined (__mips__) && W_TYPE_SIZE == 32
+#if __GNUC_PREREQ (4,4)
+/* adapted from OpenWRT 001-mips-h-constraint.patch */
 #define umul_ppmm(w1, w0, u, v) \
-  __asm__ ("multu %2,%3"						\
-	   : "=l" ((USItype) (w0)),					\
-	     "=h" ((USItype) (w1))					\
-	   : "d" ((USItype) (u)),					\
-	     "d" ((USItype) (v)))
+  do {                                                                  \
+    UDItype __ll = (UDItype)(u) * (v);                                  \
+    w1 = __ll >> 32;                                                    \
+    w0 = __ll;                                                          \
+  } while (0)
+#else
+#define umul_ppmm(w1, w0, u, v) \
+  __asm__ ("multu %2,%3"                                                \
+	   : "=l" ((USItype)(w0)),                                      \
+	     "=h" ((USItype)(w1))                                       \
+	   : "d" ((USItype)(u)),                                        \
+	     "d" ((USItype)(v)))
+#endif
+
 #define UMUL_TIME 10
 #define UDIV_TIME 100
 #endif /* __mips__ */

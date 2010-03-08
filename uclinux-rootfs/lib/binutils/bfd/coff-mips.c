@@ -1,28 +1,29 @@
 /* BFD back-end for MIPS Extended-Coff files.
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
-   2000, 2001, 2002, 2003, 2004
+   2000, 2001, 2002, 2003, 2004, 2007, 2008
    Free Software Foundation, Inc.
    Original version by Per Bothner.
    Full support added by Ian Lance Taylor, ian@cygnus.com.
 
-This file is part of BFD, the Binary File Descriptor library.
+   This file is part of BFD, the Binary File Descriptor library.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 #include "coff/internal.h"
@@ -84,6 +85,7 @@ static reloc_howto_type *mips_bfd_reloc_type_lookup
 #define coff_swap_aouthdr_out mips_ecoff_swap_aouthdr_out
 #define coff_swap_scnhdr_in mips_ecoff_swap_scnhdr_in
 #define coff_swap_scnhdr_out mips_ecoff_swap_scnhdr_out
+
 #include "coffswap.h"
 
 /* Get the ECOFF swapping routines.  */
@@ -769,6 +771,22 @@ mips_bfd_reloc_type_lookup (abfd, code)
 
   return &mips_howto_table[mips_type];
 }
+
+static reloc_howto_type *
+mips_bfd_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+			    const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < sizeof (mips_howto_table) / sizeof (mips_howto_table[0]);
+       i++)
+    if (mips_howto_table[i].name != NULL
+	&& strcasecmp (mips_howto_table[i].name, r_name) == 0)
+      return &mips_howto_table[i];
+
+  return NULL;
+}
 
 /* A helper routine for mips_relocate_section which handles the REFHI
    relocations.  The REFHI relocation must be followed by a REFLO
@@ -1301,7 +1319,7 @@ static const struct ecoff_backend_data mips_ecoff_backend_data =
     _bfd_ecoff_mkobject_hook, _bfd_ecoff_styp_to_sec_flags,
     _bfd_ecoff_set_alignment_hook, _bfd_ecoff_slurp_symbol_table,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL
+    NULL, NULL, NULL
   },
   /* Supported architecture.  */
   bfd_arch_mips,
@@ -1375,6 +1393,7 @@ static const struct ecoff_backend_data mips_ecoff_backend_data =
 
 /* Looking up a reloc type is MIPS specific.  */
 #define _bfd_ecoff_bfd_reloc_type_lookup mips_bfd_reloc_type_lookup
+#define _bfd_ecoff_bfd_reloc_name_lookup mips_bfd_reloc_name_lookup
 
 /* Getting relocated section contents is generic.  */
 #define _bfd_ecoff_bfd_get_relocated_section_contents \
@@ -1423,7 +1442,7 @@ const bfd_target ecoff_little_vec =
      bfd_getl16, bfd_getl_signed_16, bfd_putl16, /* hdrs */
 
   {_bfd_dummy_target, coff_object_p, /* bfd_check_format */
-     _bfd_ecoff_archive_p, _bfd_dummy_target},
+     bfd_generic_archive_p, _bfd_dummy_target},
   {bfd_false, _bfd_ecoff_mkobject,  /* bfd_set_format */
      _bfd_generic_mkarchive, bfd_false},
   {bfd_false, _bfd_ecoff_write_object_contents, /* bfd_write_contents */
@@ -1466,7 +1485,7 @@ const bfd_target ecoff_big_vec =
      bfd_getb32, bfd_getb_signed_32, bfd_putb32,
      bfd_getb16, bfd_getb_signed_16, bfd_putb16,
  {_bfd_dummy_target, coff_object_p, /* bfd_check_format */
-    _bfd_ecoff_archive_p, _bfd_dummy_target},
+    bfd_generic_archive_p, _bfd_dummy_target},
  {bfd_false, _bfd_ecoff_mkobject, /* bfd_set_format */
     _bfd_generic_mkarchive, bfd_false},
  {bfd_false, _bfd_ecoff_write_object_contents, /* bfd_write_contents */
@@ -1510,7 +1529,7 @@ const bfd_target ecoff_biglittle_vec =
      bfd_getb16, bfd_getb_signed_16, bfd_putb16, /* hdrs */
 
   {_bfd_dummy_target, coff_object_p, /* bfd_check_format */
-     _bfd_ecoff_archive_p, _bfd_dummy_target},
+     bfd_generic_archive_p, _bfd_dummy_target},
   {bfd_false, _bfd_ecoff_mkobject,  /* bfd_set_format */
      _bfd_generic_mkarchive, bfd_false},
   {bfd_false, _bfd_ecoff_write_object_contents, /* bfd_write_contents */

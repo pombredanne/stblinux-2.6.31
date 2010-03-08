@@ -1,12 +1,12 @@
 /* This file is tc-sh.h
    Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-   2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+   2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -44,6 +44,14 @@ extern int sh_small;
 #define md_cons_align(nbytes) sh_cons_align (nbytes)
 extern void sh_cons_align (int);
 
+/* We need to optimize expr with taking account of rs_align_test
+   frags.  */
+
+#ifdef OBJ_ELF
+#define md_optimize_expr(l,o,r) sh_optimize_expr (l, o, r)
+extern int sh_optimize_expr (expressionS *, operatorT, expressionS *);
+#endif
+
 /* When relaxing, we need to generate relocations for alignment
    directives.  */
 #define HANDLE_ALIGN(frag) sh_handle_align (frag)
@@ -75,11 +83,17 @@ extern int sh_force_relocation (struct fix *);
    || (sh_relax && SWITCH_TABLE (FIX)))
 
 /* Don't complain when we leave fx_subsy around.  */
-#define TC_VALIDATE_FIX_SUB(FIX)			\
-  (sh_relax && SWITCH_TABLE (FIX))
+#define TC_VALIDATE_FIX_SUB(FIX, SEG)			\
+  ((md_register_arithmetic || (SEG) != reg_section)	\
+   && sh_relax && SWITCH_TABLE (FIX))
 
 #define MD_PCREL_FROM_SECTION(FIX, SEC) md_pcrel_from_section (FIX, SEC)
 extern long md_pcrel_from_section (struct fix *, segT);
+
+/* SH_COUNT relocs are allowed outside of frag.
+   The target is also buggy and sets fix size too large for other relocs.  */
+#define TC_FX_SIZE_SLACK(FIX) \
+  ((FIX)->fx_r_type == BFD_RELOC_SH_COUNT ? -1 : 2)
 
 #define IGNORE_NONSTANDARD_ESCAPES
 
@@ -189,24 +203,27 @@ extern bfd_boolean sh_fix_adjustable (struct fix *);
 
 #define TC_FORCE_RELOCATION_LOCAL(FIX)			\
   (!(FIX)->fx_pcrel					\
-   || (FIX)->fx_plt					\
    || (FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL	\
    || (FIX)->fx_r_type == BFD_RELOC_32_GOT_PCREL	\
    || (FIX)->fx_r_type == BFD_RELOC_SH_GOTPC		\
    || TC_FORCE_RELOCATION (FIX))
 
-#define TC_FORCE_RELOCATION_SUB_LOCAL(FIX) (sh_relax && SWITCH_TABLE (FIX))
+#define TC_FORCE_RELOCATION_SUB_LOCAL(FIX, SEG)		\
+  ((!md_register_arithmetic && (SEG) == reg_section)	\
+   || (sh_relax && SWITCH_TABLE (FIX)))
 
 /* This keeps the subtracted symbol around, for use by PLT_PCREL
    relocs.  */
-#define TC_FORCE_RELOCATION_SUB_ABS(FIX)		\
-  ((FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL)
+#define TC_FORCE_RELOCATION_SUB_ABS(FIX, SEG)		\
+  ((FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL		\
+   || (!md_register_arithmetic && (SEG) == reg_section))
 
 /* Don't complain when we leave fx_subsy around.  */
 #undef TC_VALIDATE_FIX_SUB
-#define TC_VALIDATE_FIX_SUB(FIX)			\
-  ((FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL		\
-   || (sh_relax && SWITCH_TABLE (FIX)))
+#define TC_VALIDATE_FIX_SUB(FIX, SEG)			\
+  ((md_register_arithmetic || (SEG) != reg_section)	\
+   && ((FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL	\
+       || (sh_relax && SWITCH_TABLE (FIX))))
 
 #define md_parse_name(name, exprP, mode, nextcharP) \
   sh_parse_name ((name), (exprP), (mode), (nextcharP))
@@ -235,3 +252,5 @@ extern int sh_regname_to_dw2regnum (char *regname);
 #define DWARF2_CIE_DATA_ALIGNMENT (-4)
 
 #endif /* OBJ_ELF */
+
+#define H_TICK_HEX 1

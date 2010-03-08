@@ -93,6 +93,9 @@ make_ubi_img 16 512
 # 128k erase / 2048B page - NAND
 make_ubi_img 128 2048
 
+# 256k erase / 4K page - NAND
+make_ubi_img 256 4096
+
 # 512k erase / 4096B page - large NAND
 make_ubi_img 512 4096
 

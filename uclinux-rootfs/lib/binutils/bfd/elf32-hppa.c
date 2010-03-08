@@ -1,6 +1,7 @@
 /* BFD back-end for HP PA-RISC ELF files.
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1999, 2000, 2001,
-   2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+   2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
 
    Original code by
 	Center for Software Science
@@ -14,7 +15,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -24,10 +25,11 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "elf-bfd.h"
 #include "elf/hppa.h"
@@ -332,6 +334,15 @@ struct elf32_hppa_link_hash_table
 
 #define eh_name(eh) \
   (eh ? eh->root.root.string : "<undef>")
+
+/* Override the generic function because we want to mark our BFDs.  */
+
+static bfd_boolean
+elf32_hppa_mkobject (bfd *abfd)
+{
+  return bfd_elf_allocate_object (abfd, sizeof (struct elf_obj_tdata),
+				  HPPA_ELF_TDATA);
+}
 
 /* Assorted hash table functions.  */
 
@@ -1277,7 +1288,9 @@ elf32_hppa_check_relocs (bfd *abfd,
 	  /* This relocation describes which C++ vtable entries are actually
 	     used.  Record for later use during GC.  */
 	case R_PARISC_GNU_VTENTRY:
-	  if (!bfd_elf_gc_record_vtentry (abfd, sec, &hh->eh, rela->r_addend))
+	  BFD_ASSERT (hh != NULL);
+	  if (hh != NULL
+	      && !bfd_elf_gc_record_vtentry (abfd, sec, &hh->eh, rela->r_addend))
 	    return FALSE;
 	  continue;
 
@@ -1619,6 +1632,9 @@ elf32_hppa_gc_sweep_hook (bfd *abfd,
   bfd_signed_vma *local_plt_refcounts;
   const Elf_Internal_Rela *rela, *relend;
 
+  if (info->relocatable)
+    return TRUE;
+
   elf_section_data (sec)->local_dynrel = NULL;
 
   symtab_hdr = &elf_tdata (abfd)->symtab_hdr;
@@ -1819,7 +1835,6 @@ elf32_hppa_adjust_dynamic_symbol (struct bfd_link_info *info,
 {
   struct elf32_hppa_link_hash_table *htab;
   asection *sec;
-  unsigned int power_of_two;
 
   /* If this is a function, put it in the procedure linkage table.  We
      will fill in the contents of the procedure linkage table later.  */
@@ -1929,30 +1944,9 @@ elf32_hppa_adjust_dynamic_symbol (struct bfd_link_info *info,
       eh->needs_copy = 1;
     }
 
-  /* We need to figure out the alignment required for this symbol.  I
-     have no idea how other ELF linkers handle this.  */
-
-  power_of_two = bfd_log2 (eh->size);
-  if (power_of_two > 3)
-    power_of_two = 3;
-
-  /* Apply the required alignment.  */
   sec = htab->sdynbss;
-  sec->size = BFD_ALIGN (sec->size, (bfd_size_type) (1 << power_of_two));
-  if (power_of_two > bfd_get_section_alignment (htab->etab.dynobj, sec))
-    {
-      if (! bfd_set_section_alignment (htab->etab.dynobj, sec, power_of_two))
-	return FALSE;
-    }
 
-  /* Define the symbol as being at this point in the section.  */
-  eh->root.u.def.section = sec;
-  eh->root.u.def.value = sec->size;
-
-  /* Increment the section size to make room for the symbol.  */
-  sec->size += eh->size;
-
-  return TRUE;
+  return _bfd_elf_adjust_dynamic_copy (eh, sec);
 }
 
 /* Allocate space in the .plt for entries that won't have relocations.
@@ -2983,15 +2977,20 @@ elf32_hppa_size_stubs
 		      /* It's a local symbol.  */
 		      Elf_Internal_Sym *sym;
 		      Elf_Internal_Shdr *hdr;
+		      unsigned int shndx;
 
 		      sym = local_syms + r_indx;
-		      hdr = elf_elfsections (input_bfd)[sym->st_shndx];
-		      sym_sec = hdr->bfd_section;
 		      if (ELF_ST_TYPE (sym->st_info) != STT_SECTION)
 			sym_value = sym->st_value;
-		      destination = (sym_value + irela->r_addend
-				     + sym_sec->output_offset
-				     + sym_sec->output_section->vma);
+		      shndx = sym->st_shndx;
+		      if (shndx < elf_numsections (input_bfd))
+			{
+			  hdr = elf_elfsections (input_bfd)[shndx];
+			  sym_sec = hdr->bfd_section;
+			  destination = (sym_value + irela->r_addend
+					 + sym_sec->output_offset
+					 + sym_sec->output_section->vma);
+			}
 		    }
 		  else
 		    {
@@ -3275,9 +3274,7 @@ elf32_hppa_final_link (bfd *abfd, struct bfd_link_info *info)
 /* Record the lowest address for the data and text segments.  */
 
 static void
-hppa_record_segment_addr (bfd *abfd ATTRIBUTE_UNUSED,
-			  asection *section,
-			  void *data)
+hppa_record_segment_addr (bfd *abfd, asection *section, void *data)
 {
   struct elf32_hppa_link_hash_table *htab;
 
@@ -3285,7 +3282,12 @@ hppa_record_segment_addr (bfd *abfd ATTRIBUTE_UNUSED,
 
   if ((section->flags & (SEC_ALLOC | SEC_LOAD)) == (SEC_ALLOC | SEC_LOAD))
     {
-      bfd_vma value = section->vma - section->filepos;
+      bfd_vma value;
+      Elf_Internal_Phdr *p;
+
+      p = _bfd_elf_find_segment_containing_section (abfd, section->output_section);
+      BFD_ASSERT (p != NULL);
+      value = p->p_vaddr;
 
       if ((section->flags & SEC_READONLY) != 0)
 	{
@@ -3651,9 +3653,6 @@ elf32_hppa_relocate_section (bfd *output_bfd,
   Elf_Internal_Rela *rela;
   Elf_Internal_Rela *relend;
 
-  if (info->relocatable)
-    return TRUE;
-
   symtab_hdr = &elf_tdata (input_bfd)->symtab_hdr;
 
   htab = hppa_link_hash_table (info);
@@ -3685,7 +3684,6 @@ elf32_hppa_relocate_section (bfd *output_bfd,
 	  || r_type == (unsigned int) R_PARISC_GNU_VTINHERIT)
 	continue;
 
-      /* This is a final link.  */
       r_symndx = ELF32_R_SYM (rela->r_info);
       hh = NULL;
       sym = NULL;
@@ -3709,7 +3707,8 @@ elf32_hppa_relocate_section (bfd *output_bfd,
 				   eh, sym_sec, relocation,
 				   unresolved_reloc, warned_undef);
 
-	  if (relocation == 0
+	  if (!info->relocatable
+	      && relocation == 0
 	      && eh->root.type != bfd_link_hash_defined
 	      && eh->root.type != bfd_link_hash_defweak
 	      && eh->root.type != bfd_link_hash_undefweak)
@@ -3727,6 +3726,22 @@ elf32_hppa_relocate_section (bfd *output_bfd,
 	    }
 	  hh = hppa_elf_hash_entry (eh);
 	}
+
+      if (sym_sec != NULL && elf_discarded_section (sym_sec))
+	{
+	  /* For relocs against symbols from removed linkonce
+	     sections, or sections discarded by a linker script,
+	     we just want the section contents zeroed.  Avoid any
+	     special processing.  */
+	  _bfd_clear_contents (elf_hppa_howto_table + r_type, input_bfd,
+			       contents + rela->r_offset);
+	  rela->r_info = 0;
+	  rela->r_addend = 0;
+	  continue;
+	}
+
+      if (info->relocatable)
+	continue;
 
       /* Do any required modifications to the relocation value, and
 	 determine what types of dynamic info we need to output, if
@@ -3939,16 +3954,6 @@ elf32_hppa_relocate_section (bfd *output_bfd,
 	case R_PARISC_DPREL14R:
 	case R_PARISC_DPREL21L:
 	case R_PARISC_DIR32:
-	  /* r_symndx will be zero only for relocs against symbols
-	     from removed linkonce sections, or sections discarded by
-	     a linker script.  */
-	  if (r_symndx == 0)
-	    {
-	      _bfd_clear_contents (elf_hppa_howto_table + r_type, input_bfd,
-				   contents + rela->r_offset);
-	      break;
-	    }
-
 	  if ((input_section->flags & SEC_ALLOC) == 0)
 	    break;
 
@@ -4612,10 +4617,12 @@ elf32_hppa_elf_get_symbol_type (Elf_Internal_Sym *elf_sym, int type)
 /* Misc BFD support code.  */
 #define bfd_elf32_bfd_is_local_label_name    elf_hppa_is_local_label_name
 #define bfd_elf32_bfd_reloc_type_lookup	     elf_hppa_reloc_type_lookup
+#define bfd_elf32_bfd_reloc_name_lookup      elf_hppa_reloc_name_lookup
 #define elf_info_to_howto		     elf_hppa_info_to_howto
 #define elf_info_to_howto_rel		     elf_hppa_info_to_howto_rel
 
 /* Stuff for the BFD linker.  */
+#define bfd_elf32_mkobject		     elf32_hppa_mkobject
 #define bfd_elf32_bfd_final_link	     elf32_hppa_final_link
 #define bfd_elf32_bfd_link_hash_table_create elf32_hppa_link_hash_table_create
 #define bfd_elf32_bfd_link_hash_table_free   elf32_hppa_link_hash_table_free

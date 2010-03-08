@@ -32,6 +32,7 @@ Assembly Language Programming'' in the same work.
 * MIPS option stack::	Directives to save and restore options
 * MIPS ASE instruction generation overrides:: Directives to control
   			generation of MIPS ASE instructions
+* MIPS floating-point:: Directives to override floating-point options
 @end menu
 
 @node MIPS Opts
@@ -59,6 +60,18 @@ Any @sc{mips} configuration of @code{@value{AS}} can select big-endian or
 little-endian output at run time (unlike the other @sc{gnu} development
 tools, which must be configured for one or the other).  Use @samp{-EB}
 to select big-endian output, and @samp{-EL} for little-endian.
+
+@item -KPIC
+@cindex PIC selection, MIPS
+@cindex @option{-KPIC} option, MIPS
+Generate SVR4-style PIC.  This option tells the assembler to generate
+SVR4-style position-independent macro expansions.  It also tells the
+assembler to mark the output file as PIC.
+
+@item -mvxworks-pic
+@cindex @option{-mvxworks-pic} option, MIPS
+Generate VxWorks PIC.  This option tells the assembler to generate
+VxWorks-style position-independent macro expansions.
 
 @cindex MIPS architecture options
 @item -mips1
@@ -137,9 +150,16 @@ This tells the assembler to accept MDMX instructions.
 
 @item -mdsp
 @itemx -mno-dsp
-Generate code for the DSP Application Specific Extension.
-This tells the assembler to accept DSP instructions.
+Generate code for the DSP Release 1 Application Specific Extension.
+This tells the assembler to accept DSP Release 1 instructions.
 @samp{-mno-dsp} turns off this option.
+
+@item -mdspr2
+@itemx -mno-dspr2
+Generate code for the DSP Release 2 Application Specific Extension.
+This option implies -mdsp.
+This tells the assembler to accept DSP Release 2 instructions.
+@samp{-mno-dspr2} turns off this option.
 
 @item -mmt
 @itemx -mno-mt
@@ -230,21 +250,36 @@ rm9000,
 m4k,
 m4kp,
 24kc,
+24kf2_1,
 24kf,
-24kx,
+24kf1_1,
 24kec,
+24kef2_1,
 24kef,
-24kex,
+24kef1_1,
 34kc,
+34kf2_1,
 34kf,
-34kx,
+34kf1_1,
+74kc,
+74kf2_1,
+74kf,
+74kf1_1,
+74kf3_2,
 5kc,
 5kf,
 20kc,
 25kf,
 sb1,
-sb1a
+sb1a,
+loongson2e,
+loongson2f,
+octeon
 @end quotation
+
+For compatibility reasons, @samp{@var{n}x} and @samp{@var{b}fx} are
+accepted as synonyms for @samp{@var{n}f1_1}.  These values are
+deprecated.
 
 @item -mtune=@var{cpu}
 Schedule and tune for a particular MIPS cpu.  Valid @var{cpu} values are
@@ -268,10 +303,21 @@ other assemblers, which use it to turn off C style preprocessing.  With
 @sc{gnu} @code{@value{AS}}, there is no need for @samp{-nocpp}, because the
 @sc{gnu} assembler itself never runs the C preprocessor.
 
+@item -msoft-float
+@itemx -mhard-float
+Disable or enable floating-point instructions.  Note that by default
+floating-point instructions are always allowed even with CPU targets
+that don't have support for these instructions.
+
+@item -msingle-float
+@itemx -mdouble-float
+Disable or enable double-precision floating-point operations.  Note
+that by default double-precision floating-point operations are always
+allowed even with CPU targets that don't have support for these
+operations.
+
 @item --construct-floats
 @itemx --no-construct-floats
-@cindex --construct-floats
-@cindex --no-construct-floats
 The @code{--no-construct-floats} option disables the construction of
 double width floating point constants by loading the two halves of the
 value into the two single width floating point registers that make up
@@ -520,13 +566,22 @@ from the MDMX Application Specific Extension from that point on
 in the assembly.  The @code{.set nomdmx} directive prevents MDMX
 instructions from being accepted.
 
-@cindex MIPS DSP instruction generation override
+@cindex MIPS DSP Release 1 instruction generation override
 @kindex @code{.set dsp}
 @kindex @code{.set nodsp}
 The directive @code{.set dsp} makes the assembler accept instructions
-from the DSP Application Specific Extension from that point on
-in the assembly.  The @code{.set nodsp} directive prevents DSP
-instructions from being accepted.
+from the DSP Release 1 Application Specific Extension from that point
+on in the assembly.  The @code{.set nodsp} directive prevents DSP
+Release 1 instructions from being accepted.
+
+@cindex MIPS DSP Release 2 instruction generation override
+@kindex @code{.set dspr2}
+@kindex @code{.set nodspr2}
+The directive @code{.set dspr2} makes the assembler accept instructions
+from the DSP Release 2 Application Specific Extension from that point
+on in the assembly.  This dirctive implies @code{.set dsp}.  The
+@code{.set nodspr2} directive prevents DSP Release 2 instructions from
+being accepted.
 
 @cindex MIPS MT instruction generation override
 @kindex @code{.set mt}
@@ -535,5 +590,28 @@ The directive @code{.set mt} makes the assembler accept instructions
 from the MT Application Specific Extension from that point on
 in the assembly.  The @code{.set nomt} directive prevents MT
 instructions from being accepted.
+
+Traditional @sc{mips} assemblers do not support these directives.
+
+@node MIPS floating-point
+@section Directives to override floating-point options
+
+@cindex Disable floating-point instructions
+@kindex @code{.set softfloat}
+@kindex @code{.set hardfloat}
+The directives @code{.set softfloat} and @code{.set hardfloat} provide
+finer control of disabling and enabling float-point instructions.
+These directives always override the default (that hard-float
+instructions are accepted) or the command-line options
+(@samp{-msoft-float} and @samp{-mhard-float}).
+
+@cindex Disable single-precision floating-point operations
+@kindex @code{.set softfloat}
+@kindex @code{.set hardfloat}
+The directives @code{.set singlefloat} and @code{.set doublefloat}
+provide finer control of disabling and enabling double-precision
+float-point operations.  These directives always override the default
+(that double-precision operations are accepted) or the command-line
+options (@samp{-msingle-float} and @samp{-mdouble-float}).
 
 Traditional @sc{mips} assemblers do not support these directives.

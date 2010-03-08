@@ -24,12 +24,15 @@
 #include "op_alloc_counter.h"
 #include "op_parse_event.h"
 #include "op_libiberty.h"
+#include "op_xml_events.h"
 
 static char const ** chosen_events;
+static int num_chosen_events;
 struct parsed_event * parsed_events;
 static op_cpu cpu_type = CPU_NO_GOOD;
 static char * cpu_string;
 static int callgraph_depth;
+static int want_xml;
 
 static poptContext optcon;
 
@@ -58,6 +61,23 @@ static void do_arch_specific_event_help(struct op_event * event)
 	}
 }
 
+#define LINE_LEN 99
+
+static void word_wrap(int indent, int *column, char *msg)
+{
+	while (*msg) {
+		int wlen = strcspn(msg, " ");
+		if (*column + wlen > LINE_LEN) {
+			printf("\n%*s", indent, "");
+			*column = indent;
+		}
+		printf("%.*s ", wlen, msg);
+		*column += wlen + 1;
+		msg += wlen;
+		msg += strspn(msg, " ");
+	}
+}
+
 /**
  * help_for_event - output event name and description
  * @param i  event number
@@ -66,32 +86,51 @@ static void do_arch_specific_event_help(struct op_event * event)
  */
 static void help_for_event(struct op_event * event)
 {
+	int column;
 	uint i, j;
 	uint mask;
 	size_t nr_counters;
+	char buf[32];
 
 	do_arch_specific_event_help(event);
 	nr_counters = op_get_nr_counters(cpu_type);
 
+	/* Sanity check */
+	if (!event)
+		return;
+
 	printf("%s", event->name);
 
-	printf(": (counter: ");
+	if(event->counter_mask != 0) {
+		printf(": (counter: ");
 
-	mask = event->counter_mask;
-	if (hweight(mask) == nr_counters) {
-		printf("all");
-	} else {
-		for (i = 0; i < CHAR_BIT * sizeof(event->counter_mask); ++i) {
-			if (mask & (1 << i)) {
-				printf("%d", i);
-				mask &= ~(1 << i);
-				if (mask)
-					printf(", ");
+		mask = event->counter_mask;
+		if (hweight(mask) == nr_counters) {
+			printf("all");
+		} else {
+			for (i = 0; i < CHAR_BIT * sizeof(event->counter_mask); ++i) {
+				if (mask & (1 << i)) {
+					printf("%d", i);
+					mask &= ~(1 << i);
+					if (mask)
+						printf(", ");
+				}
 			}
 		}
-	}
+	} else	if (event->ext != NULL) {
+		/* Handling extended feature interface */
+		printf(": (ext: %s", event->ext);
+	} else {
+		/* Handling arch_perfmon case */
+		printf(": (counter: all");
+	}   
 
-	printf(")\n\t%s (min count: %d)\n", event->desc, event->min_count);
+	printf(")\n\t");
+	column = 8;
+	word_wrap(8, &column, event->desc);
+	snprintf(buf, sizeof buf, "(min count: %d)", event->min_count);
+	word_wrap(8, &column, buf);
+	putchar('\n');
 
 	if (strcmp(event->unit->name, "zero")) {
 
@@ -100,9 +139,11 @@ static void help_for_event(struct op_event * event)
 		printf("\t----------\n");
 
 		for (j = 0; j < event->unit->num; j++) {
-			printf("\t0x%.2x: %s\n",
-			       event->unit->um[j].value,
-			       event->unit->um[j].desc);
+			printf("\t0x%.2x: ",
+			       event->unit->um[j].value);
+			column = 14;
+			word_wrap(14, &column, event->unit->um[j].desc);
+			putchar('\n');
 		}
 	}
 }
@@ -116,8 +157,13 @@ static void check_event(struct parsed_event * pev,
 	int const callgraph_min_count_scale = 15;
 
 	if (!event) {
-		fprintf(stderr, "No event named %s is available.\n",
-		        pev->name);
+		event = find_event_by_name(pev->name, 0, 0);
+		if (event)
+			fprintf(stderr, "Invalid unit mask %x for event %s\n",
+				pev->unit_mask, pev->name);
+		else
+			fprintf(stderr, "No event named %s is available.\n",
+				pev->name);
 		exit(EXIT_FAILURE);
 	}
 
@@ -142,17 +188,13 @@ static void check_event(struct parsed_event * pev,
 
 static void resolve_events(void)
 {
-	size_t count;
+	size_t count, count_events;
 	size_t i, j;
 	size_t * counter_map;
 	size_t nr_counters = op_get_nr_counters(cpu_type);
-	struct op_event const * selected_events[nr_counters];
+	struct op_event const * selected_events[num_chosen_events];
 
-	count = parse_events(parsed_events, nr_counters, chosen_events);
-	if (count > nr_counters) {
-		fprintf(stderr, "Not enough hardware counters.\n");
-		exit(EXIT_FAILURE);
-	}
+	count = parse_events(parsed_events, num_chosen_events, chosen_events);
 
 	for (i = 0; i < count; ++i) {
 		for (j = i + 1; j < count; ++j) {
@@ -170,12 +212,24 @@ static void resolve_events(void)
 		}
 	}
 
-	for (i = 0; i < count; ++i) {
+	for (i = 0, count_events = 0; i < count; ++i) {
 		struct parsed_event * pev = &parsed_events[i];
 
-		selected_events[i] = find_event_by_name(pev->name);
-
+		/* For 0 unit mask always do wild card match */
+		selected_events[i] = find_event_by_name(pev->name, pev->unit_mask,
+					pev->unit_mask ? pev->unit_mask_valid : 0);
 		check_event(pev, selected_events[i]);
+
+		if (selected_events[i]->ext == NULL) {
+			count_events++;
+		}
+	}
+	if (count_events > nr_counters) {
+		fprintf(stderr, "Not enough hardware counters. "
+				"Need %lu counters but only has %lu.\n",
+				(unsigned long) count_events,
+				(unsigned long) nr_counters);
+		exit(EXIT_FAILURE);
 	}
 
 	counter_map = map_event_to_counter(selected_events, count, cpu_type);
@@ -186,7 +240,13 @@ static void resolve_events(void)
 	}
 
 	for (i = 0; i < count; ++i)
-		printf("%d ", (unsigned int) counter_map[i]);
+		if(counter_map[i] == (size_t)-1)
+			if (selected_events[i]->ext != NULL)
+				printf("%s ", (char*) selected_events[i]->ext);
+			else
+				printf("N/A ");
+		else
+			printf("%d ", (unsigned int) counter_map[i]);
 	printf("\n");
 
 	free(counter_map);
@@ -197,15 +257,14 @@ static void show_unit_mask(void)
 {
 	struct op_event * event;
 	size_t count;
-	size_t nr_counter = op_get_nr_counters(cpu_type);
 
-	count = parse_events(parsed_events, nr_counter, chosen_events);
+	count = parse_events(parsed_events, num_chosen_events, chosen_events);
 	if (count > 1) {
 		fprintf(stderr, "More than one event specified.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	event = find_event_by_name(parsed_events[0].name);
+	event = find_event_by_name(parsed_events[0].name, 0, 0);
 
 	if (!event) {
 		fprintf(stderr, "No such event found.\n");
@@ -250,6 +309,8 @@ static struct poptOption options[] = {
 	  "use this callgraph depth", "callgraph depth", },
 	{ "version", 'v', POPT_ARG_NONE, &show_vers, 0,
 	   "show version", NULL, },
+	{ "xml", 'X', POPT_ARG_NONE, &want_xml, 0,
+	   "list events as XML", NULL, },
 	POPT_AUTOHELP
 	{ NULL, 0, 0, NULL, 0, NULL, NULL, },
 };
@@ -271,6 +332,12 @@ static void get_options(int argc, char const * argv[])
 	/* non-option, must be a valid event name or event specs */
 	chosen_events = poptGetArgs(optcon);
 
+	if(chosen_events) {
+		num_chosen_events = 0;
+		while (chosen_events[num_chosen_events] != NULL)
+			num_chosen_events++;
+	}
+
 	/* don't free the context now, we need chosen_events */
 }
 
@@ -279,9 +346,11 @@ static void get_options(int argc, char const * argv[])
 static void cleanup(void)
 {
 	int i;
-	for (i = 0; i < op_get_nr_counters(cpu_type); ++i) {
-		if (parsed_events[i].name)
-			free(parsed_events[i].name);
+	if (parsed_events) {
+		for (i = 0; i < num_chosen_events; ++i) {
+			if (parsed_events[i].name)
+				free(parsed_events[i].name);
+		}
 	}
 	op_free_events();
 	if (optcon)
@@ -291,12 +360,14 @@ static void cleanup(void)
 }
 
 
+#define MAX_LINE 256
 int main(int argc, char const * argv[])
 {
 	struct list_head * events;
 	struct list_head * pos;
 	char const * pretty;
-	size_t nr_counter;
+	char title[10 * MAX_LINE];
+	char const * event_doc = "";
 
 	atexit(cleanup);
 
@@ -318,8 +389,8 @@ int main(int argc, char const * argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	nr_counter = op_get_nr_counters(cpu_type);
-	parsed_events = xcalloc(nr_counter, sizeof(struct parsed_event));
+	parsed_events = (struct parsed_event *)xcalloc(num_chosen_events,
+		sizeof(struct parsed_event));
 
 	pretty = op_get_cpu_type_str(cpu_type);
 
@@ -382,13 +453,26 @@ int main(int argc, char const * argv[])
 
 	/* default: list all events */
 
-	printf("oprofile: available events for CPU type \"%s\"\n\n", pretty);
 	switch (cpu_type) {
 	case CPU_HAMMER:
+		event_doc =
+			"See BIOS and Kernel Developer's Guide for AMD Athlon and AMD Opteron Processors\n"
+			"(26094.pdf), Section 10.2\n\n";
+		break;
 	case CPU_FAMILY10:
+		event_doc =
+			"See BIOS and Kernel Developer's Guide for AMD Family 10h Processors\n"
+			"(31116.pdf), Section 3.14\n\n";
+		break;
+	case CPU_FAMILY11H:
+		event_doc =
+			"See BIOS and Kernel Developer's Guide for AMD Family 11h Processors\n"
+			"(41256.pdf), Section 3.14\n\n";
 		break;
 	case CPU_ATHLON:
-		printf ("See AMD document x86 optimisation guide (22007.pdf), Appendix D\n\n");
+		event_doc =
+			"See AMD Athlon Processor x86 Code Optimization Guide\n"
+			"(22007.pdf), Appendix D\n\n";
 		break;
 	case CPU_PPRO:
 	case CPU_PII:
@@ -398,44 +482,66 @@ int main(int argc, char const * argv[])
 	case CPU_P4_HT2:
 	case CPU_CORE:
 	case CPU_CORE_2:
-		printf("See Intel Architecture Developer's Manual Volume 3, Appendix A and\n"
-		"Intel Architecture Optimization Reference Manual (730795-001)\n\n");
+	case CPU_CORE_I7:
+	case CPU_ATOM:
+		event_doc =
+			"See Intel Architecture Developer's Manual Volume 3B, Appendix A and\n"
+			"Intel Architecture Optimization Reference Manual (730795-001)\n\n";
 		break;
+
+	case CPU_ARCH_PERFMON:
+		event_doc =
+			"See Intel 64 and IA-32 Architectures Software Developer's Manual\n"
+			"Volume 3B (Document 253669) Chapter 18 for architectural perfmon events\n"
+			"This is a limited set of fallback events because oprofile doesn't know your CPU\n";
+		break;
+	
 	case CPU_IA64:
 	case CPU_IA64_1:
 	case CPU_IA64_2:
-		printf("See Intel Itanium Processor Reference Manual\n"
-		       "for Software Development (Document 245320-003),\n"
-		       "Intel Itanium Processor Reference Manual\n"
-		       "for Software Optimization (Document 245473-003),\n"
-		       "Intel Itanium 2 Processor Reference Manual\n"
-		       "for Software Development and Optimization (Document 251110-001)\n\n");
+		event_doc =
+			"See Intel Itanium Processor Reference Manual\n"
+			"for Software Development (Document 245320-003),\n"
+			"Intel Itanium Processor Reference Manual\n"
+			"for Software Optimization (Document 245473-003),\n"
+			"Intel Itanium 2 Processor Reference Manual\n"
+			"for Software Development and Optimization (Document 251110-001)\n\n";
 		break;
 	case CPU_AXP_EV4:
 	case CPU_AXP_EV5:
 	case CPU_AXP_PCA56:
 	case CPU_AXP_EV6:
 	case CPU_AXP_EV67:
-		printf("See Alpha Architecture Reference Manual\n"
-		       "ftp://ftp.compaq.com/pub/products/alphaCPUdocs/alpha_arch_ref.pdf\n");
+		event_doc =
+			"See Alpha Architecture Reference Manual\n"
+			"http://download.majix.org/dec/alpha_arch_ref.pdf\n";
 		break;
 	case CPU_ARM_XSCALE1:
 	case CPU_ARM_XSCALE2:
-		printf("See Intel XScale Core Developer's Manual\n"
-		       "Chapter 8 Performance Monitoring\n");
+		event_doc =
+			"See Intel XScale Core Developer's Manual\n"
+			"Chapter 8 Performance Monitoring\n";
 		break;
 	case CPU_ARM_MPCORE:
-		printf("See ARM11 MPCore Processor Technical Reference Manual r1p0\n"
-		       "Page 3-70, performance counters\n");
+		event_doc =
+			"See ARM11 MPCore Processor Technical Reference Manual r1p0\n"
+			"Page 3-70, performance counters\n";
 		break;
 
 	case CPU_ARM_V6:
-		printf("See ARM11 Technical Reference Manual\n");
+		event_doc = "See ARM11 Technical Reference Manual\n";
   		break;
 
+	case CPU_ARM_V7:
+		event_doc =
+			"See ARM11 Technical Reference Manual\n"
+			"Cortex A8 DDI (ARM DDI 0344B, revision r1p1)\n";
+		break;
+
 	case CPU_PPC64_PA6T:
-		printf("See PA6T Power Implementation Features Book IV\n"
-			   "Chapter 7 Performance Counters\n");
+		event_doc =
+			"See PA6T Power Implementation Features Book IV\n"
+			"Chapter 7 Performance Counters\n";
 		break;
 
 	case CPU_PPC64_POWER4:
@@ -445,113 +551,135 @@ int main(int argc, char const * argv[])
 	case CPU_PPC64_POWER5pp:
 	case CPU_PPC64_970:
 	case CPU_PPC64_970MP:
-		printf("Obtain PowerPC64 processor documentation at:\n"
-			"http://www-306.ibm.com/chips/techlib/techlib.nsf/productfamilies/PowerPC\n");
+	case CPU_PPC64_POWER7:
+	case CPU_PPC64_IBM_COMPAT_V1:
+		event_doc =
+			"Obtain PowerPC64 processor documentation at:\n"
+			"http://www-306.ibm.com/chips/techlib/techlib.nsf/productfamilies/PowerPC\n";
 		break;
 
 	case CPU_PPC64_CELL:
-		printf("Obtain Cell Broadband Engine documentation at:\n"
-			"http://www-306.ibm.com/chips/techlib/techlib.nsf/products/Cell_Broadband_Engine\n");
+		event_doc =
+			"Obtain Cell Broadband Engine documentation at:\n"
+			"http://www-306.ibm.com/chips/techlib/techlib.nsf/products/Cell_Broadband_Engine\n";
 		break;
 
 	case CPU_MIPS_20K:
-		printf("See Programming the MIPS64 20Kc Processor Core User's "
-		       "manual available from www.mips.com\n");
+		event_doc =
+			"See Programming the MIPS64 20Kc Processor Core User's "
+		"manual available from www.mips.com\n";
 		break;
 	case CPU_MIPS_24K:
-		printf("See Programming the MIPS32 24K Core "
-		       "available from www.mips.com\n");
+		event_doc =
+			"See Programming the MIPS32 24K Core "
+			"available from www.mips.com\n";
 		break;
 	case CPU_MIPS_25K:
-		printf("See Programming the MIPS64 25Kf Processor Core User's "
-		       "manual available from www.mips.com\n");
+		event_doc =
+			"See Programming the MIPS64 25Kf Processor Core User's "
+			"manual available from www.mips.com\n";
 		break;
 	case CPU_MIPS_34K:
-		printf("See Programming the MIPS32 34K Core Family "
-		       "available from www.mips.com\n");
+		event_doc =
+			"See Programming the MIPS32 34K Core Family "
+			"available from www.mips.com\n";
 		break;
 	case CPU_MIPS_5K:
-		printf("See Programming the MIPS64 5K Processor Core Family "
-		       "Software User's manual available from www.mips.com\n");
+		event_doc =
+			"See Programming the MIPS64 5K Processor Core Family "
+			"Software User's manual available from www.mips.com\n";
 		break;
 	case CPU_MIPS_R10000:
 	case CPU_MIPS_R12000:
-		printf("See NEC R10000 / R12000 User's Manual\n"
-		       "http://www.necelam.com/docs/files/U10278EJ3V0UM00.pdf\n");
+		event_doc =
+			"See NEC R10000 / R12000 User's Manual\n"
+			"http://www.necelam.com/docs/files/U10278EJ3V0UM00.pdf\n";
 		break;
 	case CPU_MIPS_RM7000:
-		printf("See RM7000 Family User Manual "
-		       "available from www.pmc-sierra.com\n");
+		event_doc =
+			"See RM7000 Family User Manual "
+			"available from www.pmc-sierra.com\n";
 		break;
 	case CPU_MIPS_RM9000:
-		printf("See RM9000x2 Family User Manual "
-		       "available from www.pmc-sierra.com\n");
+		event_doc =
+			"See RM9000x2 Family User Manual "
+			"available from www.pmc-sierra.com\n";
 		break;
 	case CPU_MIPS_SB1:
 	case CPU_MIPS_VR5432:
-		printf("See NEC VR5443 User's Manual, Volume 1\n"
-		       "http://www.necelam.com/docs/files/1375_V1.pdf\n");
+		event_doc =
+			"See NEC VR5443 User's Manual, Volume 1\n"
+			"http://www.necelam.com/docs/files/1375_V1.pdf\n";
 		break;
 	case CPU_MIPS_VR5500:
-		printf("See NEC R10000 / R12000 User's Manual\n"
-		     "http://www.necel.com/nesdis/image/U16677EJ3V0UM00.pdf\n");
+		event_doc =
+			"See NEC R10000 / R12000 User's Manual\n"
+			"http://www.necel.com/nesdis/image/U16677EJ3V0UM00.pdf\n";
 		break;
 
 	case CPU_PPC_E500:
 	case CPU_PPC_E500_2:
-		printf("See PowerPC e500 Core Complex Reference Manual\n"
+		event_doc =
+			"See PowerPC e500 Core Complex Reference Manual\n"
 			"Chapter 7: Performance Monitor\n"
-			"Downloadable from http://www.freescale.com\n");
+			"Downloadable from http://www.freescale.com\n";
+		break;
+
+	case CPU_PPC_E300:
+		event_doc =
+			"See PowerPC e300 Core Reference Manual\n"
+			"Downloadable from http://www.freescale.com\n";
 		break;
 
 	case CPU_PPC_7450:
-		printf("See MPC7450 RISC Microprocessor Family Reference "
-		       "Manual\n"
-		       "Chapter 11: Performance Monitor\n"
-		       "Downloadable from http://www.freescale.com\n");
+		event_doc =
+			"See MPC7450 RISC Microprocessor Family Reference "
+			"Manual\n"
+			"Chapter 11: Performance Monitor\n"
+			"Downloadable from http://www.freescale.com\n";
+		break;
+	
+	case CPU_BMIPS3300:
+	case CPU_BMIPS4380:
+	case CPU_BMIPS5000:
+		event_doc =
+			"See Broadcom Oprofile application notes\n";
 		break;
 
-	case CPU_MIPS_BCM7038:
-		printf("See MIPS64 5K Software User's Manual\n"
-			"Section 6.22: Performance Counter Register\n"
-		       "available from www.mips.com\n");
-		break;
+	case CPU_AVR32:
+		event_doc =
+			"See AVR32 Architecture Manual\n"
+			"Chapter 6: Performance Counters\n"
+			"http://www.atmel.com/dyn/resources/prod_documents/doc32000.pdf\n";
 
-	case CPU_MIPS_BCM4350:
-		printf("See Brief Specification of BMIPS4350\n"
-			"page 63. Available from Broadcom Corp.\n");
-		break;
+		case CPU_RTC:
+			break;
 
-	case CPU_MIPS_BCM3300:
-		printf("See BMIPS330 Architecture Specification\n"
-			"page 47-50. Available from Broadcom Corp.\n");
-		break;
-	case CPU_MIPS_BCM4380:
-                printf("See Brief Specification of BMIPS4380\n"
-                        "page 82. Available from Broadcom Corp.\n");
-                break;
-
-	case CPU_MIPS_BCM5000:
-                printf("See Brief Specification of BMIPS5000\n"
-                        "page xxx. Available from Broadcom Corp.\n");
-                break;
-
-	case CPU_RTC:
-		break;
-
-	// don't use default, if someone add a cpu he wants a compiler warning
-	// if he forgets to handle it here.
-	case CPU_TIMER_INT:
-	case CPU_NO_GOOD:
-	case MAX_CPU_TYPE:
-		printf("%d is not a valid processor type.\n", cpu_type);
-		break;
+		// don't use default, if someone add a cpu he wants a compiler warning
+		// if he forgets to handle it here.
+		case CPU_TIMER_INT:
+		case CPU_NO_GOOD:
+		case MAX_CPU_TYPE:
+			printf("%d is not a valid processor type.\n", cpu_type);
+			exit(EXIT_FAILURE);
 	}
+
+	sprintf(title, "oprofile: available events for CPU type \"%s\"\n\n", pretty);
+	if (want_xml)
+		open_xml_events(title, event_doc, cpu_type);
+	else
+		printf("%s%s", title, event_doc);
 
 	list_for_each(pos, events) {
 		struct op_event * event = list_entry(pos, struct op_event, event_next);
-		help_for_event(event);
+		if (want_xml) 
+			xml_help_for_event(event);
+		else
+			help_for_event(event);
 	}
+
+	if (want_xml)
+		close_xml_events();
 
 	return EXIT_SUCCESS;
 }

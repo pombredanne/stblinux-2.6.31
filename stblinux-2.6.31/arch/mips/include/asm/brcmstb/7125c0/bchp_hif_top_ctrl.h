@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:12:26 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_hif_top_ctrl.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:30p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,29 +43,29 @@
 #define BCHP_HIF_TOP_CTRL_H__
 
 /***************************************************************************
- *HIF_TOP_CTRL
+ *HIF_TOP_CTRL - HIF Top Control Registers
  ***************************************************************************/
-#define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL          0x00442400
-#define BCHP_HIF_TOP_CTRL_TM_CTRL                0x00442404
-#define BCHP_HIF_TOP_CTRL_SCRATCH                0x00442408
-#define BCHP_HIF_TOP_CTRL_PM_CTRL                0x0044240c
-#define BCHP_HIF_TOP_CTRL_STRAP_INTERCEPT        0x00442410
-#define BCHP_HIF_TOP_CTRL_SPI_CLK_SEL            0x00442414
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE             0x00442418
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x0044241c
-#define BCHP_HIF_TOP_CTRL_CRC_MISB_LLMB_CTRL     0x00442420
-#define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA0         0x00442424
-#define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA1         0x00442428
-#define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA0    0x0044242c
-#define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA1    0x00442430
-#define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA0     0x00442434
-#define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA1     0x00442438
-#define BCHP_HIF_TOP_CTRL_CRC_LLMB_ADDR          0x0044243c
-#define BCHP_HIF_TOP_CTRL_CRC_MISB_ADDR          0x00442440
-#define BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL          0x00442444
+#define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL          0x00442400 /* External IRQ Active Level Control Register */
+#define BCHP_HIF_TOP_CTRL_TM_CTRL                0x00442404 /* HIF MBIST_TM_CTRL Register */
+#define BCHP_HIF_TOP_CTRL_SCRATCH                0x00442408 /* HIF Scratch Register */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL                0x0044240c /* HIF Power Management Control Register */
+#define BCHP_HIF_TOP_CTRL_STRAP_INTERCEPT        0x00442410 /* HIF Strap Intercept Register */
+#define BCHP_HIF_TOP_CTRL_SPI_CLK_SEL            0x00442414 /* HIF SPI Interface Clock Select Register */
+#define BCHP_HIF_TOP_CTRL_FLASH_TYPE             0x00442418 /* HIF Decoded Flash Type */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x0044241c /* SPI test port select register */
+#define BCHP_HIF_TOP_CTRL_CRC_MISB_LLMB_CTRL     0x00442420 /* HIF CRC control register for MISB and LLMB */
+#define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA0         0x00442424 /* HIF CRC LLMB result register0 */
+#define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA1         0x00442428 /* HIF CRC LLMB result register1 */
+#define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA0    0x0044242c /* HIF CRC MISB store data bus result register0 */
+#define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA1    0x00442430 /* HIF CRC MISB store data bus result register1 */
+#define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA0     0x00442434 /* HIF CRC MISB store data bus result register0 */
+#define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA1     0x00442438 /* HIF CRC MISB store data bus result register1 */
+#define BCHP_HIF_TOP_CTRL_CRC_LLMB_ADDR          0x0044243c /* HIF CRC LLMB address bus result register */
+#define BCHP_HIF_TOP_CTRL_CRC_MISB_ADDR          0x00442440 /* HIF CRC MISB address bus result register */
+#define BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL          0x00442444 /* HIF PCI ConfigurationManager  MWIN Control Register */
 
 /***************************************************************************
- *EXT_IRQ_LEVEL
+ *EXT_IRQ_LEVEL - External IRQ Active Level Control Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: EXT_IRQ_LEVEL :: reserved0 [31:15] */
 #define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL_reserved0_MASK             0xffff8000
@@ -159,7 +162,7 @@
 #define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL_ext_irq_0_level_HIGH       1
 
 /***************************************************************************
- *TM_CTRL
+ *TM_CTRL - HIF MBIST_TM_CTRL Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: TM_CTRL :: reserved0 [31:16] */
 #define BCHP_HIF_TOP_CTRL_TM_CTRL_reserved0_MASK                   0xffff0000
@@ -206,14 +209,14 @@
 #define BCHP_HIF_TOP_CTRL_TM_CTRL_READ_FIFO_TM1_ENABLE             1
 
 /***************************************************************************
- *SCRATCH
+ *SCRATCH - HIF Scratch Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: SCRATCH :: SCRATCH_BIT [31:00] */
 #define BCHP_HIF_TOP_CTRL_SCRATCH_SCRATCH_BIT_MASK                 0xffffffff
 #define BCHP_HIF_TOP_CTRL_SCRATCH_SCRATCH_BIT_SHIFT                0
 
 /***************************************************************************
- *PM_CTRL
+ *PM_CTRL - HIF Power Management Control Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: PM_CTRL :: reserved0 [31:14] */
 #define BCHP_HIF_TOP_CTRL_PM_CTRL_reserved0_MASK                   0xffffc000
@@ -276,7 +279,7 @@
 #define BCHP_HIF_TOP_CTRL_PM_CTRL_MPI_PM_OUT_DRIVE_LOW_SHIFT       0
 
 /***************************************************************************
- *STRAP_INTERCEPT
+ *STRAP_INTERCEPT - HIF Strap Intercept Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: STRAP_INTERCEPT :: reserved0 [31:05] */
 #define BCHP_HIF_TOP_CTRL_STRAP_INTERCEPT_reserved0_MASK           0xffffffe0
@@ -303,7 +306,7 @@
 #define BCHP_HIF_TOP_CTRL_STRAP_INTERCEPT_STRAP_PCI_EXT_ARB_SHIFT  0
 
 /***************************************************************************
- *SPI_CLK_SEL
+ *SPI_CLK_SEL - HIF SPI Interface Clock Select Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: SPI_CLK_SEL :: reserved0 [31:02] */
 #define BCHP_HIF_TOP_CTRL_SPI_CLK_SEL_reserved0_MASK               0xfffffffc
@@ -314,7 +317,7 @@
 #define BCHP_HIF_TOP_CTRL_SPI_CLK_SEL_BSPI_CLK_FREQ_SEL_SHIFT      0
 
 /***************************************************************************
- *FLASH_TYPE
+ *FLASH_TYPE - HIF Decoded Flash Type
  ***************************************************************************/
 /* HIF_TOP_CTRL :: FLASH_TYPE :: reserved0 [31:04] */
 #define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved0_MASK                0xfffffff0
@@ -333,7 +336,7 @@
 #define BCHP_HIF_TOP_CTRL_FLASH_TYPE_FLASH_TYPE_SHIFT              0
 
 /***************************************************************************
- *SPI_DBG_SEL
+ *SPI_DBG_SEL - SPI test port select register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: SPI_DBG_SEL :: reserved0 [31:03] */
 #define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_reserved0_MASK               0xfffffff8
@@ -352,7 +355,7 @@
 #define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_SHIFT             0
 
 /***************************************************************************
- *CRC_MISB_LLMB_CTRL
+ *CRC_MISB_LLMB_CTRL - HIF CRC control register for MISB and LLMB
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_MISB_LLMB_CTRL :: reserved0 [31:12] */
 #define BCHP_HIF_TOP_CTRL_CRC_MISB_LLMB_CTRL_reserved0_MASK        0xfffff000
@@ -423,63 +426,63 @@
 #define BCHP_HIF_TOP_CTRL_CRC_MISB_LLMB_CTRL_LLMB_DATA_CRC_ENABLE_ENABLE 1
 
 /***************************************************************************
- *CRC_LLMB_DATA0
+ *CRC_LLMB_DATA0 - HIF CRC LLMB result register0
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_LLMB_DATA0 :: LLMB_DATA_CRC0 [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA0_LLMB_DATA_CRC0_MASK       0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA0_LLMB_DATA_CRC0_SHIFT      0
 
 /***************************************************************************
- *CRC_LLMB_DATA1
+ *CRC_LLMB_DATA1 - HIF CRC LLMB result register1
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_LLMB_DATA1 :: LLMB_DATA_CRC1 [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA1_LLMB_DATA_CRC1_MASK       0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_LLMB_DATA1_LLMB_DATA_CRC1_SHIFT      0
 
 /***************************************************************************
- *CRC_MISBSTORE_DATA0
+ *CRC_MISBSTORE_DATA0 - HIF CRC MISB store data bus result register0
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_MISBSTORE_DATA0 :: MISB_DATASTORE_CRC0 [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA0_MISB_DATASTORE_CRC0_MASK 0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA0_MISB_DATASTORE_CRC0_SHIFT 0
 
 /***************************************************************************
- *CRC_MISBSTORE_DATA1
+ *CRC_MISBSTORE_DATA1 - HIF CRC MISB store data bus result register1
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_MISBSTORE_DATA1 :: MISB_DATASTORE_CRC1 [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA1_MISB_DATASTORE_CRC1_MASK 0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_MISBSTORE_DATA1_MISB_DATASTORE_CRC1_SHIFT 0
 
 /***************************************************************************
- *CRC_MISBLOAD_DATA0
+ *CRC_MISBLOAD_DATA0 - HIF CRC MISB store data bus result register0
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_MISBLOAD_DATA0 :: MISB_DATALOAD_CRC0 [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA0_MISB_DATALOAD_CRC0_MASK 0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA0_MISB_DATALOAD_CRC0_SHIFT 0
 
 /***************************************************************************
- *CRC_MISBLOAD_DATA1
+ *CRC_MISBLOAD_DATA1 - HIF CRC MISB store data bus result register1
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_MISBLOAD_DATA1 :: MISB_DATALOAD_CRC1 [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA1_MISB_DATALOAD_CRC1_MASK 0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_MISBLOAD_DATA1_MISB_DATALOAD_CRC1_SHIFT 0
 
 /***************************************************************************
- *CRC_LLMB_ADDR
+ *CRC_LLMB_ADDR - HIF CRC LLMB address bus result register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_LLMB_ADDR :: LLMB_ADDR_CRC [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_LLMB_ADDR_LLMB_ADDR_CRC_MASK         0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_LLMB_ADDR_LLMB_ADDR_CRC_SHIFT        0
 
 /***************************************************************************
- *CRC_MISB_ADDR
+ *CRC_MISB_ADDR - HIF CRC MISB address bus result register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: CRC_MISB_ADDR :: MISB_ADDR_CRC [31:00] */
 #define BCHP_HIF_TOP_CTRL_CRC_MISB_ADDR_MISB_ADDR_CRC_MASK         0xffffffff
 #define BCHP_HIF_TOP_CTRL_CRC_MISB_ADDR_MISB_ADDR_CRC_SHIFT        0
 
 /***************************************************************************
- *PCI_MWIN_CTRL
+ *PCI_MWIN_CTRL - HIF PCI ConfigurationManager  MWIN Control Register
  ***************************************************************************/
 /* HIF_TOP_CTRL :: PCI_MWIN_CTRL :: reserved0 [31:05] */
 #define BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL_reserved0_MASK             0xffffffe0

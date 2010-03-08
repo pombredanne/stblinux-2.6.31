@@ -65,11 +65,15 @@ pthread_cancel_init (void)
   libgcc_s_getcfa = getcfa;
 }
 
-#ifdef SHARED
-void
-#ifdef __mips
-__attribute__((__nomips16__))
+#if defined(__mips__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 2)
+/* Backward compatibility with Broadcom "XXts" toolchains */
+#define __attr_nomips16		__attribute__((__nomips16__))
+#else
+#define __attr_nomips16
 #endif
+
+#ifdef SHARED
+void __attr_nomips16
 _Unwind_Resume (struct _Unwind_Exception *exc)
 {
   if (__builtin_expect (libgcc_s_resume == NULL, 0))
@@ -89,10 +93,7 @@ __gcc_personality_v0 (int version, _Unwind_Action actions,
 			       ue_header, context);
 }
 
-_Unwind_Reason_Code
-#ifdef __mips
-__attribute__((__nomips16__))
-#endif
+_Unwind_Reason_Code __attr_nomips16
 _Unwind_ForcedUnwind (struct _Unwind_Exception *exc, _Unwind_Stop_Fn stop,
 		      void *stop_argument)
 {

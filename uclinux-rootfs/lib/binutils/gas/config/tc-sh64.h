@@ -1,11 +1,12 @@
 /* This file is tc-sh64.h
-   Copyright 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+   Copyright 2000, 2001, 2002, 2003, 2007
+   Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -79,7 +80,6 @@ extern int sh64_target_mach (void);
 #undef TC_FORCE_RELOCATION_LOCAL
 #define TC_FORCE_RELOCATION_LOCAL(FIX)			\
   (!(FIX)->fx_pcrel					\
-   || (FIX)->fx_plt					\
    || (FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL	\
    || (FIX)->fx_r_type == BFD_RELOC_SH_PLT_LOW16	\
    || (FIX)->fx_r_type == BFD_RELOC_SH_PLT_MEDLOW16	\
@@ -115,10 +115,11 @@ extern int sh64_target_mach (void);
 
 /* Don't complain when we leave fx_subsy around.  */
 #undef TC_VALIDATE_FIX_SUB
-#define TC_VALIDATE_FIX_SUB(FIX)			\
-  ((FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL		\
-   || (sh_relax && SWITCH_TABLE (FIX))			\
-   || *symbol_get_tc ((FIX)->fx_addsy) != NULL)
+#define TC_VALIDATE_FIX_SUB(FIX, SEG)			\
+  ((md_register_arithmetic || (SEG) != reg_section)	\
+   && ((FIX)->fx_r_type == BFD_RELOC_32_PLT_PCREL	\
+       || (sh_relax && SWITCH_TABLE (FIX))		\
+       || *symbol_get_tc ((FIX)->fx_addsy) != NULL))
 
 /* Note the kludge: we want to put back C, and we also want to consume the
    expression, since we have handled it ourselves.  FIXME: What we really

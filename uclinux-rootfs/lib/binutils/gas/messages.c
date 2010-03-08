@@ -1,12 +1,12 @@
 /* messages.c - error reporter -
    Copyright 1987, 1991, 1992, 1993, 1994, 1995, 1996, 1998, 2000, 2001,
-   2003, 2004, 2005, 2006
+   2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
    This file is part of GAS, the GNU Assembler.
 
    GAS is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
    GAS is distributed in the hope that it will be useful,
@@ -456,6 +456,24 @@ as_internal_value_out_of_range (char *    prefix,
   if (prefix == NULL)
     prefix = "";
 
+  if (val >= min && val <= max)
+    {
+      addressT right = max & -max;
+
+      if (max <= 1)
+	abort ();
+
+      /* xgettext:c-format  */
+      err = _("%s out of domain (%d is not a multiple of %d)");
+      if (bad)
+	as_bad_where (file, line, err,
+		      prefix, (int) val, (int) right);
+      else
+	as_warn_where (file, line, err,
+		       prefix, (int) val, (int) right);
+      return;
+    }
+
   if (   val < HEX_MAX_THRESHOLD
       && min < HEX_MAX_THRESHOLD
       && max < HEX_MAX_THRESHOLD
@@ -482,9 +500,9 @@ as_internal_value_out_of_range (char *    prefix,
       if (sizeof (val) > sizeof (bfd_vma))
 	abort ();
 
-      sprintf_vma (val_buf, val);
-      sprintf_vma (min_buf, min);
-      sprintf_vma (max_buf, max);
+      sprintf_vma (val_buf, (bfd_vma) val);
+      sprintf_vma (min_buf, (bfd_vma) min);
+      sprintf_vma (max_buf, (bfd_vma) max);
 
       /* xgettext:c-format.  */
       err = _("%s out of range (0x%s is not between 0x%s and 0x%s)");

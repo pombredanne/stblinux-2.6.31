@@ -478,6 +478,8 @@ CFLAGS += -I$(KERNEL_HEADERS)
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
 CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
+# hack for limits.h
+CFLAGS+=-I$(shell $(CC) -print-file-name=include)-fixed
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG

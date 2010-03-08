@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Tue Nov 17 17:36:26 2009
- *                 MD5 Checksum         fb51f1763a5fb8ecbb67a32796169955
+ * Date:           Generated on         Mon Jan 11 18:05:45 2010
+ *                 MD5 Checksum         6ce76b5c9aa77310a207805bbd2fdb35
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7408/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/2   11/17/09 6:22p albertl
- * SW7408-10: Updated to match RDB.
+ * Hydra_Software_Devel/3   1/12/10 3:45p albertl
+ * SW7408-45: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -2944,9 +2944,9 @@
 #define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_reserved0_MASK             0xfffffc00
 #define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_reserved0_SHIFT            10
 
-/* SUN_TOP_CTRL :: SUB_TEST_MODE :: sub_test_mode_spare_1 [09:09] */
-#define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_sub_test_mode_spare_1_MASK 0x00000200
-#define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_sub_test_mode_spare_1_SHIFT 9
+/* SUN_TOP_CTRL :: SUB_TEST_MODE :: sub_test_mode_bootrom_ate_test_mode [09:09] */
+#define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_sub_test_mode_bootrom_ate_test_mode_MASK 0x00000200
+#define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_sub_test_mode_bootrom_ate_test_mode_SHIFT 9
 
 /* SUN_TOP_CTRL :: SUB_TEST_MODE :: sub_test_mode_spare_0 [08:08] */
 #define BCHP_SUN_TOP_CTRL_SUB_TEST_MODE_sub_test_mode_spare_0_MASK 0x00000100

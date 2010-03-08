@@ -10,12 +10,14 @@
  */
 
 #include <unistd.h>
-#include <linux/limits.h>
 #include <sys/wait.h>
+#include <limits.h>
 
 #include <cerrno>
 #include <sstream>
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 #include "op_libiberty.h"
 #include "child_reader.h"

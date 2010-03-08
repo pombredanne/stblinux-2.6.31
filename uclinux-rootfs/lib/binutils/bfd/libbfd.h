@@ -7,26 +7,27 @@
    (This include file is not for users of the library.)
 
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
    Free Software Foundation, Inc.
 
    Written by Cygnus Support.
 
-This file is part of BFD, the Binary File Descriptor library.
+   This file is part of BFD, the Binary File Descriptor library.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #include "hashtab.h"
 
@@ -95,6 +96,7 @@ struct areltdata {
   char * arch_header;		/* it's actually a string */
   unsigned int parsed_size;	/* octets of filesize not including ar_hdr */
   char *filename;		/* null-terminated */
+  file_ptr origin;		/* for element of a thin archive */
 };
 
 #define arelt_size(bfd) (((struct areltdata *)((bfd)->arelt_data))->parsed_size)
@@ -102,6 +104,8 @@ struct areltdata {
 extern void *bfd_malloc
   (bfd_size_type);
 extern void *bfd_realloc
+  (void *, bfd_size_type);
+extern void *bfd_realloc_or_free
   (void *, bfd_size_type);
 extern void *bfd_zmalloc
   (bfd_size_type);
@@ -353,12 +357,13 @@ extern bfd_boolean _bfd_archive_coff_construct_extended_name_table
 /* Routines to use for BFD_JUMP_TABLE_RELOCS when there is no reloc
    support.  Use BFD_JUMP_TABLE_RELOCS (_bfd_norelocs).  */
 
-#define _bfd_norelocs_get_reloc_upper_bound \
-  ((long (*) (bfd *, asection *)) _bfd_n1)
-#define _bfd_norelocs_canonicalize_reloc \
-  ((long (*) (bfd *, asection *, arelent **, asymbol **)) _bfd_n1)
+extern long _bfd_norelocs_get_reloc_upper_bound (bfd *, asection *);
+extern long _bfd_norelocs_canonicalize_reloc (bfd *, asection *,
+					      arelent **, asymbol **);
 #define _bfd_norelocs_bfd_reloc_type_lookup \
   ((reloc_howto_type *(*) (bfd *, bfd_reloc_code_real_type)) bfd_nullvoidptr)
+#define _bfd_norelocs_bfd_reloc_name_lookup \
+  ((reloc_howto_type *(*) (bfd *, const char *)) bfd_nullvoidptr)
 
 /* Routines to use for BFD_JUMP_TABLE_WRITE for targets which may not
    be written.  Use BFD_JUMP_TABLE_WRITE (_bfd_nowrite).  */
@@ -729,7 +734,7 @@ struct bfd_section_already_linked
 
 extern struct bfd_section_already_linked_hash_entry *
   bfd_section_already_linked_table_lookup (const char *);
-extern void bfd_section_already_linked_table_insert
+extern bfd_boolean bfd_section_already_linked_table_insert
   (struct bfd_section_already_linked_hash_entry *, asection *);
 extern void bfd_section_already_linked_table_traverse
   (bfd_boolean (*) (struct bfd_section_already_linked_hash_entry *,
@@ -857,6 +862,11 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_SPARC_UA16",
   "BFD_RELOC_SPARC_UA32",
   "BFD_RELOC_SPARC_UA64",
+  "BFD_RELOC_SPARC_GOTDATA_HIX22",
+  "BFD_RELOC_SPARC_GOTDATA_LOX10",
+  "BFD_RELOC_SPARC_GOTDATA_OP_HIX22",
+  "BFD_RELOC_SPARC_GOTDATA_OP_LOX10",
+  "BFD_RELOC_SPARC_GOTDATA_OP",
   "BFD_RELOC_SPARC_BASE13",
   "BFD_RELOC_SPARC_BASE22",
   "BFD_RELOC_SPARC_10",
@@ -918,6 +928,8 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_SPU_PCREL16",
   "BFD_RELOC_SPU_LO16",
   "BFD_RELOC_SPU_HI16",
+  "BFD_RELOC_SPU_PPU32",
+  "BFD_RELOC_SPU_PPU64",
   "BFD_RELOC_ALPHA_GPDISP_HI16",
   "BFD_RELOC_ALPHA_GPDISP_LO16",
   "BFD_RELOC_ALPHA_GPDISP",
@@ -952,6 +964,8 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_HI16_PCREL",
   "BFD_RELOC_HI16_S_PCREL",
   "BFD_RELOC_LO16_PCREL",
+  "BFD_RELOC_MIPS16_GOT16",
+  "BFD_RELOC_MIPS16_CALL16",
   "BFD_RELOC_MIPS16_HI16",
   "BFD_RELOC_MIPS16_HI16_S",
   "BFD_RELOC_MIPS16_LO16",
@@ -1042,6 +1056,8 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_MN10300_GLOB_DAT",
   "BFD_RELOC_MN10300_JMP_SLOT",
   "BFD_RELOC_MN10300_RELATIVE",
+  "BFD_RELOC_MN10300_SYM_DIFF",
+  "BFD_RELOC_MN10300_ALIGN",
 
   "BFD_RELOC_386_GOT32",
   "BFD_RELOC_386_PLT32",
@@ -1276,6 +1292,7 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_ARM_LDC_SB_G0",
   "BFD_RELOC_ARM_LDC_SB_G1",
   "BFD_RELOC_ARM_LDC_SB_G2",
+  "BFD_RELOC_ARM_V4BX",
   "BFD_RELOC_ARM_IMMEDIATE",
   "BFD_RELOC_ARM_ADRL_IMMEDIATE",
   "BFD_RELOC_ARM_T32_IMMEDIATE",
@@ -1529,6 +1546,27 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_MCORE_PCREL_32",
   "BFD_RELOC_MCORE_PCREL_JSR_IMM11BY2",
   "BFD_RELOC_MCORE_RVA",
+  "BFD_RELOC_MEP_8",
+  "BFD_RELOC_MEP_16",
+  "BFD_RELOC_MEP_32",
+  "BFD_RELOC_MEP_PCREL8A2",
+  "BFD_RELOC_MEP_PCREL12A2",
+  "BFD_RELOC_MEP_PCREL17A2",
+  "BFD_RELOC_MEP_PCREL24A2",
+  "BFD_RELOC_MEP_PCABS24A2",
+  "BFD_RELOC_MEP_LOW16",
+  "BFD_RELOC_MEP_HI16U",
+  "BFD_RELOC_MEP_HI16S",
+  "BFD_RELOC_MEP_GPREL",
+  "BFD_RELOC_MEP_TPREL",
+  "BFD_RELOC_MEP_TPREL7",
+  "BFD_RELOC_MEP_TPREL7A2",
+  "BFD_RELOC_MEP_TPREL7A4",
+  "BFD_RELOC_MEP_UIMM24",
+  "BFD_RELOC_MEP_ADDR24A4",
+  "BFD_RELOC_MEP_GNU_VTINHERIT",
+  "BFD_RELOC_MEP_GNU_VTENTRY",
+
   "BFD_RELOC_MMIX_GETA",
   "BFD_RELOC_MMIX_GETA_1",
   "BFD_RELOC_MMIX_GETA_2",
@@ -1781,6 +1819,36 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_16C_IMM24_C",
   "BFD_RELOC_16C_IMM32",
   "BFD_RELOC_16C_IMM32_C",
+  "BFD_RELOC_CR16_NUM8",
+  "BFD_RELOC_CR16_NUM16",
+  "BFD_RELOC_CR16_NUM32",
+  "BFD_RELOC_CR16_NUM32a",
+  "BFD_RELOC_CR16_REGREL0",
+  "BFD_RELOC_CR16_REGREL4",
+  "BFD_RELOC_CR16_REGREL4a",
+  "BFD_RELOC_CR16_REGREL14",
+  "BFD_RELOC_CR16_REGREL14a",
+  "BFD_RELOC_CR16_REGREL16",
+  "BFD_RELOC_CR16_REGREL20",
+  "BFD_RELOC_CR16_REGREL20a",
+  "BFD_RELOC_CR16_ABS20",
+  "BFD_RELOC_CR16_ABS24",
+  "BFD_RELOC_CR16_IMM4",
+  "BFD_RELOC_CR16_IMM8",
+  "BFD_RELOC_CR16_IMM16",
+  "BFD_RELOC_CR16_IMM20",
+  "BFD_RELOC_CR16_IMM24",
+  "BFD_RELOC_CR16_IMM32",
+  "BFD_RELOC_CR16_IMM32a",
+  "BFD_RELOC_CR16_DISP4",
+  "BFD_RELOC_CR16_DISP8",
+  "BFD_RELOC_CR16_DISP16",
+  "BFD_RELOC_CR16_DISP20",
+  "BFD_RELOC_CR16_DISP24",
+  "BFD_RELOC_CR16_DISP24a",
+  "BFD_RELOC_CR16_SWITCH8",
+  "BFD_RELOC_CR16_SWITCH16",
+  "BFD_RELOC_CR16_SWITCH32",
   "BFD_RELOC_CRX_REL4",
   "BFD_RELOC_CRX_REL8",
   "BFD_RELOC_CRX_REL8_CMP",
@@ -1865,6 +1933,8 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_XSTORMY16_12",
   "BFD_RELOC_XSTORMY16_24",
   "BFD_RELOC_XSTORMY16_FPTR16",
+  "BFD_RELOC_RELC",
+
   "BFD_RELOC_XC16X_PAG",
   "BFD_RELOC_XC16X_POF",
   "BFD_RELOC_XC16X_SEG",
@@ -1931,6 +2001,13 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_XTENSA_OP2",
   "BFD_RELOC_XTENSA_ASM_EXPAND",
   "BFD_RELOC_XTENSA_ASM_SIMPLIFY",
+  "BFD_RELOC_XTENSA_TLSDESC_FN",
+  "BFD_RELOC_XTENSA_TLSDESC_ARG",
+  "BFD_RELOC_XTENSA_TLS_DTPOFF",
+  "BFD_RELOC_XTENSA_TLS_TPOFF",
+  "BFD_RELOC_XTENSA_TLS_FUNC",
+  "BFD_RELOC_XTENSA_TLS_ARG",
+  "BFD_RELOC_XTENSA_TLS_CALL",
   "BFD_RELOC_Z80_DISP8",
   "BFD_RELOC_Z8K_DISP7",
   "BFD_RELOC_Z8K_CALLR",

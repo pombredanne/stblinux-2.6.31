@@ -5,7 +5,6 @@ OUTPUT_FORMAT=undefined
 BIG_OUTPUT_FORMAT="elf32-xtensa-be"
 LITTLE_OUTPUT_FORMAT="elf32-xtensa-le"
 TEXT_START_ADDR=0x400000
-NONPAGED_TEXT_START_ADDR=0x400000
 MAXPAGESIZE="CONSTANT (MAXPAGESIZE)"
 ARCH=xtensa
 MACHINE=
@@ -18,7 +17,10 @@ PLT="/* .plt* sections are embedded in .text */"
 GOT=".got          ${RELOCATING-0} : { *(.got) }"
 OTHER_READONLY_SECTIONS="
   .got.loc      ${RELOCATING-0} : { *(.got.loc) }
-  .xt_except_table ${RELOCATING-0} : { KEEP (*(.xt_except_table${RELOCATING+ .xt_except_table.* .gnu.linkonce.e.*})) }
+  .xt_except_table ${RELOCATING-0} : ONLY_IF_RO { KEEP (*(.xt_except_table${RELOCATING+ .xt_except_table.* .gnu.linkonce.e.*})) }
+"
+OTHER_RELRO_SECTIONS="
+  .xt_except_table ${RELOCATING-0} : ONLY_IF_RW { KEEP (*(.xt_except_table${RELOCATING+ .xt_except_table.* .gnu.linkonce.e.*})) }
 "
 OTHER_READWRITE_SECTIONS="
   .xt_except_desc ${RELOCATING-0} :
@@ -36,7 +38,7 @@ OTHER_SDATA_SECTIONS="
   }
 "
 OTHER_SECTIONS="
-  .xt.lit       0 : { *(.xt.lit${RELOCATING+ .xt.lit.* .gnu.linkonce.p.*}) }
-  .xt.insn      0 : { *(.xt.insn${RELOCATING+ .gnu.linkonce.x.*}) }
-  .xt.prop      0 : { *(.xt.prop${RELOCATING+ .xt.prop.* .gnu.linkonce.prop.*}) }
+  .xt.lit       0 : { KEEP (*(.xt.lit${RELOCATING+ .xt.lit.* .gnu.linkonce.p.*})) }
+  .xt.insn      0 : { KEEP (*(.xt.insn${RELOCATING+ .gnu.linkonce.x.*})) }
+  .xt.prop      0 : { KEEP (*(.xt.prop${RELOCATING+ .xt.prop.* .gnu.linkonce.prop.*})) }
 "

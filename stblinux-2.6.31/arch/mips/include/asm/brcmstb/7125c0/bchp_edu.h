@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:10:41 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_edu.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:19p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,20 +43,20 @@
 #define BCHP_EDU_H__
 
 /***************************************************************************
- *EDU
+ *EDU - EDU Control Registers
  ***************************************************************************/
-#define BCHP_EDU_CONFIG                          0x00442c00
-#define BCHP_EDU_DRAM_ADDR                       0x00442c04
-#define BCHP_EDU_EXT_ADDR                        0x00442c08
-#define BCHP_EDU_LENGTH                          0x00442c0c
-#define BCHP_EDU_CMD                             0x00442c10
-#define BCHP_EDU_STOP                            0x00442c14
-#define BCHP_EDU_STATUS                          0x00442c18
-#define BCHP_EDU_DONE                            0x00442c1c
-#define BCHP_EDU_ERR_STATUS                      0x00442c20
+#define BCHP_EDU_CONFIG                          0x00442c00 /* EDU Config */
+#define BCHP_EDU_DRAM_ADDR                       0x00442c04 /* DRAM Address for transaction */
+#define BCHP_EDU_EXT_ADDR                        0x00442c08 /* External Address for transaction */
+#define BCHP_EDU_LENGTH                          0x00442c0c /* Length of transaction */
+#define BCHP_EDU_CMD                             0x00442c10 /* Command Type and Start */
+#define BCHP_EDU_STOP                            0x00442c14 /* Stop */
+#define BCHP_EDU_STATUS                          0x00442c18 /* EDU Status bits */
+#define BCHP_EDU_DONE                            0x00442c1c /* EDU Done bits */
+#define BCHP_EDU_ERR_STATUS                      0x00442c20 /* EDU Error Status */
 
 /***************************************************************************
- *CONFIG
+ *CONFIG - EDU Config
  ***************************************************************************/
 /* EDU :: CONFIG :: reserved0 [31:03] */
 #define BCHP_EDU_CONFIG_reserved0_MASK                             0xfffffff8
@@ -68,7 +71,7 @@
 #define BCHP_EDU_CONFIG_Mode_SHIFT                                 0
 
 /***************************************************************************
- *DRAM_ADDR
+ *DRAM_ADDR - DRAM Address for transaction
  ***************************************************************************/
 /* EDU :: DRAM_ADDR :: Address [31:02] */
 #define BCHP_EDU_DRAM_ADDR_Address_MASK                            0xfffffffc
@@ -79,7 +82,7 @@
 #define BCHP_EDU_DRAM_ADDR_reserved0_SHIFT                         0
 
 /***************************************************************************
- *EXT_ADDR
+ *EXT_ADDR - External Address for transaction
  ***************************************************************************/
 /* EDU :: EXT_ADDR :: Address [31:02] */
 #define BCHP_EDU_EXT_ADDR_Address_MASK                             0xfffffffc
@@ -90,7 +93,7 @@
 #define BCHP_EDU_EXT_ADDR_reserved0_SHIFT                          0
 
 /***************************************************************************
- *LENGTH
+ *LENGTH - Length of transaction
  ***************************************************************************/
 /* EDU :: LENGTH :: reserved0 [31:10] */
 #define BCHP_EDU_LENGTH_reserved0_MASK                             0xfffffc00
@@ -101,7 +104,7 @@
 #define BCHP_EDU_LENGTH_Length_SHIFT                               0
 
 /***************************************************************************
- *CMD
+ *CMD - Command Type and Start
  ***************************************************************************/
 /* EDU :: CMD :: reserved0 [31:01] */
 #define BCHP_EDU_CMD_reserved0_MASK                                0xfffffffe
@@ -112,7 +115,7 @@
 #define BCHP_EDU_CMD_Cmd_SHIFT                                     0
 
 /***************************************************************************
- *STOP
+ *STOP - Stop
  ***************************************************************************/
 /* EDU :: STOP :: reserved0 [31:01] */
 #define BCHP_EDU_STOP_reserved0_MASK                               0xfffffffe
@@ -123,7 +126,7 @@
 #define BCHP_EDU_STOP_Stop_SHIFT                                   0
 
 /***************************************************************************
- *STATUS
+ *STATUS - EDU Status bits
  ***************************************************************************/
 /* EDU :: STATUS :: reserved0 [31:02] */
 #define BCHP_EDU_STATUS_reserved0_MASK                             0xfffffffc
@@ -138,7 +141,7 @@
 #define BCHP_EDU_STATUS_Active_SHIFT                               0
 
 /***************************************************************************
- *DONE
+ *DONE - EDU Done bits
  ***************************************************************************/
 /* EDU :: DONE :: reserved0 [31:02] */
 #define BCHP_EDU_DONE_reserved0_MASK                               0xfffffffc
@@ -149,7 +152,7 @@
 #define BCHP_EDU_DONE_Done_SHIFT                                   0
 
 /***************************************************************************
- *ERR_STATUS
+ *ERR_STATUS - EDU Error Status
  ***************************************************************************/
 /* EDU :: ERR_STATUS :: reserved0 [31:04] */
 #define BCHP_EDU_ERR_STATUS_reserved0_MASK                         0xfffffff0

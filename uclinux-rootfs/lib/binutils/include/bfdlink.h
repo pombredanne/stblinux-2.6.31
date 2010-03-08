@@ -1,13 +1,13 @@
 /* bfdlink.h -- header file for BFD link routines
    Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-   2003, 2004, 2005 Free Software Foundation, Inc.
+   2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
    Written by Steve Chamberlain and Ian Lance Taylor, Cygnus Support.
 
    This file is part of BFD, the Binary File Descriptor library.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -17,7 +17,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #ifndef BFDLINK_H
 #define BFDLINK_H
@@ -159,11 +160,6 @@ struct bfd_link_hash_table
 {
   /* The hash table itself.  */
   struct bfd_hash_table table;
-  /* The back end which created this hash table.  This indicates the
-     type of the entries in the hash table, which is sometimes
-     important information when linking object files of different
-     types together.  */
-  const bfd_target *creator;
   /* A linked list of undefined and common symbols, linked through the
      next field in the bfd_link_hash_entry structure.  */
   struct bfd_link_hash_entry *undefs;
@@ -201,6 +197,9 @@ extern void bfd_link_add_undef
 /* Remove symbols from the undefs list that don't belong there.  */
 extern void bfd_link_repair_undef_list
   (struct bfd_link_hash_table *table);
+
+/* Read symbols and cache symbol pointer array in outsymbols.  */
+extern bfd_boolean bfd_generic_link_read_symbols (bfd *);
 
 struct bfd_sym_chain
 {
@@ -347,8 +346,8 @@ struct bfd_link_info
      --dynamic-list command line options.  */
   unsigned int dynamic: 1;
 
-  /* TRUE if sharables sections may be created.  */
-  unsigned int sharable_sections: 1;
+  /* Non-NULL if .note.gnu.build-id section should be created.  */
+  char *emit_note_gnu_build_id;
 
   /* What to do with unresolved symbols in an object file.
      When producing executables the default is GENERATE_ERROR.
@@ -376,6 +375,9 @@ struct bfd_link_info
      wrap_hash.  Used by PowerPC Linux for 'dot' symbols.  */
   char wrap_char;
 
+  /* Separator between archive and filename in linker script filespecs.  */
+  char path_separator;
+
   /* Function callbacks.  */
   const struct bfd_link_callbacks *callbacks;
 
@@ -395,9 +397,13 @@ struct bfd_link_info
      option).  If this is NULL, no symbols are being wrapped.  */
   struct bfd_hash_table *wrap_hash;
 
+  /* The output BFD.  */
+  bfd *output_bfd;
+
   /* The list of input BFD's involved in the link.  These are chained
      together via the link_next field.  */
   bfd *input_bfds;
+  bfd **input_bfds_tail;
 
   /* If a symbol should be created for each input BFD, this is section
      where those symbols should be placed.  It must be a section in
@@ -427,6 +433,11 @@ struct bfd_link_info
      current pass, starting from 0.  */
   int relax_pass;
 
+  /* Number of relaxation trips.  This number is incremented every
+     time the relaxation pass is restarted due to a previous
+     relaxation returning true in *AGAIN.  */
+  int relax_trip;
+
   /* Non-zero if auto-import thunks for DATA items in pei386 DLLs
      should be generated/linked against.  Set to 1 if this feature
      is explicitly requested by the user, -1 if enabled by default.  */
@@ -453,8 +464,8 @@ struct bfd_link_info
   struct bfd_elf_dynamic_list *dynamic_list;
 };
 
-/* This structures holds a set of callback functions.  These are
-   called by the BFD linker routines.  Except for einfo, the first
+/* This structures holds a set of callback functions.  These are called
+   by the BFD linker routines.  Except for the info functions, the first
    argument to each callback function is the bfd_link_info structure
    being used and each function returns a boolean value.  If the
    function returns FALSE, then the BFD function which called it should
@@ -566,9 +577,22 @@ struct bfd_link_callbacks
   bfd_boolean (*notice)
     (struct bfd_link_info *, const char *name,
      bfd *abfd, asection *section, bfd_vma address);
-  /* General link info message.  */
+  /* Error or warning link info message.  */
   void (*einfo)
     (const char *fmt, ...);
+  /* General link info message.  */
+  void (*info)
+    (const char *fmt, ...);
+  /* Message to be printed in linker map file.  */
+  void (*minfo)
+    (const char *fmt, ...);
+  /* This callback provides a chance for users of the BFD library to
+     override its decision about whether to place two adjacent sections
+     into the same segment.  */
+  bfd_boolean (*override_segment_assignment)
+    (struct bfd_link_info *, bfd * abfd,
+     asection * current_section, asection * previous_section,
+     bfd_boolean new_segment);
 };
 
 /* The linker builds link_order structures which tell the code how to

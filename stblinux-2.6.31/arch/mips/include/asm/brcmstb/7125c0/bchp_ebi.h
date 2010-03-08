@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:08:35 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_ebi.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:19p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,34 +43,34 @@
 #define BCHP_EBI_H__
 
 /***************************************************************************
- *EBI
+ *EBI - EBI Registers
  ***************************************************************************/
-#define BCHP_EBI_CS_BASE_0                       0x00440800
-#define BCHP_EBI_CS_CONFIG_0                     0x00440804
-#define BCHP_EBI_CS_BASE_1                       0x00440808
-#define BCHP_EBI_CS_CONFIG_1                     0x0044080c
-#define BCHP_EBI_CS_BASE_2                       0x00440810
-#define BCHP_EBI_CS_CONFIG_2                     0x00440814
-#define BCHP_EBI_CS_BASE_3                       0x00440818
-#define BCHP_EBI_CS_CONFIG_3                     0x0044081c
-#define BCHP_EBI_CS_BASE_4                       0x00440820
-#define BCHP_EBI_CS_CONFIG_4                     0x00440824
-#define BCHP_EBI_CS_BASE_5                       0x00440828
-#define BCHP_EBI_CS_CONFIG_5                     0x0044082c
-#define BCHP_EBI_BURST_CFG_0                     0x00440840
-#define BCHP_EBI_BURST_CFG_1                     0x00440844
-#define BCHP_EBI_BURST_CFG_2                     0x00440848
-#define BCHP_EBI_BURST_CFG_3                     0x0044084c
-#define BCHP_EBI_BURST_CFG_4                     0x00440850
-#define BCHP_EBI_BURST_CFG_5                     0x00440854
-#define BCHP_EBI_ECR                             0x00440900
-#define BCHP_EBI_CS_TRISTATE_CFG                 0x00440918
-#define BCHP_EBI_TA_CFG                          0x0044091c
-#define BCHP_EBI_CS_SPI_SELECT                   0x00440920
-#define BCHP_EBI_ARRAY_ADDRESS                   0x004409f0
+#define BCHP_EBI_CS_BASE_0                       0x00440800 /* EBI CS Base 0 Register */
+#define BCHP_EBI_CS_CONFIG_0                     0x00440804 /* EBI CS Config 0 Register */
+#define BCHP_EBI_CS_BASE_1                       0x00440808 /* EBI CS Base 1 Register */
+#define BCHP_EBI_CS_CONFIG_1                     0x0044080c /* EBI CS Config 1 Register */
+#define BCHP_EBI_CS_BASE_2                       0x00440810 /* EBI CS Base 2 Register */
+#define BCHP_EBI_CS_CONFIG_2                     0x00440814 /* EBI CS Config 2 Register */
+#define BCHP_EBI_CS_BASE_3                       0x00440818 /* EBI CS Base 3 Register */
+#define BCHP_EBI_CS_CONFIG_3                     0x0044081c /* EBI CS Config 3 Register */
+#define BCHP_EBI_CS_BASE_4                       0x00440820 /* EBI CS Base 4 Register */
+#define BCHP_EBI_CS_CONFIG_4                     0x00440824 /* EBI CS Config 4 Register */
+#define BCHP_EBI_CS_BASE_5                       0x00440828 /* EBI CS Base 5 Register */
+#define BCHP_EBI_CS_CONFIG_5                     0x0044082c /* EBI CS Config 5 Register */
+#define BCHP_EBI_BURST_CFG_0                     0x00440840 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_1                     0x00440844 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_2                     0x00440848 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_3                     0x0044084c /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_4                     0x00440850 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_5                     0x00440854 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_ECR                             0x00440900 /* EBI Configuration Register */
+#define BCHP_EBI_CS_TRISTATE_CFG                 0x00440918 /* EBI CS Tristate Configuration Register */
+#define BCHP_EBI_TA_CFG                          0x0044091c /* EBI TA Configuration Register */
+#define BCHP_EBI_CS_SPI_SELECT                   0x00440920 /* SPI CS Select */
+#define BCHP_EBI_ARRAY_ADDRESS                   0x004409f0 /* EBI Data Array Address */
 
 /***************************************************************************
- *CS_BASE_0
+ *CS_BASE_0 - EBI CS Base 0 Register
  ***************************************************************************/
 /* EBI :: CS_BASE_0 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_0_base_addr_MASK                          0xffffe000
@@ -98,7 +101,7 @@
 #define BCHP_EBI_CS_BASE_0_size_SIZE_256MB                         15
 
 /***************************************************************************
- *CS_CONFIG_0
+ *CS_CONFIG_0 - EBI CS Config 0 Register
  ***************************************************************************/
 /* EBI :: CS_CONFIG_0 :: mem_io [31:31] */
 #define BCHP_EBI_CS_CONFIG_0_mem_io_MASK                           0x80000000
@@ -191,7 +194,7 @@
 #define BCHP_EBI_CS_CONFIG_0_enable_SHIFT                          0
 
 /***************************************************************************
- *CS_BASE_1
+ *CS_BASE_1 - EBI CS Base 1 Register
  ***************************************************************************/
 /* EBI :: CS_BASE_1 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_1_base_addr_MASK                          0xffffe000
@@ -222,7 +225,7 @@
 #define BCHP_EBI_CS_BASE_1_size_SIZE_256MB                         15
 
 /***************************************************************************
- *CS_CONFIG_1
+ *CS_CONFIG_1 - EBI CS Config 1 Register
  ***************************************************************************/
 /* EBI :: CS_CONFIG_1 :: mem_io [31:31] */
 #define BCHP_EBI_CS_CONFIG_1_mem_io_MASK                           0x80000000
@@ -315,7 +318,7 @@
 #define BCHP_EBI_CS_CONFIG_1_enable_SHIFT                          0
 
 /***************************************************************************
- *CS_BASE_2
+ *CS_BASE_2 - EBI CS Base 2 Register
  ***************************************************************************/
 /* EBI :: CS_BASE_2 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_2_base_addr_MASK                          0xffffe000
@@ -346,7 +349,7 @@
 #define BCHP_EBI_CS_BASE_2_size_SIZE_256MB                         15
 
 /***************************************************************************
- *CS_CONFIG_2
+ *CS_CONFIG_2 - EBI CS Config 2 Register
  ***************************************************************************/
 /* EBI :: CS_CONFIG_2 :: mem_io [31:31] */
 #define BCHP_EBI_CS_CONFIG_2_mem_io_MASK                           0x80000000
@@ -439,7 +442,7 @@
 #define BCHP_EBI_CS_CONFIG_2_enable_SHIFT                          0
 
 /***************************************************************************
- *CS_BASE_3
+ *CS_BASE_3 - EBI CS Base 3 Register
  ***************************************************************************/
 /* EBI :: CS_BASE_3 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_3_base_addr_MASK                          0xffffe000
@@ -470,7 +473,7 @@
 #define BCHP_EBI_CS_BASE_3_size_SIZE_256MB                         15
 
 /***************************************************************************
- *CS_CONFIG_3
+ *CS_CONFIG_3 - EBI CS Config 3 Register
  ***************************************************************************/
 /* EBI :: CS_CONFIG_3 :: mem_io [31:31] */
 #define BCHP_EBI_CS_CONFIG_3_mem_io_MASK                           0x80000000
@@ -563,7 +566,7 @@
 #define BCHP_EBI_CS_CONFIG_3_enable_SHIFT                          0
 
 /***************************************************************************
- *CS_BASE_4
+ *CS_BASE_4 - EBI CS Base 4 Register
  ***************************************************************************/
 /* EBI :: CS_BASE_4 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_4_base_addr_MASK                          0xffffe000
@@ -594,7 +597,7 @@
 #define BCHP_EBI_CS_BASE_4_size_SIZE_256MB                         15
 
 /***************************************************************************
- *CS_CONFIG_4
+ *CS_CONFIG_4 - EBI CS Config 4 Register
  ***************************************************************************/
 /* EBI :: CS_CONFIG_4 :: mem_io [31:31] */
 #define BCHP_EBI_CS_CONFIG_4_mem_io_MASK                           0x80000000
@@ -687,7 +690,7 @@
 #define BCHP_EBI_CS_CONFIG_4_enable_SHIFT                          0
 
 /***************************************************************************
- *CS_BASE_5
+ *CS_BASE_5 - EBI CS Base 5 Register
  ***************************************************************************/
 /* EBI :: CS_BASE_5 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_5_base_addr_MASK                          0xffffe000
@@ -718,7 +721,7 @@
 #define BCHP_EBI_CS_BASE_5_size_SIZE_256MB                         15
 
 /***************************************************************************
- *CS_CONFIG_5
+ *CS_CONFIG_5 - EBI CS Config 5 Register
  ***************************************************************************/
 /* EBI :: CS_CONFIG_5 :: mem_io [31:31] */
 #define BCHP_EBI_CS_CONFIG_5_mem_io_MASK                           0x80000000
@@ -811,7 +814,7 @@
 #define BCHP_EBI_CS_CONFIG_5_enable_SHIFT                          0
 
 /***************************************************************************
- *BURST_CFG_0
+ *BURST_CFG_0 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_0 :: prefetch_enable [31:31] */
 #define BCHP_EBI_BURST_CFG_0_prefetch_enable_MASK                  0x80000000
@@ -882,7 +885,7 @@
 #define BCHP_EBI_BURST_CFG_0_burst_16_SHIFT                        0
 
 /***************************************************************************
- *BURST_CFG_1
+ *BURST_CFG_1 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_1 :: prefetch_enable [31:31] */
 #define BCHP_EBI_BURST_CFG_1_prefetch_enable_MASK                  0x80000000
@@ -953,7 +956,7 @@
 #define BCHP_EBI_BURST_CFG_1_burst_16_SHIFT                        0
 
 /***************************************************************************
- *BURST_CFG_2
+ *BURST_CFG_2 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_2 :: prefetch_enable [31:31] */
 #define BCHP_EBI_BURST_CFG_2_prefetch_enable_MASK                  0x80000000
@@ -1024,7 +1027,7 @@
 #define BCHP_EBI_BURST_CFG_2_burst_16_SHIFT                        0
 
 /***************************************************************************
- *BURST_CFG_3
+ *BURST_CFG_3 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_3 :: prefetch_enable [31:31] */
 #define BCHP_EBI_BURST_CFG_3_prefetch_enable_MASK                  0x80000000
@@ -1095,7 +1098,7 @@
 #define BCHP_EBI_BURST_CFG_3_burst_16_SHIFT                        0
 
 /***************************************************************************
- *BURST_CFG_4
+ *BURST_CFG_4 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_4 :: prefetch_enable [31:31] */
 #define BCHP_EBI_BURST_CFG_4_prefetch_enable_MASK                  0x80000000
@@ -1166,7 +1169,7 @@
 #define BCHP_EBI_BURST_CFG_4_burst_16_SHIFT                        0
 
 /***************************************************************************
- *BURST_CFG_5
+ *BURST_CFG_5 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_5 :: prefetch_enable [31:31] */
 #define BCHP_EBI_BURST_CFG_5_prefetch_enable_MASK                  0x80000000
@@ -1237,7 +1240,7 @@
 #define BCHP_EBI_BURST_CFG_5_burst_16_SHIFT                        0
 
 /***************************************************************************
- *ECR
+ *ECR - EBI Configuration Register
  ***************************************************************************/
 /* EBI :: ECR :: reserved0 [31:28] */
 #define BCHP_EBI_ECR_reserved0_MASK                                0xf0000000
@@ -1268,7 +1271,7 @@
 #define BCHP_EBI_ECR_timeout_count_SHIFT                           0
 
 /***************************************************************************
- *CS_TRISTATE_CFG
+ *CS_TRISTATE_CFG - EBI CS Tristate Configuration Register
  ***************************************************************************/
 /* EBI :: CS_TRISTATE_CFG :: tristate_ebi_rdb [31:31] */
 #define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_rdb_MASK             0x80000000
@@ -1331,7 +1334,7 @@
 #define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_cs0_SHIFT            0
 
 /***************************************************************************
- *TA_CFG
+ *TA_CFG - EBI TA Configuration Register
  ***************************************************************************/
 /* EBI :: TA_CFG :: reserved0 [31:04] */
 #define BCHP_EBI_TA_CFG_reserved0_MASK                             0xfffffff0
@@ -1354,7 +1357,7 @@
 #define BCHP_EBI_TA_CFG_reserved1_SHIFT                            0
 
 /***************************************************************************
- *CS_SPI_SELECT
+ *CS_SPI_SELECT - SPI CS Select
  ***************************************************************************/
 /* EBI :: CS_SPI_SELECT :: reserved0 [31:08] */
 #define BCHP_EBI_CS_SPI_SELECT_reserved0_MASK                      0xffffff00
@@ -1393,7 +1396,7 @@
 #define BCHP_EBI_CS_SPI_SELECT_SPI_EBI_CS_0_SEL_SHIFT              0
 
 /***************************************************************************
- *ARRAY_ADDRESS
+ *ARRAY_ADDRESS - EBI Data Array Address
  ***************************************************************************/
 /* EBI :: ARRAY_ADDRESS :: ADDRESS [31:09] */
 #define BCHP_EBI_ARRAY_ADDRESS_ADDRESS_MASK                        0xfffffe00
@@ -1408,7 +1411,7 @@
 #define BCHP_EBI_ARRAY_ADDRESS_CS_SEL_SHIFT                        0
 
 /***************************************************************************
- *DATA_ARRAY%i - 
+ *DATA_ARRAY%i - EBI Data Array Read/Write Access
  ***************************************************************************/
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_BASE                            0x00440a00
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_START                           0
@@ -1416,7 +1419,7 @@
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_ELEMENT_SIZE                    32
 
 /***************************************************************************
- *DATA_ARRAY%i - 
+ *DATA_ARRAY%i - EBI Data Array Read/Write Access
  ***************************************************************************/
 /* EBI :: DATA_ARRAYi :: WORD [31:00] */
 #define BCHP_EBI_DATA_ARRAYi_WORD_MASK                             0xffffffff

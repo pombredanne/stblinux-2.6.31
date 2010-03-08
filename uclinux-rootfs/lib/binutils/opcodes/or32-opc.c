@@ -1,18 +1,18 @@
 /* Table of opcodes for the OpenRISC 1000 ISA.
-   Copyright 2002, 2004, 2005 Free Software Foundation, Inc.
+   Copyright 2002, 2004, 2005, 2007, 2008 Free Software Foundation, Inc.
    Contributed by Damjan Lampret (lampret@opencores.org).
    
-   This file is part of gen_or1k_isa, or1k, GDB and GAS.
+   This file is part of the GNU opcodes library.
 
-   This program is free software; you can redistribute it and/or modify
+   This library is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   It is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+   License for more details.
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
@@ -586,7 +586,8 @@ cover_insn (unsigned long * cur, int pass, unsigned int mask)
 	  c = cover_insn (cur, curpass, mask & (~(cur_mask << best_first)));
 	  if (c)
 	    {
-	      debug (8, "%li> #%X -> %lu\n", (long)(next - automata), i, (long)(cur - automata));
+	      debug (8, "%li> #%X -> %lu\n", (long)(next - automata), i,
+		     (unsigned long)(cur - automata));
 	      *next = cur - automata;
 	      cur = c;	 
 	    }

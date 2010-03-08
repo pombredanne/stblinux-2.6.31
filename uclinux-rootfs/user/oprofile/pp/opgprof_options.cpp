@@ -9,10 +9,13 @@
  * @author Philippe Elie
  */
 
+#include <cstdlib>
+
 #include <vector>
 #include <list>
 #include <iterator>
 #include <iostream>
+#include <cstdlib>
 
 #include "opgprof_options.h"
 #include "popt_options.h"
@@ -26,7 +29,6 @@ profile_classes classes;
 inverted_profile image_profile;
 
 namespace options {
-	string archive_path;
 	string gmon_filename = "gmon.out";
 
 	// Ugly, for build only
@@ -63,16 +65,14 @@ bool try_merge_profiles(profile_spec const & spec, bool exclude_dependent)
 	merge_by.tgid = true;
 	merge_by.unitmask = true;
 
-	profile_classes classes
-		= arrange_profiles(sample_files, merge_by);
+	classes	= arrange_profiles(sample_files, merge_by,
+				   spec.extra_found_images);
 
 	cverb << vsfile << "profile_classes:\n" << classes << endl;
 
 	size_t nr_classes = classes.v.size();
 
-	list<inverted_profile> iprofiles
-		= invert_profiles(options::archive_path, classes,
-				  options::extra_found_images);
+	list<inverted_profile> iprofiles = invert_profiles(classes);
 
 	if (nr_classes == 1 && iprofiles.size() == 1) {
 		image_profile = *(iprofiles.begin());
@@ -110,10 +110,8 @@ void handle_options(options::spec const & spec)
 	}
 
 	profile_spec const pspec =
-		profile_spec::create(spec.common, options::extra_found_images);
-
-	options::archive_path = pspec.get_archive_path();
-	cverb << vsfile << "Archive: " << options::archive_path << endl;
+		profile_spec::create(spec.common, options::image_path,
+				     options::root_path);
 
 	cverb << vsfile << "output filename: " << options::gmon_filename
 	      << endl;

@@ -93,7 +93,7 @@ dir_$(CONFIG_USER_EPI_TTCP)                 += epi_ttcp
 dir_$(CONFIG_USER_ETHATTACH_ETHATTACH)      += ethattach
 dir_$(CONFIG_USER_ETHTOOL)                  += ethtool
 dir_$(CONFIG_USER_EZIPUPDATE_EZIPUPDATE)    += ez-ipupdate
-dir_$(CONFIG_USER_FDISK_FDISK)              += fdisk
+dir_$(CONFIG_USER_FDISK_FDISK)              += utillinux
 dir_$(CONFIG_USER_FILEUTILS_CAT)            += fileutils
 dir_$(CONFIG_USER_FILEUTILS_CHGRP)          += fileutils
 dir_$(CONFIG_USER_FILEUTILS_CHMOD)          += fileutils
@@ -152,6 +152,7 @@ dir_$(CONFIG_USER_LISSA_LISSA)              += lissa
 dir_$(CONFIG_USER_LOATTACH_LOATTACH)        += loattach
 dir_$(CONFIG_USER_LOGIN_LOGIN)              += login
 dir_$(CONFIG_USER_LOGIN_PASSWD)             += login
+dir_$(CONFIG_USER_LTT_CONTROL)              += lttcontrol
 dir_$(CONFIG_USER_MAIL_MAIL_IP)             += mail
 dir_$(CONFIG_USER_MATH_TEST)                += mathtest
 dir_$(CONFIG_USER_MAWK_AWK)                 += mawk
@@ -215,11 +216,7 @@ dir_$(CONFIG_USER_PROCPS_UPTIME)            += procps
 dir_$(CONFIG_USER_PROCPS_VMSTAT)            += procps
 dir_$(CONFIG_USER_PROCPS_W)                 += procps
 dir_$(CONFIG_USER_PROCPS_WATCH)             += procps
-
-# THT: Build libpopt first, before building oprofile
-dir_$(CONFIG_USER_PROFILE_POPT)             += popt
 dir_$(CONFIG_USER_PROFILE_OPROFILE)         += oprofile
-
 dir_$(CONFIG_USER_PYTHON_PYTHON)            += python
 dir_$(CONFIG_USER_RDATE_RDATE)              += rdate
 dir_$(CONFIG_USER_RAMIMAGE_RAMFS64)         += ramimage
@@ -325,7 +322,7 @@ dir_$(CONFIG_USER_ETHCTL)                   += ethctl
 # dir_y += games
 
 # THT: Clean these regardless
-dir_clean = popt oprofile xfsprogs gdb/bfd gdb/gdb/gdbserver squid
+dir_clean = xfsprogs gdb/gdb/gdbserver squid
 
 ifneq ($(INITRD_SUBDIR),) 
 ifneq ($(shell echo $(filter user%,$(INITRD_SUBDIR))|sed -e 's/user[\/]/user/'),user)

@@ -13,6 +13,7 @@
 
 #include "utility.h"
 #include "op_types.h"
+#include "locate_images.h"
 
 #include <bfd.h>
 #include <stdint.h>
@@ -23,7 +24,7 @@ class op_bfd_symbol;
 
 /// holder for BFD state we must keep
 struct bfd_info {
-	bfd_info() : abfd(0), nr_syms(0), synth_syms(0) {}
+	bfd_info() : abfd(0), nr_syms(0), synth_syms(0), image_bfd_info(0) {}
 
 	~bfd_info();
 
@@ -46,6 +47,8 @@ struct bfd_info {
 	/// nr. symbols
 	size_t nr_syms;
 
+	void set_image_bfd_info(bfd_info * ibfd) { image_bfd_info = ibfd; }
+
 private:
 	/**
 	 * Acquire the synthetic symbols if we need to.
@@ -59,6 +62,26 @@ private:
 	 * until ~bfd_info time.
 	 */
 	asymbol * synth_syms;
+
+	/**
+	 * Under certain circumstances, correct handling of the bfd for a
+	 * debuginfo file is not possible without access to the bfd for
+	 * the actual image file.  The image_bfd_info field provides access to
+	 * that bfd when this bfd_info is for a debuginfo file; otherwise
+	 * image_bfd_info is NULL.
+	 */ 
+	bfd_info * image_bfd_info;
+
+	/* To address a different issue, we discard symbols whose section
+	 * flag does not contain SEC_LOAD.  But since this is true for symbols
+	 * found in debuginfo files, we must run those debuginfo symbols
+	 * through the function below to prevent them from being inadvertently
+	 * discarded.  This function maps the sections from the symbols in
+	 * the debuginfo bfd to those of the real image bfd.  Then, when
+	 * we later do symbol filtering, we see the sections from the real
+	 * bfd, which do contain SEC_LOAD in the section flag.
+	 */
+	void translate_debuginfo_syms(asymbol ** dbg_syms, long nr_dbg_syms);
 
 };
 
@@ -84,9 +107,9 @@ private:
  */
 extern bool
 find_separate_debug_file(bfd * ibfd, 
-                         std::string const & dir_in,
-                         std::string const & global_in,
-                         std::string & filename);
+                         std::string const & filepath_in,
+                         std::string & debug_filename,
+                         extra_images const & extra);
 
 /// open the given BFD
 bfd * open_bfd(std::string const & file);
@@ -128,6 +151,6 @@ struct linenr_info {
  */
 linenr_info const
 find_nearest_line(bfd_info const & ibfd, op_bfd_symbol const & sym,
-                  unsigned int offset);
+                  bfd_vma offset, bool anon_obj);
 
 #endif /* !BFD_SUPPORT_H */

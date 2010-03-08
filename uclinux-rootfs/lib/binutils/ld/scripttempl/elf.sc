@@ -15,6 +15,7 @@
 #	OTHER_RELRO_SECTIONS - other than .data.rel.ro ...
 #		(e.g. PPC32 .fixup, .got[12])
 #	OTHER_BSS_SECTIONS - other than .bss .sbss ...
+#	ATTRS_SECTIONS - at the end
 #	OTHER_SECTIONS - at the end
 #	EXECUTABLE_SYMBOLS - symbols that must be defined for an
 #		executable (e.g., _DYNAMIC_LINK)
@@ -96,6 +97,7 @@ test -z "${ETEXT_NAME}" && ETEXT_NAME=etext
 test -n "$CREATE_SHLIB$CREATE_PIE" && test -n "$SHLIB_DATA_ADDR" && COMMONPAGESIZE=""
 test -z "$CREATE_SHLIB$CREATE_PIE" && test -n "$DATA_ADDR" && COMMONPAGESIZE=""
 test -n "$RELRO_NOW" && unset SEPARATE_GOTPLT
+test -z "$ATTRS_SECTIONS" && ATTRS_SECTIONS=".gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }"
 DATA_SEGMENT_ALIGN="ALIGN(${SEGMENT_SIZE}) + (. & (${MAXPAGESIZE} - 1))"
 DATA_SEGMENT_RELRO_END=""
 DATA_SEGMENT_END=""
@@ -122,7 +124,7 @@ fi
 DYNAMIC=".dynamic      ${RELOCATING-0} : { *(.dynamic) }"
 RODATA=".rodata       ${RELOCATING-0} : { *(.rodata${RELOCATING+ .rodata.* .gnu.linkonce.r.*}) }"
 DATARELRO=".data.rel.ro : { *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*) *(.data.rel.ro* .gnu.linkonce.d.rel.ro.*) }"
-STACKNOTE="/DISCARD/ : { *(.note.GNU-stack) }"
+DISCARDED="/DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) }"
 if test -z "${NO_SMALL_DATA}"; then
   SBSS=".sbss         ${RELOCATING-0} :
   {
@@ -236,40 +238,6 @@ STACK="  .stack        ${RELOCATING-0}${RELOCATING+${STACK_ADDR}} :
     ${RELOCATING+_stack = .;}
     *(.stack)
   }"
-test "${SHARABLE_SECTIONS}" = "yes" && OTHER_READWRITE_SECTIONS="
-  ${OTHER_READWRITE_SECTIONS}
-  /* Sharable data sections.  */
-  .sharable_data ${RELOCATING-0} : ${RELOCATING+ALIGN(${MAXPAGESIZE})}
-  {
-    ${RELOCATING+PROVIDE_HIDDEN (__sharable_data_start = .);}
-    *(.sharable_data${RELOCATING+ .sharable_data.* .gnu.linkonce.shrd.*})
-    /* Align here to ensure that the sharable data section ends at the
-       page boundary.  */
-    ${RELOCATING+. = ALIGN(. != 0 ? ${MAXPAGESIZE} : 1);}
-    ${RELOCATING+PROVIDE_HIDDEN (__sharable_data_end = .);}
-  }
-"
-test "${SHARABLE_SECTIONS}" = "yes" && OTHER_BSS_SECTIONS="
-  ${OTHER_BSS_SECTIONS}
-  /* Sharable bss sections  */
-  .sharable_bss ${RELOCATING-0} : ${RELOCATING+ALIGN(${MAXPAGESIZE})}
-  {
-    ${RELOCATING+PROVIDE_HIDDEN (__sharable_bss_start = .);}
-    *(.dynsharablebss)
-    *(.sharable_bss${RELOCATING+ .sharable_bss.* .gnu.linkonce.shrb.*}) 
-    *(SHARABLE_COMMON)
-    /* Align here to ensure that the sharable bss section ends at the
-       page boundary.  */
-    ${RELOCATING+. = ALIGN(. != 0 ? ${MAXPAGESIZE} : 1);}
-    ${RELOCATING+PROVIDE_HIDDEN (__sharable_bss_end = .);}
-  }
-"
-test "${SHARABLE_SECTIONS}" = "yes" && REL_SHARABLE="
-  .rel.sharable_data	${RELOCATING-0} : { *(.rel.sharable_data${RELOCATING+ .rel.sharable_data.* .rel.gnu.linkonce.shrd.*}) }
-  .rela.sharable_data	${RELOCATING-0} : { *(.rela.sharable_data${RELOCATING+ .rela.sharable_data.* .rela.gnu.linkonce.shrd.*}) }
-  .rel.sharable_bss	${RELOCATING-0} : { *(.rel.sharable_bss${RELOCATING+ .rel.sharable_bss.* .rel.gnu.linkonce.shrb.*}) }
-  .rela.sharable_bss	${RELOCATING-0} : { *(.rela.sharable_bss${RELOCATING+ .rela.sharable_bss.* .rela.gnu.linkonce.shrb.*}) }
-"
 
 # if this is for an embedded system, don't add SIZEOF_HEADERS.
 if [ -z "$EMBEDDED" ]; then
@@ -282,7 +250,7 @@ cat <<EOF
 OUTPUT_FORMAT("${OUTPUT_FORMAT}", "${BIG_OUTPUT_FORMAT}",
 	      "${LITTLE_OUTPUT_FORMAT}")
 OUTPUT_ARCH(${OUTPUT_ARCH})
-ENTRY(${ENTRY})
+${RELOCATING+ENTRY(${ENTRY})}
 
 ${RELOCATING+${LIB_SEARCH_DIRS}}
 ${RELOCATING+${EXECUTABLE_SYMBOLS}}
@@ -299,6 +267,7 @@ SECTIONS
   ${CREATE_SHLIB+${RELOCATING+. = ${SHLIB_TEXT_START_ADDR:-0} + SIZEOF_HEADERS;}}
   ${CREATE_PIE+${RELOCATING+. = ${SHLIB_TEXT_START_ADDR:-0} + SIZEOF_HEADERS;}}
   ${INITIAL_READONLY_SECTIONS}
+  .note.gnu.build-id : { *(.note.gnu.build-id) }
   ${TEXT_DYNAMIC+${DYNAMIC}}
   .hash         ${RELOCATING-0} : { *(.hash) }
   .gnu.hash     ${RELOCATING-0} : { *(.gnu.hash) }
@@ -339,7 +308,6 @@ eval $COMBRELOCCAT <<EOF
   .rel.got      ${RELOCATING-0} : { *(.rel.got) }
   .rela.got     ${RELOCATING-0} : { *(.rela.got) }
   ${OTHER_GOT_RELOC_SECTIONS}
-  ${REL_SHARABLE}
   ${REL_SDATA}
   ${REL_SBSS}
   ${REL_SDATA2}
@@ -382,7 +350,6 @@ cat <<EOF
   {
     ${RELOCATING+${TEXT_START_SYMBOLS}}
     *(.text .stub${RELOCATING+ .text.* .gnu.linkonce.t.*})
-    KEEP (*(.text.*personality*))
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
     ${RELOCATING+${OTHER_TEXT_SECTIONS}}
@@ -459,7 +426,6 @@ cat <<EOF
   {
     ${RELOCATING+${DATA_START_SYMBOLS}}
     *(.data${RELOCATING+ .data.* .gnu.linkonce.d.*})
-    ${RELOCATING+KEEP (*(.gnu.linkonce.d.*personality*))}
     ${CONSTRUCTING+SORT(CONSTRUCTORS)}
   }
   .data1        ${RELOCATING-0} : { *(.data1) }
@@ -540,12 +506,17 @@ cat <<EOF
   .debug_typenames 0 : { *(.debug_typenames) }
   .debug_varnames  0 : { *(.debug_varnames) }
 
+  /* DWARF 3 */
+  .debug_pubtypes 0 : { *(.debug_pubtypes) }
+  .debug_ranges   0 : { *(.debug_ranges) }
+
   ${TINY_DATA_SECTION}
   ${TINY_BSS_SECTION}
 
   ${STACK_ADDR+${STACK}}
+  ${ATTRS_SECTIONS}
   ${OTHER_SECTIONS}
   ${RELOCATING+${OTHER_SYMBOLS}}
-  ${RELOCATING+${STACKNOTE}}
+  ${RELOCATING+${DISCARDED}}
 }
 EOF

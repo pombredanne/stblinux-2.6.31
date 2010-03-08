@@ -1,12 +1,12 @@
 /* budbg.c -- Interfaces to the generic debugging information routines.
-   Copyright 1995, 1996, 2002, 2003 Free Software Foundation, Inc.
+   Copyright 1995, 1996, 2002, 2003, 2007, 2008 Free Software Foundation, Inc.
    Written by Ian Lance Taylor <ian@cygnus.com>.
 
    This file is part of GNU Binutils.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -26,7 +26,7 @@
 
 /* Routine used to read generic debugging information.  */
 
-extern void *read_debugging_info (bfd *, asymbol **, long);
+extern void *read_debugging_info (bfd *, asymbol **, long, bfd_boolean);
 
 /* Routine used to print generic debugging information.  */
 

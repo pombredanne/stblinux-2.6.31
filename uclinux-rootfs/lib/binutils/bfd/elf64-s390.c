@@ -1,5 +1,5 @@
 /* IBM S/390-specific support for 64-bit ELF
-   Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
    Contributed Martin Schwidefsky (schwidefsky@de.ibm.com).
 
@@ -7,7 +7,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -20,8 +20,8 @@
    Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA
    02110-1301, USA.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 #include "elf-bfd.h"
@@ -356,6 +356,27 @@ elf_s390_reloc_type_lookup (abfd, code)
   return 0;
 }
 
+static reloc_howto_type *
+elf_s390_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+			    const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < sizeof (elf_howto_table) / sizeof (elf_howto_table[0]);
+       i++)
+    if (elf_howto_table[i].name != NULL
+	&& strcasecmp (elf_howto_table[i].name, r_name) == 0)
+      return &elf_howto_table[i];
+
+    if (strcasecmp (elf64_s390_vtinherit_howto.name, r_name) == 0)
+      return &elf64_s390_vtinherit_howto;
+    if (strcasecmp (elf64_s390_vtentry_howto.name, r_name) == 0)
+      return &elf64_s390_vtentry_howto;
+
+  return NULL;
+}
+
 /* We need to use ELF64_R_TYPE so we have our own copy of this function,
    and elf64-s390.c has its own copy.  */
 
@@ -608,11 +629,13 @@ struct elf_s390_link_hash_entry
 #define elf_s390_hash_entry(ent) \
   ((struct elf_s390_link_hash_entry *)(ent))
 
+/* NOTE: Keep this structure in sync with
+   the one declared in elf32-s390.c.  */
 struct elf_s390_obj_tdata
 {
   struct elf_obj_tdata root;
 
-  /* tls_type for each local got entry.  */
+  /* TLS type for each local got entry.  */
   char *local_got_tls_type;
 };
 
@@ -622,17 +645,16 @@ struct elf_s390_obj_tdata
 #define elf_s390_local_got_tls_type(abfd) \
   (elf_s390_tdata (abfd)->local_got_tls_type)
 
+#define is_s390_elf(bfd)				\
+  (bfd_get_flavour (bfd) == bfd_target_elf_flavour	\
+   && elf_tdata (bfd) != NULL				\
+   && elf_object_id (bfd) == S390_ELF_TDATA)
+
 static bfd_boolean
 elf_s390_mkobject (bfd *abfd)
 {
-  if (abfd->tdata.any == NULL)
-    {
-      bfd_size_type amt = sizeof (struct elf_s390_obj_tdata);
-      abfd->tdata.any = bfd_zalloc (abfd, amt);
-      if (abfd->tdata.any == NULL)
-	return FALSE;
-    }
-  return bfd_elf_mkobject (abfd);
+  return bfd_elf_allocate_object (abfd, sizeof (struct elf_s390_obj_tdata),
+				  S390_ELF_TDATA);
 }
 
 static bfd_boolean
@@ -916,8 +938,10 @@ elf_s390_check_relocs (abfd, info, sec, relocs)
   if (info->relocatable)
     return TRUE;
 
+  BFD_ASSERT (is_s390_elf (abfd));
+
   htab = elf_s390_hash_table (info);
-  symtab_hdr = &elf_tdata (abfd)->symtab_hdr;
+  symtab_hdr = &elf_symtab_hdr (abfd);
   sym_hashes = elf_sym_hashes (abfd);
   local_got_refcounts = elf_local_got_refcounts (abfd);
 
@@ -1323,7 +1347,9 @@ elf_s390_check_relocs (abfd, info, sec, relocs)
 	  /* This relocation describes which C++ vtable entries are actually
 	     used.  Record for later use during GC.  */
 	case R_390_GNU_VTENTRY:
-	  if (!bfd_elf_gc_record_vtentry (abfd, sec, h, rel->r_addend))
+	  BFD_ASSERT (h != NULL);
+	  if (h != NULL
+	      && !bfd_elf_gc_record_vtentry (abfd, sec, h, rel->r_addend))
 	    return FALSE;
 	  break;
 
@@ -1369,9 +1395,12 @@ elf_s390_gc_sweep_hook (bfd *abfd,
   bfd_signed_vma *local_got_refcounts;
   const Elf_Internal_Rela *rel, *relend;
 
+  if (info->relocatable)
+    return TRUE;
+
   elf_section_data (sec)->local_dynrel = NULL;
 
-  symtab_hdr = &elf_tdata (abfd)->symtab_hdr;
+  symtab_hdr = &elf_symtab_hdr (abfd);
   sym_hashes = elf_sym_hashes (abfd);
   local_got_refcounts = elf_local_got_refcounts (abfd);
 
@@ -1536,7 +1565,6 @@ elf_s390_adjust_dynamic_symbol (info, h)
 {
   struct elf_s390_link_hash_table *htab;
   asection *s;
-  unsigned int power_of_two;
 
   /* If this is a function, put it in the procedure linkage table.  We
      will fill in the contents of the procedure linkage table later
@@ -1657,29 +1685,9 @@ elf_s390_adjust_dynamic_symbol (info, h)
       h->needs_copy = 1;
     }
 
-  /* We need to figure out the alignment required for this symbol.  I
-     have no idea how ELF linkers handle this.  */
-  power_of_two = bfd_log2 (h->size);
-  if (power_of_two > 3)
-    power_of_two = 3;
-
-  /* Apply the required alignment.  */
   s = htab->sdynbss;
-  s->size = BFD_ALIGN (s->size, (bfd_size_type) (1 << power_of_two));
-  if (power_of_two > bfd_get_section_alignment (htab->elf.dynobj, s))
-    {
-      if (! bfd_set_section_alignment (htab->elf.dynobj, s, power_of_two))
-	return FALSE;
-    }
 
-  /* Define the symbol as being at this point in the section.  */
-  h->root.u.def.section = s;
-  h->root.u.def.value = s->size;
-
-  /* Increment the section size to make room for the symbol.  */
-  s->size += h->size;
-
-  return TRUE;
+  return _bfd_elf_adjust_dynamic_copy (h, s);
 }
 
 /* Allocate space in .plt, .got and associated reloc sections for
@@ -1988,7 +1996,7 @@ elf_s390_size_dynamic_sections (output_bfd, info)
       Elf_Internal_Shdr *symtab_hdr;
       asection *srela;
 
-      if (bfd_get_flavour (ibfd) != bfd_target_elf_flavour)
+      if (! is_s390_elf (ibfd))
 	continue;
 
       for (s = ibfd->sections; s != NULL; s = s->next)
@@ -2019,7 +2027,7 @@ elf_s390_size_dynamic_sections (output_bfd, info)
       if (!local_got)
 	continue;
 
-      symtab_hdr = &elf_tdata (ibfd)->symtab_hdr;
+      symtab_hdr = &elf_symtab_hdr (ibfd);
       locsymcount = symtab_hdr->sh_info;
       end_local_got = local_got + locsymcount;
       local_tls_type = elf_s390_local_got_tls_type (ibfd);
@@ -2238,11 +2246,10 @@ elf_s390_relocate_section (output_bfd, info, input_bfd, input_section,
   Elf_Internal_Rela *rel;
   Elf_Internal_Rela *relend;
 
-  if (info->relocatable)
-    return TRUE;
+  BFD_ASSERT (is_s390_elf (input_bfd));
 
   htab = elf_s390_hash_table (info);
-  symtab_hdr = &elf_tdata (input_bfd)->symtab_hdr;
+  symtab_hdr = &elf_symtab_hdr (input_bfd);
   sym_hashes = elf_sym_hashes (input_bfd);
   local_got_offsets = elf_local_got_offsets (input_bfd);
 
@@ -2275,7 +2282,6 @@ elf_s390_relocate_section (output_bfd, info, input_bfd, input_section,
       howto = elf_howto_table + r_type;
       r_symndx = ELF64_R_SYM (rel->r_info);
 
-      /* This is a final link.  */
       h = NULL;
       sym = NULL;
       sec = NULL;
@@ -2295,6 +2301,20 @@ elf_s390_relocate_section (output_bfd, info, input_bfd, input_section,
 				   h, sec, relocation,
 				   unresolved_reloc, warned);
 	}
+
+      if (sec != NULL && elf_discarded_section (sec))
+	{
+	  /* For relocs against symbols from removed linkonce sections,
+	     or sections discarded by a linker script, we just want the
+	     section contents zeroed.  Avoid any special processing.  */
+	  _bfd_clear_contents (howto, input_bfd, contents + rel->r_offset);
+	  rel->r_info = 0;
+	  rel->r_addend = 0;
+	  continue;
+	}
+
+      if (info->relocatable)
+	continue;
 
       switch (r_type)
 	{
@@ -2519,15 +2539,6 @@ elf_s390_relocate_section (output_bfd, info, input_bfd, input_section,
 	case R_390_PC32:
 	case R_390_PC32DBL:
 	case R_390_PC64:
-	  /* r_symndx will be zero only for relocs against symbols
-	     from removed linkonce sections, or sections discarded by
-	     a linker script.  */
-	  if (r_symndx == 0)
-	    {
-	      _bfd_clear_contents (howto, input_bfd, contents + rel->r_offset);
-	      break;
-	    }
-
 	  if ((input_section->flags & SEC_ALLOC) == 0)
 	    break;
 
@@ -3412,6 +3423,7 @@ const struct elf_size_info s390_elf64_size_info =
   ELFCLASS64, EV_CURRENT,
   bfd_elf64_write_out_phdrs,
   bfd_elf64_write_shdrs_and_ehdr,
+  bfd_elf64_checksum_contents,
   bfd_elf64_write_relocs,
   bfd_elf64_swap_symbol_in,
   bfd_elf64_swap_symbol_out,
@@ -3447,6 +3459,7 @@ const struct elf_size_info s390_elf64_size_info =
 #define bfd_elf64_bfd_is_local_label_name     elf_s390_is_local_label_name
 #define bfd_elf64_bfd_link_hash_table_create  elf_s390_link_hash_table_create
 #define bfd_elf64_bfd_reloc_type_lookup	      elf_s390_reloc_type_lookup
+#define bfd_elf64_bfd_reloc_name_lookup elf_s390_reloc_name_lookup
 
 #define elf_backend_adjust_dynamic_symbol     elf_s390_adjust_dynamic_symbol
 #define elf_backend_check_relocs	      elf_s390_check_relocs

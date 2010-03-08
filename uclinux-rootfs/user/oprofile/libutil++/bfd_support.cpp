@@ -12,13 +12,21 @@
 
 #include "op_bfd.h"
 #include "op_fileio.h"
+#include "op_config.h"
 #include "string_manip.h"
+#include "file_manip.h"
 #include "cverb.h"
+#include "locate_images.h"
+
+#include <cstdlib>
+#include <cstring>
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
@@ -37,13 +45,22 @@ void check_format(string const & file, bfd ** ibfd)
 }
 
 
-bool separate_debug_file_exists(string const & name, unsigned long const crc)
+bool separate_debug_file_exists(string & name, unsigned long const crc, 
+                                extra_images const & extra)
 {
 	unsigned long file_crc = 0;
 	// The size of 2 * 1024 elements for the buffer is arbitrary.
 	char buffer[2 * 1024];
-	
-	ifstream file(name.c_str());
+
+	image_error img_ok;
+	string const image_path = extra.find_image_path(name, img_ok, true);
+
+	if (img_ok != image_ok)
+		return false;
+
+	name = image_path;
+
+	ifstream file(image_path.c_str());
 	if (!file)
 		return false;
 
@@ -276,40 +293,35 @@ bfd * fdopen_bfd(string const & file, int fd)
 }
 
 
-bool find_separate_debug_file(bfd * ibfd, string const & dir_in,
-                              string const & global_in, string & filename)
+bool find_separate_debug_file(bfd * ibfd, string const & filepath_in, 
+                              string & debug_filename, extra_images const & extra)
 {
-	string dir(dir_in);
-	string global(global_in);
+	string filepath(filepath_in);
 	string basename;
 	unsigned long crc32;
 	
 	if (!get_debug_link_info(ibfd, basename, crc32))
 		return false;
-	
-	if (dir.size() > 0 && dir.at(dir.size() - 1) != '/')
-		dir += '/';
-	
-	if (global.size() > 0 && global.at(global.size() - 1) != '/')
-		global += '/';
+
+	// Work out the image file's directory prefix
+	string filedir = op_dirname(filepath);
+	// Make sure it starts with /
+	if (filedir.size() > 0 && filedir.at(filedir.size() - 1) != '/')
+		filedir += '/';
+
+	string first_try(filedir + ".debug/" + basename);
+	string second_try(DEBUGDIR + filedir + basename);
+	string third_try(filedir + basename);
 
 	cverb << vbfd << "looking for debugging file " << basename 
 	      << " with crc32 = " << hex << crc32 << endl;
-	
-	string first_try(dir + basename);
-	string second_try(dir + ".debug/" + basename);
 
-	if (dir.size() > 0 && dir[0] == '/')
-		dir = dir.substr(1);
-
-	string third_try(global + dir + basename);
-	
-	if (separate_debug_file_exists(first_try, crc32)) 
-		filename = first_try; 
-	else if (separate_debug_file_exists(second_try, crc32))
-		filename = second_try;
-	else if (separate_debug_file_exists(third_try, crc32))
-		filename = third_try;
+	if (separate_debug_file_exists(first_try, crc32, extra)) 
+		debug_filename = first_try; 
+	else if (separate_debug_file_exists(second_try, crc32, extra))
+		debug_filename = second_try;
+	else if (separate_debug_file_exists(third_try, crc32, extra))
+		debug_filename = third_try;
 	else
 		return false;
 	
@@ -350,6 +362,12 @@ bool interesting_symbol(asymbol * sym)
 	 * different from all other symbols.
 	 */
 	if (!strcmp("gcc2_compiled.", sym->name))
+		return false;
+
+        if (sym->flags & BSF_SECTION_SYM)
+                return false;
+
+	if (!(sym->section->flags & SEC_LOAD))
 		return false;
 
 	return true;
@@ -414,6 +432,35 @@ void bfd_info::close()
 		bfd_close(abfd);
 }
 
+void bfd_info::translate_debuginfo_syms(asymbol ** dbg_syms, long nr_dbg_syms)
+{
+	bfd_section ** image_sect;
+	unsigned int img_sect_cnt = 0;
+	bfd * image_bfd = image_bfd_info->abfd;
+
+	image_sect = (bfd_section **) malloc(image_bfd->section_count * (sizeof(bfd_section *)));
+
+	for (bfd_section * sect = image_bfd->sections;
+	     sect && img_sect_cnt < image_bfd->section_count;
+	     sect = sect->next) {
+		// A comment section marks the end of the needed sections
+		if (strstr(sect->name, ".comment") == sect->name)
+			break;
+		image_sect[sect->index] = sect;
+		img_sect_cnt++;
+	}
+
+	asymbol * sym = dbg_syms[0];
+	for (int i = 0; i < nr_dbg_syms; sym = dbg_syms[++i]) {
+		if (sym->section->owner && sym->section->owner == abfd) {
+			if ((unsigned int)sym->section->index < img_sect_cnt) {
+				sym->section = image_sect[sym->section->index];
+				sym->the_bfd = image_bfd;
+			}
+		}
+	}
+	free(image_sect);
+}
 
 #if SYNTHESIZE_SYMBOLS
 bool bfd_info::get_synth_symbols()
@@ -434,8 +481,21 @@ bool bfd_info::get_synth_symbols()
 
 	asymbol ** mini_syms = (asymbol **)buf;
 	buf = NULL;
+	bfd * synth_bfd;
 
-	long nr_synth_syms = bfd_get_synthetic_symtab(abfd, nr_mini_syms,
+	/* For ppc64, a debuginfo file by itself does not hold enough symbol
+	 * information for us to properly attribute samples to symbols.  If
+	 * the image file's bfd has no symbols (as in a super-stripped library),
+	 * then we need to do the extra processing in translate_debuginfo_syms.
+	 */
+	if (image_bfd_info && image_bfd_info->nr_syms == 0) {
+		translate_debuginfo_syms(mini_syms, nr_mini_syms);
+		synth_bfd = image_bfd_info->abfd;
+	} else
+		synth_bfd = abfd;
+	
+	long nr_synth_syms = bfd_get_synthetic_symtab(synth_bfd,
+	                                              nr_mini_syms,
 	                                              mini_syms, 0,
 	                                              NULL, &synth_syms);
 
@@ -499,6 +559,9 @@ void bfd_info::get_symbols()
 
 	nr_syms = bfd_canonicalize_symtab(abfd, syms.get());
 
+	if (image_bfd_info)
+		translate_debuginfo_syms(syms.get(), nr_syms);
+
 	cverb << vbfd << "bfd_canonicalize_symtab: " << dec
 	      << nr_syms << hex << endl;
 }
@@ -506,7 +569,7 @@ void bfd_info::get_symbols()
 
 linenr_info const
 find_nearest_line(bfd_info const & b, op_bfd_symbol const & sym,
-                  unsigned int offset)
+                  bfd_vma offset, bool anon_obj)
 {
 	char const * function = "";
 	char const * cfilename = "";
@@ -527,8 +590,13 @@ find_nearest_line(bfd_info const & b, op_bfd_symbol const & sym,
 
 	abfd = b.abfd;
 	syms = b.syms.get();
+	if (!syms)
+		goto fail;
 	section = sym.symbol()->section;
-	pc = (sym.value() + offset) - sym.filepos();
+	if (anon_obj)
+		pc = offset - sym.symbol()->section->vma;
+	else
+		pc = (sym.value() + offset) - sym.filepos();
 
 	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
 		goto fail;
@@ -542,7 +610,12 @@ find_nearest_line(bfd_info const & b, op_bfd_symbol const & sym,
 	if (!ret || !cfilename || !function)
 		goto fail;
 
-	if (!is_correct_function(function, sym.name()))
+	/*
+	 * is_correct_function does not handle the case of static inlines,
+	 * but if the linenr is non-zero in the inline case, it is the correct
+	 * line number.
+	 */
+	if (linenr == 0 && !is_correct_function(function, sym.name()))
 		goto fail;
 
 	if (linenr == 0) {

@@ -32,8 +32,6 @@ profile_classes classes;
 profile_classes classes2;
 
 namespace options {
-	string archive_path;
-	string archive_path2;
 	demangle_type demangle = dmt_normal;
 	bool symbols;
 	bool callgraph;
@@ -116,20 +114,24 @@ popt::option options_array[] = {
 
 void handle_sort_option()
 {
-	if (sort.empty()) {
+	if (options::xml && !sort.empty()) {
+		cerr << "warning: sort options ignored because they "
+		     << "are incompatible with --xml" << endl;
+		// don't allow any other sorting, except the default below,
+		// to mess up symbol traversal for XML
+		sort.clear();
+	}
+
+	if (sort.empty() || options::xml) {
 		// PP:5.14 sort default to sample
 		if (options::xml) {
 			// implicitly sort by app-name,image so that in the
-			// symbol traversal all library module symbols are grouped
-			// together with their application
+			// symbol traversal all library module symbols are
+			// grouped together with their application
 			sort.push_back("app-name");
 			sort.push_back("image");
 		} else
 			sort.push_back("sample");
-	} else if (options::xml) {
-		// don't allow any other sorting to mess up symbol traversal for XML
-		cerr << "warning: sort options ignored because they are incompatible ";
-		cerr << "with --xml";
 	}
 
 	vector<string>::const_iterator cit = sort.begin();
@@ -239,7 +241,7 @@ void check_options(bool diff)
 
 
 /// process a spec into classes
-string process_spec(profile_classes & classes, list<string> const & spec)
+void process_spec(profile_classes & classes, list<string> const & spec)
 {
 	using namespace options;
 
@@ -248,7 +250,8 @@ string process_spec(profile_classes & classes, list<string> const & spec)
 	cverb << vsfile << "\n\n";
 
 	profile_spec const pspec =
-		profile_spec::create(spec, extra_found_images);
+		profile_spec::create(spec, options::image_path,
+				     options::root_path);
 
 	list<string> sample_files = pspec.generate_file_list(exclude_dependent,
 	                                                     !options::callgraph);
@@ -260,7 +263,8 @@ string process_spec(profile_classes & classes, list<string> const & spec)
 	copy(sample_files.begin(), sample_files.end(),
 	     ostream_iterator<string>(cverb << vsfile, "\n"));
 
-	classes = arrange_profiles(sample_files, merge_by);
+	classes = arrange_profiles(sample_files, merge_by,
+				   pspec.extra_found_images);
 
 	cverb << vsfile << "profile_classes:\n" << classes << endl;
 
@@ -269,8 +273,6 @@ string process_spec(profile_classes & classes, list<string> const & spec)
 		     "too strict ?" << endl;
 		exit(EXIT_FAILURE);
 	}
-
-	return pspec.get_archive_path();
 }
 
 
@@ -314,16 +316,16 @@ void handle_options(options::spec const & spec)
 	symbol_filter = string_filter(include_symbols, exclude_symbols);
 
 	if (!spec.first.size()) {
-		archive_path = process_spec(classes, spec.common);
+		process_spec(classes, spec.common);
 	} else {
 		if (options::xml) {
 			cerr << "differential profiles are incompatible with --xml" << endl;
 			exit(EXIT_FAILURE);
 		}
 		cverb << vsfile << "profile spec 1:" << endl;
-		archive_path = process_spec(classes, spec.first);
+		process_spec(classes, spec.first);
 		cverb << vsfile << "profile spec 2:" << endl;
-		archive_path2 = process_spec(classes2, spec.second);
+		process_spec(classes2, spec.second);
 
 		if (!classes.matches(classes2)) {
 			cerr << "profile classes are incompatible" << endl;

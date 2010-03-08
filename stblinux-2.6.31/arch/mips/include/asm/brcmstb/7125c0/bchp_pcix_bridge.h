@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:15 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:09:58 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_pcix_bridge.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 9:13p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,28 +43,28 @@
 #define BCHP_PCIX_BRIDGE_H__
 
 /***************************************************************************
- *PCIX_BRIDGE
+ *PCIX_BRIDGE - SATA PCI Bridge Registers
  ***************************************************************************/
-#define BCHP_PCIX_BRIDGE_REVISION                0x00180200
-#define BCHP_PCIX_BRIDGE_PCIX_CTRL               0x00180204
-#define BCHP_PCIX_BRIDGE_SATA_CFG_INDEX          0x00180208
-#define BCHP_PCIX_BRIDGE_SATA_CFG_DATA           0x0018020c
-#define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_BASE   0x00180210
-#define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_MODE   0x00180214
-#define BCHP_PCIX_BRIDGE_CPU_TO_SATA_MEM_WIN_BASE 0x00180218
-#define BCHP_PCIX_BRIDGE_CPU_TO_SATA_IO_WIN_BASE 0x0018021c
-#define BCHP_PCIX_BRIDGE_RETRY_TIMER             0x00180220
-#define BCHP_PCIX_BRIDGE_SCRATCH                 0x00180234
-#define BCHP_PCIX_BRIDGE_DEBUGGER_MBIST_TM_CTRL  0x00180238
-#define BCHP_PCIX_BRIDGE_TP_OUT                  0x0018023c
-#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CTRL      0x00180240
-#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_PRBS_SEED 0x00180244
-#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W0    0x00180248
-#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W1    0x0018024c
-#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W2    0x00180250
+#define BCHP_PCIX_BRIDGE_REVISION                0x00180200 /* PCIX Bridge Revision Register */
+#define BCHP_PCIX_BRIDGE_PCIX_CTRL               0x00180204 /* PCIX Bridge Control */
+#define BCHP_PCIX_BRIDGE_SATA_CFG_INDEX          0x00180208 /* Serial ATA Configuration Access Address */
+#define BCHP_PCIX_BRIDGE_SATA_CFG_DATA           0x0018020c /* Serial ATA Configuration Access Data */
+#define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_BASE   0x00180210 /* PCIX SCB Slave Memory Window Base Address */
+#define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_MODE   0x00180214 /* PCIX SCB Slave Memory Window Mode Address */
+#define BCHP_PCIX_BRIDGE_CPU_TO_SATA_MEM_WIN_BASE 0x00180218 /* CPU to SATA PCIX Memory Window Base Address */
+#define BCHP_PCIX_BRIDGE_CPU_TO_SATA_IO_WIN_BASE 0x0018021c /* CPU to SATA PCIX IO Window Base Address */
+#define BCHP_PCIX_BRIDGE_RETRY_TIMER             0x00180220 /* Master interface retry timeout counter */
+#define BCHP_PCIX_BRIDGE_SCRATCH                 0x00180234 /* PCIX Bridge Scratch register */
+#define BCHP_PCIX_BRIDGE_DEBUGGER_MBIST_TM_CTRL  0x00180238 /* PCIX Bridge Testport Output register */
+#define BCHP_PCIX_BRIDGE_TP_OUT                  0x0018023c /* PCIX Bridge Testport Output Register */
+#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CTRL      0x00180240 /* PCIX TESTMODE CTRL */
+#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_PRBS_SEED 0x00180244 /* PCIX TESTMODE PRBS_SEED */
+#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W0    0x00180248 /* PCIX TESTMODE_CRC_W0 */
+#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W1    0x0018024c /* PCIX TESTMODE_CRC_W1 */
+#define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W2    0x00180250 /* PCIX TESTMODE_CRC_W2 */
 
 /***************************************************************************
- *REVISION
+ *REVISION - PCIX Bridge Revision Register
  ***************************************************************************/
 /* PCIX_BRIDGE :: REVISION :: reserved0 [31:16] */
 #define BCHP_PCIX_BRIDGE_REVISION_reserved0_MASK                   0xffff0000
@@ -76,7 +79,7 @@
 #define BCHP_PCIX_BRIDGE_REVISION_MINOR_SHIFT                      0
 
 /***************************************************************************
- *PCIX_CTRL
+ *PCIX_CTRL - PCIX Bridge Control
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_CTRL :: reserved0 [31:06] */
 #define BCHP_PCIX_BRIDGE_PCIX_CTRL_reserved0_MASK                  0xffffffc0
@@ -115,7 +118,7 @@
 #define BCHP_PCIX_BRIDGE_PCIX_CTRL_MEMORY_SPACE_DEASSERTED         0
 
 /***************************************************************************
- *SATA_CFG_INDEX
+ *SATA_CFG_INDEX - Serial ATA Configuration Access Address
  ***************************************************************************/
 /* PCIX_BRIDGE :: SATA_CFG_INDEX :: reserved0 [31:11] */
 #define BCHP_PCIX_BRIDGE_SATA_CFG_INDEX_reserved0_MASK             0xfffff800
@@ -130,21 +133,21 @@
 #define BCHP_PCIX_BRIDGE_SATA_CFG_INDEX_REG_NUM_SHIFT              0
 
 /***************************************************************************
- *SATA_CFG_DATA
+ *SATA_CFG_DATA - Serial ATA Configuration Access Data
  ***************************************************************************/
 /* PCIX_BRIDGE :: SATA_CFG_DATA :: DATA [31:00] */
 #define BCHP_PCIX_BRIDGE_SATA_CFG_DATA_DATA_MASK                   0xffffffff
 #define BCHP_PCIX_BRIDGE_SATA_CFG_DATA_DATA_SHIFT                  0
 
 /***************************************************************************
- *PCIX_SLV_MEM_WIN_BASE
+ *PCIX_SLV_MEM_WIN_BASE - PCIX SCB Slave Memory Window Base Address
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_SLV_MEM_WIN_BASE :: BASE_ADRS [31:00] */
 #define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_BASE_BASE_ADRS_MASK      0xffffffff
 #define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_BASE_BASE_ADRS_SHIFT     0
 
 /***************************************************************************
- *PCIX_SLV_MEM_WIN_MODE
+ *PCIX_SLV_MEM_WIN_MODE - PCIX SCB Slave Memory Window Mode Address
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_SLV_MEM_WIN_MODE :: reserved0 [31:02] */
 #define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_MODE_reserved0_MASK      0xfffffffc
@@ -155,7 +158,7 @@
 #define BCHP_PCIX_BRIDGE_PCIX_SLV_MEM_WIN_MODE_ENDIAN_MODE_SHIFT   0
 
 /***************************************************************************
- *CPU_TO_SATA_MEM_WIN_BASE
+ *CPU_TO_SATA_MEM_WIN_BASE - CPU to SATA PCIX Memory Window Base Address
  ***************************************************************************/
 /* PCIX_BRIDGE :: CPU_TO_SATA_MEM_WIN_BASE :: BASE_ADRS [31:16] */
 #define BCHP_PCIX_BRIDGE_CPU_TO_SATA_MEM_WIN_BASE_BASE_ADRS_MASK   0xffff0000
@@ -170,7 +173,7 @@
 #define BCHP_PCIX_BRIDGE_CPU_TO_SATA_MEM_WIN_BASE_ENDIAN_MODE_SHIFT 0
 
 /***************************************************************************
- *CPU_TO_SATA_IO_WIN_BASE
+ *CPU_TO_SATA_IO_WIN_BASE - CPU to SATA PCIX IO Window Base Address
  ***************************************************************************/
 /* PCIX_BRIDGE :: CPU_TO_SATA_IO_WIN_BASE :: BASE_ADRS [31:16] */
 #define BCHP_PCIX_BRIDGE_CPU_TO_SATA_IO_WIN_BASE_BASE_ADRS_MASK    0xffff0000
@@ -185,7 +188,7 @@
 #define BCHP_PCIX_BRIDGE_CPU_TO_SATA_IO_WIN_BASE_ENDIAN_MODE_SHIFT 0
 
 /***************************************************************************
- *RETRY_TIMER
+ *RETRY_TIMER - Master interface retry timeout counter
  ***************************************************************************/
 /* PCIX_BRIDGE :: RETRY_TIMER :: reserved0 [31:08] */
 #define BCHP_PCIX_BRIDGE_RETRY_TIMER_reserved0_MASK                0xffffff00
@@ -196,14 +199,14 @@
 #define BCHP_PCIX_BRIDGE_RETRY_TIMER_TIMEOUT_COUNT_SHIFT           0
 
 /***************************************************************************
- *SCRATCH
+ *SCRATCH - PCIX Bridge Scratch register
  ***************************************************************************/
 /* PCIX_BRIDGE :: SCRATCH :: DATA [31:00] */
 #define BCHP_PCIX_BRIDGE_SCRATCH_DATA_MASK                         0xffffffff
 #define BCHP_PCIX_BRIDGE_SCRATCH_DATA_SHIFT                        0
 
 /***************************************************************************
- *DEBUGGER_MBIST_TM_CTRL
+ *DEBUGGER_MBIST_TM_CTRL - PCIX Bridge Testport Output register
  ***************************************************************************/
 /* PCIX_BRIDGE :: DEBUGGER_MBIST_TM_CTRL :: reserved0 [31:16] */
 #define BCHP_PCIX_BRIDGE_DEBUGGER_MBIST_TM_CTRL_reserved0_MASK     0xffff0000
@@ -234,14 +237,14 @@
 #define BCHP_PCIX_BRIDGE_DEBUGGER_MBIST_TM_CTRL_DBG_TM_0_SHIFT     0
 
 /***************************************************************************
- *TP_OUT
+ *TP_OUT - PCIX Bridge Testport Output Register
  ***************************************************************************/
 /* PCIX_BRIDGE :: TP_OUT :: PCIX_TP_OUT [31:00] */
 #define BCHP_PCIX_BRIDGE_TP_OUT_PCIX_TP_OUT_MASK                   0xffffffff
 #define BCHP_PCIX_BRIDGE_TP_OUT_PCIX_TP_OUT_SHIFT                  0
 
 /***************************************************************************
- *PCIX_TESTMODE_CTRL
+ *PCIX_TESTMODE_CTRL - PCIX TESTMODE CTRL
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_TESTMODE_CTRL :: SCB_RD_CYC_DLY [31:20] */
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CTRL_SCB_RD_CYC_DLY_MASK    0xfff00000
@@ -272,28 +275,28 @@
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CTRL_PCIX_TEST_MODE_SHIFT   0
 
 /***************************************************************************
- *PCIX_TESTMODE_PRBS_SEED
+ *PCIX_TESTMODE_PRBS_SEED - PCIX TESTMODE PRBS_SEED
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_TESTMODE_PRBS_SEED :: PCIX_TESTMODE_PRBS_SEED [31:00] */
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_PRBS_SEED_PCIX_TESTMODE_PRBS_SEED_MASK 0xffffffff
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_PRBS_SEED_PCIX_TESTMODE_PRBS_SEED_SHIFT 0
 
 /***************************************************************************
- *PCIX_TESTMODE_CRC_W0
+ *PCIX_TESTMODE_CRC_W0 - PCIX TESTMODE_CRC_W0
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_TESTMODE_CRC_W0 :: PCIX_TESTMODE_CRC_W0 [31:00] */
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W0_PCIX_TESTMODE_CRC_W0_MASK 0xffffffff
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W0_PCIX_TESTMODE_CRC_W0_SHIFT 0
 
 /***************************************************************************
- *PCIX_TESTMODE_CRC_W1
+ *PCIX_TESTMODE_CRC_W1 - PCIX TESTMODE_CRC_W1
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_TESTMODE_CRC_W1 :: PCIX_TESTMODE_CRC_W1 [31:00] */
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W1_PCIX_TESTMODE_CRC_W1_MASK 0xffffffff
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W1_PCIX_TESTMODE_CRC_W1_SHIFT 0
 
 /***************************************************************************
- *PCIX_TESTMODE_CRC_W2
+ *PCIX_TESTMODE_CRC_W2 - PCIX TESTMODE_CRC_W2
  ***************************************************************************/
 /* PCIX_BRIDGE :: PCIX_TESTMODE_CRC_W2 :: PCIX_TESTMODE_CRC_W2 [31:00] */
 #define BCHP_PCIX_BRIDGE_PCIX_TESTMODE_CRC_W2_PCIX_TESTMODE_CRC_W2_MASK 0xffffffff

@@ -135,7 +135,7 @@ initrd_kernel: .target chkpath
 			|| exit 1 ; \
 	fi
 	# build/install rootfs contents
-	if [[ "$(SUBDIRS)" != "linux*" ]]; then \
+	if [[ "$(SUBDIRS)" != linux* ]]; then \
 		$(MAKE) -C lib all romfs \
 			INITRD_SUBDIR="$(SUBDIRS)" || exit 1 ; \
 		$(MAKE) -C user all romfs \
@@ -143,7 +143,7 @@ initrd_kernel: .target chkpath
 	fi
 	# configure kernel for initramfs, then build it
 	$(CFG) initramfs
-	$(MAKE) -C $(LINUXDIR) vmlinux
+	$(MAKE) -C $(LINUXDIR) vmlinux SUBDIRS=
 	# copy completed gzipped kernel to images/
 	gzip -9 < $(LINUXDIR)/vmlinux > \
 		images/vmlinuz-initrd-$(PLAT)

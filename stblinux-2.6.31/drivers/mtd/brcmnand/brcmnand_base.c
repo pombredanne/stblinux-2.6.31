@@ -259,6 +259,12 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_1,
 	},
 
+#if 0 
+/* 
+ * SW3556-862, SWLINUX-1459
+ * Samsung replaced this SLC part with a new SLC part, different block size and page size but re-use the same ID
+ * Side effect: The old flash part can no longer be supported.
+ */
 	{	/* 6 */
 		.chipId = SAMSUNG_K9K8G08U0A,
 		.mafId = FLASHTYPE_SAMSUNG,
@@ -269,6 +275,18 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.nop=4,
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_1,
 	},
+#else
+	{	/* 6 Same old ID 0xD3, new part, so the old #define macro is kept, but IDstr is changed to reflect new part number */
+		.chipId = SAMSUNG_K9K8G08U0A,
+		.mafId = FLASHTYPE_SAMSUNG,
+		.chipIdStr = "Samsung K9F8G08U0M",
+		.options = NAND_USE_FLASH_BBT,
+		.idOptions = BRCMNAND_ID_EXT_BYTES, /* New Samsung SLC has all 5 ID bytes defined */
+		.timing1 = 0, .timing2 = 0,
+		.nop=4,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_1,
+	},
+#endif
 
 
 	{	/* 7 */
@@ -553,6 +571,18 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.timing2 = 0,
 		.nop=1,
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
+	},
+
+	{	/* 32 */  
+		.chipId = TOSHIBA_TC58NVG0S3ETA00,
+		.mafId = FLASHTYPE_TOSHIBA,
+		.chipIdStr = "TOSHIBA TC58NVG0S3ETA00",
+		.options = NAND_USE_FLASH_BBT, 
+		.idOptions = BRCMNAND_ID_EXT_BYTES,
+		.timing1 = 0, 
+		.timing2 = 0,
+		.nop=1,
+		.ctrlVersion = 0, 
 	},
 		
 	{	/* LAST DUMMY ENTRY */
@@ -1952,7 +1982,7 @@ if (gdebug > 3 ) {printk("<-- %s: ret -EBADMSG\n", __FUNCTION__);}
 		printk("Data:\n");
 		print_databuf(uncErrData, ECCSIZE(mtd));
 		printk("Spare Area\n");
-		print_oobbuf(uncErrOob, 16);
+		print_oobbuf((unsigned char*) &uncErrOob[0], 16);
 		
 		brcmnand_post_mortem_dump(mtd, offset);
 				
@@ -6876,6 +6906,276 @@ printk("After: NandSelect=%08x, nandConfig=%08x\n", nandSelect, nandConfig);
 }
 
 
+/* 
+ * Type-1 ID string, called from brcmnand_probe with the following condition
+ * if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE4) && 
+ *	(brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE5)) 
+ *
+ * returns the updated nand_config register value.
+ */
+static uint32_t
+decode_ID_type1(struct brcmnand_chip * chip, 
+	unsigned char brcmnand_maf_id, unsigned char brcmnand_dev_id)
+{
+	uint32_t nand_config = chip->ctrl_read(BCHP_NAND_CONFIG); // returned value
+
+
+/* Read 5th ID byte if MLC type */
+//if (chip->cellinfo) 
+
+/* THT SWLINUX 1459: Some new SLCs have 5th ID byte defined, not just MLC */
+// if (brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE5)
+
+
+	unsigned long devIdExt = chip->ctrl_read(BCHP_NAND_FLASH_DEVICE_ID_EXT);
+	unsigned char devId5thByte = (devIdExt & 0xff000000) >> 24;
+	unsigned int nbrPlanes = 0;
+	unsigned int planeSizeMB = 0, chipSizeMB, nandConfigChipSize;
+	unsigned char devId4thdByte =  (chip->device_id  & 0xff);
+	unsigned int pageSize = 0, pageSizeBits = 0;
+	unsigned int blockSize = 0, blockSizeBits = 0;
+	//unsigned int oobSize;
+
+PRINTK("%s: mafID=%02x, devID=%02x, ID4=%02x, ID5=%02x\n", 
+	__FUNCTION__, brcmnand_maf_id, brcmnand_dev_id, 
+	devId4thdByte, devId5thByte);
+
+	// if (brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE4) 
+	
+/*---------------- 4th ID byte: page size, block size and OOB size ---------------- */
+	switch(brcmnand_maf_id) {
+	case FLASHTYPE_SAMSUNG:
+	case FLASHTYPE_HYNIX:	
+	case FLASHTYPE_TOSHIBA:
+		pageSize = 1024 << (devId4thdByte & SAMSUNG_4THID_PAGESIZE_MASK);
+		blockSize = (64*1024) << ((devId4thdByte & SAMSUNG_4THID_BLKSIZE_MASK) >> 4);
+		//oobSize = devId4thdByte & SAMSUNG_4THID_OOBSIZE_MASK ? 16 : 8;
+
+		
+PRINTK("Updating Config Reg: Block & Page Size: B4: %08x\n", nand_config);
+		/* Update Config Register: Block Size */
+		switch(blockSize) {
+		case 512*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_512KB;
+			break;
+		case 128*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_128KB;
+			break;
+		case 16*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_16KB;
+			break;
+		case 256*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_256KB;
+			break;
+		}
+		nand_config &= ~(BCHP_NAND_CONFIG_BLOCK_SIZE_MASK << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT);
+		nand_config |= (blockSizeBits << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT); 
+
+		/* Update Config Register: Page Size */
+		switch(pageSize) {
+		case 512:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_512;
+			break;
+		case 2048:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_2KB;
+			break;
+		case 4096:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_4KB;
+			break;
+		}
+		nand_config &= ~(BCHP_NAND_CONFIG_PAGE_SIZE_MASK << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT);
+		nand_config |= (pageSizeBits << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT); 
+		chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);	
+PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
+		break;
+		
+	default:
+		printk(KERN_ERR "4th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
+		//BUG();
+	}
+/*---------------- 5th ID byte ------------------------- */
+
+
+	switch(brcmnand_maf_id) {
+	case FLASHTYPE_SAMSUNG:
+	case FLASHTYPE_HYNIX:		
+	case FLASHTYPE_TOSHIBA:
+
+PRINTK("5th ID byte = %02x, extID = %08lx\n", devId5thByte, devIdExt);
+
+		switch(devId5thByte & SAMSUNG_5THID_NRPLANE_MASK) {
+		case SAMSUNG_5THID_NRPLANE_1:
+			nbrPlanes = 1;
+			break;
+		case SAMSUNG_5THID_NRPLANE_2:
+			nbrPlanes = 2;
+			break;
+		case SAMSUNG_5THID_NRPLANE_4:
+			nbrPlanes = 4;
+			break;
+		case SAMSUNG_5THID_NRPLANE_8:
+			nbrPlanes = 8;
+			break;
+		}
+PRINTK("nbrPlanes = %d\n", nbrPlanes);
+
+		switch(brcmnand_maf_id) {
+		case FLASHTYPE_SAMSUNG:
+
+			/* Samsung Plane Size
+			#define SAMSUNG_5THID_PLANESZ_64Mb	0x00
+			#define SAMSUNG_5THID_PLANESZ_128Mb	0x10
+			#define SAMSUNG_5THID_PLANESZ_256Mb	0x20
+			#define SAMSUNG_5THID_PLANESZ_512Mb	0x30
+			#define SAMSUNG_5THID_PLANESZ_1Gb	0x40
+			#define SAMSUNG_5THID_PLANESZ_2Gb	0x50
+			#define SAMSUNG_5THID_PLANESZ_4Gb	0x60
+			#define SAMSUNG_5THID_PLANESZ_8Gb	0x70
+			*/
+			// planeSize starts at (64Mb/8) = 8MB;
+			planeSizeMB = 8 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
+			break;
+
+		case FLASHTYPE_HYNIX:
+			/* Hynix Plane Size 
+			#define HYNIX_5THID_PLANESZ_MASK	0x70
+			#define HYNIX_5THID_PLANESZ_512Mb	0x00
+			#define HYNIX_5THID_PLANESZ_1Gb		0x10
+			#define HYNIX_5THID_PLANESZ_2Gb		0x20
+			#define HYNIX_5THID_PLANESZ_4Gb		0x30
+			#define HYNIX_5THID_PLANESZ_8Gb		0x40
+			#define HYNIX_5THID_PLANESZ_RSVD1	0x50
+			#define HYNIX_5THID_PLANESZ_RSVD2	0x60
+			#define HYNIX_5THID_PLANESZ_RSVD3	0x70
+			*/
+			// planeSize starts at (512Mb/8) = 64MB;
+			planeSizeMB = 64 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
+			break;
+
+		case FLASHTYPE_TOSHIBA:
+			/* No Plane Size defined */
+			planeSizeMB = 64; /* hard-coded for TC58NVG0S3ETA00 */
+			break;
+
+		/* TBD Add other mfg ID here */
+
+		}
+		
+		chipSizeMB = planeSizeMB*nbrPlanes;
+PRINTK("planeSizeMB = %d, chipSizeMB=%d,0x%04x, planeSizeMask=%08x\n", planeSizeMB, chipSizeMB, chipSizeMB, devId5thByte & SAMSUNG_5THID_PLANESZ_MASK);
+		/* NAND Config register starts at 4MB for chip size */
+		nandConfigChipSize = ffs(chipSizeMB >> 2) - 1;
+
+PRINTK("nandConfigChipSize = %04x\n", nandConfigChipSize);
+		/* Correct chip Size accordingly, bit 24-27 */
+		nand_config &= ~(0x7 << 24);
+		nand_config |= (nandConfigChipSize << 24); 
+		chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);				
+	
+		break;
+
+	default:
+		printk(KERN_ERR "5th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
+		//BUG();
+	}
+	return nand_config;
+}
+
+
+/*
+ * Type-2 ID string, called from brcmnand_probe with the following condition
+ * if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
+ *				BRCMNAND_ID_EXT_BYTES_TYPE2) 
+ *
+ * returns the updated nand_config register value.
+ */
+static uint32_t
+decode_ID_type2(struct brcmnand_chip * chip, 
+	unsigned char brcmnand_maf_id, unsigned char brcmnand_dev_id)
+{
+	uint32_t nand_config = chip->ctrl_read(BCHP_NAND_CONFIG); // returned value
+	unsigned char devId4thdByte =  (chip->device_id  & 0xff);
+	unsigned int pageSize = 0, pageSizeBits = 0;
+	unsigned int blockSize = 0, blockSizeBits = 0;
+	//unsigned int oobSize;
+	unsigned int oobSize, oobSizePerPage = 0;
+
+PRINTK("%s: mafID=%02x, devID=%02x, ID4=%02x\n", 
+	__FUNCTION__, brcmnand_maf_id, brcmnand_dev_id, 
+	devId4thdByte);
+
+	/*---------------- 4th ID byte: page size, block size and OOB size ---------------- */
+	switch(brcmnand_maf_id) {
+	case FLASHTYPE_SAMSUNG:
+	case FLASHTYPE_HYNIX:	
+		pageSize = 2048 << (devId4thdByte & SAMSUNG2_4THID_PAGESIZE_MASK);
+		/* **FIXME**, when Samsung use the Reserved bits */
+		blockSize = (128*1024) << ((devId4thdByte & SAMSUNG2_4THID_BLKSIZE_MASK) >> 4);
+		switch(devId4thdByte & SAMSUNG2_4THID_OOBSIZE_MASK) {
+		case SAMSUNG2_4THID_OOBSIZE_PERPAGE_128:
+			oobSizePerPage = 128;
+			break;
+			
+		case SAMSUNG2_4THID_OOBSIZE_PERPAGE_218:
+			oobSizePerPage = 218;
+			break;
+		}
+		oobSize = oobSizePerPage/(pageSize/512);
+		// Record it here, but will check it when we know about the ECC level.
+		chip->eccOobSize = oobSize;
+		
+PRINTK("Updating Config Reg: Block & Page Size: B4: %08x\n", nand_config);
+		/* Update Config Register: Block Size */
+		switch(blockSize) {
+		case 512*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_512KB;
+			break;
+		case 128*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_128KB;
+			break;
+		case 16*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_16KB;
+			break;
+		case 256*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_256KB;
+			break;
+		}
+		nand_config &= ~(BCHP_NAND_CONFIG_BLOCK_SIZE_MASK << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT);
+		nand_config |= (blockSizeBits << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT); 
+
+		/* Update Config Register: Page Size */
+		switch(pageSize) {
+		case 512:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_512;
+			break;
+		case 2048:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_2KB;
+			break;
+		case 4096:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_4KB;
+			break;
+		}
+		nand_config &= ~(BCHP_NAND_CONFIG_PAGE_SIZE_MASK << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT);
+		nand_config |= (pageSizeBits << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT); 
+		chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);	
+PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
+		break;
+		
+	default:
+		printk(KERN_ERR "4th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
+		//BUG();
+	}
+
+	/* For type 2, ID bytes do not yield flash Size, but CONFIG registers have that info
+
+	chipSizeShift = (nand_config & 0x0F000000) >> 24;
+	chip->chipSize = 4ULL << (20 + chipSizeShift);
+	*/
+	return nand_config;
+}
+
+
+
 /**
  * brcmnand_probe - [BrcmNAND Interface] Probe the BrcmNAND device
  * @param mtd		MTD device structure
@@ -7022,230 +7322,24 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 
 			chip->cellinfo = devId3rdByte & NAND_CI_CELLTYPE_MSK;
 
+			/* Read 5th ID byte if MLC type */
+			//if (chip->cellinfo) 
 
-/* Read 5th ID byte if MLC type */
-
-			if (chip->cellinfo) {
-				unsigned long devIdExt = chip->ctrl_read(BCHP_NAND_FLASH_DEVICE_ID_EXT);
-				unsigned char devId5thByte = (devIdExt & 0xff000000) >> 24;
-				unsigned int nbrPlanes = 0;
-				unsigned int planeSizeMB = 0, chipSizeMB, nandConfigChipSize;
-				unsigned char devId4thdByte =  (chip->device_id  & 0xff);
-				unsigned int pageSize = 0, pageSizeBits = 0;
-				unsigned int blockSize = 0, blockSizeBits = 0;
-				//unsigned int oobSize;
-
-
-
-				if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES) == 
-					BRCMNAND_ID_EXT_BYTES) {
-	/*---------------- 4th ID byte: page size, block size and OOB size ---------------- */
-					switch(brcmnand_maf_id) {
-					case FLASHTYPE_SAMSUNG:
-					case FLASHTYPE_HYNIX:	
-						pageSize = 1024 << (devId4thdByte & SAMSUNG_4THID_PAGESIZE_MASK);
-						blockSize = (64*1024) << ((devId4thdByte & SAMSUNG_4THID_BLKSIZE_MASK) >> 4);
-						//oobSize = devId4thdByte & SAMSUNG_4THID_OOBSIZE_MASK ? 16 : 8;
-
-						
-PRINTK("Updating Config Reg: Block & Page Size: B4: %08x\n", nand_config);
-						/* Update Config Register: Block Size */
-						switch(blockSize) {
-						case 512*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_512KB;
-							break;
-						case 128*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_128KB;
-							break;
-						case 16*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_16KB;
-							break;
-						case 256*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_256KB;
-							break;
-						}
-						nand_config &= ~(BCHP_NAND_CONFIG_BLOCK_SIZE_MASK << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT);
-						nand_config |= (blockSizeBits << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT); 
-
-						/* Update Config Register: Page Size */
-						switch(pageSize) {
-						case 512:
-							pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_512;
-							break;
-						case 2048:
-							pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_2KB;
-							break;
-						case 4096:
-							pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_4KB;
-							break;
-						}
-						nand_config &= ~(BCHP_NAND_CONFIG_PAGE_SIZE_MASK << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT);
-						nand_config |= (pageSizeBits << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT); 
-						chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);	
-PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
-						break;
-						
-					default:
-						printk(KERN_ERR "4th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
-						//BUG();
-					}
-	/*---------------- 5th ID byte ------------------------- */
-
-
-					switch(brcmnand_maf_id) {
-					case FLASHTYPE_SAMSUNG:
-					case FLASHTYPE_HYNIX:		
-
-PRINTK("5th ID byte = %02x, extID = %08lx\n", devId5thByte, devIdExt);
-
-						switch(devId5thByte & SAMSUNG_5THID_NRPLANE_MASK) {
-						case SAMSUNG_5THID_NRPLANE_1:
-							nbrPlanes = 1;
-							break;
-						case SAMSUNG_5THID_NRPLANE_2:
-							nbrPlanes = 2;
-							break;
-						case SAMSUNG_5THID_NRPLANE_4:
-							nbrPlanes = 4;
-							break;
-						case SAMSUNG_5THID_NRPLANE_8:
-							nbrPlanes = 8;
-							break;
-						}
-PRINTK("nbrPlanes = %d\n", nbrPlanes);
-
-						switch(brcmnand_maf_id) {
-						case FLASHTYPE_SAMSUNG:
-
-							/* Samsung Plane Size
-							#define SAMSUNG_5THID_PLANESZ_64Mb	0x00
-							#define SAMSUNG_5THID_PLANESZ_128Mb	0x10
-							#define SAMSUNG_5THID_PLANESZ_256Mb	0x20
-							#define SAMSUNG_5THID_PLANESZ_512Mb	0x30
-							#define SAMSUNG_5THID_PLANESZ_1Gb	0x40
-							#define SAMSUNG_5THID_PLANESZ_2Gb	0x50
-							#define SAMSUNG_5THID_PLANESZ_4Gb	0x60
-							#define SAMSUNG_5THID_PLANESZ_8Gb	0x70
-							*/
-							// planeSize starts at (64Mb/8) = 8MB;
-							planeSizeMB = 8 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
-							break;
-
-						case FLASHTYPE_HYNIX:
-							/* Hynix Plane Size 
-							#define HYNIX_5THID_PLANESZ_MASK	0x70
-							#define HYNIX_5THID_PLANESZ_512Mb	0x00
-							#define HYNIX_5THID_PLANESZ_1Gb		0x10
-							#define HYNIX_5THID_PLANESZ_2Gb		0x20
-							#define HYNIX_5THID_PLANESZ_4Gb		0x30
-							#define HYNIX_5THID_PLANESZ_8Gb		0x40
-							#define HYNIX_5THID_PLANESZ_RSVD1	0x50
-							#define HYNIX_5THID_PLANESZ_RSVD2	0x60
-							#define HYNIX_5THID_PLANESZ_RSVD3	0x70
-							*/
-							// planeSize starts at (512Mb/8) = 64MB;
-							planeSizeMB = 64 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
-							break;
-
-						/* TBD Add other mfg ID here */
-
-						}
-						
-						chipSizeMB = planeSizeMB*nbrPlanes;
-PRINTK("planeSizeMB = %d, chipSizeMB=%d,0x%04x, planeSizeMask=%08x\n", planeSizeMB, chipSizeMB, chipSizeMB, devId5thByte & SAMSUNG_5THID_PLANESZ_MASK);
-						/* NAND Config register starts at 4MB for chip size */
-						nandConfigChipSize = ffs(chipSizeMB >> 2) - 1;
-
-PRINTK("nandConfigChipSize = %04x\n", nandConfigChipSize);
-						/* Correct chip Size accordingly, bit 24-27 */
-						nand_config &= ~(0x7 << 24);
-						nand_config |= (nandConfigChipSize << 24); 
-						chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);				
-					
-						break;
-
-					default:
-						printk(KERN_ERR "5th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
-						//BUG();
-					}
-				}
-
-				else if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
-					BRCMNAND_ID_EXT_BYTES_TYPE2) 
-				{
-					unsigned int oobSize, oobSizePerPage = 0;
-					//uint32_t nandconfig, chipSizeShift;
-
-					/*---------------- 4th ID byte: page size, block size and OOB size ---------------- */
-					switch(brcmnand_maf_id) {
-					case FLASHTYPE_SAMSUNG:
-					case FLASHTYPE_HYNIX:	
-						pageSize = 2048 << (devId4thdByte & SAMSUNG2_4THID_PAGESIZE_MASK);
-						/* **FIXME**, when Samsung use the Reserved bits */
-						blockSize = (128*1024) << ((devId4thdByte & SAMSUNG2_4THID_BLKSIZE_MASK) >> 4);
-						switch(devId4thdByte & SAMSUNG2_4THID_OOBSIZE_MASK) {
-						case SAMSUNG2_4THID_OOBSIZE_PERPAGE_128:
-							oobSizePerPage = 128;
-							break;
-							
-						case SAMSUNG2_4THID_OOBSIZE_PERPAGE_218:
-							oobSizePerPage = 218;
-							break;
-						}
-						oobSize = oobSizePerPage/(pageSize/512);
-						// Record it here, but will check it when we know about the ECC level.
-						chip->eccOobSize = oobSize;
-						
-PRINTK("Updating Config Reg: Block & Page Size: B4: %08x\n", nand_config);
-						/* Update Config Register: Block Size */
-						switch(blockSize) {
-						case 512*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_512KB;
-							break;
-						case 128*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_128KB;
-							break;
-						case 16*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_16KB;
-							break;
-						case 256*1024:
-							blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_256KB;
-							break;
-						}
-						nand_config &= ~(BCHP_NAND_CONFIG_BLOCK_SIZE_MASK << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT);
-						nand_config |= (blockSizeBits << BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT); 
-
-						/* Update Config Register: Page Size */
-						switch(pageSize) {
-						case 512:
-							pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_512;
-							break;
-						case 2048:
-							pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_2KB;
-							break;
-						case 4096:
-							pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_4KB;
-							break;
-						}
-						nand_config &= ~(BCHP_NAND_CONFIG_PAGE_SIZE_MASK << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT);
-						nand_config |= (pageSizeBits << BCHP_NAND_CONFIG_PAGE_SIZE_SHIFT); 
-						chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);	
-PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
-						break;
-						
-					default:
-						printk(KERN_ERR "4th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
-						//BUG();
-					}
-
-					/* For type 2, ID bytes do not yield flash Size, but CONFIG registers have that info
-			
-					chipSizeShift = (nand_config & 0x0F000000) >> 24;
-					chip->chipSize = 4ULL << (20 + chipSizeShift);
-					*/
-				}
-						
+			/* THT SWLINUX 1459: Some new SLCs have 5th ID byte defined, not just MLC */
+			/* Type-1 ID string */
+			if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE4) && 
+				(brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE5)) 
+			{
+				nand_config = decode_ID_type1(chip, brcmnand_maf_id, brcmnand_dev_id);
 			}
+
+			/* Type-2 ID string */
+			else if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
+				BRCMNAND_ID_EXT_BYTES_TYPE2) 
+			{
+				nand_config = decode_ID_type2(chip, brcmnand_maf_id, brcmnand_dev_id);
+			}
+
 		}
 
 		/* Else no 3rd ID byte, rely on NAND controller to identify the chip

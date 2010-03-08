@@ -6,14 +6,17 @@
 # Copyright 2002
 # Read the file COPYING
 #
-# Authors: John Levon, Philippe Elie, Will Cohen
+# Authors: John Levon, Philippe Elie, Will Cohen, Jens Wilke, Daniel Hansel
+#
+# Copyright IBM Corporation 2007
 #
 # NOTE: This script should be as shell independent as possible
 
 SYSCTL=do_sysctl
+OPDIR=/bin
 
 # A replacement function for the sysctl (procps package) utility which is
-# missing on some distribution (e.g. slack 7.0). 
+# missing on some distribution (e.g. slack 7.0).
 # Handles only the -w option of sysctl.
 do_sysctl()
 {
@@ -42,7 +45,7 @@ error_if_empty()
 {
 	if test -z "$2"; then
 		echo "No value given for option $1" >&2
-		do_help 
+		do_help
 		exit 1
 	fi
 }
@@ -83,16 +86,29 @@ move_and_remove()
 # verbose echo
 vecho()
 {
-	if test -n "$VERBOSE"; then 
+	if test -n "$VERBOSE"; then
 		echo $@
 	fi
 }
 
- 
+
+is_tool_available()
+{
+	if which $1 &>/dev/null; then
+		if test -x `which $1`; then
+			return 1
+		fi
+	fi
+
+	return 0
+}
+
+
 # print help message
 do_help()
-{ 
-   echo "opcontrol: usage:
+{
+    cat >&2 <<EOF
+opcontrol: usage:
    -l/--list-events list event types and unit masks
    -?/--help        this message
    -v/--version     show version
@@ -104,12 +120,13 @@ do_help()
    -d/--dump        flush the collected profiling data
    -t/--stop        stop data collection
    -h/--shutdown    stop data collection and kill daemon
-   -V/--verbose[=all,sfile,arcs,samples,module,misc]     be verbose in the daemon log
+   -V/--verbose[=all,sfile,arcs,samples,module,misc,ext]
+                    be verbose in the daemon log
    --reset          clears out data from current session
    --save=name      save data from current session to session_name
    --deinit         unload the oprofile module and oprofilefs
 
-   -e/--event=eventspec 
+   -e/--event=eventspec
 
       Choose an event. May be specified multiple times. Of the form
       "default" or "name:count:unitmask:kernel:user", where :
@@ -147,7 +164,7 @@ do_help()
    --xen                         Xen image (for Xen only)
    --active-domains=<list>       List of domains in profiling session (for Xen only)
                                  (list contains domain ids separated by commas)
-" >&2
+EOF
 }
 
 
@@ -215,7 +232,7 @@ load_module()
 	fi
 }
 
-# setup variables related to daemon  Set vars according to following
+# setup variables related to path or daemon. Set vars according to following
 # relationship: command-line-option > config-file-settings > defaults.
 # Note that upon entry SESSION_DIR may be set by command-line option.
 do_init_daemon_vars()
@@ -223,17 +240,17 @@ do_init_daemon_vars()
 	# load settings from config file, keeping command-line value
 	# of SESSION_DIR if necessary.
 	if test -n "$SESSION_DIR"; then
-	       SAVED=$SESSION_DIR
+		SAVED=$SESSION_DIR
 	fi
 	do_load_setup
 	if test -n "$SAVED"; then
-	       SESSION_DIR=$SAVED
+		SESSION_DIR=$SAVED
 	fi
 
 	# daemon parameters (as in op_config.h).  Note that we preserve
 	# any previous value of SESSION_DIR
 	if test -z "$SESSION_DIR"; then
-	       SESSION_DIR="/var/lib/oprofile"
+		SESSION_DIR="/var/lib/oprofile"
 	fi
 	LOCK_FILE="$SESSION_DIR/lock"
 	SAMPLES_DIR="$SESSION_DIR/samples"
@@ -282,6 +299,12 @@ do_init()
 	SEPARATE_THREAD=0
 	SEPARATE_CPU=0
 	CALLGRAPH=0
+	IBS_FETCH_EVENTS=""
+	IBS_FETCH_COUNT=0
+	IBS_FETCH_UNITMASK=0
+	IBS_OP_EVENTS=""
+	IBS_OP_COUNT=0
+	IBS_OP_UNITMASK=0
 
 	OPROFILED="$OPDIR/oprofiled"
 
@@ -299,7 +322,7 @@ do_init()
 	decide_oprofile_device
 
 	DEFAULT_EVENT=`$OPHELP --get-default-event`
- 
+
 	IS_TIMER=0
 	IS_PERFMON=0
 	if test "$CPUTYPE" = "timer"; then
@@ -311,52 +334,18 @@ do_init()
 				;;
 		esac
 	fi
-
-	vecho "Parameters used:"
-	vecho "SESSION_DIR $SESSION_DIR"
-	vecho "LOCK_FILE   $LOCK_FILE"
-	vecho "SAMPLES_DIR $SAMPLES_DIR"
-	vecho "CURRENT_SAMPLES_DIR $CURRENT_SAMPLES_DIR"
-	vecho "CPUTYPE $CPUTYPE"
-	if test "$BUF_SIZE" != "0"; then
-		vecho "BUF_SIZE $BUF_SIZE"
-	else
-		vecho "BUF_SIZE default value"
-	fi
-	if test "$BUF_WATERSHED" != "0"; then
-		vecho "BUF_WATERSHED $BUF_WATERSHED"
-	else
-		vecho "BUF_WATERSHED default value"
-	fi
-	if test "$KERNEL_SUPPORT" = "yes"; then
-		if test "$CPU_BUF_SIZE" != "0"; then
-			vecho "CPU_BUF_SIZE $CPU_BUF_SIZE"
-		else
-		    vecho "CPU_BUF_SIZE default value"
-		fi
-	fi
-
-	vecho "SEPARATE_LIB $SEPARATE_LIB"
-	vecho "SEPARATE_KERNEL $SEPARATE_KERNEL"
-	vecho "SEPARATE_THREAD $SEPARATE_THREAD"
-	vecho "SEPARATE_CPU $SEPARATE_CPU"
-	vecho "CALLGRAPH $CALLGRAPH"
-	vecho "VMLINUX $VMLINUX"
-	vecho "KERNEL_RANGE $KERNEL_RANGE"
-	vecho "XENIMAGE $XENIMAGE"
-	vecho "XEN_RANGE $XEN_RANGE"
 }
 
 
 create_dir()
 {
 	if test ! -d "$1"; then
-	       mkdir -p "$1"
-	       if test "$?" != "0"; then
-		       echo "Couldn't mkdir -p $1" >&2
-		       exit 1
-	       fi
-	       chmod 755 "$1"
+		mkdir -p "$1"
+		if test "$?" != "0"; then
+			echo "Couldn't mkdir -p $1" >&2
+			exit 1
+		fi
+		chmod 755 "$1"
 	fi
 }
 
@@ -388,7 +377,7 @@ do_save_setup()
 			echo "CHOSEN_EVENTS_${f}=$GOTEVENT" >>$SETUP_FILE
 		done
 	fi
- 
+
 	echo "NR_CHOSEN=$NR_CHOSEN" >>$SETUP_FILE
 
 	echo "SEPARATE_LIB=$SEPARATE_LIB" >> $SETUP_FILE
@@ -411,13 +400,13 @@ do_save_setup()
 		echo "NOTE_SIZE=$NOTE_SIZE" >> $SETUP_FILE
 	fi
 	echo "CALLGRAPH=$CALLGRAPH" >> $SETUP_FILE
- 	if test "$KERNEL_RANGE"; then
- 	        echo "KERNEL_RANGE=$KERNEL_RANGE" >> $SETUP_FILE
- 	fi
+	if test "$KERNEL_RANGE"; then
+		echo "KERNEL_RANGE=$KERNEL_RANGE" >> $SETUP_FILE
+	fi
 	echo "XENIMAGE=$XENIMAGE" >> $SETUP_FILE
- 	if test "$XEN_RANGE"; then
- 	        echo "XEN_RANGE=$XEN_RANGE" >> $SETUP_FILE
- 	fi
+	if test "$XEN_RANGE"; then
+		echo "XEN_RANGE=$XEN_RANGE" >> $SETUP_FILE
+	fi
 }
 
 
@@ -489,11 +478,15 @@ get_image_range()
 		return;
 	fi
 
-	# start at the start of .text and then continue to the end 
+	if is_tool_available objdump; then
+		echo "objdump is not installed on this system, use opcontrol --kernel-range=start,end or opcontrol --xen-range= or install objdump"
+		exit 1
+	fi
+
+	# start at the start of .text, and end at _etext
 	range_info=`objdump -h $FILE_IMAGE 2>/dev/null | grep " .text "`
-	tmp1=`echo $range_info | awk '{print $4}'`	
-	tmp_length=`echo $range_info | awk  '{print $3}'`
-	tmp2=`objdump -h $FILE_IMAGE --adjust-vma=0x$tmp_length 2>/dev/null | grep " .text " | awk  '{print $4}'`
+	tmp1=`echo $range_info | awk '{print $4}'`
+	tmp2=`objdump -t $FILE_IMAGE 2>/dev/null | grep "_etext$" | awk '{ print $1 }'`
 
 	if test -z "$tmp1" -o -z "$tmp2"; then
 		echo "The specified file $FILE_IMAGE does not seem to be valid" >&2
@@ -510,8 +503,8 @@ get_image_range()
 		vecho "KERNEL_RANGE $KERNEL_RANGE"
 	fi
 }
- 
- 
+
+
 # validate --separate= parameters. This function is called with IFS=,
 # so on each argument is splitted
 validate_separate_args()
@@ -530,7 +523,7 @@ validate_separate_args()
 				;;
 			kernel)
 				# first implied by second
-				SEPARATE_LIB=1 
+				SEPARATE_LIB=1
 				SEPARATE_KERNEL=1
 				;;
 			thread)
@@ -564,7 +557,7 @@ verify_counters()
 {
 	if test "$IS_TIMER" = 1; then
 		if test "$NR_CHOSEN" != 0; then
-	 		echo "You cannot specify any performance counter events" >&2
+			echo "You cannot specify any performance counter events" >&2
 			echo "because OProfile is in timer mode." >&2
 			exit 1
 		fi
@@ -577,13 +570,16 @@ verify_counters()
 		for f in `seq 0 $((NR_CHOSEN - 1))`; do
 			get_event $f
 			if test "$GOTEVENT" != ""; then
+				verify_ibs $GOTEVENT
 				OPHELP_ARGS="$OPHELP_ARGS $GOTEVENT"
 			fi
 		done
 
-		HW_CTRS=`$OPHELP --check-events $OPHELP_ARGS --callgraph=$CALLGRAPH`
-		if test "$?" != 0; then
-			exit 1
+		if test ! -z "$OPHELP_ARGS" ; then
+			HW_CTRS=`$OPHELP --check-events $OPHELP_ARGS --callgraph=$CALLGRAPH`
+			if test "$?" != 0; then
+				exit 1
+			fi
 		fi
 	fi
 }
@@ -592,7 +588,7 @@ verify_counters()
 # setup any needed default value in chosen events
 normalise_events()
 {
-	if test "$NR_CHOSEN" -le 0; then
+	if test "$NR_CHOSEN" -le 0 || test "$IS_TIMER" = 1; then
 		return
 	fi
 
@@ -648,22 +644,15 @@ do_options()
 			printf %s $1 "$possibleval" | grep ^- >/dev/null 2>&1
 			if test "$?" != "0"; then
 				val=$possibleval
-				if [ "$#" -ge 1 ]; then 
+				if [ "$#" -ge 1 ]; then
 					shift
 				fi
 			fi
 		fi
- 
+
 		case "$arg" in
 
 			--init)
-                                # PR19688: Test for memory config too small
-        			V=`cat /proc/meminfo | awk '/MemFree/ { print $2 }'`
-				if test $V -lt 16000 ; then
-					echo "Warning: Don't run Oprofile when MemFree<16M!" >&2
-					exit 1
-				fi
-
 				# this is already done in load_module
 				# because need to know the processor type
 				# and number of registers
@@ -740,8 +729,10 @@ do_options()
 
 			--deinit)
 				DUMP=yes
-				STOP=yes
-				KILL_DAEMON=yes
+				test ! -f "$LOCK_FILE" || {
+					STOP=yes
+					KILL_DAEMON=yes
+				}
 				DEINIT=yes
 				EXCLUSIVE_ARGC=`expr $EXCLUSIVE_ARGC + 1`
 				EXCLUSIVE_ARGV="$arg"
@@ -809,8 +800,6 @@ do_options()
 				error_if_empty $arg $val
 				VMLINUX=$val
 				DO_SETUP=yes
-				# check validity
-				get_image_range "linux"
 				;;
 			--no-vmlinux)
 				VMLINUX=none
@@ -825,7 +814,6 @@ do_options()
 				error_if_empty $arg $val
 				XENIMAGE=$val
 				DO_SETUP=yes
-				get_image_range "xen"
 				;;
 			--active-domains)
 				error_if_empty $arg $val
@@ -865,11 +853,11 @@ do_options()
 				EXCLUSIVE_ARGV="$arg"
 				exec $OPHELP
 				;;
-				
+
 			*)
 				echo "Unknown option \"$arg\". See opcontrol --help" >&2
 				exit 1
-				;; 
+				;;
 		esac
 	done
 
@@ -904,6 +892,40 @@ do_options()
 			exit 1
 		fi
 	fi
+
+	vecho "Parameters used:"
+	vecho "SESSION_DIR $SESSION_DIR"
+	vecho "LOCK_FILE   $LOCK_FILE"
+	vecho "SAMPLES_DIR $SAMPLES_DIR"
+	vecho "CURRENT_SAMPLES_DIR $CURRENT_SAMPLES_DIR"
+	vecho "CPUTYPE $CPUTYPE"
+	if test "$BUF_SIZE" != "0"; then
+		vecho "BUF_SIZE $BUF_SIZE"
+	else
+		vecho "BUF_SIZE default value"
+	fi
+	if test "$BUF_WATERSHED" != "0"; then
+		vecho "BUF_WATERSHED $BUF_WATERSHED"
+	else
+		vecho "BUF_WATERSHED default value"
+	fi
+	if test "$KERNEL_SUPPORT" = "yes"; then
+		if test "$CPU_BUF_SIZE" != "0"; then
+			vecho "CPU_BUF_SIZE $CPU_BUF_SIZE"
+		else
+			vecho "CPU_BUF_SIZE default value"
+		fi
+	fi
+
+	vecho "SEPARATE_LIB $SEPARATE_LIB"
+	vecho "SEPARATE_KERNEL $SEPARATE_KERNEL"
+	vecho "SEPARATE_THREAD $SEPARATE_THREAD"
+	vecho "SEPARATE_CPU $SEPARATE_CPU"
+	vecho "CALLGRAPH $CALLGRAPH"
+	vecho "VMLINUX $VMLINUX"
+	vecho "KERNEL_RANGE $KERNEL_RANGE"
+	vecho "XENIMAGE $XENIMAGE"
+	vecho "XEN_RANGE $XEN_RANGE"
 }
 
 
@@ -915,19 +937,19 @@ do_stop()
 		return
 	fi
 
-	kill -s 0 `cat $LOCK_FILE` 2>/dev/null
+	kill -0 `cat $LOCK_FILE` 2>/dev/null
 	if test "$?" -ne 0; then
 		echo "Detected stale lock file. Removing." >&2
 		rm -f "$LOCK_FILE"
 		return
 	fi
 
-	if test $KERNEL_SUPPORT = "yes"; then
+	if test $KERNEL_SUPPORT = "yes" \
+	    && test 0 != $(cat /dev/oprofile/enable); then
 		echo "Stopping profiling."
 		echo 0 >/dev/oprofile/enable
 	fi
-        #kill -s USR2 `cat $LOCK_FILE` 2>/dev/null
-        kill -s 17 `cat $LOCK_FILE` 2>/dev/null
+	kill -USR2 `cat $LOCK_FILE` 2>/dev/null
 }
 
 
@@ -935,12 +957,12 @@ do_stop()
 do_kill_daemon()
 {
 	if test ! -f "$LOCK_FILE"; then
-		# no error message, do_kill_deamon imply stop and stop already
+		# no error message, do_kill_daemon imply stop and stop already
 		# output "Daemon not running"
 		return
 	fi
 
-	kill -s 0 `cat $LOCK_FILE` 2>/dev/null
+	kill -0 `cat $LOCK_FILE` 2>/dev/null
 	if test "$?" -ne 0; then
 		echo "Detected stale lock file. Removing." >&2
 		rm -f "$LOCK_FILE"
@@ -958,7 +980,7 @@ do_kill_daemon()
 	COUNT=0
 	while test -n "`pidof oprofiled`"
 	do
-		sleep 1 
+		sleep 1
 
 		# because oprofiled only sets a variable inside the
 		# signal handler itself, it's possible to miss a
@@ -973,14 +995,24 @@ do_kill_daemon()
 		fi
 
 		COUNT=`expr $COUNT + 1`
-		if test "$COUNT" -eq 15; then
+
+		# IBS can generate a large number of samples/events.
+		# Therefore, extend the delay before killing
+		if test "$IBS_FETCH_COUNT" != "0" \
+		     -o "$IBS_OP_COUNT" != "0" ; then
+			DELAY_KILL=60
+		else
+			DELAY_KILL=15
+		fi
+		if test "$COUNT" -eq "$DELAY_KILL"; then
 			echo "Daemon stuck shutting down; killing !"
 			kill -9 `cat $LOCK_FILE`
 		fi
 	done
-
+	sleep 1
 	# already removed unless we forced the kill
 	rm -f "$SESSION_DIR/lock"
+	cp -r /dev/oprofile/stats "$SAMPLES_DIR/current"
 }
 
 
@@ -992,7 +1024,7 @@ rm_devices_24()
 }
 
 
-create_devices_24() 
+create_devices_24()
 {
 	MAJOR_NR=`grep oprof /proc/devices | awk '{print $1}'`
 
@@ -1001,6 +1033,27 @@ create_devices_24()
 	create_device $HASH_MAP_DEVICE_FILE $MAJOR_NR 1
 }
 
+# create jitdump directory and remove any old files from
+# a previous run
+prep_jitdump() {
+	local dumpdir=$SESSION_DIR/jitdump
+	test -d $dumpdir || {
+		mkdir -p $dumpdir;
+		chmod 777 $dumpdir;
+		return;
+	}
+	# VMs may already be running when profiling is started, so
+	# remove only dump files that are not in use
+	for I in $dumpdir/*; do
+		test -f $I || continue;
+		local pid=`basename $I .dump`;
+		if test -d /proc/$pid; then
+			local files=`find /proc/$pid/fd -lname $I`;
+			test -n "$files" && continue;
+		fi
+		rm -f $I;
+	done
+}
 
 # setup and start module
 do_setup()
@@ -1013,6 +1066,8 @@ do_setup()
 	fi
 
 	create_dir "$CURRENT_SAMPLES_DIR"
+
+	prep_jitdump;
 }
 
 
@@ -1036,7 +1091,17 @@ set_ctr_param()
 	fi
 
 	if test "$KERNEL_SUPPORT" = "yes"; then
-		echo $3 >$MOUNT/$1/$2
+		if test -e $MOUNT/$1; then
+			echo $3 >$MOUNT/$1/$2
+		else
+			echo -n "Error: counter $1 not available"
+			if test -e /proc/sys/kernel/nmi_watchdog; then
+				echo " nmi_watchdog using this resource ? Try:"
+				echo "opcontrol --deinit"
+				echo "echo 0 > /proc/sys/kernel/nmi_watchdog"
+			fi
+			exit 1
+		fi
 	else
 		$SYSCTL -w dev.oprofile.$1.$2=$3
 	fi
@@ -1047,13 +1112,18 @@ set_ctr_param()
 is_non_cell_ppc64_variant()
 {
 	case "$1" in
-		ppc64/power4 | ppc64/power5 | ppc64/power5+ | ppc64/power5++ |\
-		ppc64/power6 | ppc64/970 | ppc64/970MP | ppc64/pa6t )
-			return 1;
+		ppc64/*)
+			tmp="${1/cell/CELL}"
+			if test "$1" = "$tmp"; then
+			#No substituion occurred, so cputype is not cell
+				return 1
+			else
+				return 0
+			fi
 			;;
 		*)
-	        	return 0;
-	        	;;
+			return 0;
+			;;
 	esac
 }
 
@@ -1076,67 +1146,113 @@ check_event_mapping_data()
 		MMCR0_VAL=`echo $MMCR0 | awk -F: '{print $2}'`
 		MMCR1_VAL=`echo $MMCR1 | awk -F: '{print $2}'`
 		MMCRA_VAL=`echo $MMCRA | awk -F: '{print $2}'`
-	
+
 		## mmcr0, mmcr1, mmcra are for all ppc64 counters
 		# Save first event mmcr settings to compare with additional
 		# events.  All events must have the same mmcrx values i.e. be in
 		# the same group.  Only one event is assigned per counter,
 		# hence there will not be a conflict on the counters
-		if [ "$MMCR0_CK_VAL" = "" ] ; then    
+		if [ "$MMCR0_CK_VAL" = "" ] ; then
 			MMCR0_CK_VAL=$MMCR0_VAL
 			MMCR1_CK_VAL=$MMCR1_VAL
 			MMCRA_CK_VAL=$MMCRA_VAL
 		else
-			# make sure all events are from the same group 
-                        if test $MMCR0_CK_VAL != $MMCR0_VAL \
-                                -o $MMCR1_CK_VAL != $MMCR1_VAL \
-                                -o $MMCRA_CK_VAL != $MMCRA_VAL ; then
+			# make sure all events are from the same group
+			if test $MMCR0_CK_VAL != $MMCR0_VAL \
+				-o $MMCR1_CK_VAL != $MMCR1_VAL \
+				-o $MMCRA_CK_VAL != $MMCRA_VAL ; then
 				echo "ERROR: The specified events are not from the same group."
 				echo "       Use 'opcontrol --list-events' to see event groupings."
+				exit 1
+			fi
+		fi
+
+		# Check if all user/kernel flags per-counter are matching.
+		if [ "$USER_CK" = "" ] ; then
+			USER_CK=$USER
+			KERNEL_CK=$KERNEL
+		else
+			if test $USER_CK != $USER \
+				-o $KERNEL_CK != $KERNEL ; then
+				echo "ERROR: All kernel/user event flags must match."
 				exit 1
 			fi
 		fi
 	fi
 	if [ "$CPUTYPE" = "ppc64/cell-be" ]; then
 		event_num=`echo $EVENT_STR | awk '{print $1}'`
-		if [ "$event_num" = "2" ] ; then
-			if [ "$CYCLES" = "1" \
-				-o "$GRP_NUM_CK_VAL" != "" ] ; then
-				echo "ERROR: SPU CYCLES cannot be counted with any other events." >&2
-				exit 1
+		# PPU event and cycle events can be measured at
+		# the same time.  SPU event can not be measured
+		# at the same time as any other event.  Similarly for
+		# SPU Cycles
+
+		# We use EVNT_MSK to track what events have already
+		# been seen.  Valid values are:
+		#    NULL string -  no events seen yet
+		#    1 - PPU CYCLES or PPU Event seen
+		#    2 - SPU CYCLES seen
+		#    3 - SPU EVENT seen
+
+		# check if event is PPU_CYCLES
+		if [ "$event_num" = "1" ]; then
+			if [ "$EVNT_MSK" = "1" ] || [ "$EVNT_MSK" = "" ]; then
+				EVNT_MSK=1
 			else
-				SPU_CYCLES=2
-				return
+				echo "PPU CYCLES not compatible with previously specified event"
+				exit 1
+		fi
+
+		# check if event is SPU_CYCLES
+		elif [ "$event_num" = "2" ]; then
+			if [ "$EVNT_MSK" = "" ]; then
+				EVNT_MSK=2
+			else
+				echo "SPU CYCLES not compatible with any other event"
+				exit 1
+			fi
+
+		# check if event is SPU Event profiling
+		elif [ "$event_num" -ge "4100" ] && [ "$event_num" -le "4163" ] ; then
+			if [ "$EVNT_MSK" = "" ]; then
+				EVNT_MSK=3
+			else
+				echo "SPU event profiling not compatible with any other event"
+				exit 1
+			fi
+
+			# Check to see that the kernel supports SPU event
+			# profiling.  Note, if the file exits it should have
+			# the LSB bit set to 1 indicating SPU event profiling
+			# support. For now, it is sufficient to test that the
+			# file exists.
+			if test ! -f /dev/oprofile/cell_support; then
+				echo "Kernel does not support SPU event profiling"
+				exit 1
+			fi
+
+			# check if event is PPU Event profiling (all other
+			# events are PPU events)
+		else
+			if [ "$EVNT_MSK" = "1" ] || [ "$EVNT_MSK" = "" ]; then
+				EVNT_MSK=1
+			else
+				echo "PPU profiling not compatible with previously specified event"
+				exit 1
 			fi
 		fi
-		if [ "$event_num" = "1" ] ; then
-                        # CYCLES is compatible with any event except SPU_CYCLES
-			if [ "$SPU_CYCLES" = "2" ] ; then
-				echo "ERROR: PPU CYCLES and SPU CYCLES cannot be counted simultaneously." >&2
-				exit 1
-			else
-				CYCLES=1
-				return
-			fi
-		else
-		    if [ "$SPU_CYCLES" = "2" ] ; then
-			echo "ERROR: SPU CYCLES cannot be counted with any other events." >&2
+	fi
+	len=`echo -n $event_num | wc -c`
+	num_chars_in_grpid=`expr $len - 2`
+	GRP_NUM_VAL=`echo | awk '{print substr("'"${event_num}"'",1,"'"${num_chars_in_grpid}"'")}'`
+	if [ "$GRP_NUM_CK_VAL" = "" ] ; then
+		GRP_NUM_CK_VAL=$GRP_NUM_VAL
+	else
+		if test $GRP_NUM_CK_VAL != $GRP_NUM_VAL ; then
+			echo "ERROR: The specified events are not from the same group." >&2
+			echo "       Use 'opcontrol --list-events' to see event groupings." >&2
 			exit 1
-			fi
 		fi
-		len=`echo -n $event_num | wc -m`
-		num_chars_in_grpid=`expr $len - 2`
-		GRP_NUM_VAL=`echo | awk '{print substr("'"${event_num}"'",1,"'"${num_chars_in_grpid}"'")}'`
-		if [ "$GRP_NUM_CK_VAL" = "" ] ; then
-			GRP_NUM_CK_VAL=$GRP_NUM_VAL
-		else
-			if test $GRP_NUM_CK_VAL != $GRP_NUM_VAL ; then
-				echo "ERROR: The specified events are not from the same group." >&2
-				echo "       Use 'opcontrol --list-events' to see event groupings." >&2
-                                exit 1
-                        fi
-                fi
-	fi 
+	fi
 }
 
 
@@ -1205,6 +1321,17 @@ do_param_setup()
 		set_ctr_param $f count 0
 	done
 
+	# Check if driver has IBS support
+	if test -d $MOUNT/ibs_fetch; then
+		# Reset driver's IBS fetch setting
+		set_param ibs_fetch/enable 0
+	fi
+	
+	if test -d $MOUNT/ibs_op ; then
+		# Reset driver's IBS op setting
+		set_param ibs_op/enable 0
+	fi	
+
 	verify_counters
 
 	OPROFILED_EVENTS=
@@ -1213,17 +1340,17 @@ do_param_setup()
 		if test "$GOTEVENT" != ""; then
 			EVENT=`echo $GOTEVENT | awk -F: '{print $1}'`
 			EVENT_STR=`$OPHELP $EVENT`
-			check_event_mapping_data
 			EVENT_VAL=`echo $EVENT_STR | awk '{print $1}'`
 			COUNT=`echo $GOTEVENT | awk -F: '{print $2}'`
 			UNIT_MASK=`echo $GOTEVENT | awk -F: '{print $3}'`
 			KERNEL=`echo $GOTEVENT | awk -F: '{print $4}'`
 			USER=`echo $GOTEVENT | awk -F: '{print $5}'`
 			CTR=`echo $HW_CTRS | awk "{print \\$$((f + 1))}"`
+			check_event_mapping_data
 
 			if test "$EVENT" = "SPU_CYCLES"; then
-			        if test "$SEPARATE_KERNEL" = "1"; then
-			                SEPARATE_KERNEL=0
+				if test "$SEPARATE_KERNEL" = "1"; then
+					SEPARATE_KERNEL=0
 					echo "Ignoring --separate=kernel option with SPU_CYCLES"
 				fi
 				if test "$SEPARATE_LIB" = "0"; then
@@ -1248,13 +1375,20 @@ do_param_setup()
 
 				fi
 			fi
+
+			if [ "$CTR" = "ibs_fetch" -o "$CTR" = "ibs_op" ] ; then
+				# Handle IBS events setup
+				do_param_setup_ibs
+				continue
+			fi
+
 			if test "$EVENT" = "RTC_INTERRUPTS"; then
 				set_param rtc_value $COUNT
 				$SYSCTL -w dev.oprofile.rtc_value=$COUNT
 			else
-				set_ctr_param $CTR enabled 1				
+				set_ctr_param $CTR enabled 1
 				set_ctr_param $CTR event $EVENT_VAL
-				let loop_count=1
+				loop_count=1
 				for i in ${EVENT_STR}; do
 					#Skip first argument of EVENT_STR (event val) since we've already
 					#processed that value.
@@ -1263,8 +1397,8 @@ do_param_setup()
 						VAL=`echo $i | awk -F: '{print $2}'`
 						set_ctr_param "" $KEY $VAL
 					fi
-					let loop_count="$loop_count"+1
-				done				
+					loop_count=$((loop_count+1))
+				done
 				set_ctr_param $CTR count $COUNT
 				set_ctr_param $CTR kernel $KERNEL
 				set_ctr_param $CTR user $USER
@@ -1275,14 +1409,27 @@ do_param_setup()
 			OPROFILED_EVENTS=${OPROFILED_EVENTS}$KERNEL:$USER,
 		fi
 	done
+
+	# For PPC64 architectures we need to set the enable_kernel and
+	# enable_user flags for enabling/disabling user/kernel domain
+	# profiling. All per-counter user/kernel flags must match.
+	# This condition is checked previously by check_event_mapping_data.
+	# This statement uses the last event's user/kernel flags to set
+	# /dev/oprofile/enable_kernel and /dev/oprofile/enable_user.
+	is_non_cell_ppc64_variant $CPUTYPE
+	if test $? -ne 0 ; then
+		set_param "enable_kernel" $KERNEL
+		set_param "enable_user" $USER
+	fi
+
 }
 
 
 do_start_daemon()
 {
- 
+
 	if test -f "$LOCK_FILE"; then
-		kill -s 0 `cat $LOCK_FILE` 2>/dev/null
+		kill -0 `cat $LOCK_FILE` 2>/dev/null
 		if test "$?" -eq 0; then
 			return;
 		else
@@ -1290,7 +1437,7 @@ do_start_daemon()
 			rm -f "$LOCK_FILE"
 		fi
 	fi
- 
+
 	do_setup
 	check_valid_args
 	get_image_range "linux"
@@ -1304,7 +1451,13 @@ do_start_daemon()
 		--separate-thread=$SEPARATE_THREAD \
 		--separate-cpu=$SEPARATE_CPU"
 
-	OPD_ARGS="$OPD_ARGS --events=$OPROFILED_EVENTS"
+	if test "$IS_TIMER" = 1; then
+		OPD_ARGS="$OPD_ARGS --events="
+	else
+		if ! test -z "$OPROFILED_EVENTS"; then
+			OPD_ARGS="$OPD_ARGS --events=$OPROFILED_EVENTS"
+		fi
+	fi
 
 	if test "$VMLINUX" = "none"; then
 		OPD_ARGS="$OPD_ARGS --no-vmlinux"
@@ -1315,7 +1468,7 @@ do_start_daemon()
 	if ! test "$XENIMAGE" = "none"; then
 		OPD_ARGS="$OPD_ARGS --xen-image=$XENIMAGE --xen-range=$XEN_RANGE"
 	fi
- 
+
 	if ! test -z "$IMAGE_FILTER"; then
 		OPD_ARGS="$OPD_ARGS --image=$IMAGE_FILTER"
 	fi
@@ -1324,10 +1477,12 @@ do_start_daemon()
 		OPD_ARGS="$OPD_ARGS --verbose=$VERBOSE"
 	fi
 
+	help_start_daemon_with_ibs
+
 	vecho "executing oprofiled $OPD_ARGS"
 
 	$OPROFILED $OPD_ARGS
- 
+
 	COUNT=0
 	while ! test -f "$SESSION_DIR/lock"
 	do
@@ -1343,14 +1498,13 @@ do_start_daemon()
 	echo "Daemon started."
 }
 
-
 do_start()
 {
+	prep_jitdump;
 	if test "$KERNEL_SUPPORT" = "yes"; then
 		echo 1 >$MOUNT/enable
 	fi
-	#kill -s USR1 `cat $LOCK_FILE` 2>/dev/null
-	kill -s 16 `cat $LOCK_FILE` 2>/dev/null
+	kill -USR1 `cat $LOCK_FILE` 2>/dev/null
 	echo "Profiler running."
 }
 
@@ -1371,7 +1525,7 @@ do_status()
 			echo "Event $f: $GOTEVENT"
 		done
 	fi
- 
+
 	SEPARATE=""
 	if test "$SEPARATE_LIB" = "1"; then
 		SEPARATE="library";
@@ -1438,27 +1592,26 @@ do_dump_data()
 	fi
 
 	if test "$KERNEL_SUPPORT" = "yes"; then
-		# find current time
-		TMPFILE=`mktemp /tmp/oprofile.XXXXXX` || exit 1
 		if ! test -w $MOUNT/dump; then
 			if test `id -u` != "0"; then
 				echo "You must be root to dump with this kernel version"
 				exit 1
 			fi
 		fi
+		# trigger oprofiled to execute opjitconv
+		echo do_jitconv > $SESSION_DIR/opd_pipe
+		rm -f "$SESSION_DIR/complete_dump"
 		echo 1 > $MOUNT/dump
-		# loop until there is a file to check and 
-		# the modification data of $MOUNT/dump after TMPFILE
-		while [ \( ! -e "$SESSION_DIR/complete_dump" \) -o \( "$TMPFILE" -nt "$SESSION_DIR/complete_dump" \) ]
+		# loop until the complete_dump file is created to
+		# signal that the dump has been completed
+		while [ \( ! -e "$SESSION_DIR/complete_dump" \) ]
 		do
 			if test ! -d "/proc/$OPROFILED_PID"; then
-				rm $TMPFILE
 				echo "dump fail: either daemon died during last run or dies during dump" >&2
 				return 1
 			fi
 			sleep 1;
 		done
-		rm $TMPFILE
 	else
 		echo 1 > $MOUNT/dump
 		# HACK !
@@ -1466,6 +1619,7 @@ do_dump_data()
 	fi
 	return 0;
 }
+
 
 # do_dump
 # returns 0 if successful
@@ -1485,11 +1639,11 @@ hup_daemon()
 {
 	if test -f "$LOCK_FILE"; then
 		echo -n "Signalling daemon... "
-		kill -HUP `cat $LOCK_FILE` 
+		kill -HUP `cat $LOCK_FILE`
 		echo "done"
 	fi
 }
- 
+
 
 # move all the sample files to a sample directory
 do_save_session()
@@ -1529,6 +1683,10 @@ do_reset()
 	# daemon use {kern} and {root} subdir, it's not a typo to not use ${}
 	move_and_remove $SAMPLES_DIR/current/{kern}
 	move_and_remove $SAMPLES_DIR/current/{root}
+	move_and_remove $SAMPLES_DIR/current/stats
+
+	# clear temp directory for jitted code
+	prep_jitdump;
 
 	hup_daemon
 }
@@ -1559,7 +1717,7 @@ do_operations()
 	if test "$STATUS" = "yes"; then
 		do_status
 	fi
- 
+
 	if test "$SETUP" = "yes"; then
 		check_valid_args
 		do_save_setup
@@ -1598,7 +1756,7 @@ do_operations()
 		do_deinit
 	fi
 }
- 
+
 # early check for --version, --help and --session-dir
 check_options_early()
 {
@@ -1623,15 +1781,16 @@ check_options_early()
 			--session-dir)
 				error_if_empty $arg $val
 				SESSION_DIR="$val"
+				DO_SETUP=yes
 				# do not exit early
 				;;
- 
+
 		esac
 	done
 }
 
 
-#determine which module is loaded
+# determine which module is loaded
 check_version()
 {
 	OPROFILE_AVAILABLE=no
@@ -1651,17 +1810,170 @@ check_version()
 	fi
 }
 
+# error out if the module is not loaded
+check_oprofile_available()
+{
+	if test "$OPROFILE_AVAILABLE" != "yes"; then
+		echo "Kernel support not available, missing opcontrol --init as root ?"
+		exit 1
+	fi
+}
+
+
+try_reset_sample_file()
+{
+	# special case to avoid loading the module, it works only if the
+	# daemon is not running because --reset imply --dump. Rather to check
+	# if the daemon is running we check if the module is loaded because
+	# we are only trying to avoid its load, if the check fails we fallback
+	# to the normal dump / reset sequence.
+	if test -z "$2" -a "$1" = "--reset"; then
+		check_version
+		if test "$OPROFILE_AVAILABLE" != "yes"; then
+			do_init_daemon_vars
+			do_reset
+			exit 0
+		fi
+	fi
+}
+
+#
+# Begin IBS Specific Functions
+#
+verify_ibs()
+{
+	IBS_EVENT=`echo $1| awk -F: '{print $1}'`
+	IBS_COUNT=`echo $1 | awk -F: '{print $2}'`
+	IBS_MASK=`echo $1 | awk -F: '{print $3}'`
+	
+	IBS_TYPE=`$OPHELP --check-events $1`
+	if test "$?" != "0" ; then
+		exit 1
+	fi
+			
+	if [ "$IBS_TYPE" = "ibs_fetch " ] ; then
+		# Check IBS_COUNT consistency
+		if test "$IBS_FETCH_COUNT" = "0" ; then 
+			IBS_FETCH_COUNT=$IBS_COUNT
+			IBS_FETCH_MASK=$IBS_MASK
+		elif test "$IBS_FETCH_COUNT" != "$IBS_COUNT" ; then
+			echo "All IBS Fetch must have the same count."
+			exit 1
+		fi
+
+		# Check IBS_MASK consistency
+		if test "$IBS_FETCH_MASK" != "$IBS_MASK" ; then
+			echo "All IBS Fetch must have the same unitmask."
+			exit 1
+		fi
+
+	elif [ "$IBS_TYPE" = "ibs_op " ] ; then
+		# Check IBS_COUNT consistency
+		if test "$IBS_OP_COUNT" = "0" ; then 
+			IBS_OP_COUNT=$IBS_COUNT
+			IBS_OP_MASK=$IBS_MASK
+		elif test "$IBS_OP_COUNT" != "$IBS_COUNT" ; then
+			echo "All IBS Op must have the same count."
+			exit 1
+		fi
+
+		# Check IBS_MASK consistency
+		if test "$IBS_OP_MASK" != "$IBS_MASK" ; then
+			echo "All IBS Op must have the same unitmask."
+			exit 1
+		fi
+	fi
+
+	return
+}
+
+
+do_param_setup_ibs()
+{
+	if test "$KERNEL_SUPPORT" != "yes" ; then
+		echo "ERROR: No kernel support for IBS profiling."
+		exit 1	
+	fi
+
+	# Check if driver has IBS support
+	if test ! -d $MOUNT/ibs_fetch -o ! -d $MOUNT/ibs_op ; then
+		echo "ERROR: No kernel support for IBS profiling."
+		exit 1	
+	fi	
+
+	if test `echo $EVENT |  \
+	awk '{ print substr($0, 1, 10)}'` = "IBS_FETCH_" ; then
+		if test "$COUNT" != "0"; then
+			if [ "$IBS_FETCH_EVENTS" = "" ] ; then
+				IBS_FETCH_EVENTS="$EVENT"
+			else
+				IBS_FETCH_EVENTS="$IBS_FETCH_EVENTS,$EVENT"
+			fi
+			IBS_FETCH_COUNT=$COUNT
+			set_param ibs_fetch/max_count $COUNT
+			set_param ibs_fetch/rand_enable 1
+			set_param ibs_fetch/enable 1
+		else
+			set_param ibs_fetch/enable 0
+		fi
+
+	elif test `echo $EVENT |  \
+	awk '{ print substr($0, 1, 7)}'` = "IBS_OP_" ; then
+		if test "$COUNT" != "0"; then
+			if [ "$IBS_OP_EVENTS" = "" ] ; then
+				IBS_OP_EVENTS="$EVENT"
+			else
+				IBS_OP_EVENTS="$IBS_OP_EVENTS,$EVENT"
+			fi
+			IBS_OP_COUNT=$COUNT
+			IBS_OP_UNITMASK=$UNIT_MASK
+
+			set_param ibs_op/max_count $COUNT
+			set_param ibs_op/enable 1
+
+			# NOTE: We default to use dispatched_op if available. 
+			#       Some of the older family10 system does not have
+			#       dispatched_ops feature.
+			#	dispatched op is enabled by bit 1 of the unitmask
+			if test -f $MOUNT/ibs_op/dispatched_ops ; then
+				IBS_OP_DISPATCHED_OP=$(( IBS_OP_UNITMASK & 0x1 ))
+				set_param ibs_op/dispatched_ops $IBS_OP_DISPATCHED_OP
+			fi
+		else
+			set_param ibs_op/enable 0
+		fi
+	fi
+}
+
+
+help_start_daemon_with_ibs()
+{
+	if test "$IBS_FETCH_COUNT" != "0" -o "$IBS_OP_COUNT" != "0" ; then
+		OPD_ARGS="${OPD_ARGS} --ext-feature=ibs:"
+		if test "$IBS_FETCH_COUNT" != "0"; then
+			OPD_ARGS="${OPD_ARGS}fetch:$IBS_FETCH_EVENTS:$IBS_FETCH_COUNT:$IBS_FETCH_UNITMASK|"
+		fi
+
+		if test "$IBS_OP_COUNT" != "0"; then
+			OPD_ARGS="${OPD_ARGS}op:$IBS_OP_EVENTS:$IBS_OP_COUNT:$IBS_OP_UNITMASK"
+		fi
+	fi
+}
+
+#
+# End IBS Specific Functions
+#
 
 # main
 
 # determine the location of opcontrol and related programs
 if test -z "$OPDIR"; then
-	BINDIR="/bin"
+	BINDIR="/usr/bin"
 	OPCONTROL=`$BINDIR/which $0`
 	OPDIR=`$BINDIR/dirname $OPCONTROL`
 fi
 
-PATH=/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin
+PATH=$OPDIR:/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin
 
 check_options_early $@
 
@@ -1671,18 +1983,34 @@ if test -z "$1"; then
 fi
 
 if test `id -u` = "0"; then
+	try_reset_sample_file $@
+
 	load_module
 fi
 check_version
 
+# Except --reset, even the few operations allowed as non root needs the
+# kernel support, if we don't error out now the error message will be obscure
+check_oprofile_available
+
 do_init
 if test `id -u` != "0"; then
-    if test "$1" = "--dump" -a -z "$2"; then
-	ONLY_DUMP=yes
-	do_dump
-	exit 0;
-    elif test "$1" = "--list-events" -a -z "$2"; then
-	exec $OPHELP
+    if test -z "$2"; then
+	case "$1" in
+	    --dump|-d)
+		ONLY_DUMP=yes
+		do_dump
+		exit 0;
+		;;
+	    --list-events|-l)
+		exec $OPHELP
+		exit 0;
+		;;
+	    *)
+		echo "Normal users are limited to either '--dump' or '--list-events'." >&2
+		exit 1
+		;;
+	esac
     else
 	echo "Normal users are limited to either '--dump' or '--list-events'." >&2
 	exit 1

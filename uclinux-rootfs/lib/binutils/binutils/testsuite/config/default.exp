@@ -1,9 +1,9 @@
-#   Copyright 1993, 1994, 1995, 1997, 1999, 2001, 2002, 2004, 2005
+#   Copyright 1993, 1994, 1995, 1997, 1999, 2001, 2002, 2004, 2005, 2007
 #   Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 # 
 # This program is distributed in the hope that it will be useful,
@@ -94,8 +94,14 @@ if {[file isfile ld/ld-new[exe_ext]]} then {
 } else {
     link_or_copy ld/ld-new ld[exe_ext]
 }
-set gcc_gas_flag "-B[pwd]/tmpdir/gas/"
-set dlltool_gas_flag "-S [pwd]/tmpdir/gas/as[exe_ext]"
+if {[file isfile tmpdir/gas/as[exe_ext]]} then {
+    set gcc_gas_flag "-B[pwd]/tmpdir/gas/"
+    set dlltool_gas_flag "-S [pwd]/tmpdir/gas/as[exe_ext]"
+} else {
+    # Testing an installed toolchain.
+    set gcc_gas_flag ""
+    set dlltool_gas_flag ""
+}
 
 #
 # binutils_run

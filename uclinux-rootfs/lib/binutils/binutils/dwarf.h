@@ -1,25 +1,23 @@
-/* dwwrf.h - DWARF support header file
-   Copyright 2005
+/* dwarf.h - DWARF support header file
+   Copyright 2005, 2007, 2008
    Free Software Foundation, Inc.
 
-This file is part of GNU Binutils.
+   This file is part of GNU Binutils.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
-
-#include "bfd.h"
-#include "elf/dwarf2.h"
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #if __STDC_VERSION__ >= 199901L || (defined(__GNUC__) && __GNUC__ >= 2)
 /* We can't use any bfd types here since readelf may define BFD64 and
@@ -33,7 +31,13 @@ typedef unsigned long dwarf_size_type;
 
 struct dwarf_section
 {
-  const char *name;
+  /* A debug section has a different name when it's stored compressed
+   * or not.  COMPRESSED_NAME and UNCOMPRESSED_NAME are the two
+   * possibilities.  NAME is set to whichever one is used for this
+   * input file, as determined by load_debug_section().  */
+  const char *uncompressed_name;
+  const char *compressed_name;
+  const char* name;
   unsigned char *start;
   dwarf_vma address;
   dwarf_size_type size;
@@ -93,12 +97,12 @@ extern dwarf_vma (*byte_get) (unsigned char *, int);
 extern dwarf_vma byte_get_little_endian (unsigned char *, int);
 extern dwarf_vma byte_get_big_endian (unsigned char *, int);
 
-extern dwarf_vma eh_addr_size;
-extern int is_relocatable;
+extern int eh_addr_size;
 
 extern int do_debug_info;
 extern int do_debug_abbrevs;
 extern int do_debug_lines;
+extern int do_debug_lines_decoded;
 extern int do_debug_pubnames;
 extern int do_debug_aranges;
 extern int do_debug_ranges;
@@ -107,6 +111,8 @@ extern int do_debug_frames_interp;
 extern int do_debug_macinfo;
 extern int do_debug_str;
 extern int do_debug_loc;
+
+extern void init_dwarf_regnames (unsigned int);
 
 extern int load_debug_section (enum dwarf_section_display_enum,
 			       void *);

@@ -1,5 +1,6 @@
 SUBDIRS = . tests
 
+AM_CPPFLAGS=-I ${top_srcdir}/libop
 AM_CFLAGS = @OP_CFLAGS@
 
 noinst_LIBRARIES = libutil.a
@@ -25,4 +26,6 @@ libutil_a_SOURCES = \
 	op_string.h \
 	op_cpufreq.h \
 	op_version.c \
-	op_version.h
+	op_version.h \
+	op_growable_buffer.c \
+	op_growable_buffer.h

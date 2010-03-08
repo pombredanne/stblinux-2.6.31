@@ -1,12 +1,12 @@
 # This shell script emits a C file. -*- C -*-
-#   Copyright 2003, 2004, 2005, 2006
+#   Copyright 2003, 2004, 2005, 2006, 2007, 2008
 #   Free Software Foundation, Inc.
 #
-# This file is part of GLD, the Gnu Linker.
+# This file is part of the GNU Binutils.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,14 +16,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, 
-# MA 02110-1301 USA.
+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+# MA 02110-1301, USA.
 #
 
 # This file is sourced from elf32.em, and defines extra xtensa-elf
 # specific routines.
 #
-cat >>e${EMULATION_NAME}.c <<EOF
+fragment <<EOF
 
 #include <xtensa-config.h>
 #include "../bfd/elf-bfd.h"
@@ -104,7 +104,7 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
   Elf_Internal_Shdr *symtab_hdr;
   Elf_Internal_Rela *internal_relocs = NULL;
   unsigned reloc_count;
- 
+
   *error_message = "";
   insn_sec = bfd_get_section_by_name (abfd, insn_sec_name);
   if (insn_sec == NULL)
@@ -117,7 +117,7 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
       *error_message = _("file already has property tables");
       return FALSE;
     }
-  
+
   if (insn_sec->size != 0)
     {
       insn_contents = (bfd_byte *) bfd_malloc (insn_sec->size);
@@ -144,7 +144,7 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
       *error_message = _("could not create new section");
       goto cleanup;
     }
-  
+
   prop_sec->size = entry_count * 12;
   prop_contents = (bfd_byte *) bfd_zalloc (abfd, prop_sec->size);
   elf_section_data (prop_sec)->this_hdr.contents = prop_contents;
@@ -153,7 +153,7 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
      the number of relocations since it does not use reloc_count.  */
   elf_section_data (prop_sec)->rel_hdr.sh_entsize =
     sizeof (Elf32_External_Rela);
-  elf_section_data (prop_sec)->rel_hdr.sh_size = 
+  elf_section_data (prop_sec)->rel_hdr.sh_size =
     elf_section_data (insn_sec)->rel_hdr.sh_size;
 
   if (prop_contents == NULL && prop_sec->size != 0)
@@ -169,12 +169,12 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
       /* If there is already an internal_reloc, then save it so that the
 	 read_relocs function freshly allocates a copy.  */
       Elf_Internal_Rela *saved_relocs = elf_section_data (insn_sec)->relocs;
-      
+
       elf_section_data (insn_sec)->relocs = NULL;
-      internal_relocs = 
+      internal_relocs =
 	_bfd_elf_link_read_relocs (abfd, insn_sec, NULL, NULL, FALSE);
       elf_section_data (insn_sec)->relocs = saved_relocs;
-      
+
       if (internal_relocs == NULL)
 	{
 	  *error_message = _("out of memory");
@@ -188,13 +188,13 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
       elf_section_data (prop_sec)->relocs = internal_relocs;
       prop_sec->reloc_count = reloc_count;
     }
-  
+
   /* Now copy each insn table entry to the prop table entry with
      appropriate flags.  */
   for (entry = 0; entry < entry_count; ++entry)
     {
       unsigned value;
-      unsigned flags = (XTENSA_PROP_INSN | XTENSA_PROP_INSN_NO_TRANSFORM
+      unsigned flags = (XTENSA_PROP_INSN | XTENSA_PROP_NO_TRANSFORM
 			| XTENSA_PROP_INSN_NO_REORDER);
       value = bfd_get_32 (abfd, insn_contents + entry * 8 + 0);
       bfd_put_32 (abfd, value, prop_contents + entry * 12 + 0);
@@ -218,7 +218,7 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
 
 	  rela = &internal_relocs[i];
 
-	  /* If this relocation is to the .xt.insn section, 
+	  /* If this relocation is to the .xt.insn section,
 	     change the section number and the offset.  */
 	  r_offset = rela->r_offset;
 	  r_offset += 4 * (r_offset / 8);
@@ -227,10 +227,10 @@ replace_insn_sec_with_prop_sec (bfd *abfd,
     }
 
   remove_section (abfd, insn_sec);
-  
+
   if (insn_contents)
     free (insn_contents);
-  
+
   return TRUE;
 
  cleanup:
@@ -258,7 +258,7 @@ replace_instruction_table_sections (bfd *abfd, asection *sec)
   char *prop_sec_name = NULL;
   char *owned_prop_sec_name = NULL;
   const char *sec_name;
-    
+
   sec_name = bfd_get_section_name (abfd, sec);
   if (strcmp (sec_name, INSN_SEC_BASE_NAME) == 0)
     {
@@ -297,7 +297,7 @@ elf_xtensa_after_open (void)
 {
   /* First call the ELF version.  */
   gld${EMULATION_NAME}_after_open ();
-  
+
   /* Now search the input files looking for instruction table sections.  */
   LANG_FOR_EACH_INPUT_STATEMENT (f)
     {
@@ -434,12 +434,14 @@ elf_xtensa_before_allocation (void)
      required to process relocations) for the selected Xtensa
      configuration.  */
 
-  if (is_big_endian && output_bfd->xvec->byteorder == BFD_ENDIAN_LITTLE)
+  if (is_big_endian
+      && link_info.output_bfd->xvec->byteorder == BFD_ENDIAN_LITTLE)
     {
       einfo (_("%F%P: little endian output does not match "
 	       "Xtensa configuration\n"));
     }
-  if (!is_big_endian && output_bfd->xvec->byteorder == BFD_ENDIAN_BIG)
+  if (!is_big_endian
+      && link_info.output_bfd->xvec->byteorder == BFD_ENDIAN_BIG)
     {
       einfo (_("%F%P: big endian output does not match "
 	       "Xtensa configuration\n"));
@@ -1999,8 +2001,11 @@ PARSE_AND_LIST_LONGOPTS='
 '
 
 PARSE_AND_LIST_OPTIONS='
-  fprintf (file, _("  --size-opt\t\tWhen relaxing longcalls, prefer size optimization\n\t\t\t  over branch target alignment\n"));
-  fprintf (file, _("  --no-relax\t\tDo not relax branches or coalesce literals\n"));
+  fprintf (file, _("\
+  --size-opt                  When relaxing longcalls, prefer size\n\
+                                optimization over branch target alignment\n"));
+  fprintf (file, _("\
+  --no-relax                  Do not relax branches or coalesce literals\n"));
 '
 
 PARSE_AND_LIST_ARGS_CASES='
@@ -2024,4 +2029,3 @@ LDEMUL_BEFORE_PARSE=elf_xtensa_before_parse
 LDEMUL_AFTER_OPEN=elf_xtensa_after_open
 LDEMUL_CHOOSE_TARGET=elf_xtensa_choose_target
 LDEMUL_BEFORE_ALLOCATION=elf_xtensa_before_allocation
-

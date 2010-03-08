@@ -324,7 +324,7 @@ void __init board_pinmux_setup(void)
 	PINMUX(7, sgpio_03, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCB_REG_START);
 
-#elif defined(CONFIG_BCM7420B0)
+#elif defined(CONFIG_BCM7420)
 
 	PINMUX(7, gpio_000, 1);		// ENET LEDs
 	PINMUX(7, gpio_001, 1);

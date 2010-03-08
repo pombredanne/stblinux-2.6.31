@@ -1,11 +1,11 @@
 # This shell script emits a C file. -*- C -*-
-#   Copyright 2003, 2004, 2005 Free Software Foundation, Inc.
+#   Copyright 2003, 2004, 2005, 2007, 2008 Free Software Foundation, Inc.
 #
-# This file is part of GLD, the Gnu Linker.
+# This file is part of the GNU Binutils.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -15,13 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+# MA 02110-1301, USA.
 #
 
 # This file is sourced from elf32.em, and defines extra alpha
 # specific routines.
 #
-cat >>e${EMULATION_NAME}.c <<EOF
+fragment <<EOF
 
 #include "elf/internal.h"
 #include "elf/alpha.h"
@@ -31,8 +32,6 @@ static bfd_boolean limit_32bit;
 static bfd_boolean disable_relaxation;
 
 extern bfd_boolean elf64_alpha_use_secureplt;
-extern const bfd_target bfd_elf64_alpha_vec;
-extern const bfd_target bfd_elf64_alpha_freebsd_vec;
 
 
 /* Set the start address as in the Tru64 ld.  */
@@ -41,8 +40,8 @@ extern const bfd_target bfd_elf64_alpha_freebsd_vec;
 static void
 alpha_after_open (void)
 {
-  if (link_info.hash->creator == &bfd_elf64_alpha_vec
-      || link_info.hash->creator == &bfd_elf64_alpha_freebsd_vec)
+  if (bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour
+      && elf_object_id (link_info.output_bfd) == ALPHA_ELF_TDATA)
     {
       unsigned int num_plt;
       lang_output_section_statement_type *os;
@@ -97,7 +96,7 @@ static void
 alpha_finish (void)
 {
   if (limit_32bit)
-    elf_elfheader (output_bfd)->e_flags |= EF_ALPHA_32BIT;
+    elf_elfheader (link_info.output_bfd)->e_flags |= EF_ALPHA_32BIT;
 
   gld${EMULATION_NAME}_finish ();
 }
@@ -122,11 +121,11 @@ PARSE_AND_LIST_LONGOPTS='
 
 PARSE_AND_LIST_OPTIONS='
   fprintf (file, _("\
-  --taso		Load executable in the lower 31-bit addressable\n\
-			virtual address range.\n\
-  --no-relax		Do not relax call and gp sequences.\n\
-  --secureplt		Force PLT in text segment.\n\
-  --no-secureplt	Force PLT in data segment.\n\
+  --taso                      Load executable in the lower 31-bit addressable\n\
+                                virtual address range.\n\
+  --no-relax                  Do not relax call and gp sequences.\n\
+  --secureplt                 Force PLT in text segment.\n\
+  --no-secureplt              Force PLT in data segment.\n\
 "));
 '
 

@@ -1,6 +1,6 @@
 /* i370-specific support for 32-bit ELF
    Copyright 1994, 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006 Free Software Foundation, Inc.
+   2005, 2006, 2007 Free Software Foundation, Inc.
    Written by Ian Lance Taylor, Cygnus Support.
    Hacked by Linas Vepstas for i370 linas@linas.org
 
@@ -8,7 +8,7 @@
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -27,8 +27,8 @@
    else is a wild card.  In particular, don't expect shared libs or
    dynamic loading to work ...  its never been tested.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
 #include "elf-bfd.h"
@@ -267,6 +267,22 @@ i370_elf_reloc_type_lookup (bfd *abfd ATTRIBUTE_UNUSED,
   return i370_elf_howto_table[ (int)i370_reloc ];
 };
 
+static reloc_howto_type *
+i370_elf_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+			    const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < sizeof (i370_elf_howto_raw) / sizeof (i370_elf_howto_raw[0]);
+       i++)
+    if (i370_elf_howto_raw[i].name != NULL
+	&& strcasecmp (i370_elf_howto_raw[i].name, r_name) == 0)
+      return &i370_elf_howto_raw[i];
+
+  return NULL;
+}
+
 /* The name of the dynamic interpreter.  This is put in the .interp
     section.  */
 
@@ -445,7 +461,6 @@ i370_elf_adjust_dynamic_symbol (struct bfd_link_info *info,
 {
   bfd *dynobj = elf_hash_table (info)->dynobj;
   asection *s;
-  unsigned int power_of_two;
 
 #ifdef DEBUG
   fprintf (stderr, "i370_elf_adjust_dynamic_symbol called for %s\n",
@@ -530,28 +545,7 @@ i370_elf_adjust_dynamic_symbol (struct bfd_link_info *info,
       h->needs_copy = 1;
     }
 
-  /* We need to figure out the alignment required for this symbol.  I
-     have no idea how ELF linkers handle this.  */
-  power_of_two = bfd_log2 (h->size);
-  if (power_of_two > 4)
-    power_of_two = 4;
-
-  /* Apply the required alignment.  */
-  s->size = BFD_ALIGN (s->size, (bfd_size_type) (1 << power_of_two));
-  if (power_of_two > bfd_get_section_alignment (dynobj, s))
-    {
-      if (! bfd_set_section_alignment (dynobj, s, power_of_two))
-	return FALSE;
-    }
-
-  /* Define the symbol as being at this point in the section.  */
-  h->root.u.def.section = s;
-  h->root.u.def.value = s->size;
-
-  /* Increment the section size to make room for the symbol.  */
-  s->size += h->size;
-
-  return TRUE;
+  return _bfd_elf_adjust_dynamic_copy (h, s);
 }
 
 /* Increment the index of a dynamic symbol by a given amount.  Called
@@ -1077,9 +1071,6 @@ i370_elf_relocate_section (bfd *output_bfd,
   bfd_vma *local_got_offsets;
   bfd_boolean ret = TRUE;
 
-  if (info->relocatable)
-    return TRUE;
-
 #ifdef DEBUG
   _bfd_error_handler ("i370_elf_relocate_section called for %B section %A, %ld relocations%s",
 		      input_bfd, input_section,
@@ -1122,6 +1113,7 @@ i370_elf_relocate_section (bfd *output_bfd,
 
       howto = i370_elf_howto_table[(int) r_type];
       r_symndx = ELF32_R_SYM (rel->r_info);
+      relocation = 0;
 
       if (r_symndx < symtab_hdr->sh_info)
 	{
@@ -1154,18 +1146,18 @@ i370_elf_relocate_section (bfd *output_bfd,
 		/* In these cases, we don't need the relocation
 		   value.  We check specially because in some
 		   obscure cases sec->output_section will be NULL.  */
-		relocation = 0;
+		;
 	      else
 		relocation = (h->root.u.def.value
 			      + sec->output_section->vma
 			      + sec->output_offset);
 	    }
 	  else if (h->root.type == bfd_link_hash_undefweak)
-	    relocation = 0;
+	    ;
 	  else if (info->unresolved_syms_in_objects == RM_IGNORE
 		   && ELF_ST_VISIBILITY (h->other) == STV_DEFAULT)
-	    relocation = 0;
-	  else
+	    ;
+	  else if (!info->relocatable)
 	    {
 	      if ((*info->callbacks->undefined_symbol)
 		  (info, h->root.root.string, input_bfd,
@@ -1176,9 +1168,22 @@ i370_elf_relocate_section (bfd *output_bfd,
 		  ret = FALSE;
 		  continue;
 		}
-	      relocation = 0;
 	    }
 	}
+
+      if (sec != NULL && elf_discarded_section (sec))
+	{
+	  /* For relocs against symbols from removed linkonce sections,
+	     or sections discarded by a linker script, we just want the
+	     section contents zeroed.  Avoid any special processing.  */
+	  _bfd_clear_contents (howto, input_bfd, contents + rel->r_offset);
+	  rel->r_info = 0;
+	  rel->r_addend = 0;
+	  continue;
+	}
+
+      if (info->relocatable)
+	continue;
 
       switch ((int) r_type)
 	{
@@ -1423,6 +1428,7 @@ i370_elf_relocate_section (bfd *output_bfd,
 #define elf_backend_rela_normal    1
 
 #define bfd_elf32_bfd_reloc_type_lookup		i370_elf_reloc_type_lookup
+#define bfd_elf32_bfd_reloc_name_lookup	i370_elf_reloc_name_lookup
 #define bfd_elf32_bfd_set_private_flags		i370_elf_set_private_flags
 #define bfd_elf32_bfd_merge_private_bfd_data	i370_elf_merge_private_bfd_data
 #define elf_backend_relocate_section		i370_elf_relocate_section

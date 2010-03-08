@@ -110,13 +110,12 @@ string get_cpu_num(size_t pclass)
 };  // anonymous namespace
 
 xml_utils::xml_utils(format_output::xml_formatter * xo,
-                    symbol_collection const & s, size_t nc,
-                    string_filter * sf, string const & ap)
+		     symbol_collection const & s, size_t nc,
+		     extra_images const & extra)
 	:
-	symbol_filter(sf),
-	archive_path(ap),
 	has_subclasses(false),
-	bytes_index(0)
+	bytes_index(0),
+	extra_found_images(extra)
 {
 	xml_out = xo;
 	nr_classes = nc;
@@ -250,7 +249,7 @@ void xml_utils::output_xml_header(string const & command_options,
 	// both here and in the schema file when major changes are made to
 	// the schema.  changes to opreport, or minor changes to the schema
 	// can be indicated by changes to the fraction part.
-	string const schema_version = "2.0";
+	string const schema_version = "3.0";
 
 	// This is the XML version, not schema version.
 	string const xml_header = "<?xml version=\"1.0\" ?>";
@@ -372,27 +371,11 @@ get_counts_string(count_array_t const & counts, size_t begin, size_t end)
 
 void
 xml_utils::output_symbol_bytes(ostream & out, symbol_entry const * symb,
-	                           size_t sym_id)
+			       size_t sym_id, op_bfd const & abfd)
 {
-	bool ok = true;
-
-	string const & image_name = get_image_name(symb->image_name, true);
-	op_bfd * abfd = NULL;
-	if (symb->spu_offset)
-		abfd = new op_bfd(archive_path, symb->spu_offset,
-				  get_image_name(symb->embedding_filename, true),
-				  *symbol_filter, ok);
-	else
-		abfd = new op_bfd(archive_path, image_name, *symbol_filter, ok);
-	if (!ok) {
-		report_image_error(image_name, image_format_failure, false);
-		delete abfd;
-		return;
-	}
-
 	size_t size = symb->size;
-	unsigned char contents[size];
-	if (abfd->get_symbol_contents(symb->sym_index, contents)) {
+	scoped_array<unsigned char> contents(new unsigned char[size]);
+	if (abfd.get_symbol_contents(symb->sym_index, contents.get())) {
 		string const name = symbol_names.name(symb->name);
 		out << open_element(BYTES, true) << init_attr(TABLE_ID, sym_id);
 		out << close_element(NONE, true);
@@ -405,7 +388,6 @@ xml_utils::output_symbol_bytes(ostream & out, symbol_entry const * symb,
 		}
 		out << close_element(BYTES);
 	}
-	delete abfd;
 }
 
 
@@ -502,7 +484,7 @@ public:
 	void add_modules(string const & module, string const & app_name,
 		sym_iterator it);
 	void summarize();
-	void summarize_processes();
+	void summarize_processes(extra_images const & extra_found_images);
 	void set_process_end();
 	void output_process_symbols(ostream & out);
 	void dump_processes();
@@ -532,7 +514,7 @@ class binary_root_info {
 public:
 	binary_root_info() { nr_binaries = 0; }
 	binary_info * add_binary(string const & n, sym_iterator it);
-	void summarize_binaries();
+	void summarize_binaries(extra_images const & extra_found_images);
 	void output_binary_symbols(ostream & out);
 	void dump_binaries();
 private:
@@ -541,8 +523,8 @@ private:
 	growable_vector<binary_info> binaries;
 };
 
-process_root_info processes_root;
-binary_root_info binaries_root;
+static process_root_info processes_root;
+static binary_root_info binaries_root;
 
 
 void module_info::
@@ -623,9 +605,6 @@ void binary_info::close_binary(sym_iterator it)
 	if (nr_modules > 0) {
 		module_info & m = my_modules[nr_modules-1];
 		m.set_end(it);
-
-		// propagate module summary to binary
-		add_to_summary(m.get_summary());
 	}
 }
 
@@ -633,9 +612,8 @@ void binary_info::close_binary(sym_iterator it)
 void binary_info::dump()
 {
 	cverb << vxml << "app_name=" << name << endl;
-	if (begin != (sym_iterator)0) {
+	if (begin != (sym_iterator)0)
 		dump_symbols("	", begin, end);
-	}
 
 	for (size_t i = 0; i < nr_modules; ++i)
 		my_modules[i].dump();
@@ -656,10 +634,9 @@ add_module_symbol(string const & module, string const & app,
 			// close out current module
 			module_info & mod = my_modules[m-1];
 			mod.set_end(it);
-			add_to_summary(mod.get_summary());
 		}
 
-		// no module, so add symbol count to binary count
+		// add symbol count to binary count
 		add_to_summary((*it)->sample.counts);
 		return;
 	}
@@ -691,14 +668,17 @@ add_module_symbol(string const & module, string const & app,
 }
 
 
-void binary_root_info::summarize_binaries()
+void binary_root_info::
+summarize_binaries(extra_images const & extra_found_images)
 {
 	binary_info * current_binary = 0;
 	string current_binary_name = "";
 
 	for (sym_iterator it = symbols_begin ; it != symbols_end; ++it) {
-		string binary = get_image_name((*it)->app_name, true);
-		string module = get_image_name((*it)->image_name, true);
+		string binary = get_image_name((*it)->app_name,
+			image_name_storage::int_filename, extra_found_images);
+		string module = get_image_name((*it)->image_name,
+			image_name_storage::int_filename, extra_found_images);
 
 		if (binary != current_binary_name) {
 			current_binary = binaries_root.add_binary(binary, it);
@@ -738,12 +718,15 @@ void process_root_info::summarize()
 }
 
 
-void process_root_info::summarize_processes()
+void process_root_info::
+summarize_processes(extra_images const & extra_found_images)
 {
 	// add modules to the appropriate threads in the process hierarchy
 	for (sym_iterator it = symbols_begin ; it != symbols_end; ++it) {
-		string binary = get_image_name((*it)->app_name, true);
-		string module = get_image_name((*it)->image_name, true);
+		string binary = get_image_name((*it)->app_name, 
+			image_name_storage::int_filename, extra_found_images);
+		string module = get_image_name((*it)->image_name,
+			image_name_storage::int_filename, extra_found_images);
 
 		processes_root.add_modules(module, binary, it);
 	}
@@ -1042,12 +1025,12 @@ void xml_utils::output_program_structure(ostream & out)
 
 	if (has_separated_thread_info()) {
 		build_process_tree();
-		processes_root.summarize_processes();
+		processes_root.summarize_processes(extra_found_images);
 		if (cverb << vxml)
 			processes_root.dump_processes();
 		processes_root.output_process_symbols(out);
 	} else {
-		binaries_root.summarize_binaries();
+		binaries_root.summarize_binaries(extra_found_images);
 		if (cverb << vxml)
 			binaries_root.dump_binaries();
 		binaries_root.output_binary_symbols(out);

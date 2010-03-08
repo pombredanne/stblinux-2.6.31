@@ -81,27 +81,27 @@ static char const * const events_ppro_5[] = {
 };
 
 static char const * const events_p4_1[] = {
-	"BRANCH_RETIRED:4096:0:1:1",
-	"MISPRED_BRANCH_RETIRED:4096:0:1:1",
-	"BPU_FETCH_REQUEST:4096:0:1:1",
-	"ITLB_REFERENCE:4096:0:1:1",
-	"MEMORY_CANCEL:4096:0:1:1",
-	"MEMORY_COMPLETE:4096:0:1:1",
-	"TC_MS_XFER:4096:0:1:1",
-	"UOP_QUEUE_WRITES:4096:0:1:1",
+	"BRANCH_RETIRED:4096:1:1:1",
+	"MISPRED_BRANCH_RETIRED:4096:1:1:1",
+	"BPU_FETCH_REQUEST:4096:1:1:1",
+	"ITLB_REFERENCE:4096:1:1:1",
+	"MEMORY_CANCEL:4096:4:1:1",
+	"MEMORY_COMPLETE:4096:1:1:1",
+	"TC_MS_XFER:4096:1:1:1",
+	"UOP_QUEUE_WRITES:4096:1:1:1",
 	NULL
 };
 
 static char const * const events_p4_2[] = {
 	/* fail_to_alloc_counter: 3 event to counter 3, 7 */
-	"BRANCH_RETIRED:4096:0:1:1",
-	"MISPRED_BRANCH_RETIRED:4096:0:1:1",
-	"INSTR_RETIRED:4096:0:1:1",
-	"BPU_FETCH_REQUEST:4096:0:1:1",
-	"ITLB_REFERENCE:4096:0:1:1",
-	"MEMORY_CANCEL:4096:0:1:1",
-	"MEMORY_COMPLETE:4096:0:1:1",
-	"TC_MS_XFER:4096:0:1:1",
+	"BRANCH_RETIRED:4096:1:1:1",
+	"MISPRED_BRANCH_RETIRED:4096:1:1:1",
+	"INSTR_RETIRED:4096:1:1:1",
+	"BPU_FETCH_REQUEST:4096:1:1:1",
+	"ITLB_REFERENCE:4096:1:1:1",
+	"MEMORY_CANCEL:4096:4:1:1",
+	"MEMORY_COMPLETE:4096:1:1:1",
+	"TC_MS_XFER:4096:1:1:1",
 	NULL
 };
 
@@ -109,7 +109,7 @@ static char const * const events_mips_34k[] = {
 	/* fail_to_alloc_counter: w/o 2006-8-03  Jeremiah Lott patch, see
 	 * ChangeLog */
 	"INSTRUCTIONS:500:0:1:1",
-	"BRANCH_MISPREDICTS:500:0:1:1",
+	"JR_31_INSN_EXECED:500:0:1:1",
 	"BRANCH_INSNS_LAUNCHED:500:0:1:1",
 	"L2_MISSES:500:0:1:1",
 	NULL
@@ -159,7 +159,8 @@ static void do_test(struct allocated_counter const * it)
 	nr_events = parse_events(parsed, MAX_EVENTS, it->events);
 
 	for (i = 0; i < nr_events; ++i) {
-		event[i] = find_event_by_name(parsed[i].name);
+		event[i] = find_event_by_name(parsed[i].name, parsed[i].unit_mask,
+		                              parsed[i].unit_mask_valid);
 		if (!event[i]) {
 			if (it->failure == fail_to_find_event)
 				goto free_events;

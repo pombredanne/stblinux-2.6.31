@@ -1,6 +1,6 @@
 /* MIPS-specific support for 32-bit ELF
    Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-   2003, 2004, 2005 Free Software Foundation, Inc.
+   2003, 2004, 2005, 2007 Free Software Foundation, Inc.
 
    Most of the information added by Ian Lance Taylor, Cygnus Support,
    <ian@cygnus.com>.
@@ -9,28 +9,30 @@
    Traditional MIPS targets support added by Koundinya.K, Dansk Data
    Elektronik & Operations Research Group. <kk@ddeorg.soft.net>
 
-This file is part of BFD, the Binary File Descriptor library.
+   This file is part of BFD, the Binary File Descriptor library.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
+
 
 /* This file handles MIPS ELF targets.  SGI Irix 5 uses a slightly
    different MIPS ELF from other targets.  This matters when linking.
    This file supports both, switching at runtime.  */
 
-#include "bfd.h"
 #include "sysdep.h"
+#include "bfd.h"
 #include "libbfd.h"
 #include "bfdlink.h"
 #include "genlink.h"
@@ -769,11 +771,35 @@ static reloc_howto_type elf_mips16_howto_table_rel[] =
 	 0x0000ffff,	        /* dst_mask */
 	 FALSE),		/* pcrel_offset */
 
-  /* A placeholder for MIPS16 reference to global offset table.  */
-  EMPTY_HOWTO (R_MIPS16_GOT16),
+  /* A MIPS16 reference to the global offset table.  */
+  HOWTO (R_MIPS16_GOT16,	/* type */
+	 0,			/* rightshift */
+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
+	 16,			/* bitsize */
+	 FALSE,			/* pc_relative */
+	 0,			/* bitpos */
+	 complain_overflow_dont, /* complain_on_overflow */
+	 _bfd_mips_elf_got16_reloc, /* special_function */
+	 "R_MIPS16_GOT16",	/* name */
+	 TRUE,			/* partial_inplace */
+	 0x0000ffff,		/* src_mask */
+	 0x0000ffff,	        /* dst_mask */
+	 FALSE),		/* pcrel_offset */
 
-  /* A placeholder for MIPS16 16 bit call through global offset table.  */
-  EMPTY_HOWTO (R_MIPS16_CALL16),
+  /* A MIPS16 call through the global offset table.  */
+  HOWTO (R_MIPS16_CALL16,	/* type */
+	 0,			/* rightshift */
+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
+	 16,			/* bitsize */
+	 FALSE,			/* pc_relative */
+	 0,			/* bitpos */
+	 complain_overflow_dont, /* complain_on_overflow */
+	 _bfd_mips_elf_generic_reloc, /* special_function */
+	 "R_MIPS16_CALL16",	/* name */
+	 TRUE,			/* partial_inplace */
+	 0x0000ffff,		/* src_mask */
+	 0x0000ffff,	        /* dst_mask */
+	 FALSE),		/* pcrel_offset */
 
   /* MIPS16 high 16 bits of symbol value.  */
   HOWTO (R_MIPS16_HI16,		/* type */
@@ -871,6 +897,38 @@ static reloc_howto_type elf_mips_gnu_vtentry_howto =
 	 FALSE,			/* partial_inplace */
 	 0,			/* src_mask */
 	 0,			/* dst_mask */
+	 FALSE);		/* pcrel_offset */
+
+/* Originally a VxWorks extension, but now used for other systems too.  */
+static reloc_howto_type elf_mips_copy_howto =
+  HOWTO (R_MIPS_COPY,		/* type */
+	 0,			/* rightshift */
+	 0,			/* this one is variable size */
+	 0,			/* bitsize */
+	 FALSE,			/* pc_relative */
+	 0,			/* bitpos */
+	 complain_overflow_bitfield, /* complain_on_overflow */
+	 bfd_elf_generic_reloc,	/* special_function */
+	 "R_MIPS_COPY",		/* name */
+	 FALSE,			/* partial_inplace */
+	 0x0,         		/* src_mask */
+	 0x0,		        /* dst_mask */
+	 FALSE);		/* pcrel_offset */
+
+/* Originally a VxWorks extension, but now used for other systems too.  */
+static reloc_howto_type elf_mips_jump_slot_howto =
+  HOWTO (R_MIPS_JUMP_SLOT,	/* type */
+	 0,			/* rightshift */
+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
+	 32,			/* bitsize */
+	 FALSE,			/* pc_relative */
+	 0,			/* bitpos */
+	 complain_overflow_bitfield, /* complain_on_overflow */
+	 bfd_elf_generic_reloc,	/* special_function */
+	 "R_MIPS_JUMP_SLOT",	/* name */
+	 FALSE,			/* partial_inplace */
+	 0x0,         		/* src_mask */
+	 0x0,		        /* dst_mask */
 	 FALSE);		/* pcrel_offset */
 
 /* Set the GP value for OUTPUT_BFD.  Returns FALSE if this is a
@@ -1222,6 +1280,8 @@ static const struct elf_reloc_map mips16_reloc_map[] =
 {
   { BFD_RELOC_MIPS16_JMP, R_MIPS16_26 - R_MIPS16_min },
   { BFD_RELOC_MIPS16_GPREL, R_MIPS16_GPREL - R_MIPS16_min },
+  { BFD_RELOC_MIPS16_GOT16, R_MIPS16_GOT16 - R_MIPS16_min },
+  { BFD_RELOC_MIPS16_CALL16, R_MIPS16_CALL16 - R_MIPS16_min },
   { BFD_RELOC_MIPS16_HI16_S, R_MIPS16_HI16 - R_MIPS16_min },
   { BFD_RELOC_MIPS16_LO16, R_MIPS16_LO16 - R_MIPS16_min },
 };
@@ -1271,7 +1331,49 @@ bfd_elf32_bfd_reloc_type_lookup (bfd *abfd, bfd_reloc_code_real_type code)
       return &elf_mips_gnu_vtentry_howto;
     case BFD_RELOC_32_PCREL:
       return &elf_mips_gnu_pcrel32;
+    case BFD_RELOC_MIPS_COPY:
+      return &elf_mips_copy_howto;
+    case BFD_RELOC_MIPS_JUMP_SLOT:
+      return &elf_mips_jump_slot_howto;
     }
+}
+
+static reloc_howto_type *
+bfd_elf32_bfd_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+				 const char *r_name)
+{
+  unsigned int i;
+
+  for (i = 0;
+       i < (sizeof (elf_mips_howto_table_rel)
+	    / sizeof (elf_mips_howto_table_rel[0]));
+       i++)
+    if (elf_mips_howto_table_rel[i].name != NULL
+	&& strcasecmp (elf_mips_howto_table_rel[i].name, r_name) == 0)
+      return &elf_mips_howto_table_rel[i];
+
+  for (i = 0;
+       i < (sizeof (elf_mips16_howto_table_rel)
+	    / sizeof (elf_mips16_howto_table_rel[0]));
+       i++)
+    if (elf_mips16_howto_table_rel[i].name != NULL
+	&& strcasecmp (elf_mips16_howto_table_rel[i].name, r_name) == 0)
+      return &elf_mips16_howto_table_rel[i];
+
+  if (strcasecmp (elf_mips_gnu_pcrel32.name, r_name) == 0)
+    return &elf_mips_gnu_pcrel32;
+  if (strcasecmp (elf_mips_gnu_rel16_s2.name, r_name) == 0)
+    return &elf_mips_gnu_rel16_s2;
+  if (strcasecmp (elf_mips_gnu_vtinherit_howto.name, r_name) == 0)
+    return &elf_mips_gnu_vtinherit_howto;
+  if (strcasecmp (elf_mips_gnu_vtentry_howto.name, r_name) == 0)
+    return &elf_mips_gnu_vtentry_howto;
+  if (strcasecmp (elf_mips_copy_howto.name, r_name) == 0)
+    return &elf_mips_copy_howto;
+  if (strcasecmp (elf_mips_jump_slot_howto.name, r_name) == 0)
+    return &elf_mips_jump_slot_howto;
+
+  return NULL;
 }
 
 /* Given a MIPS Elf_Internal_Rel, fill in an arelent structure.  */
@@ -1290,6 +1392,10 @@ mips_elf32_rtype_to_howto (unsigned int r_type,
       return &elf_mips_gnu_rel16_s2;
     case R_MIPS_PC32:
       return &elf_mips_gnu_pcrel32;
+    case R_MIPS_COPY:
+      return &elf_mips_copy_howto;
+    case R_MIPS_JUMP_SLOT:
+      return &elf_mips_jump_slot_howto;
     default:
       if (r_type >= R_MIPS16_min && r_type < R_MIPS16_max)
         return &elf_mips16_howto_table_rel[r_type - R_MIPS16_min];
@@ -1522,6 +1628,7 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {
 #define elf_backend_check_relocs	_bfd_mips_elf_check_relocs
 #define elf_backend_merge_symbol_attribute \
 					_bfd_mips_elf_merge_symbol_attribute
+#define elf_backend_get_target_dtag	_bfd_mips_elf_get_target_dtag
 #define elf_backend_adjust_dynamic_symbol \
 					_bfd_mips_elf_adjust_dynamic_symbol
 #define elf_backend_always_size_sections \
@@ -1543,7 +1650,6 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {
 #define elf_backend_gc_sweep_hook	_bfd_mips_elf_gc_sweep_hook
 #define elf_backend_copy_indirect_symbol \
 					_bfd_mips_elf_copy_indirect_symbol
-#define elf_backend_hide_symbol		_bfd_mips_elf_hide_symbol
 #define elf_backend_grok_prstatus	elf32_mips_grok_prstatus
 #define elf_backend_grok_psinfo		elf32_mips_grok_psinfo
 #define elf_backend_ecoff_debug_swap	&mips_elf32_ecoff_debug_swap
@@ -1553,10 +1659,13 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {
 #define elf_backend_may_use_rela_p	0
 #define elf_backend_default_use_rela_p	0
 #define elf_backend_sign_extend_vma	TRUE
+#define elf_backend_plt_readonly	1
+#define elf_backend_plt_sym_val		_bfd_mips_elf_plt_sym_val
 
 #define elf_backend_discard_info	_bfd_mips_elf_discard_info
 #define elf_backend_ignore_discarded_relocs \
 					_bfd_mips_elf_ignore_discarded_relocs
+#define elf_backend_write_section	_bfd_mips_elf_write_section
 #define elf_backend_mips_irix_compat	elf32_mips_irix_compat
 #define elf_backend_mips_rtype_to_howto	mips_elf32_rtype_to_howto
 #define bfd_elf32_bfd_is_local_label_name \
@@ -1567,6 +1676,7 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {
 #define bfd_elf32_set_section_contents	_bfd_mips_elf_set_section_contents
 #define bfd_elf32_bfd_get_relocated_section_contents \
 				_bfd_elf_mips_get_relocated_section_contents
+#define bfd_elf32_mkobject		_bfd_mips_elf_mkobject
 #define bfd_elf32_bfd_link_hash_table_create \
 					_bfd_mips_elf_link_hash_table_create
 #define bfd_elf32_bfd_final_link	_bfd_mips_elf_final_link
@@ -1608,79 +1718,12 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {
    modulo 64 KByte (0x10000) or larger powers of 2.  Because 64 KBytes
    is the maximum page size, the files are suitable for paging
    regardless of physical page size.  */
-/*#define ELF_MAXPAGESIZE			0x10000*/
-/* Use 4K to shrink the elf header.  NOT for general use! */
-#define ELF_MAXPAGESIZE			0x1000
+#define ELF_MAXPAGESIZE			0x10000
 #define ELF_COMMONPAGESIZE		0x1000
 #define elf32_bed			elf32_tradbed
 
 /* Include the target file again for this target.  */
 #include "elf32-target.h"
-
-
-/* Specific to VxWorks.  */
-static reloc_howto_type mips_vxworks_copy_howto_rela =
-  HOWTO (R_MIPS_COPY,		/* type */
-	 0,			/* rightshift */
-	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-	 32,			/* bitsize */
-	 FALSE,			/* pc_relative */
-	 0,			/* bitpos */
-	 complain_overflow_bitfield, /* complain_on_overflow */
-	 bfd_elf_generic_reloc,	/* special_function */
-	 "R_MIPS_COPY",		/* name */
-	 FALSE,			/* partial_inplace */
-	 0x0,         		/* src_mask */
-	 0x0,		        /* dst_mask */
-	 FALSE);		/* pcrel_offset */
-
-/* Specific to VxWorks.  */
-static reloc_howto_type mips_vxworks_jump_slot_howto_rela =
-  HOWTO (R_MIPS_JUMP_SLOT,	/* type */
-	 0,			/* rightshift */
-	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-	 32,			/* bitsize */
-	 FALSE,			/* pc_relative */
-	 0,			/* bitpos */
-	 complain_overflow_bitfield, /* complain_on_overflow */
-	 bfd_elf_generic_reloc,	/* special_function */
-	 "R_MIPS_JUMP_SLOT",	/* name */
-	 FALSE,			/* partial_inplace */
-	 0x0,         		/* src_mask */
-	 0x0,		        /* dst_mask */
-	 FALSE);		/* pcrel_offset */
-
-/* Implement elf_backend_bfd_reloc_type_lookup for VxWorks.  */
-
-static reloc_howto_type *
-mips_vxworks_bfd_reloc_type_lookup (bfd *abfd, bfd_reloc_code_real_type code)
-{
-  switch (code)
-    {
-    case BFD_RELOC_MIPS_COPY:
-      return &mips_vxworks_copy_howto_rela;
-    case BFD_RELOC_MIPS_JUMP_SLOT:
-      return &mips_vxworks_jump_slot_howto_rela;
-    default:
-      return bfd_elf32_bfd_reloc_type_lookup (abfd, code);
-    }
-}
-
-/* Implement elf_backend_mips_rtype_to_lookup for VxWorks.  */
-
-static reloc_howto_type *
-mips_vxworks_rtype_to_howto (unsigned int r_type, bfd_boolean rela_p)
-{
-  switch (r_type)
-    {
-    case R_MIPS_COPY:
-      return &mips_vxworks_copy_howto_rela;
-    case R_MIPS_JUMP_SLOT:
-      return &mips_vxworks_jump_slot_howto_rela;
-    default:
-      return mips_elf32_rtype_to_howto (r_type, rela_p);
-    }
-}
 
 /* Implement elf_backend_final_write_processing for VxWorks.  */
 
@@ -1714,10 +1757,6 @@ mips_vxworks_final_write_processing (bfd *abfd, bfd_boolean linker)
 #define elf_backend_want_got_plt		1
 #undef elf_backend_want_plt_sym
 #define elf_backend_want_plt_sym		1
-#undef elf_backend_got_symbol_offset
-#define elf_backend_got_symbol_offset		0
-#undef elf_backend_want_dynbss
-#define elf_backend_want_dynbss			1
 #undef elf_backend_may_use_rel_p
 #define elf_backend_may_use_rel_p		0
 #undef elf_backend_may_use_rela_p
@@ -1726,18 +1765,8 @@ mips_vxworks_final_write_processing (bfd *abfd, bfd_boolean linker)
 #define elf_backend_default_use_rela_p		1
 #undef elf_backend_got_header_size
 #define elf_backend_got_header_size		(4 * 3)
-#undef elf_backend_plt_readonly
-#define elf_backend_plt_readonly		1
+#undef elf_backend_plt_sym_val
 
-#undef bfd_elf32_bfd_reloc_type_lookup
-#define bfd_elf32_bfd_reloc_type_lookup \
-  mips_vxworks_bfd_reloc_type_lookup
-#undef elf_backend_mips_rtype_to_howto
-#define elf_backend_mips_rtype_to_howto	\
-  mips_vxworks_rtype_to_howto
-#undef elf_backend_adjust_dynamic_symbol
-#define elf_backend_adjust_dynamic_symbol \
-  _bfd_mips_vxworks_adjust_dynamic_symbol
 #undef elf_backend_finish_dynamic_symbol
 #define elf_backend_finish_dynamic_symbol \
   _bfd_mips_vxworks_finish_dynamic_symbol

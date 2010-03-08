@@ -1,326 +1,401 @@
-2007-07-09  Maynard Johnson <maynardj@us.ibm.com>
+2009-11-24  Maynard Johnson  <maynardj@us.ibm.com>
 
-        * doc/opreport.xsd:
-        * libpp/xml_utils.cpp: Correct schema version bump
+	* configure.in: bump version in AM_INIT_AUTOMAKE to 0.9.6
 
-2007-07-02  Maynard Johnson <maynardj@us.ibm.com>
+2009-10-29  William Cohen  <wcohen@redhat.com>
 
-	* libpp/populate_for_spu.cpp: Fix logic in is_spu_profile()
-	  to handle '--separate=thread' option.
+	* daemon/opd_perfmon.c: Fix start-daemon problem on ia64
 
-2007-06-27  Maynard Johnson <maynardj@us.ibm.com>
+2009-10-29  Maynard Johnson  <maynardj@us.ibm.com>
 
-	* ChangeLog: ChangeLog cleanup
+	* events/ppc64/power7/events:
+	* events/ppc64/power7/event_mappings: Updates to POWER7 events and
+	  groups
 
-2007-06-15  Maynard Johnson <maynardj@us.ibm.com>
+2009-10-28  Maynard Johnson  <maynardj@us.ibm.com>
 
-	* doc/opreport.xsd:
-	* libpp/xml_utils.cpp: Bump schema version to 2.0 to coincide with
-	  callgraph elements added recently to the schema
-
-2007-06-13  Maynard Johnson <maynardj@us.ibm.com>
-
-	* doc/oprofile.xml:
-	* events/Makefile.am:
-	* events/ppc64/power5++/event_mappings:
-	* events/ppc64/power5++/events:
-	* events/ppc64/power5++/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/opcontrol:
-	* utils/ophelp.c: Add support for POWER5++ (i.e., POWER5+ with PMU
-	  set to POWER6 mode)
-
-2007-06-12  dean gaudet  <dean@arctic.org>
-
-	* events/i386/core_2/events:
-	* events/i386/core_2/unit_masks:  updates to match
-	  253669-022US ISA vol 3B from Intel.  (Including fix
-	  for #1580064 from Arun Sharma.)
-
-2007-06-08  dean gaudet  <dean@arctic.org>
-
-	* events/x86-64/hammer/events:
-	* events/x86-64/hammer/unit_masks: updates from December 2006
-	  AMD update
-
-2007-05-31  Maynard Johnson <maynardj@us.ibm.com>
-
-	* libpp/symbol.h:
-	* libutil++/bfd_support.h:
-	* m4/cellspubfdsupport.m4: Fixups for compile failures on older Linux
-	  distributions
-
-2007-05-29  Dave Nomura  <dcnltc@us.ibm.com>
-
-	* libregex/demangle_symbol.cpp: Strip off leading '.' generated for elf6r-powerpc targets in mangled symbol names.
-
-2007-05-24  Richard Purdie  <rpurdie@openedhand.com>
-
-	* events/arm/xscale1/events:
-	* events/arm/xscale2/events: Add extra Xscale PMU event definitions
-
-2007-05-24  Richard Purdie  <rpurdie@openedhand.com>
-
-	* events/arm/armv6/events:
-	* events/arm/armv6/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/ophelp.c: Name ARM11 support to be consistent with the kernel,
-	  remove some duplicate code and add some extra events
-
-2007-05-24  Richard Purdie  <rpurdie@openedhand.com>
-
-	* oprofile/pp/oparchive.cpp: If the debug files have the same name
-	  as the original binary, the binary gets overwritten. Add in a .debug
-	  directory to avoid this.
-
-2007-05-23  Joerg Wagner  <wagner@ccrl-nece.de>
-
-	* events/Makefile.am:
-	* events/arm/mpcore/events:
-	* events/arm/mpcore/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/ophelp.c: ARM MPCore support
-
-2007-05-23  Riku Voipio  <riku.voipio@iki.fi>
-
-	* events/Makefile.am:
-	* events/arm/armv6/events:
-	* events/arm/armv6/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/ophelp.c: ARM11 support
-
-2007-05-21  Richard Purdie  <rpurdie@openedhand.com>
-  
-	* doc/opreport.xsd:
- 	* libpp/format_output.cpp:
-	* libpp/format_output.h:
-	* libpp/xml_utils.cpp:
-	* libutil++/xml_output.cpp:
-	* libutil++/xml_output.h:
-	* pp/opreport.cpp:
-	* pp/opreport_options.cpp: Add callgraph XML output
- 
-2007-05-20  Dean Gaudet  <dgaudet@users.sourceforge.net>
-
-	* events/i386/core_2/events: ITLB_MISS_RETIRED,MEM_LOAD_RETIRED
-	  only work with counter 0
-
-2007-05-20  Richard Purdie  <rpurdie@openedhand.com>
-
-	* libpp/callgraph_container.cpp:
-	* libpp/callgraph_container.h:
+	* doc/opreport.xsd: Fix up schema and bump version to match 2009-06-18 fix;
+	  other schema fixups for correctness and to facilitate XML document-to-schema
+	  validation works
+	* libpp/xml_utils.cpp: bump schema version
 	* libpp/format_output.cpp:
-	* libpp/format_output.h:
-	* libpp/symbol.h:
-	* libpp/symbol_sort.cpp:
-	* libpp/symbol_sort.h:
-	* pp/opreport.cpp: Convert cg_collection to symbol_collection and use
-	dynamic casting allowing more code reuse for callgraphs
+	* libpp/format_output.h: Fix regression in XML callgraph output
+	  caused by 2009-06-18 fix
 
-2007-05-19  Richard Purdie  <rpurdie@openedhand.com>
+2009-10-26  Robert Richter <robert.richter@amd.com>
 
-	* doc/oparchive.1.in:
-	* doc/oprofile.xml:
+	* doc/oprofile.1.in: fix user-space daemon logfile in man page
+
+2009-10-26  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libutil++/bfd_support.cpp:
+	* libutil++/bfd_support.h: Fix regression in handling separate
+	  debuginfo files 
+
+2009-10-23  Robert Richter  <robert.richter@amd.com>
+
+	* autogen.sh: create copies with libtoolize instead of symlinks
+
+2009-10-23  Suravee Suthikulpanit  <suravee.suthikulpanit@amd.com>
+
+	* events/x86-64/family10/events:
+	* events/x86-64/family10/unit_masks: Update events and unitmasks
+	  from publication 31116 revision 3.34 and fixes
+
+2009-10-23  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* README_PACKAGERS: Add mention of new opjitconv binary
+
+2009-10-14  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* agents/jvmpi/jvmpi_oprofile.cpp: Add extra #includes since new
+	  libstdc++ header files do not include standard C header files
+
+2009-10-13  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* utils/opcontrol: Remove incorrect redundant invocation of
+	  get_image_range
+
+2009-10-09  Robert Richter <robert.richter@amd.com>
+
+	* libop/op_xml_events.c:
+	* libop/op_xml_out.c:
+	* libop/op_xml_out.h:
+	* libutil++/xml_output.cpp: fix buffer overflows in xml generator
+
+2009-09-14  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* utils/opcontrol: Fix timer mode
+
+2009-09-08  Robert Richter <robert.richter@amd.com>
+
+	* utils/opcontrol: fix deinit; kill daemon only if running to prevent
+	  unnecessary "Daemon not running" message
+
+2009-09-08  Robert Richter <robert.richter@amd.com>
+
+	* utils/opcontrol: fix help message
+
+2009-09-04  Robert Richter <robert.richter@amd.com>
+
+	* utils/opcontrol: Do stop only if enabled
+
+2009-08-20  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* libop/op_xml_events.c: 
+	* libop/op_xml_out.h: 
+	* libop/op_xml_out.c: Fix ophelp -X output for IBS events
+	* utils/ophelp.c: Fix ophelp output for "counter:cpuid" and 
+	  "ext:xxx" case.
+
+2009-07-31  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* configure.in: bump version in AM_INIT_AUTOMAKE to 0.9.6cvs
+
+2009-07-31  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* configure.in: bump version in AM_INIT_AUTOMAKE to 0.9.5
+
+2009-07-31  Andi Kleen   <ak@linux.intel.com>
+
+	* events/i386/nehalem/events: Fix name of event 0xa7
+
+2009-07-20  Jeffrey Yasskin  <jyasskin@google.com>
+
+	* libutil++/bfd_support.h(find_nearest_line):
+	* libutil++/bfd_support.cpp(find_nearest_line):
+	* libutil++/op_bfd.h(op_bfd::get_linenr):
+	* libutil++/op_bfd.cpp(op_bfd::get_linenr): Change the type of offset
+	  from unsigned int to bfd_vma to accommodate addresses above 4G
+
+2009-07-17  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libutil++/bfd_support.cpp: Fix logic error from previous
+	  patch to this file
+
+2009-07-14  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* Makefile.am: Add ChangeLog-2008 to EXTRA_DIST
+
+2009-07-10  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libpp/profile_spec.cpp:
 	* pp/oparchive.cpp:
-	* pp/oparchive_options.cpp:
-	* pp/oparchive_options.h: Add --list-files option to list all files
-	  that would be handled by oparchive.
+	* utils/opcontrol:  Handle bad samples from kernel due to overflows
 
-2007-05-19  Olof Johansson  <olof@lixom.net>
+2009-06-29  Maynard Johnson  <maynardj@us.ibm.com>
 
-	* events/Makefile.in:
-	* events/ppc64/pa6t/event_mappings:
-	* events/ppc64/pa6t/events:
-	* events/ppc64/pa6t/unit_masks:
+	* events/ppc64/power7/events:
+	* events/ppc64/power7/event_mappings: Update to IBM POWER7 events
+	  and groups
+
+2009-06-23  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libutil++/bfd_support.cpp: Discard symbols from sections that do
+	  not have SEC_LOAD flag set; this prevents issues with bogus symbol
+	  size computation, resulting in "samples_range(): start > end" message
+
+2009-06-23  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libpp/profile_spec.cpp:
+	* pp/common_option.cpp: Fix image-path option to be appended
+	  to archive path
+
+2009-06-18  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libpp/format_output.h:
+	* libpp/format_output.cpp: Make sure that all callgraph symbols are
+	  reported, even if 0 samples
+
+2009-06-05  William Cohen  <wcohen@redhat.com>
+
+	* libutil++/bfd_support.cpp: Avoid calling bfd_find_nearest_line
+	  with NULL syms argument
+
+2009-06-05  Andi Kleen  <ak@linux.intel.com>
+
+	* libop/op_events.h: (find_event_by_name):
+	* libop/op_events.c: (find_event_by_name): Match unit mask.
+	* libop/op_parse_event.c: (parse_events): Set unit_mask_valid
+	* libop/op_parse_event.h: (parsed_eventd): Add unit_mask_valid
+	* libop/tests/alloc_counter_tests.c: (do_test):
+	* libop/tests/parse_event_tests.c:
+	* daemon/opd_ibs: (ibs_parse_and_set_events):
+	* gui/oprof_start.cpp (alloc_selected_events):
+	* utils/ophelp.c: (resolve_events, show_unit_mask):
+	  Update find_event_by_name call.
+
+2009-06-05 Andi Kleen <ak@linux.intel.com>
+
+	* libop/tests/alloc_counter_tests.c:
+	Don't use non existent unit masks in P4 counter tests.
+
+2009-06-03 Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* events/x86-64/family10/events:
+	* events/x86-64/family10/unit_masks: Update events and unitmasks
+	  for the AMD Six-core Opteron processor support from
+	  publication 31116 revision 3.28
+
+2009-05-27 Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* utils/opcontrol: Fix IBS initialization
+
+2009-05-27 Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+ 	* daemon/oprofiled.c:
+	* daemon/opd_ext.c: Fix extended feature initialization
+
+2009-05-27 Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* doc/oprofile.xml:
+	* doc/internals.xml: Add Extended-Interface and IBS documentation,
+	
+2009-05-19 Andi Kleen  <ak@linux.intel.com>
+
+ 	* utils/ophelp.c: (cleanup) Fix cleanup crash.
+ 
+2009-05-19  Andi Kleen  <ak@linux.intel.com>
+
+ 	* events/i386/atom/events: Use hardcoded counters. Readd
+ 	UNHALTED_REFERENCE_CLOCK.
+ 	* events/i386/nehalem/events:
+ 	* events/i386/nehalem/unit_masks: Use hardcoded counters.
+ 	Clarify CPU_CLOCKS_UNHALTED.REF_P
+
+2009-05-19 Andi Kleen <ak@linux.intel.com>
+
+ 	* libop/op_hw_specific.h: (arch_get_filter):
+ 	Return -1 when CPUID is not available.
+
+2009-05-18  Brian Bloniarz   <bmb@athenacr.com>
+
+	* libutil/op_file.c: Fix crash when chasing broken symlinks
+
+2009-05-13  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* pp/oparchive.cpp: Fixes for oparchive session-dir as reported in
+	  bugs 2646389 and 2646376
+
+2009-05-13  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* utils/opcontrol: Fix for session-dir setup, bug report 2646398
+
+2009-05-13  Brian Bloniarz  <bmb@athenacr.com>
+
+	* utils/opcontrol: Replace bash built-in let with posix statements
+
+2009-05-07  Andi Kleen  <ak@linux.intel.com>
+	* utils/ophelp.c:
 	* libop/op_cpu_type.c:
 	* libop/op_cpu_type.h:
 	* libop/op_events.c:
-	* utils/opcontrol:
-	* utils/ophelp.c: PA Semi 6T support
+	* libop/op_hw_specific.h: Add workaround_nehalem_aaj79
+	* events/Makefile.am:
+	* events/i386/atom/events: Add Atom support (New file)
+	* events/i386/atom/unit_masks: Add Atom support (New file)
+	* events/i386/nehalem/events: Add Nehalem support (New file)
+	* events/i386/nehalem/unit_masks: Add Nehalem support (New file)
+	* events/i386/core_i7/events: Add Core i7 support (New file)
+	* events/i386/core_i7/unit_masks: Add Core i7 support (New file)
 
-2007-05-09  Richard Purdie  <rpurdie@openedhand.com>
+2009-05-07  Maynard Johnson  <maynardj@us.ibm.com>
 
-	* oprofile/daemon/opd_cookie.c: Fix syscall for ARM EABI
+	* oprof-compat/events/Makefile.am:
+	* oprof-compat/events/ppc64/ibm-compat-v1/event_mappings: (new)
+	* oprof-compat/events/ppc64/ibm-compat-v1/events: (new)
+	* oprof-compat/events/ppc64/ibm-compat-v1/unit_masks: (new)
+	* oprof-compat/libop/op_cpu_type.c:
+	* oprof-compat/libop/op_cpu_type.h:
+	* oprof-compat/libop/op_events.c:
+	* oprof-compat/utils/ophelp.c:  Add support for IBM ppc64 architected events
 
-2007-05-10  Maynard Johnson <maynardj@us.ibm.com>
+2009-05-06  Andi Kleen  <ak@linux.intel.com>
 
-	* libpp/Makefile.am:
-	* libpp/populate.cpp:
-	* libpp/populate_for_spu.cpp:
-	* libpp/populate_for_spu.h:
-	* libpp/profile.h:
-	* libpp/profile.cpp:
-	* libutil++/Makefile.am:
-	* libutil++/bfd_spu_support.cpp:
-	* libutil++/bfd_support.h:
-	* libutil++/op_bfd.h:
-	* libutil++/op_spu_bfd.cpp:
-	* libpp/xml_utils.cpp:
-	* libpp/profile_container.cpp:
-	* libpp/symbol.h: Patch 3 of 3 for adding support for profiling
-	  Cell Broadband Engine SPU
+	* utils/ophelp.c: Use word wrap to output event descriptions
 
-2007-05-10  Maynard Johnson <maynardj@us.ibm.com>
+2009-05-01  Andi Kleen  <ak@linux.intel.com>
 
-	* daemon/liblegacy/opd_sample_files.c:
-	* daemon/opd_events.c:
-	* daemon/opd_events.h:
-	* daemon/opd_interface.h:
-	* daemon/Makefile.am:
-	* daemon/opd_mangling.c:
-	* daemon/opd_sfile.c:
-	* daemon/opd_sfile.h:
-	* daemon/opd_spu.c:
-	* daemon/opd_trans.c:
-	* daemon/opd_trans.h:
-	* libop/op_sample_file.h: Patch 2 of 3 for adding support for profiling
-	  Cell Broadband Engine SPU
+	* events/i386/arch_perfmon/events: Update event names to conform to manual.
 
-2007-05-10  Maynard Johnson <maynardj@us.ibm.com>
+2009-05-01  Maynard Johnson  <maynardj@us.ibm.com>
 
 	* configure.in:
+	* m4/binutils.m4: Workaround to make oprofile build on recent SUSE
+
+2009-04-29  Andi Kleen  <ak@linux.intel.com>
+
+	* libop/op_events.c: Add support for include and unit mask merging
+	  statements in event files
+
+2009-04-29  Andi Kleen  <ak@linux.intel.com>
+
+	* libop/op_events.c: Allow make check to accumulate some errors
+	  before exiting
+
+2009-04-28  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* events/Makefile.am:
+	* events/ppc64/power7/event_mappings: (new)
+	* events/ppc64/power7/events: (new)
+	* events/ppc64/power7/unit_masks: (new)
+	* libop/op_cpu_type.c:
+	* libop/op_cpu_type.h:
+	* libop/op_events.c:
+	* utils/ophelp.c:  Add support for IBM POWER7 processor
+
+2009-04-22  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* agents/jvmpi/jvmpi_oprofile.cpp: Change this file to use LGPL license
+	  to allow JVMPI agent library to link to non-GPL code
+
+2009-04-17  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* utils/opcontrol: Add IBS support, patch 4 of 4
+
+2009-04-17  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* pp/opannotate.cpp: Add IBS support, patch 3 of 4
+
+2009-04-17  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* events/x86-64/family10/events:
+	* events/x86-64/family10/unit_masks: Add IBS support, patch 2 of 4
+
+
+2009-04-17  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* daemon/Makefile.am:
+	* daemon/opd_extended.c:
+	* daemon/opd_ibs.c: New File
+	* daemon/opd_ibs.h: New File
+	* daemon/opd_ibs_macro.h: New File
+	* daemon/opd_ibs_trans.c: New File
+	* daemon/opd_ibs_trans.h: New File
+	* daemon/opd_interface.h:
+	* daemon/opd_sfile.c:
+	* daemon/opd_sfile.h:
+	* daemon/opd_trans.c:
+	* libdb/db_insert.c:
+	* libdb/odb.h: Add IBS support, patch 1 of 4
+
+2009-04-15  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libpp/xml_utils.cpp: Fix binary count total in XML output
+	  when using --separate=lib
+
+2009-04-08  William Cohen  <wcohen@redhat.com>
+
+	* configure.in: Add check for basename declaration
+
+2009-04-01  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* daemon/Makefile.am:
+	* daemon/opd_events.c:
+	* daemon/opd_extended.h: New File
+	* daemon/opd_extended.c: New File
+	* daemon/opd_printf.h:
+	* daemon/opd_sfile.h:
+	* daemon/opd_sfile.c:
+	* daemon/opd_stats.c:
+	* daemon/opd_trans.h:
+	* daemon/opd_trans.c:
+	* daemon/oprofiled.c:
+	* libop/op_events.h:
+	* libop/op_events.c:
+	* libop/op_alloc_counter.c:
+	* utils/ophelp.c: Add Extended Feature Interface
+
+2009-03-17  Suraveee Suthikulpanit <suravee.suthikulpanit@amd.com>
+
+	* events/Makefile.am
+	* events/x86-64/family11h/events: New event file
+	* events/x86-64/family11h/unit_masks: New Unitmask file
+	* libop/op_cpu_type.c: Adding family11h
+	* libop/op_cpu_type.h: Adding family11h
+	* libop/op_events.c: Adding family11h
+	* utils/ophelp.c: Adding family11h and update documents
+
+2009-03-17  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libop/op_allocate_counter.c: Make map_event_to_counter handle
+	  a non-native cpu_type
+
+2009-03-05  Robert Richter <robert.richter@amd.com>
+
+	* libutil++/bfd_support.cpp: suppress 'unused parameter' warning
+
+2009-02-10  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libabi/tests/abi_test.cpp:
+	* libregex/tests/java_test.cpp:
+	* libregex/tests/regex_test.cpp: Use C++ style #includes
+	  for stdlib and string
+	
+
+2009-02-09  Kjetil Barvik  <barvik@broadpark.no>
+
+	* libabi/tests/abi_test.cpp:
+	* libregex/tests/java_test.cpp:
+	* libregex/tests/regex_test.cpp:
+	* libutil/tests/file_tests.c: Fix gcc warnings
+
+2009-02-06  Maynard Johnson  <maynardj@us.ibm.com>
+
+	* libutil++/bfd_support.cpp:
+	* libutil++/bfd_support.h:
+	* libutil++/op_bfd.cpp: Fixup debuginfo processing for ppc64
+
+2009-02-03  Carl Love  <cel@us.ibm.com>
+
+	* utils/opcontrol:
 	* doc/oprofile.xml:
 	* events/ppc64/cell-be/events:
-	* m4/Makefile.am:
-	* m4/cellspubfdsupport.m4:
-	* utils/opcontrol: Patch 1 of 3 for adding support for profiling
-	  Cell Broadband Engine SPU
+	* events/ppc64/cell-be/unit_masks: Added IBM CELL SPU event profiling support
 
-2007-04-25  Manoj Ekbote  <manoj.ekbote@broadcom.com>
+2009-01-05  Maynard Johnson  <maynardj@us.ibm.com>
 
-	* events/mips/sb1/events: fix SB1 events
-
-2007-04-19  Dave Nomura  <dcnltc@us.ibm.com>
-
-	* events/ppc64/power6/events: counter 3 should have been used 
-	  in the specification of the default CYCLES event, not counter 1
-
-2007-04-13  Will Cohen  <wcohen@redhat.com>
-
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h: Move new entries to end of list
-	to improve backward compatibility with enum values.
-	
-2007-04-11  John Levon  <levon@movementarian.org>
-
-	* doc/oprofile.xml: IRC channel is on OFTC
-
-2007-04-10  Philippe Elie  <phil.el@wanadoo.fr>
-
-	* utils/ophelp.c: if userspace doesn't recognize the cpu type
-	  warn the user it can use timer mode or upgrade oprofile.
-
-2007-04-04  Maynard johnson <maynardj@us.ibm.com>
-
-	* libutil++/file_manip.cpp: catch result from chown() to avoid
-	  compilation warning (treated as error)
-
-2007-03-23  Jason Yeh  <jason.yeh@amd.com>
-
-	* events/Makefile.am:
-	* events/x86-64/family10/events:
-	* events/x86-64/family10/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/ophelp.c: Add AMD Family 10 support.
-	
-2007-02-28  Rob Bradford  <rob@o-hand.com>
-
-	* pp/oparchive.cpp: return from main
-
-2007-02-21  Rob Bradford <rob@o-hand.com>
-
-	Reverted previous patches.
-	* pp/oparchive.cpp: Save debuginfo files in .debug sub directory.
-
-	* pp/oparchive.cpp:
-	* pp/oparchive_options.h:
-	* pp/oparchive_options.cpp: List files option.
-
-2007-02-21  Rob Bradford <rob@o-hand.com>
-
-	* pp/oparchive.cpp: Save debuginfo files in .debug sub directory.
-
-	* pp/oparchive.cpp:
-	* pp/oparchive_options.h:
-	* pp/oparchive_options.cpp: List files option.
-
-2007-02-16  Philippe Elie  <phil.el@wanadoo.fr>
-
-	* daemon/opd_mangling.c: missing initialisation when mangling an 
-	  anon and callgraph filename. Fix given by Amitabha Roy.
-
-2007-02-06  Dave Nomura <dcnltc@us.ibm.com>
-
-	* libpp/symbol.h:
-	* libutil++/Makefile.am:
-	* libutil++/sparse_array.h: represent count_array_t as a sparse 
-	  array type based on std::map rather than growable_vector which is
-	  based on std::vector to reduce the excessive heap usage on large
-	  profiles.
-
-2007-02-02  Amitabha Roy  <amitabha.roy@gmail.com>
-
-	* daemon/opd_anon.c:
-	* daemon/opd_anon.h:
-	* daemon/opd_mangling.c:
-	* libop/op_mangle.c:
-	* libop/op_mangle.h:
-	* libpp/parse_filename.cpp: save and report name of anonymous
-	  mapping if there is one (as self-contradictory as that
-	  sounds).
-
-2007-02-02  Dave Nomura <dcnltc@us.ibm.com>
-
-	* events/Makefile.am:
-	* events/ppc64/970MP/event_mappings:
-	* events/ppc64/970MP/events:
-	* events/ppc64/970MP/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/ophelp.c: PPC970MP has different hardware counters than the rest
-	  of the PPC family and must be treated as a different architecture
-	  by oprofile.
-
-2007-01-31  Dave Nomura <dcnltc@us.ibm.com>
-
-	* libpp/xml_utils.cpp: opreport -X was still getting some incorrect 
-	  symbols attributed to the <binary> when processing a --separate=lib
-	  profile.
-	  
-2007-01-29  Philippe Elie  <phil.el@wanadoo.fr>
-
-	* daemon/oprofiled.c: no need for 0755 for the log file mode, use 0644
-	* utils/opcontrol: don't create the log in opcontrol
-
-2007-01-26  Dave Nomura <dcnltc@us.ibm.com>
-
-	* libpp/format_output.cpp:
-	* libpp/xml_utils.cpp: opreport -X was mixing the symbols associated with
-	  an application with those of a library when processing a --separate=lib
-	  profile.
-
-2007-01-02  Dave Nomura <dcnltc@us.ibm.com>
-
-	* events/Makefile.am:
-	* events/ppc64/power6/event_mappings:
-	* events/ppc64/power6/events:
-	* events/ppc64/power6/unit_masks:
-	* libop/op_cpu_type.c:
-	* libop/op_cpu_type.h:
-	* libop/op_events.c:
-	* utils/opcontrol:
-	* utils/ophelp.c:  Add support for Power6
+	* m4/binutils.m4: Fix error in AC_CHECK_LIB action
 
 
-See ChangeLog-2006 for earlier changelogs.
+See ChangeLog-2008 for earlier changelogs.

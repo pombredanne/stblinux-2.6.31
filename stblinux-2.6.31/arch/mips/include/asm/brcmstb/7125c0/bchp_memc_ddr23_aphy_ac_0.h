@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:48:01 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_memc_ddr23_aphy_ac_0.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 8:51p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,57 +43,57 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_H__
 
 /***************************************************************************
- *MEMC_DDR23_APHY_AC_0
+ *MEMC_DDR23_APHY_AC_0 - DDR23 APHY Address Control Registers 0
  ***************************************************************************/
-#define BCHP_MEMC_DDR23_APHY_AC_0_CONFIG         0x003b6000
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_REV_ID 0x003b6004
-#define BCHP_MEMC_DDR23_APHY_AC_0_RESET          0x003b6008
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_FREQ_CNTL  0x003b600c
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL0_REG  0x003b6010
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL1_REG  0x003b6014
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH1_ADDR_CMD_PHASE_CNTRL 0x003b6018
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH2_CLOCK_PHASE_CNTRL 0x003b601c
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH3_WL0_DQ_PHASE_CNTRL 0x003b6020
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH4_WL0_DQS0_PHASE_CNTRL 0x003b6024
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH5_WL0_DQS1_PHASE_CNTRL 0x003b6028
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH7_WL1_DQ_PHASE_CNTRL 0x003b602c
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH8_WL1_DQS0_PHASE_CNTRL 0x003b6030
-#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH9_WL1_DQS1_PHASE_CNTRL 0x003b6034
-#define BCHP_MEMC_DDR23_APHY_AC_0_ODT_CONFIG     0x003b6038
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS 0x003b6040
-#define BCHP_MEMC_DDR23_APHY_AC_0_POWERDOWN      0x003b6044
-#define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_CNTRL 0x003b604c
-#define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_PHASE 0x003b6054
-#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_ENABLE 0x003b6058
-#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_OFFSET_CNTRL 0x003b605c
-#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_OVER_RIDE_MODE_CNTRL 0x003b6060
-#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_STATUS 0x003b6064
-#define BCHP_MEMC_DDR23_APHY_AC_0_RX_ODT_CNTRL   0x003b6068
-#define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_BYPASS_CNTRL 0x003b606c
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_EXT_CLKSEL 0x003b6070
-#define BCHP_MEMC_DDR23_APHY_AC_0_TEST_MODE_CNTRL_REG 0x003b6074
-#define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_TEST_MODE_CNTRL 0x003b6078
-#define BCHP_MEMC_DDR23_APHY_AC_0_DISABLE_CHIP_BYPASS_PLL 0x003b607c
-#define BCHP_MEMC_DDR23_APHY_AC_0_PAD_SSTL_DDR2_MODE 0x003b6080
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_CLK_DELAY 0x003b6084
-#define BCHP_MEMC_DDR23_APHY_AC_0_VECTOR_MODE_CLK_SEL 0x003b6088
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL  0x003b608c
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_SLEW_CNTRL 0x003b6090
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_RX_DRV_CNTRL 0x003b6094
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_TX_DRV_CNTRL 0x003b6098
-#define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_STATUS 0x003b609c
-#define BCHP_MEMC_DDR23_APHY_AC_0_DRAM_FIFO_LEVEL 0x003b60a0
-#define BCHP_MEMC_DDR23_APHY_AC_0_CMD_DATA_FIFO  0x003b60a4
-#define BCHP_MEMC_DDR23_APHY_AC_0_RD_DATAPATH    0x003b60a8
-#define BCHP_MEMC_DDR23_APHY_AC_0_FLAG_BUS       0x003b60ac
-#define BCHP_MEMC_DDR23_APHY_AC_0_MISC           0x003b60b0
-#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RW      0x003b60b4
-#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RW      0x003b60b8
-#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RO      0x003b60bc
-#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RO      0x003b60c0
+#define BCHP_MEMC_DDR23_APHY_AC_0_CONFIG         0x003b6000 /* DDR23_APHY Config register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_REV_ID 0x003b6004 /* DDR23_APHY Revision ID Register. */
+#define BCHP_MEMC_DDR23_APHY_AC_0_RESET          0x003b6008 /* DDR soft reset register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_FREQ_CNTL  0x003b600c /* DDR PLL frequency control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL0_REG  0x003b6010 /* DDR PLL control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL1_REG  0x003b6014 /* DDR PLL control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH1_ADDR_CMD_PHASE_CNTRL 0x003b6018 /* DDR PLL Channel 1 Address phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH2_CLOCK_PHASE_CNTRL 0x003b601c /* DDR PLL Channel 2 Clock phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH3_WL0_DQ_PHASE_CNTRL 0x003b6020 /* DDR PLL Channel 3 DQ phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH4_WL0_DQS0_PHASE_CNTRL 0x003b6024 /* DDR PLL Channel 4 DQS0 phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH5_WL0_DQS1_PHASE_CNTRL 0x003b6028 /* DDR PLL Channel 5 DQS1 phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH7_WL1_DQ_PHASE_CNTRL 0x003b602c /* DDR PLL Channel 7 DQ phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH8_WL1_DQS0_PHASE_CNTRL 0x003b6030 /* DDR PLL Channel 8 DQS0 phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH9_WL1_DQS1_PHASE_CNTRL 0x003b6034 /* DDR PLL Channel 9 DQS1 phase control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_ODT_CONFIG     0x003b6038 /* ODT Configuration register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS 0x003b6040 /* DDR PLL lock status register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_POWERDOWN      0x003b6044 /* PLL powerdown register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_CNTRL 0x003b604c /* Deskew DLL control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_PHASE 0x003b6054 /* Deskew DLL Phase register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_ENABLE 0x003b6058 /* PVT Compensation Controller enable register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_OFFSET_CNTRL 0x003b605c /* PVT Compensation Controller offset control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_OVER_RIDE_MODE_CNTRL 0x003b6060 /* PVT Compensation Controller override control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_STATUS 0x003b6064 /* PVT Compensation Controller status register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_RX_ODT_CNTRL   0x003b6068 /* "Receive ODT control register" */
+#define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_BYPASS_CNTRL 0x003b606c /* Analog macro register bypass control */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_EXT_CLKSEL 0x003b6070 /* DDR PLL external clock select register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_TEST_MODE_CNTRL_REG 0x003b6074 /* DDR23_APHY testport control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_TEST_MODE_CNTRL 0x003b6078 /* Analog test mode control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DISABLE_CHIP_BYPASS_PLL 0x003b607c /* DDR bypass pll mode disable register. */
+#define BCHP_MEMC_DDR23_APHY_AC_0_PAD_SSTL_DDR2_MODE 0x003b6080 /* Pad Mode Control Register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_CLK_DELAY 0x003b6084 /* DDR23_APHY TM1/2 clk delay control */
+#define BCHP_MEMC_DDR23_APHY_AC_0_VECTOR_MODE_CLK_SEL 0x003b6088 /* DDR vector mode clock select */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL  0x003b608c /* DDR Pad control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_SLEW_CNTRL 0x003b6090 /* DDR Pad slew control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_RX_DRV_CNTRL 0x003b6094 /* DDR Pad Rx power control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_TX_DRV_CNTRL 0x003b6098 /* DDR Pad Tx power control register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_STATUS 0x003b609c /* DDR23_APHY Status Register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_DRAM_FIFO_LEVEL 0x003b60a0 /* DRAM FIFO LEVEL register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_CMD_DATA_FIFO  0x003b60a4 /* Command and Data FIFO Status Register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_RD_DATAPATH    0x003b60a8 /* Read Datapath Status Register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_FLAG_BUS       0x003b60ac /* TP_OUT bus value Register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_MISC           0x003b60b0 /* Miscellaneous Register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RW      0x003b60b4 /* Spare register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RW      0x003b60b8 /* Spare register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RO      0x003b60bc /* Spare register */
+#define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RO      0x003b60c0 /* Spare register */
 
 /***************************************************************************
- *CONFIG
+ *CONFIG - DDR23_APHY Config register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: CONFIG :: reserved0 [31:26] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_CONFIG_reserved0_MASK            0xfc000000
@@ -125,7 +128,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_CONFIG_DDR_MODE_SHIFT            0
 
 /***************************************************************************
- *DDR23_APHY_REV_ID
+ *DDR23_APHY_REV_ID - DDR23_APHY Revision ID Register.
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR23_APHY_REV_ID :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_REV_ID_reserved0_MASK 0xffff0000
@@ -140,7 +143,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_REV_ID_MINOR_ID_SHIFT 0
 
 /***************************************************************************
- *RESET
+ *RESET - DDR soft reset register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: RESET :: reserved0 [31:06] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_RESET_reserved0_MASK             0xffffffc0
@@ -171,7 +174,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_RESET_VCXO_RESET_SHIFT           0
 
 /***************************************************************************
- *PLL_FREQ_CNTL
+ *PLL_FREQ_CNTL - DDR PLL frequency control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_FREQ_CNTL :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_FREQ_CNTL_reserved0_MASK     0xffff0000
@@ -190,7 +193,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_FREQ_CNTL_PDIV_SHIFT         0
 
 /***************************************************************************
- *PLL_CTRL0_REG
+ *PLL_CTRL0_REG - DDR PLL control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CTRL0_REG :: PDN_BGR [31:31] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL0_REG_PDN_BGR_MASK       0x80000000
@@ -241,7 +244,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL0_REG_LCPx_SHIFT         0
 
 /***************************************************************************
- *PLL_CTRL1_REG
+ *PLL_CTRL1_REG - DDR PLL control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CTRL1_REG :: CTRL1 [31:04] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL1_REG_CTRL1_MASK         0xfffffff0
@@ -260,7 +263,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CTRL1_REG_LDO_CTRL_SHIFT     0
 
 /***************************************************************************
- *PLL_CH1_ADDR_CMD_PHASE_CNTRL
+ *PLL_CH1_ADDR_CMD_PHASE_CNTRL - DDR PLL Channel 1 Address phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH1_ADDR_CMD_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH1_ADDR_CMD_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -271,7 +274,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH1_ADDR_CMD_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH2_CLOCK_PHASE_CNTRL
+ *PLL_CH2_CLOCK_PHASE_CNTRL - DDR PLL Channel 2 Clock phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH2_CLOCK_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH2_CLOCK_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -282,7 +285,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH2_CLOCK_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH3_WL0_DQ_PHASE_CNTRL
+ *PLL_CH3_WL0_DQ_PHASE_CNTRL - DDR PLL Channel 3 DQ phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH3_WL0_DQ_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH3_WL0_DQ_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -293,7 +296,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH3_WL0_DQ_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH4_WL0_DQS0_PHASE_CNTRL
+ *PLL_CH4_WL0_DQS0_PHASE_CNTRL - DDR PLL Channel 4 DQS0 phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH4_WL0_DQS0_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH4_WL0_DQS0_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -304,7 +307,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH4_WL0_DQS0_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH5_WL0_DQS1_PHASE_CNTRL
+ *PLL_CH5_WL0_DQS1_PHASE_CNTRL - DDR PLL Channel 5 DQS1 phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH5_WL0_DQS1_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH5_WL0_DQS1_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -315,7 +318,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH5_WL0_DQS1_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH7_WL1_DQ_PHASE_CNTRL
+ *PLL_CH7_WL1_DQ_PHASE_CNTRL - DDR PLL Channel 7 DQ phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH7_WL1_DQ_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH7_WL1_DQ_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -326,7 +329,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH7_WL1_DQ_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH8_WL1_DQS0_PHASE_CNTRL
+ *PLL_CH8_WL1_DQS0_PHASE_CNTRL - DDR PLL Channel 8 DQS0 phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH8_WL1_DQS0_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH8_WL1_DQS0_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -337,7 +340,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH8_WL1_DQS0_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *PLL_CH9_WL1_DQS1_PHASE_CNTRL
+ *PLL_CH9_WL1_DQS1_PHASE_CNTRL - DDR PLL Channel 9 DQS1 phase control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PLL_CH9_WL1_DQS1_PHASE_CNTRL :: reserved0 [31:05] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH9_WL1_DQS1_PHASE_CNTRL_reserved0_MASK 0xffffffe0
@@ -348,7 +351,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PLL_CH9_WL1_DQS1_PHASE_CNTRL_PHASE_VALUE_SHIFT 0
 
 /***************************************************************************
- *ODT_CONFIG
+ *ODT_CONFIG - ODT Configuration register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: ODT_CONFIG :: reserved0 [31:17] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_ODT_CONFIG_reserved0_MASK        0xfffe0000
@@ -383,7 +386,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_ODT_CONFIG_DELAY_SHIFT           0
 
 /***************************************************************************
- *DDR_PLL_LOCK_STATUS
+ *DDR_PLL_LOCK_STATUS - DDR PLL lock status register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR_PLL_LOCK_STATUS :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS_reserved0_MASK 0xfffffffe
@@ -394,7 +397,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS_LOCK_STATUS_SHIFT 0
 
 /***************************************************************************
- *POWERDOWN
+ *POWERDOWN - PLL powerdown register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: POWERDOWN :: reserved0 [31:13] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_POWERDOWN_reserved0_MASK         0xffffe000
@@ -417,7 +420,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_POWERDOWN_PWRDN_CML_SHIFT        0
 
 /***************************************************************************
- *DESKEW_DLL_CNTRL
+ *DESKEW_DLL_CNTRL - Deskew DLL control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DESKEW_DLL_CNTRL :: reserved0 [31:17] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_CNTRL_reserved0_MASK  0xfffe0000
@@ -444,7 +447,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_CNTRL_THRESHOLD_SHIFT 0
 
 /***************************************************************************
- *DESKEW_DLL_PHASE
+ *DESKEW_DLL_PHASE - Deskew DLL Phase register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DESKEW_DLL_PHASE :: reserved0 [31:10] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_PHASE_reserved0_MASK  0xfffffc00
@@ -463,7 +466,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DESKEW_DLL_PHASE_PHASE_DETECTOR_LOCKED_SHIFT 0
 
 /***************************************************************************
- *PVT_CONTROLLER_ENABLE
+ *PVT_CONTROLLER_ENABLE - PVT Compensation Controller enable register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PVT_CONTROLLER_ENABLE :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_ENABLE_reserved0_MASK 0xfffffffe
@@ -474,7 +477,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_ENABLE_PVT_COMP_EN_SHIFT 0
 
 /***************************************************************************
- *PVT_CONTROLLER_OFFSET_CNTRL
+ *PVT_CONTROLLER_OFFSET_CNTRL - PVT Compensation Controller offset control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PVT_CONTROLLER_OFFSET_CNTRL :: reserved0 [31:02] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_OFFSET_CNTRL_reserved0_MASK 0xfffffffc
@@ -489,7 +492,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_OFFSET_CNTRL_PVT_COMP_OFFSET_EN_SHIFT 0
 
 /***************************************************************************
- *PVT_OVER_RIDE_MODE_CNTRL
+ *PVT_OVER_RIDE_MODE_CNTRL - PVT Compensation Controller override control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PVT_OVER_RIDE_MODE_CNTRL :: reserved0 [31:12] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_OVER_RIDE_MODE_CNTRL_reserved0_MASK 0xfffff000
@@ -516,7 +519,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_OVER_RIDE_MODE_CNTRL_OVER_RIDE_EN_SHIFT 0
 
 /***************************************************************************
- *PVT_CONTROLLER_STATUS
+ *PVT_CONTROLLER_STATUS - PVT Compensation Controller status register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PVT_CONTROLLER_STATUS :: reserved0 [31:26] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_STATUS_reserved0_MASK 0xfc000000
@@ -587,7 +590,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PVT_CONTROLLER_STATUS_PVT_COMP_ACK_SHIFT 0
 
 /***************************************************************************
- *RX_ODT_CNTRL
+ *RX_ODT_CNTRL - "Receive ODT control register"
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: RX_ODT_CNTRL :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_RX_ODT_CNTRL_reserved0_MASK      0xfffffffe
@@ -598,7 +601,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_RX_ODT_CNTRL_EXT_CLK_RT60B_OHM_SHIFT 0
 
 /***************************************************************************
- *ANALOG_BYPASS_CNTRL
+ *ANALOG_BYPASS_CNTRL - Analog macro register bypass control
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: ANALOG_BYPASS_CNTRL :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_BYPASS_CNTRL_reserved0_MASK 0xfffffffe
@@ -609,7 +612,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_BYPASS_CNTRL_BYPASS_PLL_SHIFT 0
 
 /***************************************************************************
- *DDR_PLL_EXT_CLKSEL
+ *DDR_PLL_EXT_CLKSEL - DDR PLL external clock select register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR_PLL_EXT_CLKSEL :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_EXT_CLKSEL_reserved0_MASK 0xfffffffe
@@ -620,14 +623,14 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_EXT_CLKSEL_EXT_CLK_SEL_SHIFT 0
 
 /***************************************************************************
- *TEST_MODE_CNTRL_REG
+ *TEST_MODE_CNTRL_REG - DDR23_APHY testport control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: TEST_MODE_CNTRL_REG :: reserved_for_eco0 [31:00] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_TEST_MODE_CNTRL_REG_reserved_for_eco0_MASK 0xffffffff
 #define BCHP_MEMC_DDR23_APHY_AC_0_TEST_MODE_CNTRL_REG_reserved_for_eco0_SHIFT 0
 
 /***************************************************************************
- *ANALOG_TEST_MODE_CNTRL
+ *ANALOG_TEST_MODE_CNTRL - Analog test mode control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: ANALOG_TEST_MODE_CNTRL :: reserved0 [31:16] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_TEST_MODE_CNTRL_reserved0_MASK 0xffff0000
@@ -646,7 +649,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_ANALOG_TEST_MODE_CNTRL_ANALOG_TEST_SHIFT 0
 
 /***************************************************************************
- *DISABLE_CHIP_BYPASS_PLL
+ *DISABLE_CHIP_BYPASS_PLL - DDR bypass pll mode disable register.
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DISABLE_CHIP_BYPASS_PLL :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DISABLE_CHIP_BYPASS_PLL_reserved0_MASK 0xfffffffe
@@ -657,7 +660,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DISABLE_CHIP_BYPASS_PLL_DISABLE_BYPASS_PLL_SHIFT 0
 
 /***************************************************************************
- *PAD_SSTL_DDR2_MODE
+ *PAD_SSTL_DDR2_MODE - Pad Mode Control Register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: PAD_SSTL_DDR2_MODE :: reserved0 [31:02] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_PAD_SSTL_DDR2_MODE_reserved0_MASK 0xfffffffc
@@ -672,7 +675,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_PAD_SSTL_DDR2_MODE_CLK_SHIFT     0
 
 /***************************************************************************
- *DDR23_APHY_CLK_DELAY
+ *DDR23_APHY_CLK_DELAY - DDR23_APHY TM1/2 clk delay control
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR23_APHY_CLK_DELAY :: reserved0 [31:04] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_CLK_DELAY_reserved0_MASK 0xfffffff0
@@ -683,7 +686,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_CLK_DELAY_NCDL_CNTRL_SHIFT 0
 
 /***************************************************************************
- *VECTOR_MODE_CLK_SEL
+ *VECTOR_MODE_CLK_SEL - DDR vector mode clock select
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: VECTOR_MODE_CLK_SEL :: reserved0 [31:01] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_VECTOR_MODE_CLK_SEL_reserved0_MASK 0xfffffffe
@@ -694,7 +697,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_VECTOR_MODE_CLK_SEL_SEL_SHIFT    0
 
 /***************************************************************************
- *DDR_PAD_CNTRL
+ *DDR_PAD_CNTRL - DDR Pad control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR_PAD_CNTRL :: reserved0 [31:07] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_reserved0_MASK     0xffffff80
@@ -717,7 +720,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_CNTRL_SHIFT        0
 
 /***************************************************************************
- *DDR_PAD_SLEW_CNTRL
+ *DDR_PAD_SLEW_CNTRL - DDR Pad slew control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR_PAD_SLEW_CNTRL :: reserved0 [31:03] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_SLEW_CNTRL_reserved0_MASK 0xfffffff8
@@ -728,7 +731,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_SLEW_CNTRL_SLEW_SHIFT    0
 
 /***************************************************************************
- *DDR_PAD_RX_DRV_CNTRL
+ *DDR_PAD_RX_DRV_CNTRL - DDR Pad Rx power control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR_PAD_RX_DRV_CNTRL :: reserved0 [31:03] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_RX_DRV_CNTRL_reserved0_MASK 0xfffffff8
@@ -739,7 +742,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_RX_DRV_CNTRL_RX_DRV_SHIFT 0
 
 /***************************************************************************
- *DDR_PAD_TX_DRV_CNTRL
+ *DDR_PAD_TX_DRV_CNTRL - DDR Pad Tx power control register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR_PAD_TX_DRV_CNTRL :: reserved0 [31:02] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_TX_DRV_CNTRL_reserved0_MASK 0xfffffffc
@@ -750,7 +753,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_TX_DRV_CNTRL_TX_DRV_SHIFT 0
 
 /***************************************************************************
- *DDR23_APHY_STATUS
+ *DDR23_APHY_STATUS - DDR23_APHY Status Register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DDR23_APHY_STATUS :: reserved0 [31:04] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_STATUS_reserved0_MASK 0xfffffff0
@@ -773,7 +776,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DDR23_APHY_STATUS_READY_SHIFT    0
 
 /***************************************************************************
- *DRAM_FIFO_LEVEL
+ *DRAM_FIFO_LEVEL - DRAM FIFO LEVEL register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: DRAM_FIFO_LEVEL :: reserved0 [31:07] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_DRAM_FIFO_LEVEL_reserved0_MASK   0xffffff80
@@ -788,7 +791,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_DRAM_FIFO_LEVEL_ENABLE_SHIFT     0
 
 /***************************************************************************
- *CMD_DATA_FIFO
+ *CMD_DATA_FIFO - Command and Data FIFO Status Register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: CMD_DATA_FIFO :: reserved0 [31:27] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_CMD_DATA_FIFO_reserved0_MASK     0xf8000000
@@ -823,7 +826,7 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_CMD_DATA_FIFO_RD_PNTR_SHIFT      0
 
 /***************************************************************************
- *RD_DATAPATH
+ *RD_DATAPATH - Read Datapath Status Register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: RD_DATAPATH :: reserved0 [31:28] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_RD_DATAPATH_reserved0_MASK       0xf0000000
@@ -870,14 +873,14 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_RD_DATAPATH_RD_PNTR_SHIFT        0
 
 /***************************************************************************
- *FLAG_BUS
+ *FLAG_BUS - TP_OUT bus value Register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: FLAG_BUS :: FLAG_BUS [31:00] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_FLAG_BUS_FLAG_BUS_MASK           0xffffffff
 #define BCHP_MEMC_DDR23_APHY_AC_0_FLAG_BUS_FLAG_BUS_SHIFT          0
 
 /***************************************************************************
- *MISC
+ *MISC - Miscellaneous Register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: MISC :: reserved_for_eco0 [31:12] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_MISC_reserved_for_eco0_MASK      0xfffff000
@@ -932,28 +935,28 @@
 #define BCHP_MEMC_DDR23_APHY_AC_0_MISC_DWORD0_OVERRUN_CLR_SHIFT    0
 
 /***************************************************************************
- *SPARE0_RW
+ *SPARE0_RW - Spare register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: SPARE0_RW :: reserved_for_eco0 [31:00] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RW_reserved_for_eco0_MASK 0xffffffff
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RW_reserved_for_eco0_SHIFT 0
 
 /***************************************************************************
- *SPARE1_RW
+ *SPARE1_RW - Spare register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: SPARE1_RW :: reserved_for_eco0 [31:00] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RW_reserved_for_eco0_MASK 0xffffffff
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RW_reserved_for_eco0_SHIFT 0
 
 /***************************************************************************
- *SPARE0_RO
+ *SPARE0_RO - Spare register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: SPARE0_RO :: reserved_for_eco0 [31:00] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RO_reserved_for_eco0_MASK 0xffffffff
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE0_RO_reserved_for_eco0_SHIFT 0
 
 /***************************************************************************
- *SPARE1_RO
+ *SPARE1_RO - Spare register
  ***************************************************************************/
 /* MEMC_DDR23_APHY_AC_0 :: SPARE1_RO :: reserved_for_eco0 [31:00] */
 #define BCHP_MEMC_DDR23_APHY_AC_0_SPARE1_RO_reserved_for_eco0_MASK 0xffffffff

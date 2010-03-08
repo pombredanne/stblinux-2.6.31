@@ -19,11 +19,11 @@
 #include "symbol.h"
 #include "symbol_functors.h"
 #include "string_filter.h"
+#include "locate_images.h"
 
 class profile_container;
 class inverted_profile;
 class profile_t;
-class extra_images;
 class image_set;
 class op_bfd;
 
@@ -53,7 +53,7 @@ public:
 	         count_array_t const & arc_count);
 
 	/// return all the cg symbols
-	const symbol_collection & get_symbols() const;
+	symbol_collection const & get_symbols() const;
 
 	/**
 	 * After population, build the final output, and do
@@ -105,7 +105,6 @@ class callgraph_container {
 public:
 	/**
 	 * Populate the container, must be called once only.
-	 * @param archive_path  oparchive prefix path
 	 * @param iprofiles  sample file list including callgraph files.
 	 * @param extra  extra image list to fixup binary name.
 	 * @param debug_info  true if we must record linenr information
@@ -116,8 +115,7 @@ public:
 	 * Currently all errors core dump.
 	 * FIXME: consider if this should be a ctor
 	 */
-	void populate(std::string const & archive_path,
-		      std::list<inverted_profile> const & iprofiles,
+	void populate(std::list<inverted_profile> const & iprofiles,
 		      extra_images const & extra, bool debug_info,
 		      double threshold, bool merge_lib,
 		      string_filter const & sym_filter);
@@ -129,7 +127,7 @@ public:
 	count_array_t samples_count() const;
 
 	// return all the cg symbols
-	const symbol_collection & get_symbols() const;
+	symbol_collection const & get_symbols() const;
 
 private:
 	/**
@@ -145,22 +143,17 @@ private:
 	 */
 	void add(profile_t const & profile, op_bfd const & caller_bfd,
 	         bool bfd_caller_ok, op_bfd const & callee_bfd,
-		 std::string const & app_name, 
-		 profile_container const & pc, bool debug_info,
-		 size_t pclass);
+		 std::string const & app_name, profile_container const & pc,
+		 bool debug_info, size_t pclass);
 
-	void populate(std::string const & archive_path,
-		      std::list<image_set> const & lset,
+	void populate(std::list<image_set> const & lset,
 		      std::string const & app_image,
-		      extra_images const & extra, size_t pclass,
-		      profile_container const & pc, bool debug_info,
-		      bool merge_lib);
-	void populate(std::string const & archive_path,
-		      std::list<std::string> const & cg_files,
+		      size_t pclass, profile_container const & pc,
+		      bool debug_info, bool merge_lib);
+	void populate(std::list<std::string> const & cg_files,
 		      std::string const & app_image,
-		      extra_images const & extra, size_t pclass,
-		      profile_container const & pc, bool debug_info,
-		      bool merge_lib);
+		      size_t pclass, profile_container const & pc,
+		      bool debug_info, bool merge_lib);
 
 	/// record all main symbols
 	void add_symbols(profile_container const & pc);
@@ -170,6 +163,9 @@ private:
 
 	/// A structured representation of the callgraph.
 	arc_recorder recorder;
+
+public:  // FIXME
+	extra_images extra_found_images;
 };
 
 #endif /* !CALLGRAPH_CONTAINER_H */

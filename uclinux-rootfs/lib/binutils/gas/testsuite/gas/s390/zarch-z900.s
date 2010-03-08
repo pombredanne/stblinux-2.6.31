@@ -18,25 +18,25 @@ foo:
 	brxlg	%r9,%r6,.
 	bxhg	%r9,%r6,4095(%r5)
 	bxleg	%r9,%r6,4095(%r5)
-	cdgbr	%r9,%r6
-	cdgr	%r9,%r6
+	cdgbr	%f9,%r6
+	cdgr	%f9,%r6
 	cdsg	%r9,%r6,4095(%r5)
-	cegbr	%r9,%r6
-	cegr	%r9,%r6
-	cfdr	%f6,9,%r5
-	cfer	%f6,9,%r5
-	cfxr	%f6,9,%r5
+	cegbr	%f9,%r6
+	cegr	%f9,%r6
+	cfdr	%r6,9,%f5
+	cfer	%r6,9,%f5
+	cfxr	%r6,9,%f5
 	cg	%r9,4095(%r5,%r10)
-	cgdbr	%f6,15,%r5
-	cgdr	%f6,15,%r5
-	cgebr	%f6,15,%r5
-	cger	%f6,15,%r5
+	cgdbr	%r6,15,%f5
+	cgdr	%r6,15,%f5
+	cgebr	%r6,15,%f5
+	cger	%r6,15,%f5
 	cgf	%r9,4095(%r5,%r10)
 	cgfr	%r9,%r6
 	cghi	%r9,-32767
 	cgr	%r9,%r6
-	cgxbr	%f6,15,%r5
-	cgxr	%f6,15,%r5
+	cgxbr	%r6,15,%f5
+	cgxr	%r6,15,%f5
 	clg	%r9,4095(%r5,%r10)
 	clgf	%r9,4095(%r5,%r10)
 	clgfr	%r9,%r6
@@ -45,8 +45,8 @@ foo:
 	csg	%r9,%r6,4095(%r5)
 	cvbg	%r9,4095(%r5,%r10)
 	cvdg	%r9,4095(%r5,%r10)
-	cxgbr	%r9,%r6
-	cxgr	%r9,%r6
+	cxgbr	%f9,%r6
+	cxgr	%f9,%r6
 	dlg	%r9,4095(%r5,%r10)
 	dlgr	%r9,%r6
 	dsg	%r9,4095(%r5,%r10)

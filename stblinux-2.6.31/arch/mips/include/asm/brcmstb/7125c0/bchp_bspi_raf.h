@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Dec  7 01:17:16 2009
- *                 MD5 Checksum         ab1ca75441be64f31cabaf0b93ebb8cc
+ * Date:           Generated on         Fri Jan 22 20:29:10 2010
+ *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_bspi_raf.h $
+ * 
+ * Hydra_Software_Devel/1   1/25/10 7:33p albertl
+ * SW7125-177: Initial revision.
  *
  ***************************************************************************/
 
@@ -40,34 +43,34 @@
 #define BCHP_BSPI_RAF_H__
 
 /***************************************************************************
- *BSPI_RAF
+ *BSPI_RAF - Public Linear Read BSPI Pipe Registers
  ***************************************************************************/
-#define BCHP_BSPI_RAF_START_ADDR                 0x00443100
-#define BCHP_BSPI_RAF_NUM_WORDS                  0x00443104
-#define BCHP_BSPI_RAF_CTRL                       0x00443108
-#define BCHP_BSPI_RAF_FULLNESS                   0x0044310c
-#define BCHP_BSPI_RAF_WATERMARK                  0x00443110
-#define BCHP_BSPI_RAF_STATUS                     0x00443114
-#define BCHP_BSPI_RAF_READ_DATA                  0x00443118
-#define BCHP_BSPI_RAF_WORD_CNT                   0x0044311c
-#define BCHP_BSPI_RAF_CURR_ADDR                  0x00443120
+#define BCHP_BSPI_RAF_START_ADDR                 0x00443100 /* Physical Starting Address Location in Flash device */
+#define BCHP_BSPI_RAF_NUM_WORDS                  0x00443104 /* Number of Words to be fetched */
+#define BCHP_BSPI_RAF_CTRL                       0x00443108 /* RAF Session Control Register */
+#define BCHP_BSPI_RAF_FULLNESS                   0x0044310c /* Fullness indicator for the read ahead buffer */
+#define BCHP_BSPI_RAF_WATERMARK                  0x00443110 /* Watermark level in the read ahead buffer that triggers an interrupt */
+#define BCHP_BSPI_RAF_STATUS                     0x00443114 /* Linear Read Status Register */
+#define BCHP_BSPI_RAF_READ_DATA                  0x00443118 /* Read data from Raf-buffer */
+#define BCHP_BSPI_RAF_WORD_CNT                   0x0044311c /* Current number of words fetched from Flash */
+#define BCHP_BSPI_RAF_CURR_ADDR                  0x00443120 /* Current read address for the linear read session */
 
 /***************************************************************************
- *START_ADDR
+ *START_ADDR - Physical Starting Address Location in Flash device
  ***************************************************************************/
 /* BSPI_RAF :: START_ADDR :: START_ADDR [31:00] */
 #define BCHP_BSPI_RAF_START_ADDR_START_ADDR_MASK                   0xffffffff
 #define BCHP_BSPI_RAF_START_ADDR_START_ADDR_SHIFT                  0
 
 /***************************************************************************
- *NUM_WORDS
+ *NUM_WORDS - Number of Words to be fetched
  ***************************************************************************/
 /* BSPI_RAF :: NUM_WORDS :: NumWords [31:00] */
 #define BCHP_BSPI_RAF_NUM_WORDS_NumWords_MASK                      0xffffffff
 #define BCHP_BSPI_RAF_NUM_WORDS_NumWords_SHIFT                     0
 
 /***************************************************************************
- *CTRL
+ *CTRL - RAF Session Control Register
  ***************************************************************************/
 /* BSPI_RAF :: CTRL :: reserved0 [31:02] */
 #define BCHP_BSPI_RAF_CTRL_reserved0_MASK                          0xfffffffc
@@ -82,7 +85,7 @@
 #define BCHP_BSPI_RAF_CTRL_START_SHIFT                             0
 
 /***************************************************************************
- *FULLNESS
+ *FULLNESS - Fullness indicator for the read ahead buffer
  ***************************************************************************/
 /* BSPI_RAF :: FULLNESS :: reserved0 [31:07] */
 #define BCHP_BSPI_RAF_FULLNESS_reserved0_MASK                      0xffffff80
@@ -93,7 +96,7 @@
 #define BCHP_BSPI_RAF_FULLNESS_FULLNESS_SHIFT                      0
 
 /***************************************************************************
- *WATERMARK
+ *WATERMARK - Watermark level in the read ahead buffer that triggers an interrupt
  ***************************************************************************/
 /* BSPI_RAF :: WATERMARK :: reserved0 [31:02] */
 #define BCHP_BSPI_RAF_WATERMARK_reserved0_MASK                     0xfffffffc
@@ -104,7 +107,7 @@
 #define BCHP_BSPI_RAF_WATERMARK_FULLNESS_WATERMARK_SHIFT           0
 
 /***************************************************************************
- *STATUS
+ *STATUS - Linear Read Status Register
  ***************************************************************************/
 /* BSPI_RAF :: STATUS :: reserved0 [31:03] */
 #define BCHP_BSPI_RAF_STATUS_reserved0_MASK                        0xfffffff8
@@ -123,21 +126,21 @@
 #define BCHP_BSPI_RAF_STATUS_SESSION_BUSY_SHIFT                    0
 
 /***************************************************************************
- *READ_DATA
+ *READ_DATA - Read data from Raf-buffer
  ***************************************************************************/
 /* BSPI_RAF :: READ_DATA :: DATA [31:00] */
 #define BCHP_BSPI_RAF_READ_DATA_DATA_MASK                          0xffffffff
 #define BCHP_BSPI_RAF_READ_DATA_DATA_SHIFT                         0
 
 /***************************************************************************
- *WORD_CNT
+ *WORD_CNT - Current number of words fetched from Flash
  ***************************************************************************/
 /* BSPI_RAF :: WORD_CNT :: CURRENT_WORD_COUNT [31:00] */
 #define BCHP_BSPI_RAF_WORD_CNT_CURRENT_WORD_COUNT_MASK             0xffffffff
 #define BCHP_BSPI_RAF_WORD_CNT_CURRENT_WORD_COUNT_SHIFT            0
 
 /***************************************************************************
- *CURR_ADDR
+ *CURR_ADDR - Current read address for the linear read session
  ***************************************************************************/
 /* BSPI_RAF :: CURR_ADDR :: CURRENT_ADDRESS [31:00] */
 #define BCHP_BSPI_RAF_CURR_ADDR_CURRENT_ADDRESS_MASK               0xffffffff

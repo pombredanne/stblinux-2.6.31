@@ -9,10 +9,13 @@
  * @author John Levon
  */
 
+#include <cstring>
+
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
+#include <cstring>
 
 #include "cverb.h"
 

@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-02-05
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-03-04
 #
 # Original package: zlib-1.2.3.tar.bz2
 #
 diff -ruNp zlib.orig/makefile zlib/makefile
 --- zlib.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ zlib/makefile	2010-02-05 12:10:23.000000000 -0800
++++ zlib/makefile	2010-03-04 20:36:36.000000000 -0800
 @@ -0,0 +1,28 @@
 +include $(ROOTDIR)/config.arch
 +
@@ -20,9 +20,9 @@ diff -ruNp zlib.orig/makefile zlib/makefile
 +.PHONY: all
 +all::
 +	if [ ! -e Makefile ]; then \
-+		./configure || exit 1 ; \
++		./configure --host=$(MACHINE)-linux || exit 1 ; \
 +	fi
-+	$(MAKE) -f Makefile
++	$(MAKE) -f Makefile CC=$(CC) CFLAGS=$(CFLAGS)
 +
 +# no shared version; nothing to install
 +.PHONY: romfs
