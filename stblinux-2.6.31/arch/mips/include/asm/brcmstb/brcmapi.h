@@ -25,6 +25,8 @@
 #include <linux/dma-mapping.h>
 #include <linux/device.h>
 #include <linux/types.h>
+#include <linux/cache.h>
+#include <linux/slab_def.h>
 #include <net/sock.h>
 #include <asm/ptrace.h>
 #include <asm/inst.h>
@@ -89,6 +91,8 @@ int brcm_alloc_macaddr(u8 *buf);
 
 extern spinlock_t brcm_magnum_spinlock;
 
+void brcm_set_nmi_handler(void (*fn)(struct pt_regs *));
+
 /***********************************************************************
  * New exports of standard kernel symbols
  ***********************************************************************/
@@ -101,6 +105,9 @@ extern void (*cpu_wait)(void);
 
 /* for power management interrupts */
 extern unsigned long ebase;
+
+/* for GENET ring buffer support */
+extern struct kmem_cache *skbuff_head_cache __read_mostly;
 
 /***********************************************************************
  * Driver->BSP callbacks

@@ -343,6 +343,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			whitelist_cfg(\%busybox, \%busybox_w);
 
 			$linux{"CONFIG_NETWORK_FILESYSTEMS"} = "n";
+			$linux{"CONFIG_INPUT"} = "n";
 		} elsif($mod eq "ikos") {
 
 			# IKOS pre-tapeout emulation (internal Broadcom use)
@@ -464,7 +465,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$busybox{"CONFIG_TELNET"} = "n";
 			$busybox{"CONFIG_TELNETD"} = "n";
 			$busybox{"CONFIG_TFTP"} = "n";
-			$busybox{"CONFIG_APP_UDHCPC"} = "n";
+			$busybox{"CONFIG_UDHCPC"} = "n";
 			$busybox{"CONFIG_VCONFIG"} = "n";
 			$busybox{"CONFIG_WGET"} = "n";
 			$busybox{"CONFIG_ZCIP"} = "n";

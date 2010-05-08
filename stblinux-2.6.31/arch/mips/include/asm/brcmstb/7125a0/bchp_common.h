@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Tue Nov 24 14:09:39 2009
- *                 MD5 Checksum         372537deddebf37bd08ec1c27c39a411
+ * Date:           Generated on         Tue Feb  2 12:15:39 2010
+ *                 MD5 Checksum         d95cf1671203bb5643a80ed01ea76282
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/7   11/24/09 4:55p darnstein
- * SW7125-130: integrate recent changes in RDB for 7125-A0.
+ * Hydra_Software_Devel/8   2/2/10 7:29p albertl
+ * SW7125-98: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -719,8 +719,8 @@
 #define BCHP_EXT_656_TOP_0_REG_END                         0x008c3094
 #define BCHP_IN656_0_REG_START                             0x008c3200
 #define BCHP_IN656_0_REG_END                               0x008c322c
-#define BCHP_BMIPS4380_REG_START                           0x01fa0000
-#define BCHP_BMIPS4380_REG_END                             0x0201ffff
+#define BCHP_BMIPS4380_REG_START                           0x01f00000
+#define BCHP_BMIPS4380_REG_END                             0x01f7ffff
 #define BCHP_MEMC_DDR23_APHY_AC_REG_START                  0x02000000
 #define BCHP_MEMC_DDR23_APHY_AC_REG_END                    0x020000c0
 #define BCHP_MEMC_DDR23_APHY_WL1_REG_START                 0x02001000

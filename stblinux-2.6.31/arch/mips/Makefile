@@ -568,8 +568,6 @@ load-$(CONFIG_BRCMSTB)		+= 0x80001000
 core-$(CONFIG_BRCMSTB)		+= arch/mips/brcmstb/
 load-$(CONFIG_BCM7550A0)	:= 0x8027c000
 
-cflags-y			+= -Wno-uninitialized
-cflags-$(CONFIG_WARN_UNINITIALIZED) += -Wuninitialized
 cflags-$(CONFIG_NO_INLINE)	+= -fno-inline
 
 #

@@ -24,15 +24,15 @@ struct kbentry {
 #define MAX_NR_KEYMAPS 256
 
 int dumpkmap_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int dumpkmap_main(int ATTRIBUTE_UNUSED argc, char ATTRIBUTE_UNUSED **argv)
+int dumpkmap_main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM)
 {
 	struct kbentry ke;
 	int i, j, fd;
-	RESERVE_CONFIG_BUFFER(flags,MAX_NR_KEYMAPS);
+	RESERVE_CONFIG_BUFFER(flags, MAX_NR_KEYMAPS);
 
-/*	bb_warn_ignoring_args(argc>=2);*/
+/*	bb_warn_ignoring_args(argv[1]);*/
 
-	fd = xopen(CURRENT_VC, O_RDWR);
+	fd = get_console_fd_or_die();
 
 	write(STDOUT_FILENO, "bkeymap", 7);
 

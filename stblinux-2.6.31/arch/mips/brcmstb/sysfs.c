@@ -218,7 +218,7 @@ static u32 read_zscm_reg(unsigned long addr)
 
 	cache_op(Index_Load_Tag_S, addr);
 
-	/* 7420b0 L2 Load Tag workaround */
+	/* 7420 L2 Load Tag workaround */
 	__asm__ __volatile__(
 		".set push\n"
 		".set noreorder\n"

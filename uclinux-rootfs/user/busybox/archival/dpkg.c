@@ -6,6 +6,10 @@
  *  written by glenn mcgrath with the help of others
  *  copyright (c) 2001 by glenn mcgrath
  *
+ *  parts of the version comparison code is plucked from the real dpkg
+ *  application which is licensed GPLv2 and
+ *  copyright (c) 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ *
  *  started life as a busybox implementation of udpkg
  *
  * licensed under gplv2 or later, see file license in this tarball for details.
@@ -25,6 +29,7 @@
  */
 
 #include "libbb.h"
+#include <fnmatch.h>
 #include "unarchive.h"
 
 /* note: if you vary hash_prime sizes be aware,
@@ -134,7 +139,7 @@ static void make_hash(const char *key, unsigned *start, unsigned *decrement, con
 		/* shifts the ascii based value and adds it to previous value
 		 * shift amount is mod 24 because long int is 32 bit and data
 		 * to be shifted is 8, don't want to shift data to where it has
-		 * no effect*/
+		 * no effect */
 		hash_num += (key[i] + key[i-1]) << ((key[i] * i) % 24);
 	}
 	*start = (unsigned) hash_num % hash_prime;
@@ -182,60 +187,52 @@ static unsigned search_status_hashtable(const char *key)
 	return probe_address;
 }
 
-/* Need to rethink version comparison, maybe the official dpkg has something i can use ? */
-static int version_compare_part(const char *version1, const char *version2)
+static int order(char x)
 {
-	int upstream_len1 = 0;
-	int upstream_len2 = 0;
-	char *name1_char;
-	char *name2_char;
-	int len1 = 0;
-	int len2 = 0;
-	int tmp_int;
-	int ver_num1;
-	int ver_num2;
+	return (x == '~' ? -1
+		: x == '\0' ? 0
+		: isdigit(x) ? 0
+		: isalpha(x) ? x
+		: (unsigned char)x + 256
+	);
+}
 
-	if (version1 == NULL) {
-		version1 = xstrdup("");
-	}
-	if (version2 == NULL) {
-		version2 = xstrdup("");
-	}
-	upstream_len1 = strlen(version1);
-	upstream_len2 = strlen(version2);
+/* This code is taken from dpkg and modified slightly to work with busybox */
+static int version_compare_part(const char *val, const char *ref)
+{
+	if (!val) val = "";
+	if (!ref) ref = "";
 
-	while ((len1 < upstream_len1) || (len2 < upstream_len2)) {
-		/* Compare non-digit section */
-		tmp_int = strcspn(&version1[len1], "0123456789");
-		name1_char = xstrndup(&version1[len1], tmp_int);
-		len1 += tmp_int;
-		tmp_int = strcspn(&version2[len2], "0123456789");
-		name2_char = xstrndup(&version2[len2], tmp_int);
-		len2 += tmp_int;
-		tmp_int = strcmp(name1_char, name2_char);
-		free(name1_char);
-		free(name2_char);
-		if (tmp_int != 0) {
-			return tmp_int;
+	while (*val || *ref) {
+		int first_diff;
+
+		while ((*val && !isdigit(*val)) || (*ref && !isdigit(*ref))) {
+			int vc = order(*val);
+			int rc = order(*ref);
+			if (vc != rc)
+				return vc - rc;
+			val++;
+			ref++;
 		}
 
-		/* Compare digits */
-		tmp_int = strspn(&version1[len1], "0123456789");
-		name1_char = xstrndup(&version1[len1], tmp_int);
-		len1 += tmp_int;
-		tmp_int = strspn(&version2[len2], "0123456789");
-		name2_char = xstrndup(&version2[len2], tmp_int);
-		len2 += tmp_int;
-		ver_num1 = atoi(name1_char);
-		ver_num2 = atoi(name2_char);
-		free(name1_char);
-		free(name2_char);
-		if (ver_num1 < ver_num2) {
-			return -1;
+		while (*val == '0')
+			val++;
+		while (*ref == '0')
+			ref++;
+
+		first_diff = 0;
+		while (isdigit(*val) && isdigit(*ref)) {
+			if (first_diff == 0)
+				first_diff = *val - *ref;
+			val++;
+			ref++;
 		}
-		if (ver_num1 > ver_num2) {
+		if (isdigit(*val))
 			return 1;
-		}
+		if (isdigit(*ref))
+			return -1;
+		if (first_diff)
+			return first_diff;
 	}
 	return 0;
 }
@@ -248,39 +245,34 @@ static int version_compare(const unsigned ver1, const unsigned ver2)
 {
 	char *ch_ver1 = name_hashtable[ver1];
 	char *ch_ver2 = name_hashtable[ver2];
-
-	char epoch1, epoch2;
+	unsigned long epoch1 = 0, epoch2 = 0;
+	char *colon;
 	char *deb_ver1, *deb_ver2;
-	char *ver1_ptr, *ver2_ptr;
 	char *upstream_ver1;
 	char *upstream_ver2;
 	int result;
 
 	/* Compare epoch */
-	if (ch_ver1[1] == ':') {
-		epoch1 = ch_ver1[0];
-		ver1_ptr = strchr(ch_ver1, ':') + 1;
-	} else {
-		epoch1 = '0';
-		ver1_ptr = ch_ver1;
+	colon = strchr(ch_ver1, ':');
+	if (colon) {
+		epoch1 = atoi(ch_ver1);
+		ch_ver1 = colon + 1;
 	}
-	if (ch_ver2[1] == ':') {
-		epoch2 = ch_ver2[0];
-		ver2_ptr = strchr(ch_ver2, ':') + 1;
-	} else {
-		epoch2 = '0';
-		ver2_ptr = ch_ver2;
+	colon = strchr(ch_ver2, ':');
+	if (colon) {
+		epoch2 = atoi(ch_ver2);
+		ch_ver2 = colon + 1;
 	}
 	if (epoch1 < epoch2) {
 		return -1;
 	}
-	else if (epoch1 > epoch2) {
+	if (epoch1 > epoch2) {
 		return 1;
 	}
 
 	/* Compare upstream version */
-	upstream_ver1 = xstrdup(ver1_ptr);
-	upstream_ver2 = xstrdup(ver2_ptr);
+	upstream_ver1 = xstrdup(ch_ver1);
+	upstream_ver2 = xstrdup(ch_ver2);
 
 	/* Chop off debian version, and store for later use */
 	deb_ver1 = strrchr(upstream_ver1, '-');
@@ -382,9 +374,8 @@ static int search_for_provides(int needle, int start_at)
  */
 static void add_edge_to_node(common_node_t *node, edge_t *edge)
 {
-	node->num_of_edges++;
-	node->edge = xrealloc(node->edge, sizeof(edge_t) * (node->num_of_edges + 1));
-	node->edge[node->num_of_edges - 1] = edge;
+	node->edge = xrealloc_vector(node->edge, 2, node->num_of_edges);
+	node->edge[node->num_of_edges++] = edge;
 }
 
 /*
@@ -502,7 +493,7 @@ static void free_package(common_node_t *node)
 }
 
 /*
- * Gets the next package field from package_buffer, seperated into the field name
+ * Gets the next package field from package_buffer, separated into the field name
  * and field value, it returns the int offset to the first character of the next field
  */
 static int read_package_field(const char *package_buffer, char **field_name, char **field_value)
@@ -749,7 +740,7 @@ static void index_status_file(const char *filename)
 	status_node_t *status_node = NULL;
 	unsigned status_num;
 
-	status_file = xfopen(filename, "r");
+	status_file = xfopen_for_read(filename);
 	while ((control_buffer = xmalloc_fgetline_str(status_file, "\n\n")) != NULL) {
 		const unsigned package_num = fill_package_struct(control_buffer);
 		if (package_num != -1) {
@@ -791,8 +782,8 @@ static void write_buffer_no_status(FILE *new_status_file, const char *control_bu
 /* This could do with a cleanup */
 static void write_status_file(deb_file_t **deb_file)
 {
-	FILE *old_status_file = xfopen("/var/lib/dpkg/status", "r");
-	FILE *new_status_file = xfopen("/var/lib/dpkg/status.udeb", "w");
+	FILE *old_status_file = xfopen_for_read("/var/lib/dpkg/status");
+	FILE *new_status_file = xfopen_for_write("/var/lib/dpkg/status.udeb");
 	char *package_name;
 	char *status_from_file;
 	char *control_buffer = NULL;
@@ -815,7 +806,7 @@ static void write_status_file(deb_file_t **deb_file)
 		write_flag = FALSE;
 		tmp_string = strstr(control_buffer, "Status:");
 		if (tmp_string != NULL) {
-			/* Seperate the status value from the control buffer */
+			/* Separate the status value from the control buffer */
 			tmp_string += 7;
 			tmp_string += strspn(tmp_string, " \n\t");
 			status_from_file = xstrndup(tmp_string, strcspn(tmp_string, "\n"));
@@ -921,7 +912,7 @@ static void write_status_file(deb_file_t **deb_file)
 	/* Create a separate backfile to dpkg */
 	if (rename("/var/lib/dpkg/status", "/var/lib/dpkg/status.udeb.bak") == -1) {
 		if (errno != ENOENT)
-			bb_error_msg_and_die("cannot create backup status file");
+			bb_error_msg_and_die("can't create backup status file");
 		/* Its ok if renaming the status file fails because status
 		 * file doesnt exist, maybe we are starting from scratch */
 		bb_error_msg("no status file found, creating new one");
@@ -972,7 +963,7 @@ static int check_deps(deb_file_t **deb_file, int deb_start /*, int dep_max_count
 	 * installed package for conflicts*/
 	while (deb_file[i] != NULL) {
 		const unsigned package_num = deb_file[i]->package;
-		conflicts = xrealloc(conflicts, sizeof(int) * (conflicts_num + 1));
+		conflicts = xrealloc_vector(conflicts, 2, conflicts_num);
 		conflicts[conflicts_num] = package_num;
 		conflicts_num++;
 		/* add provides to conflicts list */
@@ -989,7 +980,7 @@ static int check_deps(deb_file_t **deb_file, int deb_start /*, int dep_max_count
 					new_node->version = package_hashtable[package_num]->edge[j]->version;
 					package_hashtable[conflicts_package_num] = new_node;
 				}
-				conflicts = xrealloc(conflicts, sizeof(int) * (conflicts_num + 1));
+				conflicts = xrealloc_vector(conflicts, 2, conflicts_num);
 				conflicts[conflicts_num] = conflicts_package_num;
 				conflicts_num++;
 			}
@@ -1162,7 +1153,7 @@ static char **create_list(const char *filename)
 	int count;
 
 	/* don't use [xw]fopen here, handle error ourself */
-	list_stream = fopen(filename, "r");
+	list_stream = fopen_for_read(filename);
 	if (list_stream == NULL) {
 		return NULL;
 	}
@@ -1170,9 +1161,9 @@ static char **create_list(const char *filename)
 	file_list = NULL;
 	count = 0;
 	while ((line = xmalloc_fgetline(list_stream)) != NULL) {
-		file_list = xrealloc(file_list, sizeof(char *) * (count + 2));
+		file_list = xrealloc_vector(file_list, 2, count);
 		file_list[count++] = line;
-		file_list[count] = NULL;
+		/*file_list[count] = NULL; - xrealloc_vector did it */
 	}
 	fclose(list_stream);
 
@@ -1294,7 +1285,7 @@ static void free_array(char **array)
  * the status_hashtable to retrieve the info. This results in smaller code than
  * scanning the status file. The resulting list, however, is unsorted.
  */
-static void list_packages(void)
+static void list_packages(const char *pattern)
 {
 	int i;
 
@@ -1314,6 +1305,9 @@ static void list_packages(void)
 			stat_str = name_hashtable[status_hashtable[i]->status];
 			name_str = name_hashtable[package_hashtable[status_hashtable[i]->package]->name];
 			vers_str = name_hashtable[package_hashtable[status_hashtable[i]->package]->version];
+
+			if (pattern && fnmatch(pattern, name_str, 0))
+				continue;
 
 			/* get abbreviation for status field 1 */
 			s1 = stat_str[0] == 'i' ? 'i' : 'r';
@@ -1360,8 +1354,8 @@ static void remove_package(const unsigned package_num, int noisy)
 	free_array(exclude_files);
 	free_array(remove_files);
 
-	/* Create a list of files in /var/lib/dpkg/info/<package>.* to keep  */
-	exclude_files = xzalloc(sizeof(char*) * 3);
+	/* Create a list of files in /var/lib/dpkg/info/<package>.* to keep */
+	exclude_files = xzalloc(sizeof(exclude_files[0]) * 3);
 	exclude_files[0] = xstrdup(conffile_name);
 	exclude_files[1] = xasprintf("/var/lib/dpkg/info/%s.%s", package_name, "postrm");
 
@@ -1399,20 +1393,25 @@ static void purge_package(const unsigned package_num)
 	sprintf(list_name, "/var/lib/dpkg/info/%s.%s", package_name, "list");
 	remove_files = create_list(list_name);
 
-	exclude_files = xzalloc(sizeof(char*));
-
 	/* Some directories cant be removed straight away, so do multiple passes */
-	while (remove_file_array(remove_files, exclude_files)) /* repeat */;
+	while (remove_file_array(remove_files, NULL))
+		continue;
 	free_array(remove_files);
 
 	/* Create a list of all /var/lib/dpkg/info/<package> files */
 	remove_files = all_control_list(package_name);
-	remove_file_array(remove_files, exclude_files);
-	free_array(remove_files);
-	free(exclude_files);
 
-	/* Run postrm script */
+	/* Delete all of them except the postrm script */
+	exclude_files = xzalloc(sizeof(exclude_files[0]) * 2);
+	exclude_files[0] = xasprintf("/var/lib/dpkg/info/%s.%s", package_name, "postrm");
+	remove_file_array(remove_files, exclude_files);
+	free_array(exclude_files);
+
+	/* Run and remove postrm script */
 	run_package_script_or_die(package_name, "postrm");
+	remove_file_array(remove_files, NULL);
+
+	free_array(remove_files);
 
 	/* Change package status */
 	set_status(status_num, "not-installed", 3);
@@ -1439,15 +1438,15 @@ static void init_archive_deb_control(archive_handle_t *ar_handle)
 	tar_handle->src_fd = ar_handle->src_fd;
 
 	/* We don't care about data.tar.* or debian-binary, just control.tar.* */
-#if ENABLE_FEATURE_DEB_TAR_GZ
+#if ENABLE_FEATURE_SEAMLESS_GZ
 	llist_add_to(&(ar_handle->accept), (char*)"control.tar.gz");
 #endif
-#if ENABLE_FEATURE_DEB_TAR_BZ2
+#if ENABLE_FEATURE_SEAMLESS_BZ2
 	llist_add_to(&(ar_handle->accept), (char*)"control.tar.bz2");
 #endif
 
 	/* Assign the tar handle as a subarchive of the ar handle */
-	ar_handle->sub_archive = tar_handle;
+	ar_handle->dpkg__sub_archive = tar_handle;
 }
 
 static void init_archive_deb_data(archive_handle_t *ar_handle)
@@ -1459,36 +1458,55 @@ static void init_archive_deb_data(archive_handle_t *ar_handle)
 	tar_handle->src_fd = ar_handle->src_fd;
 
 	/* We don't care about control.tar.* or debian-binary, just data.tar.* */
-#if ENABLE_FEATURE_DEB_TAR_GZ
+#if ENABLE_FEATURE_SEAMLESS_GZ
 	llist_add_to(&(ar_handle->accept), (char*)"data.tar.gz");
 #endif
-#if ENABLE_FEATURE_DEB_TAR_BZ2
+#if ENABLE_FEATURE_SEAMLESS_BZ2
 	llist_add_to(&(ar_handle->accept), (char*)"data.tar.bz2");
 #endif
 
 	/* Assign the tar handle as a subarchive of the ar handle */
-	ar_handle->sub_archive = tar_handle;
+	ar_handle->dpkg__sub_archive = tar_handle;
+}
+
+static void FAST_FUNC data_extract_to_buffer(archive_handle_t *archive_handle)
+{
+	unsigned size = archive_handle->file_header->size;
+
+	archive_handle->dpkg__buffer = xzalloc(size + 1);
+	xread(archive_handle->src_fd, archive_handle->dpkg__buffer, size);
 }
 
 static char *deb_extract_control_file_to_buffer(archive_handle_t *ar_handle, llist_t *myaccept)
 {
-	ar_handle->sub_archive->action_data = data_extract_to_buffer;
-	ar_handle->sub_archive->accept = myaccept;
-	ar_handle->sub_archive->filter = filter_accept_list;
+	ar_handle->dpkg__sub_archive->action_data = data_extract_to_buffer;
+	ar_handle->dpkg__sub_archive->accept = myaccept;
+	ar_handle->dpkg__sub_archive->filter = filter_accept_list;
 
 	unpack_ar_archive(ar_handle);
 	close(ar_handle->src_fd);
 
-	return ar_handle->sub_archive->buffer;
+	return ar_handle->dpkg__sub_archive->dpkg__buffer;
 }
 
-static void data_extract_all_prefix(archive_handle_t *archive_handle)
+static void FAST_FUNC data_extract_all_prefix(archive_handle_t *archive_handle)
 {
 	char *name_ptr = archive_handle->file_header->name;
 
-	name_ptr += strspn(name_ptr, "./");
+	/* Skip all leading "/" */
+	while (*name_ptr == '/')
+		name_ptr++;
+	/* Skip all leading "./" and "../" */
+	while (name_ptr[0] == '.') {
+		if (name_ptr[1] == '.' && name_ptr[2] == '/')
+			name_ptr++;
+		if (name_ptr[1] != '/')
+			break;
+		name_ptr += 2;
+	}
+
 	if (name_ptr[0] != '\0') {
-		archive_handle->file_header->name = xasprintf("%s%s", archive_handle->buffer, name_ptr);
+		archive_handle->file_header->name = xasprintf("%s%s", archive_handle->dpkg__buffer, name_ptr);
 		data_extract_all(archive_handle);
 	}
 }
@@ -1528,11 +1546,11 @@ static void unpack_package(deb_file_t *deb_file)
 		llist_add_to(&accept_list, c);
 		i++;
 	}
-	archive_handle->sub_archive->accept = accept_list;
-	archive_handle->sub_archive->filter = filter_accept_list;
-	archive_handle->sub_archive->action_data = data_extract_all_prefix;
-	archive_handle->sub_archive->buffer = info_prefix;
-	archive_handle->sub_archive->flags |= ARCHIVE_EXTRACT_UNCONDITIONAL;
+	archive_handle->dpkg__sub_archive->accept = accept_list;
+	archive_handle->dpkg__sub_archive->filter = filter_accept_list;
+	archive_handle->dpkg__sub_archive->action_data = data_extract_all_prefix;
+	archive_handle->dpkg__sub_archive->dpkg__buffer = info_prefix;
+	archive_handle->dpkg__sub_archive->ah_flags |= ARCHIVE_UNLINK_OLD;
 	unpack_ar_archive(archive_handle);
 
 	/* Run the preinst prior to extracting */
@@ -1541,19 +1559,19 @@ static void unpack_package(deb_file_t *deb_file)
 	/* Extract data.tar.gz to the root directory */
 	archive_handle = init_archive_deb_ar(deb_file->filename);
 	init_archive_deb_data(archive_handle);
-	archive_handle->sub_archive->action_data = data_extract_all_prefix;
-	archive_handle->sub_archive->buffer = (char*)"/"; /* huh? */
-	archive_handle->sub_archive->flags |= ARCHIVE_EXTRACT_UNCONDITIONAL;
+	archive_handle->dpkg__sub_archive->action_data = data_extract_all_prefix;
+	archive_handle->dpkg__sub_archive->dpkg__buffer = (char*)"/"; /* huh? */
+	archive_handle->dpkg__sub_archive->ah_flags |= ARCHIVE_UNLINK_OLD;
 	unpack_ar_archive(archive_handle);
 
 	/* Create the list file */
 	list_filename = xasprintf("/var/lib/dpkg/info/%s.%s", package_name, "list");
-	out_stream = xfopen(list_filename, "w");
-	while (archive_handle->sub_archive->passed) {
+	out_stream = xfopen_for_write(list_filename);
+	while (archive_handle->dpkg__sub_archive->passed) {
 		/* the leading . has been stripped by data_extract_all_prefix already */
-		fputs(archive_handle->sub_archive->passed->data, out_stream);
+		fputs(archive_handle->dpkg__sub_archive->passed->data, out_stream);
 		fputc('\n', out_stream);
-		archive_handle->sub_archive->passed = archive_handle->sub_archive->passed->link;
+		archive_handle->dpkg__sub_archive->passed = archive_handle->dpkg__sub_archive->passed->link;
 	}
 	fclose(out_stream);
 
@@ -1583,7 +1601,7 @@ static void configure_package(deb_file_t *deb_file)
 }
 
 int dpkg_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int dpkg_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int dpkg_main(int argc UNUSED_PARAM, char **argv)
 {
 	deb_file_t **deb_file = NULL;
 	status_node_t *status_node;
@@ -1627,14 +1645,14 @@ int dpkg_main(int argc ATTRIBUTE_UNUSED, char **argv)
 
 	/* if the list action was given print the installed packages and exit */
 	if (opt & OPT_list_installed) {
-		list_packages();
+		list_packages(argv[0]);
 		return EXIT_SUCCESS;
 	}
 
 	/* Read arguments and store relevant info in structs */
 	while (*argv) {
 		/* deb_count = nb_elem - 1 and we need nb_elem + 1 to allocate terminal node [NULL pointer] */
-		deb_file = xrealloc(deb_file, sizeof(deb_file[0]) * (deb_count + 2));
+		deb_file = xrealloc_vector(deb_file, 2, deb_count);
 		deb_file[deb_count] = xzalloc(sizeof(deb_file[0][0]));
 		if (opt & (OPT_install | OPT_unpack)) {
 			/* -i/-u: require filename */
@@ -1647,7 +1665,7 @@ int dpkg_main(int argc ATTRIBUTE_UNUSED, char **argv)
 			init_archive_deb_control(archive_handle);
 			deb_file[deb_count]->control_file = deb_extract_control_file_to_buffer(archive_handle, control_list);
 			if (deb_file[deb_count]->control_file == NULL) {
-				bb_error_msg_and_die("cannot extract control file");
+				bb_error_msg_and_die("can't extract control file");
 			}
 			deb_file[deb_count]->filename = xstrdup(argv[0]);
 			package_num = fill_package_struct(deb_file[deb_count]->control_file);

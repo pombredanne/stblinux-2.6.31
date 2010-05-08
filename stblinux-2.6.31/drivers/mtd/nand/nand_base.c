@@ -2273,8 +2273,8 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 			continue;
 		/* update the BBT for chip */
 		DEBUG(MTD_DEBUG_LEVEL0, "nand_erase_nand: nand_update_bbt "
-		      "(%d:0x%0llx 0x%0x)\n", chipnr, rewrite_bbt[chipnr],
-		      chip->bbt_td->pages[chipnr]);
+		      "(%d:0x%0llx 0x%0llx)\n", chipnr, rewrite_bbt[chipnr],
+		      (unsigned long long)chip->bbt_td->pages[chipnr]);
 		nand_update_bbt(mtd, rewrite_bbt[chipnr]);
 	}
 

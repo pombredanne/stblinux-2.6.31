@@ -41,7 +41,7 @@
 #define cpu_icache_line_size()		16
 #define cpu_scache_line_size()		0
 
-#elif defined(CONFIG_BMIPS5000) && !defined(CONFIG_BCM7420B0)
+#elif defined(CONFIG_BMIPS5000)
 
 #define cpu_has_dc_aliases		0
 #define cpu_has_ic_fills_f_dc		1

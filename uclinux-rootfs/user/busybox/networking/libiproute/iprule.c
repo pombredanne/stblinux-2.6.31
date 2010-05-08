@@ -13,7 +13,7 @@
  * Changes:
  *
  * Rani Assaf <rani@magic.metawire.com> 980929:	resolve addresses
- * initially integrated into busybox by Bernhard Fischer
+ * initially integrated into busybox by Bernhard Reutner-Fischer
  */
 
 #include <netinet/in.h>
@@ -40,8 +40,8 @@ static void usage(void)
 }
 */
 
-static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
-					struct nlmsghdr *n, void *arg ATTRIBUTE_UNUSED)
+static int FAST_FUNC print_rule(const struct sockaddr_nl *who UNUSED_PARAM,
+					struct nlmsghdr *n, void *arg UNUSED_PARAM)
 {
 	struct rtmsg *r = NLMSG_DATA(n);
 	int len = n->nlmsg_len;
@@ -78,7 +78,6 @@ static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
 	if (tb[RTA_SRC]) {
 		if (r->rtm_src_len != host_len) {
 			printf("%s/%u", rt_addr_n2a(r->rtm_family,
-							 RTA_PAYLOAD(tb[RTA_SRC]),
 							 RTA_DATA(tb[RTA_SRC]),
 							 abuf, sizeof(abuf)),
 				r->rtm_src_len
@@ -99,7 +98,6 @@ static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
 	if (tb[RTA_DST]) {
 		if (r->rtm_dst_len != host_len) {
 			printf("to %s/%u ", rt_addr_n2a(r->rtm_family,
-							 RTA_PAYLOAD(tb[RTA_DST]),
 							 RTA_DATA(tb[RTA_DST]),
 							 abuf, sizeof(abuf)),
 				r->rtm_dst_len
@@ -115,7 +113,7 @@ static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
 	}
 
 	if (r->rtm_tos) {
-		printf("tos %s ", rtnl_dsfield_n2a(r->rtm_tos, b1, sizeof(b1)));
+		printf("tos %s ", rtnl_dsfield_n2a(r->rtm_tos, b1));
 	}
 	if (tb[RTA_PROTOINFO]) {
 		printf("fwmark %#x ", *(uint32_t*)RTA_DATA(tb[RTA_PROTOINFO]));
@@ -126,7 +124,7 @@ static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
 	}
 
 	if (r->rtm_table)
-		printf("lookup %s ", rtnl_rttable_n2a(r->rtm_table, b1, sizeof(b1)));
+		printf("lookup %s ", rtnl_rttable_n2a(r->rtm_table, b1));
 
 	if (tb[RTA_FLOW]) {
 		uint32_t to = *(uint32_t*)RTA_DATA(tb[RTA_FLOW]);
@@ -134,10 +132,10 @@ static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
 		to &= 0xFFFF;
 		if (from) {
 			printf("realms %s/",
-				rtnl_rtrealm_n2a(from, b1, sizeof(b1)));
+				rtnl_rtrealm_n2a(from, b1));
 		}
 		printf("%s ",
-			rtnl_rtrealm_n2a(to, b1, sizeof(b1)));
+			rtnl_rtrealm_n2a(to, b1));
 	}
 
 	if (r->rtm_type == RTN_NAT) {
@@ -150,10 +148,10 @@ static int print_rule(const struct sockaddr_nl *who ATTRIBUTE_UNUSED,
 		} else
 			printf("masquerade");
 	} else if (r->rtm_type != RTN_UNICAST)
-		fputs(rtnl_rtntype_n2a(r->rtm_type, b1, sizeof(b1)), stdout);
+		fputs(rtnl_rtntype_n2a(r->rtm_type, b1), stdout);
 
 	bb_putchar('\n');
-	/*fflush(stdout);*/
+	/*fflush_all();*/
 	return 0;
 }
 
@@ -168,7 +166,7 @@ static int iprule_list(char **argv)
 
 	if (*argv) {
 		//bb_error_msg("\"rule show\" needs no arguments");
-		bb_warn_ignoring_args(1);
+		bb_warn_ignoring_args(*argv);
 		return -1;
 	}
 
@@ -238,8 +236,7 @@ static int iprule_modify(int cmd, char **argv)
 			   key == ARG_priority) {
 			uint32_t pref;
 			NEXT_ARG();
-			if (get_u32(&pref, *argv, 0))
-				invarg(*argv, "preference");
+			pref = get_u32(*argv, "preference");
 			addattr32(&req.n, sizeof(req), RTA_PRIORITY, pref);
 		} else if (key == ARG_tos) {
 			uint32_t tos;
@@ -250,8 +247,7 @@ static int iprule_modify(int cmd, char **argv)
 		} else if (key == ARG_fwmark) {
 			uint32_t fwmark;
 			NEXT_ARG();
-			if (get_u32(&fwmark, *argv, 0))
-				invarg(*argv, "fwmark");
+			fwmark = get_u32(*argv, "fwmark");
 			addattr32(&req.n, sizeof(req), RTA_PROTOINFO, fwmark);
 		} else if (key == ARG_realms) {
 			uint32_t realm;

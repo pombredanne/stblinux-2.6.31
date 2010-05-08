@@ -68,6 +68,12 @@
 		.flags = UPF_BOOT_AUTOCONF | UPF_IOREMAP, \
 	},
 
+#ifdef CONFIG_BRCM_HAS_PCU_UARTS
+#define BCHP_UARTA_REG_START	BCHP_PCU_UART2_RBR
+#define BCHP_UARTB_REG_START	BCHP_PCU_UART3_RBR
+#define BCHP_UARTC_REG_START	BCHP_PCU_UART4_RBR
+#endif
+
 static struct plat_serial8250_port brcm_16550_ports[] = {
 #ifdef CONFIG_BRCM_UARTA_IS_16550
 BRCM_16550_PLAT_DEVICE(BCHP_UARTA_REG_START, BRCM_IRQ_UARTA)
@@ -174,6 +180,11 @@ static inline void brcm_bogus_release(struct device *dev)
 }
 
 #if defined(CONFIG_BRCM_HAS_EMAC_0)
+
+#ifdef BCHP_ENET_TOP_REG_START
+#define BCHP_EMAC_0_REG_START	BCHP_ENET_TOP_REG_START
+#define BCHP_EMAC_0_REG_END	BCHP_ENET_TOP_REG_END
+#endif
 
 static struct resource bcmemac_0_resources[] = {
 	[0] = {
@@ -306,13 +317,13 @@ static struct resource moca_genet_resources[] = {
 		.flags		= IORESOURCE_MEM,
 	},
 	[1] = {
-		.start		= BRCM_IRQ_MOCA_GENET_0_A,
-		.end		= BRCM_IRQ_MOCA_GENET_0_A,
+		.start		= BRCM_IRQ_GENET_1_A,
+		.end		= BRCM_IRQ_GENET_1_A,
 		.flags		= IORESOURCE_IRQ,
 	},
 	[2] = {
-		.start		= BRCM_IRQ_MOCA_GENET_0_B,
-		.end		= BRCM_IRQ_MOCA_GENET_0_B,
+		.start		= BRCM_IRQ_GENET_1_B,
+		.end		= BRCM_IRQ_GENET_1_B,
 		.flags		= IORESOURCE_IRQ,
 	}
 };

@@ -395,6 +395,8 @@ PRINTK("==> %s: Awaken rd_data=%08x, intrMask=%08x, cmd=%d, flashAddr=%08x\n", _
 
 		// Do we need to do WAR for EDU, since EDU stop dead in its track regardless of the kind of errors.  Bummer!
 		if (req->status & HIF_INTR2_EDU_ERR) {
+
+#if CONFIG_MTD_BRCMNAND_VERSION < CONFIG_MTD_BRCMNAND_VERS_3_3
 			/*
 			 * We need to do WAR for EDU, which just stops dead on its tracks if there is any error, correctable or not.
 			 * Problem is, the WAR needs to be done in process context,
@@ -408,54 +410,68 @@ __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 			spin_unlock(&req->lock);
 			spin_unlock_irqrestore(&gJobQ.lock, flags);
 			return IRQ_HANDLED;
-		}
 
-		/*
-		 * Get here only if there are no errors, call job completion routine.
-		 */
-		switch (gJobQ.cmd) {
-		case EDU_READ:
-			/* All is left to do is to handle the OOB read */
-			req->ret = brcmnand_edu_read_comp_intr(req->mtd, req->buffer, req->oobarea, req->offset,
+#else  
+	/* Do nothing on platforms that do not need WAR: v3.3 or later: Just clear the error and bail */
+	// gdebug=4;
+			req->ret = brcmnand_edu_read_completion(req->mtd, req->buffer, req->oobarea, req->offset,
 						req->status);
-			break;
-
-		case EDU_WRITE:
-			{
-				/*
-				 * Even if there are no HIF_INTR2_ERR, we still need to check
-				 * the flash status.  If it is set, we need to update the BBT
-				 * which requires process context WAR
-				 */
-				struct brcmnand_chip *chip = req->mtd->priv;
-				uint32_t flashStatus = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
-
-				req->needBBT=0;
-				/* Just to be dead sure */
-				if (!(flashStatus & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK)) {
-					printk("%s: Impossible, CTRL-READY already asserted\n", __FUNCTION__);
-					BUG();
-				}
-				/* Check for flash write error, in which case tell process context thread to handle it */
-				if (flashStatus & 0x1) {
-					req->needBBT = 1;
-					gJobQ.needWakeUp= 1;
-					req->opComplete = ISR_OP_NEED_WAR;
-					wake_up(&gEduWaitQ);
-					spin_unlock(&req->lock);
-					spin_unlock_irqrestore(&gJobQ.lock, flags);
-					return IRQ_HANDLED;
-				}
-				/* Nothing to be done when everything is OK 
-				*else
-				*	req->ret = brcmnand_edu_write_completion(req->mtd, req->buffer, req->oobarea, req->offset,
-				*		req->status, req->physAddr, rq->needBBT);
-				*/
+			if (req->ret == BRCMNAND_CORRECTABLE_ECC_ERROR) {
+				gJobQ.corrected++;  // We only increment mtd->stats.corrected once per page, however.
+				req->ret = 0;
 			}
-			break;
+	// gdebug=0;
+#endif
 		}
 
-		// Jop completes with no errors, queue next requests until Pending is set
+		else {
+			/*
+			 * Get here only if there are no errors, call job completion routine.
+			 */
+			switch (gJobQ.cmd) {
+			case EDU_READ:
+				/* All is left to do is to handle the OOB read */
+				req->ret = brcmnand_edu_read_comp_intr(req->mtd, req->buffer, req->oobarea, req->offset,
+							req->status);
+				break;
+
+			case EDU_WRITE:
+				{
+					/*
+					 * Even if there are no HIF_INTR2_ERR, we still need to check
+					 * the flash status.  If it is set, we need to update the BBT
+					 * which requires process context WAR
+					 */
+					struct brcmnand_chip *chip = req->mtd->priv;
+					uint32_t flashStatus = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
+
+					req->needBBT=0;
+					/* Just to be dead sure */
+					if (!(flashStatus & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK)) {
+						printk("%s: Impossible, CTRL-READY already asserted\n", __FUNCTION__);
+						BUG();
+					}
+					/* Check for flash write error, in which case tell process context thread to handle it */
+					if (flashStatus & 0x1) {
+						req->needBBT = 1;
+						gJobQ.needWakeUp= 1;
+						req->opComplete = ISR_OP_NEED_WAR;
+						wake_up(&gEduWaitQ);
+						spin_unlock(&req->lock);
+						spin_unlock_irqrestore(&gJobQ.lock, flags);
+						return IRQ_HANDLED;
+					}
+					/* Nothing to be done when everything is OK 
+					*else
+					*	req->ret = brcmnand_edu_write_completion(req->mtd, req->buffer, req->oobarea, req->offset,
+					*		req->status, req->physAddr, rq->needBBT);
+					*/
+				}
+				break;
+			}
+		}
+
+		// V3.3: Jop completes with or withno errors, queue next requests until Pending is set
 		list_del(&req->list);
 
 		list_add_tail(&req->list, &gJobQ.availList);
@@ -557,6 +573,10 @@ ISR_wait_for_queue_completion(void)
 				ret = brcmnand_edu_read_completion(
 								saveReq.mtd, saveReq.buffer, saveReq.oobarea, saveReq.offset,
 								saveReq.status);
+				if (ret == BRCMNAND_CORRECTABLE_ECC_ERROR) {
+					gJobQ.corrected++;
+					ret = 0;
+				}
 				break;
 			case EDU_WRITE:
 				ret = brcmnand_edu_write_war(

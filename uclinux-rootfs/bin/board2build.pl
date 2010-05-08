@@ -82,7 +82,7 @@ if($chip eq "3549" || $chip eq "3556") {
 	$chip = "7403";
 } elsif($chip eq "7410") {
 	$chip = "7420";
-} elsif($chip eq "7208") {
+} elsif($chip eq "7208" || $chip eq "7469") {
 	$chip = "7468";
 } elsif($chip eq "7119" || $chip eq "7019" || $chip eq "7116" ||
 		$chip eq "7117") {

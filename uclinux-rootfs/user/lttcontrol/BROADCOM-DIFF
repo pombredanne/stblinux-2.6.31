@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-03-04
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-05-07
 #
 # Original package: lttcontrol-0.77-18112009.tar.bz2
 #
 diff -ruNp lttcontrol.orig/lttd/lttd.c lttcontrol/lttd/lttd.c
 --- lttcontrol.orig/lttd/lttd.c	2009-11-17 09:31:22.000000000 -0800
-+++ lttcontrol/lttd/lttd.c	2010-03-04 20:36:42.000000000 -0800
++++ lttcontrol/lttd/lttd.c	2010-05-07 13:25:07.000000000 -0700
 @@ -52,6 +52,13 @@
  /* returns the size of data to consume in the current sub-buffer. */
  #define RELAY_GET_MAX_SB_SIZE	_IOR(0xF5, 0x04, __u32)
@@ -22,7 +22,7 @@ diff -ruNp lttcontrol.orig/lttd/lttd.c lttcontrol/lttd/lttd.c
  #include <sys/inotify.h>
 diff -ruNp lttcontrol.orig/makefile lttcontrol/makefile
 --- lttcontrol.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ lttcontrol/makefile	2010-03-04 20:36:42.000000000 -0800
++++ lttcontrol/makefile	2010-05-07 13:25:07.000000000 -0700
 @@ -0,0 +1,39 @@
 +include $(ROOTDIR)/config.arch
 +

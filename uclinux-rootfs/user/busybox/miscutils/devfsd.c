@@ -92,8 +92,8 @@
 #define DEVFS_PATHLEN               1024
 /*  Never change this otherwise the binary interface will change   */
 
-struct devfsd_notify_struct
-{	/*  Use native C types to ensure same types in kernel and user space     */
+struct devfsd_notify_struct {
+	/*  Use native C types to ensure same types in kernel and user space     */
 	unsigned int type;           /*  DEVFSD_NOTIFY_* value                   */
 	unsigned int mode;           /*  Mode of the inode or device entry       */
 	unsigned int major;          /*  Major number of device entry            */
@@ -151,32 +151,27 @@ struct devfsd_notify_struct
 #define AC_RMNEWCOMPAT				10
 #define AC_RESTORE					11
 
-struct permissions_type
-{
+struct permissions_type {
 	mode_t mode;
 	uid_t uid;
 	gid_t gid;
 };
 
-struct execute_type
-{
+struct execute_type {
 	char *argv[MAX_ARGS + 1];  /*  argv[0] must always be the programme  */
 };
 
-struct copy_type
-{
+struct copy_type {
 	const char *source;
 	const char *destination;
 };
 
-struct action_type
-{
+struct action_type {
 	unsigned int what;
 	unsigned int when;
 };
 
-struct config_entry_struct
-{
+struct config_entry_struct {
 	struct action_type action;
 	regex_t preg;
 	union
@@ -189,8 +184,7 @@ struct config_entry_struct
 	struct config_entry_struct *next;
 };
 
-struct get_variable_info
-{
+struct get_variable_info {
 	const struct devfsd_notify_struct *info;
 	const char *devname;
 	char devpath[STRING_LENGTH];
@@ -459,7 +453,7 @@ static void read_config_file(char *path, int optional, unsigned long *event_mask
 			free(p);
 			return;
 		}
-		fp = fopen(path, "r");
+		fp = fopen_for_read(path);
 		if (fp != NULL) {
 			while (fgets(buf, STRING_LENGTH, fp) != NULL) {
 				/*  Skip whitespace  */
@@ -741,7 +735,7 @@ static void action_permissions(const struct devfsd_notify_struct *info,
 }   /*  End Function action_permissions  */
 
 static void action_modload(const struct devfsd_notify_struct *info,
-			    const struct config_entry_struct *entry ATTRIBUTE_UNUSED)
+			    const struct config_entry_struct *entry UNUSED_PARAM)
 /*  [SUMMARY] Load a module.
     <info> The devfs change.
     <entry> The config file entry.
@@ -1091,7 +1085,7 @@ static int get_uid_gid(int flag, const char *string)
 		msg = "group";
 
 	if (ENABLE_DEVFSD_VERBOSE)
-		msg_logger(LOG_ERR,"unknown %s: %s, defaulting to %cid=0",  msg, string, msg[0]);
+		msg_logger(LOG_ERR, "unknown %s: %s, defaulting to %cid=0",  msg, string, msg[0]);
 	return 0;
 }/*  End Function get_uid_gid  */
 
@@ -1336,8 +1330,7 @@ static void expand_regexp(char *output, size_t outsize, const char *input,
 
 /* from compat_name.c */
 
-struct translate_struct
-{
+struct translate_struct {
 	const char *match;    /*  The string to match to(up to length)                */
 	const char *format;   /*  Format of output, "%s" takes data past match string,
 			NULL is effectively "%s"(just more efficient)       */
@@ -1732,7 +1725,7 @@ static const char *expand_variable(char *buffer, unsigned int length,
 				--open_braces;
 				break;
 			case '\0':
-				info_logger(LOG_INFO,"\"}\" not found in: %s", input);
+				info_logger(LOG_INFO, "\"}\" not found in: %s", input);
 				return NULL;
 			default:
 				break;

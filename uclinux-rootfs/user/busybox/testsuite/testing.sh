@@ -37,6 +37,7 @@ export FAILCOUNT=0
 export SKIP=
 
 # Helper for helpers. Oh my...
+
 test x"$ECHO" != x"" || {
 	ECHO="echo"
 	test x"`echo -ne`" = x"" || {
@@ -86,7 +87,7 @@ testing()
 
   $ECHO -ne "$3" > expected
   $ECHO -ne "$4" > input
-  [ -z "$VERBOSE" ] || echo "echo '$5' | $2"
+  [ -z "$VERBOSE" ] || echo "echo -ne '$5' | $2"
   $ECHO -ne "$5" | eval "$2" > actual
   RETVAL=$?
 

@@ -238,7 +238,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * will need to properly deal with that as well.
 	 */
 	rpnt = NULL;
-	if (_dl_getenv("LD_BIND_NOW", envp))
+	//if (_dl_getenv("LD_BIND_NOW", envp))
 		unlazy = RTLD_NOW;
 
 	/* Now we need to figure out what kind of options are selected.

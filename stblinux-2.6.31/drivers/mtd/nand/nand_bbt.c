@@ -287,8 +287,8 @@ static int read_abs_bbts(struct mtd_info *mtd, uint8_t *buf,
 		scan_read_raw(mtd, buf, (loff_t)td->pages[0] << this->page_shift,
 			      mtd->writesize);
 		td->version[0] = buf[mtd->writesize + td->veroffs];
-		printk(KERN_DEBUG "Bad block table at page %d, version 0x%02X\n",
-		       td->pages[0], td->version[0]);
+		printk(KERN_DEBUG "Bad block table at page %lld, version 0x%02X\n",
+		       (long long)td->pages[0], td->version[0]);
 	}
 
 	/* Read the mirror version, if available */
@@ -296,8 +296,8 @@ static int read_abs_bbts(struct mtd_info *mtd, uint8_t *buf,
 		scan_read_raw(mtd, buf, (loff_t)md->pages[0] << this->page_shift,
 			      mtd->writesize);
 		md->version[0] = buf[mtd->writesize + md->veroffs];
-		printk(KERN_DEBUG "Bad block table at page %d, version 0x%02X\n",
-		       md->pages[0], md->version[0]);
+		printk(KERN_DEBUG "Bad block table at page %lld, version 0x%02X\n",
+		       (long long)md->pages[0], md->version[0]);
 	}
 	return 1;
 }
@@ -514,7 +514,7 @@ static int search_bbt(struct mtd_info *mtd, uint8_t *buf, struct nand_bbt_descr 
 		if (td->pages[i] == -1)
 			printk(KERN_WARNING "Bad block table not found for chip %d\n", i);
 		else
-			printk(KERN_DEBUG "Bad block table found at page %d, version 0x%02X\n", td->pages[i],
+			printk(KERN_DEBUG "Bad block table found at page %lld, version 0x%02X\n", (long long)td->pages[i],
 			       td->version[i]);
 	}
 	return 0;

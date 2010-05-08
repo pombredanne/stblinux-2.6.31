@@ -2,7 +2,7 @@
 /*
  * Utility routines.
  *
- * Copyright (C) 2008 Bernhard Fischer
+ * Copyright (C) 2008 Bernhard Reutner-Fischer
  *
  * Licensed under GPLv2 or later, see file License in this tarball for details.
  */
@@ -19,7 +19,7 @@
  * The strrstr() function finds the last occurrence of the substring needle
  * in the string haystack. The terminating nul characters are not compared.
  */
-char* strrstr(const char *haystack, const char *needle)
+char* FAST_FUNC strrstr(const char *haystack, const char *needle)
 {
 	char *r = NULL;
 

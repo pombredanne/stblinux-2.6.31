@@ -102,7 +102,8 @@ typedef enum {
 	ISR_OP_SUBMITTED = 1, 
 	ISR_OP_NEED_WAR = 2,
 	ISR_OP_COMPLETED = 3, 
-	ISR_OP_TIMEDOUT = 4
+	ISR_OP_TIMEDOUT = 4,
+	ISR_OP_COMP_WITH_ERROR = 5,
 } isrOpStatus_t;
 
 typedef struct eduIsrNode {
@@ -150,6 +151,7 @@ typedef struct jobQ_t {
 	spinlock_t		lock; 		/* Queues guarding spin lock */
 	int 				needWakeUp;	/* Wake up Process context thread to do EDU WAR */
 	int 				cmd; 		/* 1 == Read, 0 == Write */
+	int				corrected;	/* Number of correctable errors */
 } isrJobQ_t;
 
 extern isrJobQ_t gJobQ; 

@@ -243,8 +243,10 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 	__addr;								\
 })
 #else
-#define UNCAC_ADDR(addr)	((addr) - PAGE_OFFSET + UNCAC_BASE)
-#define CAC_ADDR(addr)		((addr) - UNCAC_BASE + PAGE_OFFSET)
+#define UNCAC_ADDR(addr)	((addr) - PAGE_OFFSET + UNCAC_BASE + 	\
+								PHYS_OFFSET)
+#define CAC_ADDR(addr)		((addr) - UNCAC_BASE + PAGE_OFFSET -	\
+								PHYS_OFFSET)
 #endif
 
 #include <asm-generic/memory_model.h>

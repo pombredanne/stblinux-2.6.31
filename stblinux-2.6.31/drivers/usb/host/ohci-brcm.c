@@ -167,10 +167,43 @@ static int ohci_hcd_brcm_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef	CONFIG_PM
+
+static int ohci_brcm_suspend(struct platform_device *dev, pm_message_t message)
+{
+	struct ohci_hcd	*ohci = hcd_to_ohci(platform_get_drvdata(dev));
+
+	if (time_before(jiffies, ohci->next_statechange))
+		msleep(5);
+	ohci->next_statechange = jiffies;
+
+	ohci_to_hcd(ohci)->state = HC_STATE_SUSPENDED;
+	return 0;
+}
+
+static int ohci_brcm_resume(struct platform_device *dev)
+{
+	struct usb_hcd	*hcd = platform_get_drvdata(dev);
+	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
+
+	if (time_before(jiffies, ohci->next_statechange))
+		msleep(5);
+	ohci->next_statechange = jiffies;
+
+	ohci_finish_controller_resume(hcd);
+	return 0;
+}
+
+#endif
+
 static struct platform_driver ohci_hcd_brcm_driver = {
 	.probe		= ohci_hcd_brcm_probe,
 	.remove		= ohci_hcd_brcm_remove,
 	.shutdown	= usb_hcd_platform_shutdown,
+#ifdef	CONFIG_PM
+	.suspend	= ohci_brcm_suspend,
+	.resume		= ohci_brcm_resume,
+#endif
 	.driver		= {
 		.name	= "ohci-brcm",
 		.owner	= THIS_MODULE,

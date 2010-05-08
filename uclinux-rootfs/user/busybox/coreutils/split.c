@@ -1,7 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /*
  * split - split a file into pieces
- * Copyright (c) 2007 Bernhard Fischer
+ * Copyright (c) 2007 Bernhard Reutner-Fischer
  *
  * Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
  */
@@ -20,7 +20,7 @@ static const struct suffix_mult split_suffices[] = {
 #if ENABLE_FEATURE_SPLIT_FANCY
 	{ "g", 1024*1024*1024 },
 #endif
-	{ }
+	{ "", 0 }
 };
 
 /* Increment the suffix part of the filename.
@@ -56,7 +56,7 @@ enum { READ_BUFFER_SIZE = COMMON_BUFSIZE - 1 };
 #define SPLIT_OPT_a (1<<2)
 
 int split_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int split_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int split_main(int argc UNUSED_PARAM, char **argv)
 {
 	unsigned suffix_len = 2;
 	char *pfx;
@@ -79,9 +79,13 @@ int split_main(int argc ATTRIBUTE_UNUSED, char **argv)
 
 	argv += optind;
 	if (argv[0]) {
+		int fd;
 		if (argv[1])
 			sfx = argv[1];
-		xmove_fd(xopen(argv[0], O_RDONLY), 0);
+		fd = open_or_warn_stdin(argv[0]);
+		if (fd == -1)
+			return EXIT_FAILURE;
+		xmove_fd(fd, STDIN_FILENO);
 	} else {
 		argv[0] = (char *) bb_msg_standard_input;
 	}

@@ -29,6 +29,11 @@
 
 #include <asm/bootinfo.h>
 #include <asm/r4kcache.h>
+#include <asm/traps.h>
+#include <asm/io.h>
+#include <asm/cacheflush.h>
+#include <asm/mipsregs.h>
+#include <asm/hazards.h>
 #include <asm/brcmstb/brcmstb.h>
 #include <asm/fw/cfe/cfe_api.h>
 #include <asm/fw/cfe/cfe_error.h>
@@ -164,6 +169,9 @@ static inline int __init parse_boardname(const char *buf, void *slop)
 			brcm_docsis_platform = 1;
 		}
 	}
+#elif defined(CONFIG_BCM7408)
+	if (strncmp(buf, "BCM97408SAT", 11) == 0)
+		brcm_moca_rf_band = MOCA_BAND_MIDRF;
 #endif
 
 #if defined(CONFIG_BCM7401)
@@ -264,6 +272,12 @@ static inline void __init setup_early_16550(unsigned long base_pa)
 	sprintf(args, "uart,mmio,0x%08lx,115200n8", base_pa);
 	setup_early_serial8250_console(args);
 }
+
+#ifdef CONFIG_BRCM_HAS_PCU_UARTS
+#define BCHP_UARTA_REG_START	BCHP_PCU_UART2_RBR
+#define BCHP_UARTB_REG_START	BCHP_PCU_UART3_RBR
+#define BCHP_UARTC_REG_START	BCHP_PCU_UART4_RBR
+#endif
 
 static void __init brcm_setup_early_printk(void)
 {
@@ -380,41 +394,72 @@ void __init prom_init(void)
 }
 
 /***********************************************************************
- * Vector relocation for SMP TP1 boot
+ * Vector relocation for NMI and SMP TP1 boot
  ***********************************************************************/
+
+extern void nmi_exception_handler(struct pt_regs *regs);
+void (*brcm_nmi_handler)(struct pt_regs *) = &nmi_exception_handler;
+
+void brcm_set_nmi_handler(void (*fn)(struct pt_regs *))
+{
+	brcm_nmi_handler = fn;
+}
+EXPORT_SYMBOL(brcm_set_nmi_handler);
+
+/* new vector for catching NMI and TP1 reset (genex.S) */
+extern void brcm_reset_nmi_vec(void);
+
+static inline void brcm_nmi_handler_setup(void)
+{
+	u32 entry;
+
+	entry = KSEG1ADDR((u32)&brcm_reset_nmi_vec);
+	DEV_WR(KSEG0 + 0, 0x3c1a0000 | (entry >> 16));	  // lui k0, HI(entry)
+	DEV_WR(KSEG0 + 4, 0x375a0000 | (entry & 0xffff)); // ori k0, LO(entry)
+	DEV_WR(KSEG0 + 8, 0x03400008);			  // jr k0
+	DEV_WR(KSEG0 + 12, 0x00000000);			  // nop
+
+	dma_cache_wback(KSEG0, 16);
+	flush_icache_line(KSEG0);
+	instruction_hazard();
+}
 
 unsigned long brcm_setup_ebase(void)
 {
 	unsigned long ebase = CAC_BASE;
-#if defined(CONFIG_BMIPS4380) && defined(CONFIG_SMP)
+#if defined(CONFIG_BMIPS4380)
 	/*
-	 * Exception vector configuration on BMIPS4380 SMP:
+	 * Exception vector configuration on BMIPS4380:
 	 *
-	 * a000_0000 - new BEV TP1 reset vector        (was: bfc0_0000)
-	 * 8000_0400 - new !BEV TP0/TP1 exception base (was: 8000_0000)
+	 * a000_0000 - new reset/NMI vector            (was: bfc0_0000)
+	 * 8000_0400 - new !BEV exception base         (was: 8000_0000)
 	 *
-	 * The TP1 reset vector can only be adjusted in 1MB increments, so
+	 * The reset/NMI vector can only be adjusted in 1MB increments, so
 	 * we put it at a000_0000 and then move the runtime exception vectors
 	 * up a little bit.
 	 */
 
 	unsigned long cbr = BMIPS_GET_CBR();
-	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_0, 0x00000800);
+	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_0, 0xa0080800);
 	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_1, 0xa0080800);
 
 	ebase = 0x80000400;
-#elif defined(CONFIG_BMIPS5000) && defined(CONFIG_SMP)
+
+	board_nmi_handler_setup = &brcm_nmi_handler_setup;
+#elif defined(CONFIG_BMIPS5000)
 	/*
 	 * BMIPS5000 is similar to BMIPS4380, but it uses different
 	 * configuration registers with different semantics:
 	 *
-	 * a000_0000 - new BEV TP1 reset vector        (was: bfc0_0000)
-	 * 8000_1000 - new !BEV TP0/TP1 exception base (was: 8000_0000)
+	 * a000_0000 - new reset/NMI vector            (was: bfc0_0000)
+	 * 8000_1000 - new !BEV exception base         (was: 8000_0000)
 	 */
 	ebase = 0x80001000;
 
-	write_c0_brcm_bootvec(0xa0080000);
+	write_c0_brcm_bootvec(0xa008a008);
 	write_c0_ebase(ebase);
+
+	board_nmi_handler_setup = &brcm_nmi_handler_setup;
 #elif defined(CONFIG_BCM7550A0)
 	unsigned long addr;
 

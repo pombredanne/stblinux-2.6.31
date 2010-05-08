@@ -57,6 +57,7 @@
 #include <asm/brcmstb/35230a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/35230a0/bchp_usb_ohci1.h>
 #include <asm/brcmstb/35230a0/bchp_wktmr.h>
+#include <asm/brcmstb/35230a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM3548B0)
 #include <asm/brcmstb/3548b0/bchp_clkgen.h>
@@ -79,6 +80,7 @@
 #include <asm/brcmstb/3548b0/bchp_usb_ehci.h>
 #include <asm/brcmstb/3548b0/bchp_usb_ohci.h>
 #include <asm/brcmstb/3548b0/bchp_wktmr.h>
+#include <asm/brcmstb/3548b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM3563C0)
 #include <asm/brcmstb/3563c0/bchp_common.h>
@@ -95,6 +97,7 @@
 #include <asm/brcmstb/3563c0/bchp_usb_ctrl.h>
 #include <asm/brcmstb/3563c0/bchp_usb_ehci.h>
 #include <asm/brcmstb/3563c0/bchp_usb_ohci.h>
+#include <asm/brcmstb/3563c0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7038C0)
 #include <asm/brcmstb/7038c0/bchp_common.h>
@@ -113,6 +116,7 @@
 #include <asm/brcmstb/7038c0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7038c0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7038c0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7038c0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7118C0)
 #include <asm/brcmstb/7118c0/bchp_common.h>
@@ -137,6 +141,7 @@
 #include <asm/brcmstb/7118c0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7118c0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7118c0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7118c0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7125A0)
 #include <asm/brcmstb/7125a0/bchp_bspi.h>
@@ -171,6 +176,7 @@
 #include <asm/brcmstb/7125a0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7125a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7125a0/bchp_wktmr.h>
+#include <asm/brcmstb/7125a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7125C0)
 #include <asm/brcmstb/7125c0/bchp_bspi.h>
@@ -205,6 +211,7 @@
 #include <asm/brcmstb/7125c0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7125c0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7125c0/bchp_wktmr.h>
+#include <asm/brcmstb/7125c0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7325B0)
 #include <asm/brcmstb/7325b0/bchp_common.h>
@@ -227,6 +234,7 @@
 #include <asm/brcmstb/7325b0/bchp_usb_ehci1.h>
 #include <asm/brcmstb/7325b0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7325b0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7325b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7335B0)
 #include <asm/brcmstb/7335b0/bchp_clk.h>
@@ -254,6 +262,7 @@
 #include <asm/brcmstb/7335b0/bchp_usb_ehci1.h>
 #include <asm/brcmstb/7335b0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7335b0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7335b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7340A0)
 #include <asm/brcmstb/7340a0/bchp_clkgen.h>
@@ -283,6 +292,7 @@
 #include <asm/brcmstb/7340a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7340a0/bchp_usb_ohci1.h>
 #include <asm/brcmstb/7340a0/bchp_wktmr.h>
+#include <asm/brcmstb/7340a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7340B0)
 #include <asm/brcmstb/7340b0/bchp_bspi.h>
@@ -316,6 +326,7 @@
 #include <asm/brcmstb/7340b0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7340b0/bchp_usb_ohci1.h>
 #include <asm/brcmstb/7340b0/bchp_wktmr.h>
+#include <asm/brcmstb/7340b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7342A0)
 #include <asm/brcmstb/7342a0/bchp_clk.h>
@@ -349,6 +360,7 @@
 #include <asm/brcmstb/7342a0/bchp_usb_ohci2.h>
 #include <asm/brcmstb/7342a0/bchp_vcxo_ctl_misc.h>
 #include <asm/brcmstb/7342a0/bchp_wktmr.h>
+#include <asm/brcmstb/7342a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7342B0)
 #include <asm/brcmstb/7342b0/bchp_bspi.h>
@@ -386,6 +398,7 @@
 #include <asm/brcmstb/7342b0/bchp_usb_ohci2.h>
 #include <asm/brcmstb/7342b0/bchp_vcxo_ctl_misc.h>
 #include <asm/brcmstb/7342b0/bchp_wktmr.h>
+#include <asm/brcmstb/7342b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7400E0)
 #include <asm/brcmstb/7400e0/bchp_clk.h>
@@ -413,6 +426,7 @@
 #include <asm/brcmstb/7400e0/bchp_usb_ehci1.h>
 #include <asm/brcmstb/7400e0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7400e0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7400e0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7401C0)
 #include <asm/brcmstb/7401c0/bchp_common.h>
@@ -438,6 +452,7 @@
 #include <asm/brcmstb/7401c0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7401c0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7401c0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7401c0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7403A0)
 #include <asm/brcmstb/7403a0/bchp_common.h>
@@ -463,6 +478,7 @@
 #include <asm/brcmstb/7403a0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7403a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7403a0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7403a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7405B0)
 #include <asm/brcmstb/7405b0/bchp_clk.h>
@@ -490,6 +506,7 @@
 #include <asm/brcmstb/7405b0/bchp_usb_ehci1.h>
 #include <asm/brcmstb/7405b0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7405b0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7405b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7405D0)
 #include <asm/brcmstb/7405d0/bchp_clk.h>
@@ -517,6 +534,7 @@
 #include <asm/brcmstb/7405d0/bchp_usb_ehci1.h>
 #include <asm/brcmstb/7405d0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7405d0/bchp_usb_ohci1.h>
+#include <asm/brcmstb/7405d0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7408A0)
 #include <asm/brcmstb/7408a0/bchp_bspi.h>
@@ -544,50 +562,7 @@
 #include <asm/brcmstb/7408a0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7408a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7408a0/bchp_wktmr.h>
-
-#elif defined(CONFIG_BCM7420B0)
-#include <asm/brcmstb/7420b0/bchp_bspi.h>
-#include <asm/brcmstb/7420b0/bchp_bspi_raf.h>
-#include <asm/brcmstb/7420b0/bchp_clk.h>
-#include <asm/brcmstb/7420b0/bchp_common.h>
-#include <asm/brcmstb/7420b0/bchp_ebi.h>
-#include <asm/brcmstb/7420b0/bchp_edu.h>
-#include <asm/brcmstb/7420b0/bchp_hif_cpu_intr1.h>
-#include <asm/brcmstb/7420b0/bchp_hif_cpu_tp1_intr1.h>
-#include <asm/brcmstb/7420b0/bchp_hif_intr2.h>
-#include <asm/brcmstb/7420b0/bchp_hif_mspi.h>
-#include <asm/brcmstb/7420b0/bchp_hif_rgr1.h>
-#include <asm/brcmstb/7420b0/bchp_hif_spi_intr2.h>
-#include <asm/brcmstb/7420b0/bchp_hif_top_ctrl.h>
-#include <asm/brcmstb/7420b0/bchp_irq0.h>
-#include <asm/brcmstb/7420b0/bchp_irq1.h>
-#include <asm/brcmstb/7420b0/bchp_memc_ddr23_aphy_ac_0.h>
-#include <asm/brcmstb/7420b0/bchp_memc_ddr23_aphy_wl0_0.h>
-#include <asm/brcmstb/7420b0/bchp_memc_ddr23_aphy_wl1_0.h>
-#include <asm/brcmstb/7420b0/bchp_memc_ddr_0.h>
-#include <asm/brcmstb/7420b0/bchp_mips_biu.h>
-#include <asm/brcmstb/7420b0/bchp_moca_hostmisc.h>
-#include <asm/brcmstb/7420b0/bchp_nand.h>
-#include <asm/brcmstb/7420b0/bchp_pci_cfg.h>
-#include <asm/brcmstb/7420b0/bchp_pcie_dma.h>
-#include <asm/brcmstb/7420b0/bchp_pcie_intr2.h>
-#include <asm/brcmstb/7420b0/bchp_pcie_misc.h>
-#include <asm/brcmstb/7420b0/bchp_pcie_misc_perst.h>
-#include <asm/brcmstb/7420b0/bchp_pcie_rc_cfg_type1.h>
-#include <asm/brcmstb/7420b0/bchp_pcie_rc_cfg_vendor.h>
-#include <asm/brcmstb/7420b0/bchp_pcix_bridge.h>
-#include <asm/brcmstb/7420b0/bchp_sata_mdio.h>
-#include <asm/brcmstb/7420b0/bchp_sun_top_ctrl.h>
-#include <asm/brcmstb/7420b0/bchp_timer.h>
-#include <asm/brcmstb/7420b0/bchp_uarta.h>
-#include <asm/brcmstb/7420b0/bchp_uartb.h>
-#include <asm/brcmstb/7420b0/bchp_uartc.h>
-#include <asm/brcmstb/7420b0/bchp_usb_ctrl.h>
-#include <asm/brcmstb/7420b0/bchp_usb_ehci.h>
-#include <asm/brcmstb/7420b0/bchp_usb_ehci1.h>
-#include <asm/brcmstb/7420b0/bchp_usb_ohci.h>
-#include <asm/brcmstb/7420b0/bchp_usb_ohci1.h>
-#include <asm/brcmstb/7420b0/bchp_wktmr.h>
+#include <asm/brcmstb/7408a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7420C0)
 #include <asm/brcmstb/7420c0/bchp_bspi.h>
@@ -632,6 +607,7 @@
 #include <asm/brcmstb/7420c0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7420c0/bchp_usb_ohci1.h>
 #include <asm/brcmstb/7420c0/bchp_wktmr.h>
+#include <asm/brcmstb/7420c0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7468A0)
 #include <asm/brcmstb/7468a0/bchp_bspi.h>
@@ -659,6 +635,7 @@
 #include <asm/brcmstb/7468a0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7468a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7468a0/bchp_wktmr.h>
+#include <asm/brcmstb/7468a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7550A0)
 #include <asm/brcmstb/7550a0/bchp_bspi.h>
@@ -681,6 +658,7 @@
 #include <asm/brcmstb/7550a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7550a0/bchp_vcxo_ctl_config_fsm.h>
 #include <asm/brcmstb/7550a0/bchp_wktmr.h>
+#include <asm/brcmstb/7550a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7601B0)
 #include <asm/brcmstb/7601b0/bchp_clk.h>
@@ -706,6 +684,7 @@
 #include <asm/brcmstb/7601b0/bchp_usb_ctrl.h>
 #include <asm/brcmstb/7601b0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7601b0/bchp_usb_ohci.h>
+#include <asm/brcmstb/7601b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7630B0)
 #include <asm/brcmstb/7630b0/bchp_clk.h>
@@ -726,6 +705,7 @@
 #include <asm/brcmstb/7630b0/bchp_usb_ctrl.h>
 #include <asm/brcmstb/7630b0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7630b0/bchp_usb_ohci.h>
+#include <asm/brcmstb/7630b0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7635A0)
 #include <asm/brcmstb/7635a0/bchp_clk.h>
@@ -748,6 +728,7 @@
 #include <asm/brcmstb/7635a0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7635a0/bchp_usb_ohci.h>
 #include <asm/brcmstb/7635a0/bchp_vcxo_ctl_misc.h>
+#include <asm/brcmstb/7635a0/brcmirq.h>
 
 #endif
 
@@ -860,38 +841,8 @@ struct brcmspi_platform_data {
 };
 
 /***********************************************************************
- * IRQ definitions that depend on chip-specific BCHP headers
- * See also: asm/mach-brcmstb/irq.h
+ * Shared UPG IRQ for legacy platforms - DEPRECATED
  ***********************************************************************/
-
-#define BRCM_L1_IRQ(word, intr) \
-	(BRCM_INTR_##word##_BASE + \
-	 BCHP_HIF_CPU_INTR1_INTR_##word##_STATUS_##intr##_CPU_INTR_SHIFT)
-
-#define BRCM_IRQ_EMAC_0		BRCM_L1_IRQ(W0, ENET)
-#define BRCM_IRQ_GENET_0_A	BRCM_L1_IRQ(W0, GENET_0_A)
-#define BRCM_IRQ_HIF		BRCM_L1_IRQ(W0, HIF)
-#define BRCM_IRQ_PCI_A0		BRCM_L1_IRQ(W1, PCI_INTA_0)
-#define BRCM_IRQ_PCI_A1		BRCM_L1_IRQ(W1, PCI_INTA_1)
-#define BRCM_IRQ_PCI_A2		BRCM_L1_IRQ(W1, PCI_INTA_2)
-#define BRCM_IRQ_SATA		BRCM_L1_IRQ(W1, PCI_SATA)
-#define BRCM_IRQ_EHCI_0		BRCM_L1_IRQ(W1, USB_EHCI_0)
-#define BRCM_IRQ_EHCI_1		BRCM_L1_IRQ(W1, USB_EHCI_1)
-#define BRCM_IRQ_OHCI_0		BRCM_L1_IRQ(W1, USB_OHCI_0)
-#define BRCM_IRQ_OHCI_1		BRCM_L1_IRQ(W1, USB_OHCI_1)
-#define BRCM_IRQ_PM		BRCM_L1_IRQ(W1, PM)
-#define BRCM_IRQ_MOCA		BRCM_L1_IRQ(W2, MOCA_INTR)
-#define BRCM_IRQ_EMAC_1		BRCM_L1_IRQ(W2, ENET_EMAC1)
-#define BRCM_IRQ_GENET_0_B	BRCM_L1_IRQ(W2, GENET_0_B)
-#define BRCM_IRQ_MOCA_GENET_0_A	BRCM_L1_IRQ(W2, MOCA_GENET_0_A)
-#define BRCM_IRQ_MOCA_GENET_0_B	BRCM_L1_IRQ(W2, MOCA_GENET_0_B)
-#define BRCM_IRQ_PCIE_INTA	BRCM_L1_IRQ(W2, PCIE_INTA_)
-#define BRCM_IRQ_PCIE_INTB	BRCM_L1_IRQ(W2, PCIE_INTB_)
-#define BRCM_IRQ_PCIE_INTC	BRCM_L1_IRQ(W2, PCIE_INTC_)
-#define BRCM_IRQ_PCIE_INTD	BRCM_L1_IRQ(W2, PCIE_INTD_)
-#define BRCM_IRQ_EHCI_2		BRCM_L1_IRQ(W2, USB_EHCI_2)
-#define BRCM_IRQ_OHCI_2		BRCM_L1_IRQ(W2, USB_OHCI_2)
-#define BRCM_IRQ_HIF_SPI	BRCM_L1_IRQ(W2, HIF_SPI)
 
 #ifdef CONFIG_BRCM_SHARED_UART_IRQ
 
@@ -900,8 +851,6 @@ struct brcmspi_platform_data {
 #ifdef BCHP_HIF_CPU_INTR1_INTR_W2_STATUS
 #error This platform uses dedicated UART L1 interrupts
 #endif
-
-#define BRCM_IRQ_UPG		BRCM_L1_IRQ(W0, UPG)
 
 /*
  * There is no W2 on these old platforms, so use IRQ 65-96 for all 32 slots
@@ -913,75 +862,18 @@ struct brcmspi_platform_data {
 #define BRCM_UPG_L2_IRQ(x)	(BRCM_UPG_L2_BASE + \
 	BCHP_IRQ0_IRQEN_##x##_irqen_SHIFT)
 
+#undef BRCM_IRQ_UARTA
+#undef BRCM_IRQ_UARTB
+#undef BRCM_IRQ_UARTC
 #define BRCM_IRQ_UARTA		BRCM_UPG_L2_IRQ(ua)
 #define BRCM_IRQ_UARTB		BRCM_UPG_L2_IRQ(ub)
 #define BRCM_IRQ_UARTC		BRCM_UPG_L2_IRQ(uc)
 
-#else /* CONFIG_BRCM_SHARED_UART_IRQ */
-
-/* dedicated UART L1 IRQs (7405 and newer) */
-
-#ifdef CONFIG_BRCM_HAS_PCU_UARTS
-
-#define BRCM_IRQ_UARTA		BRCM_L1_IRQ(W1, PCU_UART2)
-#define BRCM_IRQ_UARTB		BRCM_L1_IRQ(W1, PCU_UART3)
-#define BRCM_IRQ_UARTC		BRCM_L1_IRQ(W1, PCU_UART4)
-
-#define BCHP_UARTA_REG_START	BCHP_PCU_UART2_RBR
-#define BCHP_UARTB_REG_START	BCHP_PCU_UART3_RBR
-#define BCHP_UARTC_REG_START	BCHP_PCU_UART4_RBR
-
-#else /* CONFIG_BRCM_HAS_PCU_UARTS */
-
-#define BRCM_IRQ_UARTA		BRCM_L1_IRQ(W0, UPG_UART0)
-#define BRCM_IRQ_UARTB		BRCM_L1_IRQ(W2, UPG_UART1)
-#define BRCM_IRQ_UARTC		BRCM_L1_IRQ(W2, UPG_UART2)
-
-#endif /* CONFIG_BRCM_HAS_PCU_UARTS */
-
 #endif /* CONFIG_BRCM_SHARED_UART_IRQ */
 
-/* Fixups for inconsistently named interrupts and registers */
-
-#ifndef BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_ENET_CPU_INTR_SHIFT
-#define BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_ENET_CPU_INTR_SHIFT \
-	BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_ENET_EMAC1_CPU_INTR_SHIFT
-#endif
-
-#ifdef BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_ENET_EMAC1_CPU_INTR_SHIFT
-/* 3548 */
-#undef BRCM_IRQ_EMAC_0
-#define BRCM_IRQ_EMAC_0		BRCM_L1_IRQ(W1, ENET_EMAC1)
-#endif
-
-#ifndef BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_EHCI_0_CPU_INTR_SHIFT
-#define BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_EHCI_0_CPU_INTR_SHIFT \
-	BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_EHCI_CPU_INTR_SHIFT
-#endif
-
-#ifndef BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_OHCI_0_CPU_INTR_SHIFT
-#define BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_OHCI_0_CPU_INTR_SHIFT \
-	BCHP_HIF_CPU_INTR1_INTR_W1_STATUS_USB_OHCI_CPU_INTR_SHIFT
-#endif
-
-#if defined(BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_UPG_UART1_CPU_INTR_SHIFT)
-#undef BRCM_IRQ_UARTB
-#undef BRCM_IRQ_UARTC
-#define BRCM_IRQ_UARTB		BRCM_L1_IRQ(W0, UPG_UART1)
-#define BRCM_IRQ_UARTC		BRCM_L1_IRQ(W0, UPG_UART2)
-#endif
-
-#if defined(BCHP_HIF_CPU_INTR1_INTR_W0_STATUS_HIF_SPI_CPU_INTR_SHIFT)
-#undef BRCM_IRQ_HIF_SPI
-#define BRCM_IRQ_HIF_SPI	BRCM_L1_IRQ(W0, HIF_SPI)
-#endif
-
-#ifdef BCHP_ENET_TOP_REG_START
-#define BCHP_EMAC_0_REG_START	BCHP_ENET_TOP_REG_START
-#define BCHP_EMAC_0_REG_END	BCHP_ENET_TOP_REG_END
-#endif
-
-/* HIF L2 IRQ controller - shared by EDU, SDIO */
+/***********************************************************************
+ * HIF L2 IRQ controller - shared by EDU, SDIO
+ ***********************************************************************/
 
 #define HIF_ENABLE_IRQ(bit) do { \
 	BDEV_WR_RB(BCHP_HIF_INTR2_CPU_MASK_CLEAR, \

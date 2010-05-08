@@ -535,7 +535,7 @@ static void brcm_InitSata2_3Gb(void __iomem *mmio_base, int port)
 	if(!port)
 	{
 		//Lower BW
-#ifdef BRCM_75MHZ_SATA_PLL
+#ifdef CONFIG_BRCM_SATA_75MHZ_PLL
 		/* use 75Mhz PLL clock */
 		mdio_write_reg(mmio_base, port, 0, 0x2004);
 #else
@@ -2028,7 +2028,7 @@ static const struct ata_port_info k2_port_info[] = {
 				  ATA_FLAG_MMIO | K2_FLAG_NO_ATAPI_DMA,
 		.pio_mask	= 0x1f,
 		.mwdma_mask	= 0x07,
-		.udma_mask	= ATA_UDMA6,
+		.udma_mask	= ATA_UDMA7,
 		.port_ops	= &k2_sata_ops,
 	},
 	/* chip_sata2 */
@@ -2038,7 +2038,7 @@ static const struct ata_port_info k2_port_info[] = {
 				  K2_FLAG_BRCM_SATA2,
 		.pio_mask	= 0x1f,
 		.mwdma_mask	= 0x07,
-		.udma_mask	= ATA_UDMA6,
+		.udma_mask	= ATA_UDMA7,
 		.port_ops	= &k2_sata_ops,
 	},
 };

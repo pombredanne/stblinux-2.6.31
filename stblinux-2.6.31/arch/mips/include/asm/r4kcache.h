@@ -30,21 +30,6 @@
  */
 #define INDEX_BASE	CKSEG0
 
-#ifdef CONFIG_BCM7420B0
-
-#define cache_op(op,addr)						\
-	__asm__ __volatile__(						\
-	"	.set	push					\n"	\
-	"	.set	noreorder				\n"	\
-	"	.set	mips3\n\t				\n"	\
-	"	cache	%0, %1					\n"	\
-	"	ssnop						\n"	\
-	"	.set	pop					\n"	\
-	:								\
-	: "i" (op), "R" (*(unsigned char *)(addr)))
-
-#else
-
 #define cache_op(op,addr)						\
 	__asm__ __volatile__(						\
 	"	.set	push					\n"	\
@@ -54,8 +39,6 @@
 	"	.set	pop					\n"	\
 	:								\
 	: "i" (op), "R" (*(unsigned char *)(addr)))
-
-#endif
 
 #ifdef CONFIG_MIPS_MT
 /*

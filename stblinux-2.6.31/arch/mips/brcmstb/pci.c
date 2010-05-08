@@ -282,7 +282,7 @@ static inline void brcm_setup_pci_bridge(void)
 #if defined(BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL)
 	BDEV_WR_RB(BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL, 0x1);
 #elif defined(BCHP_HIF_TOP_CTRL_MWIN_CTRL)
-	/* alternate spelling on 7420b0 */
+	/* alternate spelling on 7420 */
 	BDEV_WR_RB(BCHP_HIF_TOP_CTRL_MWIN_CTRL, 0x1);
 #endif
 

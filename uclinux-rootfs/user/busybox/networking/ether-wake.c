@@ -115,7 +115,10 @@ static void get_dest_addr(const char *hostid, struct ether_addr *eaddr)
 	if (eap) {
 		*eaddr = *eap;
 		bb_debug_msg("The target station address is %s\n\n", ether_ntoa(eaddr));
-#if !defined(__UCLIBC__)
+#if !defined(__UCLIBC_MAJOR__) \
+ || __UCLIBC_MAJOR__ > 0 \
+ || __UCLIBC_MINOR__ > 9 \
+ || (__UCLIBC_MINOR__ == 9 && __UCLIBC_SUBLEVEL__ >= 30)
 	} else if (ether_hostton(hostid, eaddr) == 0) {
 		bb_debug_msg("Station address for hostname %s is %s\n\n", hostid, ether_ntoa(eaddr));
 #endif
@@ -164,7 +167,7 @@ static int get_wol_pw(const char *ethoptarg, unsigned char *wol_passwd)
 		byte_cnt = sscanf(ethoptarg, "%u.%u.%u.%u",
 		                  &passwd[0], &passwd[1], &passwd[2], &passwd[3]);
 	if (byte_cnt < 4) {
-		bb_error_msg("cannot read Wake-On-LAN pass");
+		bb_error_msg("can't read Wake-On-LAN pass");
 		return 0;
 	}
 // TODO: check invalid numbers >255??
@@ -179,7 +182,7 @@ static int get_wol_pw(const char *ethoptarg, unsigned char *wol_passwd)
 }
 
 int ether_wake_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int ether_wake_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int ether_wake_main(int argc UNUSED_PARAM, char **argv)
 {
 	const char *ifname = "eth0";
 	char *pass;
@@ -219,7 +222,7 @@ int ether_wake_main(int argc ATTRIBUTE_UNUSED, char **argv)
 	{
 		struct ifreq if_hwaddr;
 
-		strncpy(if_hwaddr.ifr_name, ifname, sizeof(if_hwaddr.ifr_name));
+		strncpy_IFNAMSIZ(if_hwaddr.ifr_name, ifname);
 		ioctl_or_perror_and_die(s, SIOCGIFHWADDR, &if_hwaddr, "SIOCGIFHWADDR on %s failed", ifname);
 
 		memcpy(outpack+6, if_hwaddr.ifr_hwaddr.sa_data, 6);
@@ -255,7 +258,7 @@ int ether_wake_main(int argc ATTRIBUTE_UNUSED, char **argv)
 #if defined(PF_PACKET)
 	{
 		struct ifreq ifr;
-		strncpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
+		strncpy_IFNAMSIZ(ifr.ifr_name, ifname);
 		xioctl(s, SIOCGIFINDEX, &ifr);
 		memset(&whereto, 0, sizeof(whereto));
 		whereto.sll_family = AF_PACKET;

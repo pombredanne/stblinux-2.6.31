@@ -1,28 +1,41 @@
 #
-# Makefile for hdparm
-#
-# 09/05/03 Ton Truong <ttruong@broadcom.com>
+# General settings
 #
 
-# __USE_GNU needed for O_DIRECT
-CFLAGS += -I$(ROOTDIR)/$(LINUXDIR)/include -D_GNU_SOURCE
+include $(ROOTDIR)/config.arch
 
-.EXPORT_ALL_VARIABLES:
+BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
 
-DESTDIR=$(ROOTDIR)/romfs
+CC			:= $(MACHINE)-linux-gcc
+STRIP			:= $(MACHINE)-linux-strip
+CFLAGS			:= -Os
 
-HDPARM_DEPS = hdparm.o identify.o $(ROOTDIR)/$(LINUXDIR)/include/linux/hdreg.h
+export CC CFLAGS
 
-all:
-	make -f Makefile hdparm
+#
+# Settings that are specific to this package
+#
 
-.PHONEY: romfs
+#
+# Build targets
+#
 
-romfs: all
-ifeq ($(CONFIG_USER_HDPARM_HDPARM),y)
-	make -f Makefile  install
-endif
+.PHONY: all
+all::
+	$(MAKE) -f Makefile
 
-clean distclean:
-	rm -f hdparm *.o *core*
+.PHONY: romfs
+romfs::
+	$(ROMFSINST) -e CONFIG_USER_HDPARM_HDPARM /bin/hdparm
 
+.PHONY: clean distclean
+clean distclean::
+	$(MAKE) -f Makefile clean
+
+# These targets must not be passed through to the original Makefile
+.PHONY: $(BOGUS_TARGETS)
+$(BOGUS_TARGETS)::
+
+# Everything else (maybe including clean, distclean) does get passed through
+%:: FORCE
+	$(MAKE) -f Makefile $@

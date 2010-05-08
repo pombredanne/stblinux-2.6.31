@@ -1,8 +1,55 @@
 Begin4
 Title:		hdparm
-Version:	6.9
-Entered-date:	2006-10-25
-Description:	hdparm - get/set hard disk parameters for Linux IDE drives.
+Version:	9.28
+Entered-date:	2010-03-09
+Description:	hdparm - get/set hard disk parameters for Linux SATA/IDE drives.
+		v9.28 Assorted fixes, updated wiper.sh to v2.8
+		v9.27 Fix compatibility with old IDE drivers; was broken for many versions now
+		v9.26 Fix old -i model-name bug; fixed --security-erase-enhanced; other fixes
+		v9.25 Limit --trim-sector-ranges-stdin to max_sectors_kb per TRIM command
+		v9.24 Fixed nasty malloc() bug in --trim-sector-ranges code
+		v9.23 Added --trim-sector-ranges-stdin flag
+		v9.22 Workaround ext4 FEIMAP bug, revamped wiper.sh with xfs support
+		v9.21 Fixes and speedups to wiper.sh script; no changes to hdparm itself
+		v9.20 Reworked --trim-sector-ranges; replaced b0rked wiper scripts with wiper.sh
+		v9.19 Fixed compile of fallocate.c on older systems; fixed manpage for --fallocate
+		v9.18 Fixed -E (set streaming) for DVD drives
+		v9.17 Lots of changes to support SSD TRIM functionality
+		v9.16 Fixed/tested --fwdownload flags; fixed other bugs
+		v9.15 Fix big-endian bugs
+		v9.14 Show TRIM support in -I; use O_RDONLY when opening the device
+		v9.13 Fix --direct for arch's other than x86 (eg. arm); strip -i strings
+		v9.12 Lots of -I updates, -C updates; -B now reports current APM setting
+		v9.11 Fixed -I for ATAPI; added --prefer-ata12 for some USB enclosures
+		v9.10 Fixes for CF card detection/reporting
+		v9.9 Recalculate cyls when kernel returns a truncated value
+		v9.8 FIX -N for non-LBA48 drives
+		v9.7 FIX LBA28/48 BUGS, favour ATA_12 over ATA_16 when possible (helps with USB)
+		v9.6 fix -N for 1.5TB drives
+		v9.5 byteswap ID strings in fwdownload workarounds
+		v9.4 nuked --fwdownload80 in favour of model-specific workarounds
+		v9.3 new --idle-immediate and --idle-unload commands
+		v9.2 fix WWN (worldwide name) output from -I
+		v9.1 tidy output of --dco-identify, update manpage
+		v9.0 new --dco-* and --fwdownload flags, sg16 fixes, updated debian subdir
+		v8.9 make compatible with /sys/block symlinks
+		v8.8 bug fixes from v8.7, including -r, -a, -Q
+		v8.7 new sysfs support, fibmap, misc fixes
+		v8.6 add partition safeguards to r/w/b sector flags
+		v8.5 fix broken --security-* commands (buggy passwd in all prior 8.x versions)
+		v8.4 fix broken --write-sector from v8.3
+		v8.3 use exit(errno) on program completion; fix udma6 display for -i
+		v8.2 fixed sector ops (and other stuff) to work with non-libata IDE driver again
+		v8.1 fixed -U, updated -I info
+		v8.0 some fixes, lots of new features (eg. --make-bad-sector and friends)
+		v7.7 fixed bug with incorrect settings shown after -W0 (and others)
+		v7.6 new -F flag; re-allow use of --security-freeze with other flags
+		v7.5 beef up warnings for -s1: Joe User should never use this flag!
+		v7.4 added CFA advanced timing info
+		v7.3 fixed version number; much better SAT compliance
+		v7.2 fixed breakage when used with old IDE driver
+		v7.1 big-endian fixes for -I, --Istdin, --Istdout
+		v7.0 major overhaul, proper SATA support, new features and tweaks
 		v6.9 --Istdin fix, new -s flag, new SCT reporting, fixed -T x2 error..
 		v6.8 improve parsing/operation of --Istdin function
 		v6.7 misc fixes, new -H flag, fixed -C flag
@@ -55,8 +102,8 @@ Author:		mlord@pobox.com (Mark Lord)
 Maintained-by:	mlord@pobox.com (Mark Lord)
 Primary-site:	http://sourceforge.net/projects/hdparm/
 Alternate-site:	http://www.ibiblio.org/pub/Linux/system/hardware
-		47K hdparm-6.9.tar.gz
-		1K hdparm.lsm
+		114K hdparm-9.28.tar.gz
+		4K hdparm.lsm
 Platforms:	Linux, kernels 2.2 through 2.6
 Copying-policy:	BSD License
 End

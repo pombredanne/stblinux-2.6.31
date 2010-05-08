@@ -17,7 +17,7 @@
 #include "libbb.h"
 
 int setsid_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int setsid_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int setsid_main(int argc UNUSED_PARAM, char **argv)
 {
 	if (!argv[1])
 		bb_show_usage();
@@ -26,7 +26,8 @@ int setsid_main(int argc ATTRIBUTE_UNUSED, char **argv)
 	 * Otherwise our PID serves as PGID of some existing process group
 	 * and cannot be used as PGID of a new process group. */
 	if (getpgrp() == getpid())
-		forkexit_or_rexec(argv);
+		if (fork_or_rexec(argv))
+			exit(EXIT_SUCCESS); /* parent */
 
 	setsid();  /* no error possible */
 

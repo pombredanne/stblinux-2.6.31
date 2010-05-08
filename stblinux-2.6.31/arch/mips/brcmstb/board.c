@@ -216,6 +216,9 @@ void __init board_pinmux_setup(void)
 	PINMUX(10, gpio_023, 1);	// ENET LEDs
 	PINMUX(11, gpio_024, 1);
 
+	PINMUX(23, vo_656_7, 1);	// MoCA LEDs
+	PINMUX(23, vo_656_clk, 1);
+
 	PINMUX(12, gpio_034, 1);	// UARTB TX
 	PINMUX(12, gpio_035, 1);	// UARTB RX
 	PINMUX(12, gpio_038, 1);	// UARTC TX

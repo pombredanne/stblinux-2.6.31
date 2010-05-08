@@ -69,30 +69,28 @@ static int pencode(char *s)
 #define strbuf bb_common_bufsiz1
 
 int logger_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int logger_main(int argc, char **argv)
+int logger_main(int argc UNUSED_PARAM, char **argv)
 {
 	char *str_p, *str_t;
+	int opt;
 	int i = 0;
-	char name[80];
 
 	/* Fill out the name string early (may be overwritten later) */
-	bb_getpwuid(name, sizeof(name), geteuid());
-	str_t = name;
+	str_t = uid2uname_utoa(geteuid());
 
 	/* Parse any options */
-	getopt32(argv, "p:st:", &str_p, &str_t);
+	opt = getopt32(argv, "p:st:", &str_p, &str_t);
 
-	if (option_mask32 & 0x2) /* -s */
+	if (opt & 0x2) /* -s */
 		i |= LOG_PERROR;
-	//if (option_mask32 & 0x4) /* -t */
+	//if (opt & 0x4) /* -t */
 	openlog(str_t, i, 0);
 	i = LOG_USER | LOG_NOTICE;
-	if (option_mask32 & 0x1) /* -p */
+	if (opt & 0x1) /* -p */
 		i = pencode(str_p);
 
-	argc -= optind;
 	argv += optind;
-	if (!argc) {
+	if (!argv[0]) {
 		while (fgets(strbuf, COMMON_BUFSIZE, stdin)) {
 			if (strbuf[0]
 			 && NOT_LONE_CHAR(strbuf, '\n')

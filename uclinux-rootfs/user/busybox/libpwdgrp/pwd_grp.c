@@ -19,7 +19,7 @@
  */
 
 #include "libbb.h"
-#include <features.h>
+//#include <features.h>
 #include <assert.h>
 
 #ifndef _PATH_SHADOW
@@ -396,6 +396,7 @@ struct spwd *getspnam(const char *name)
 }
 #endif
 
+#ifdef THIS_ONE_IS_UNUSED
 /* This one doesn't use static buffers */
 int getpw(uid_t uid, char *buf)
 {
@@ -419,6 +420,7 @@ int getpw(uid_t uid, char *buf)
 
 	return -1;
 }
+#endif
 
 /**********************************************************************/
 
@@ -464,7 +466,7 @@ int getpwent_r(struct passwd *__restrict resultbuf,
 	*result = NULL;				/* In case of error... */
 
 	if (!pwf) {
-		pwf = fopen(_PATH_PASSWD, "r");
+		pwf = fopen_for_read(_PATH_PASSWD);
 		if (!pwf) {
 			rv = errno;
 			goto ERR;
@@ -511,7 +513,7 @@ int getgrent_r(struct group *__restrict resultbuf,
 	*result = NULL;				/* In case of error... */
 
 	if (!grf) {
-		grf = fopen(_PATH_GROUP, "r");
+		grf = fopen_for_read(_PATH_GROUP);
 		if (!grf) {
 			rv = errno;
 			goto ERR;
@@ -558,7 +560,7 @@ int getspent_r(struct spwd *resultbuf, char *buffer,
 	*result = NULL;				/* In case of error... */
 
 	if (!spf) {
-		spf = fopen(_PATH_SHADOW, "r");
+		spf = fopen_for_read(_PATH_SHADOW);
 		if (!spf) {
 			rv = errno;
 			goto ERR;
@@ -620,47 +622,63 @@ struct spwd *sgetspent(const char *string)
 }
 #endif
 
-int initgroups(const char *user, gid_t gid)
+static gid_t *getgrouplist_internal(int *ngroups_ptr, const char *user, gid_t gid)
 {
 	FILE *grfile;
 	gid_t *group_list;
-	int num_groups, rv;
-	char **m;
+	int ngroups;
 	struct group group;
 	char buff[PWD_BUFFER_SIZE];
 
-	rv = -1;
-	grfile = fopen(_PATH_GROUP, "r");
-	if (grfile != NULL) {
+	/* We alloc space for 8 gids at a time. */
+	group_list = xmalloc(8 * sizeof(group_list[0]));
+	group_list[0] = gid;
+	ngroups = 1;
 
-		/* We alloc space for 8 gids at a time. */
-		group_list = xmalloc(8 * sizeof(gid_t *));
-		*group_list = gid;
-		num_groups = 1;
-
+	grfile = fopen_for_read(_PATH_GROUP);
+	if (grfile) {
 		while (!bb__pgsreader(bb__parsegrent, &group, buff, sizeof(buff), grfile)) {
+			char **m;
 			assert(group.gr_mem); /* Must have at least a NULL terminator. */
-			if (group.gr_gid != gid) {
-				for (m = group.gr_mem; *m; m++) {
-					if (!strcmp(*m, user)) {
-						if (!(num_groups & 7)) {
-							gid_t *tmp = xrealloc(group_list,
-									(num_groups+8) * sizeof(gid_t *));
-							group_list = tmp;
-						}
-						group_list[num_groups++] = group.gr_gid;
-						break;
-					}
-				}
+			if (group.gr_gid == gid)
+				continue;
+			for (m = group.gr_mem; *m; m++) {
+				if (strcmp(*m, user) != 0)
+					continue;
+				group_list = xrealloc_vector(group_list, 3, ngroups);
+				group_list[ngroups++] = group.gr_gid;
+				break;
 			}
 		}
-
-		rv = setgroups(num_groups, group_list);
-		free(group_list);
 		fclose(grfile);
 	}
+	*ngroups_ptr = ngroups;
+	return group_list;
+}
 
-	return rv;
+int initgroups(const char *user, gid_t gid)
+{
+	int ngroups;
+	gid_t *group_list = getgrouplist_internal(&ngroups, user, gid);
+
+	ngroups = setgroups(ngroups, group_list);
+	free(group_list);
+	return ngroups;
+}
+
+int getgrouplist(const char *user, gid_t gid, gid_t *groups, int *ngroups)
+{
+	int ngroups_old = *ngroups;
+	gid_t *group_list = getgrouplist_internal(ngroups, user, gid);
+
+	if (*ngroups <= ngroups_old) {
+		ngroups_old = *ngroups;
+		memcpy(groups, group_list, ngroups_old * sizeof(groups[0]));
+	} else {
+		ngroups_old = -1;
+	}
+	free(group_list);
+	return ngroups_old;
 }
 
 int putpwent(const struct passwd *__restrict p, FILE *__restrict f)
@@ -798,7 +816,7 @@ static int bb__parsepwent(void *data, char *line)
 
 	i = 0;
 	do {
-		p = ((char *) ((struct passwd *) data)) + pw_off[i];
+		p = (char *) data + pw_off[i];
 
 		if ((i & 6) ^ 2) {	/* i!=2 and i!=3 */
 			*((char **) p) = line;
@@ -855,7 +873,7 @@ static int bb__parsegrent(void *data, char *line)
 	end_of_buf = ((struct group *) data)->gr_name; /* Evil hack! */
 	i = 0;
 	do {
-		p = ((char *) ((struct group *) data)) + gr_off[i];
+		p = (char *) data + gr_off[i];
 
 		if (i < 2) {
 			*((char **) p) = line;
@@ -948,15 +966,15 @@ static const unsigned char sp_off[] ALIGN1 = {
 	offsetof(struct spwd, sp_flag)          /* 8 - not a char ptr */
 };
 
-static int bb__parsespent(void *data, char * line)
+static int bb__parsespent(void *data, char *line)
 {
 	char *endptr;
 	char *p;
 	int i;
 
 	i = 0;
-	do {
-		p = ((char *) ((struct spwd *) data)) + sp_off[i];
+	while (1) {
+		p = (char *) data + sp_off[i];
 		if (i < 2) {
 			*((char **) p) = line;
 			line = strchr(line, ':');
@@ -964,10 +982,10 @@ static int bb__parsespent(void *data, char * line)
 				break;
 			}
 		} else {
-			*((long *) p) = (long) strtoul(line, &endptr, 10);
+			*((long *) p) = strtoul(line, &endptr, 10);
 
 			if (endptr == line) {
-				*((long *) p) = ((i != 8) ? -1L : ((long)(~0UL)));
+				*((long *) p) = (i != 8) ? -1L : (long)(~0UL);
 			}
 
 			line = endptr;
@@ -985,9 +1003,9 @@ static int bb__parsespent(void *data, char * line)
 
 		}
 
-		*line++ = 0;
+		*line++ = '\0';
 		++i;
-	} while (1);
+	}
 
 	return EINVAL;
 }

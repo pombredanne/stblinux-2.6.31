@@ -48,14 +48,7 @@ init (void)
   libgcc_s_personality = personality;
 }
 
-#if defined(__mips__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 2)
-/* Backward compatibility with Broadcom "XXts" toolchains */
-#define __attr_nomips16		__attribute__((__nomips16__))
-#else
-#define __attr_nomips16
-#endif
-
-void __attr_nomips16
+void
 _Unwind_Resume (struct _Unwind_Exception *exc)
 {
   if (__builtin_expect (libgcc_s_resume == NULL, 0))

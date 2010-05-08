@@ -70,7 +70,12 @@
 
 #include "kmap_skb.h"
 
+#ifdef CONFIG_BRCMSTB
+struct kmem_cache *skbuff_head_cache __read_mostly;
+EXPORT_SYMBOL(skbuff_head_cache);
+#else
 static struct kmem_cache *skbuff_head_cache __read_mostly;
+#endif
 static struct kmem_cache *skbuff_fclone_cache __read_mostly;
 
 static void sock_pipe_buf_release(struct pipe_inode_info *pipe,

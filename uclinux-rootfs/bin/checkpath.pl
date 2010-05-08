@@ -40,12 +40,6 @@ foreach my $x (split(/:/, $path)) {
 				   # they know what they are doing
 				   exit 0;
 			}
-			# HACK: allow stbgcc-4.4.3-0.8 as an optional toolchain
-			# This will be removed after the transition period
-			# is over.
-			if($x =~ m/stbgcc-4.4.3-0.8/) {
-				exit 0;
-			}
 			print "\n";
 			print "WARNING: using toolchain binaries in:\n$x\n\n";
 			print "The recommended toolchain for this release is:\n";

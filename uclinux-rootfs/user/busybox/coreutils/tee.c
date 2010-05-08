@@ -11,7 +11,6 @@
 /* http://www.opengroup.org/onlinepubs/007904975/utilities/tee.html */
 
 #include "libbb.h"
-#include <signal.h>
 
 int tee_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
 int tee_main(int argc, char **argv)
@@ -50,14 +49,19 @@ int tee_main(int argc, char **argv)
 	files[0] = stdout;
 	goto GOT_NEW_FILE;
 	do {
-		*fp = fopen_or_warn(*argv, mode);
-		if (*fp == NULL) {
-			retval = EXIT_FAILURE;
-			continue;
+		*fp = stdout;
+		if (NOT_LONE_DASH(*argv)) {
+			*fp = fopen_or_warn(*argv, mode);
+			if (*fp == NULL) {
+				retval = EXIT_FAILURE;
+				argv++;
+				continue;
+			}
 		}
 		*np = *argv++;
  GOT_NEW_FILE:
-		setbuf(*fp++, NULL);	/* tee must not buffer output. */
+		setbuf(*fp, NULL);	/* tee must not buffer output. */
+		fp++;
 		np++;
 	} while (*argv);
 	/* names[0] will be filled later */

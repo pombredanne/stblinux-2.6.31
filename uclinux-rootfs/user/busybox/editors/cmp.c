@@ -24,20 +24,20 @@
 #include "libbb.h"
 
 static const char fmt_eof[] ALIGN1 = "cmp: EOF on %s\n";
-static const char fmt_differ[] ALIGN1 = "%s %s differ: char %"OFF_FMT"d, line %d\n";
-// This fmt_l_opt uses gnu-isms.  SUSv3 would be "%.0s%.0s%"OFF_FMT"d %o %o\n"
-static const char fmt_l_opt[] ALIGN1 = "%.0s%.0s%"OFF_FMT"d %3o %3o\n";
+static const char fmt_differ[] ALIGN1 = "%s %s differ: char %"OFF_FMT"u, line %u\n";
+// This fmt_l_opt uses gnu-isms.  SUSv3 would be "%.0s%.0s%"OFF_FMT"u %o %o\n"
+static const char fmt_l_opt[] ALIGN1 = "%.0s%.0s%"OFF_FMT"u %3o %3o\n";
 
 static const char opt_chars[] ALIGN1 = "sl";
 #define CMP_OPT_s (1<<0)
 #define CMP_OPT_l (1<<1)
 
 int cmp_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int cmp_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int cmp_main(int argc UNUSED_PARAM, char **argv)
 {
 	FILE *fp1, *fp2, *outfile = stdout;
 	const char *filename1, *filename2 = "-";
-	USE_DESKTOP(off_t skip1 = 0, skip2 = 0;)
+	IF_DESKTOP(off_t skip1 = 0, skip2 = 0;)
 	off_t char_pos = 0;
 	int line_pos = 1; /* Hopefully won't overflow... */
 	const char *fmt;
@@ -48,8 +48,8 @@ int cmp_main(int argc ATTRIBUTE_UNUSED, char **argv)
 	xfunc_error_retval = 2;	/* 1 is returned if files are different. */
 
 	opt_complementary = "-1"
-			USE_DESKTOP(":?4")
-			SKIP_DESKTOP(":?2")
+			IF_DESKTOP(":?4")
+			IF_NOT_DESKTOP(":?2")
 			":l--s:s--l";
 	opt = getopt32(argv, opt_chars);
 	argv += optind;
@@ -108,7 +108,7 @@ int cmp_main(int argc ATTRIBUTE_UNUSED, char **argv)
 				outfile = stderr;
 				/* There may have been output to stdout (option -l), so
 				 * make sure we fflush before writing to stderr. */
-				xfflush_stdout();
+				fflush_all();
 			}
 			if (!(opt & CMP_OPT_s)) {
 				if (opt & CMP_OPT_l) {

@@ -35,17 +35,17 @@ static void convert(char *fn, int conv_type)
 		resolved_fn = xmalloc_follow_symlinks(fn);
 		if (resolved_fn == NULL)
 			bb_simple_perror_msg_and_die(fn);
-		in = xfopen(resolved_fn, "r");
+		in = xfopen_for_read(resolved_fn);
 		fstat(fileno(in), &st);
 
 		temp_fn = xasprintf("%sXXXXXX", resolved_fn);
 		i = mkstemp(temp_fn);
 		if (i == -1
 		 || fchmod(i, st.st_mode) == -1
-		 || !(out = fdopen(i, "w+"))
 		) {
 			bb_simple_perror_msg_and_die(temp_fn);
 		}
+		out = xfdopen_for_write(i);
 	}
 
 	while ((i = fgetc(in)) != EOF) {
@@ -69,7 +69,7 @@ static void convert(char *fn, int conv_type)
 }
 
 int dos2unix_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int dos2unix_main(int argc, char **argv)
+int dos2unix_main(int argc UNUSED_PARAM, char **argv)
 {
 	int o, conv_type;
 
@@ -88,11 +88,11 @@ int dos2unix_main(int argc, char **argv)
 	if (o)
 		conv_type = o;
 
+	argv += optind;
 	do {
 		/* might be convert(NULL) if there is no filename given */
-		convert(argv[optind], conv_type);
-		optind++;
-	} while (optind < argc);
+		convert(*argv, conv_type);
+	} while (*++argv);
 
 	return 0;
 }

@@ -21,7 +21,6 @@
 #include <asm/war.h>
 #include <asm/page.h>
 #include <asm/thread_info.h>
-#include <asm/isadep.h>
 
 #define PANIC_PIC(msg)					\
 		.set push;				\
@@ -372,6 +371,49 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	.set	pop
 	END(nmi_handler)
 
+#ifdef CONFIG_BRCMSTB
+NESTED(brcm_reset_nmi_vec, PT_SIZE, sp)
+	.set	push
+	.set	noat
+
+#ifdef CONFIG_SMP
+	/* if the NMI bit is clear, jump to the TP1 reset handler instead */
+	li	k1, (1 << 19)
+	mfc0	k0, $12
+	and	k0, k1
+	bnez	k0, 1f
+
+	la	k0, brcmstb_tp1_entry
+	li	k1, UNCAC_BASE
+	or	k0, k1
+	jr	k0
+1:
+#endif /* CONFIG_SMP */
+	SAVE_ALL
+ 	move	a0, sp
+
+	/* clear EXL, ERL, BEV so that TLB refills still work */
+	mfc0	k0, $12
+	li	k1, ST0_ERL | ST0_EXL | ST0_BEV | ST0_IE
+	or	k0, k1
+	xor	k0, k1
+	mtc0	k0, $12
+	ssnop
+	ssnop
+	ssnop
+
+	/* call the NMI handler function (probably doesn't return) */
+	la	k0, brcm_nmi_handler
+	lw	k1, 0(k0)
+	jalr	k1
+
+	RESTORE_ALL
+	.set	mips3
+	eret
+	.set	pop
+	END(brcm_reset_nmi_vec)
+#endif
+
 	.macro	__build_clear_none
 	.endm
 
@@ -453,11 +495,7 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	BUILD_HANDLER dbe be cli silent			/* #7  */
 	BUILD_HANDLER bp bp sti silent			/* #9  */
 	BUILD_HANDLER ri ri sti silent			/* #10 */
-#if defined(CONFIG_BCM7420B0)
-	BUILD_HANDLER cpu_real cpu sti silent		/* #11 */
-#else
 	BUILD_HANDLER cpu cpu sti silent		/* #11 */
-#endif
 	BUILD_HANDLER ov ov sti silent			/* #12 */
 	BUILD_HANDLER tr tr sti silent			/* #13 */
 	BUILD_HANDLER fpe fpe fpe silent		/* #15 */
@@ -475,24 +513,6 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	BUILD_HANDLER mt mt sti silent			/* #25 */
 	BUILD_HANDLER dsp dsp sti silent		/* #26 */
 	BUILD_HANDLER reserved reserved sti verbose	/* others */
-
-#if defined(CONFIG_BCM7420B0)
-	.align	5
-	NESTED(handle_cpu, PT_SIZE, sp)
-	/* kernel mode exception fixup */
-	mfc0	k0, CP0_STATUS
-	li	k1, KU_MASK
-	and	k0, k1
-	li	k1, KU_USER
-	beq	k0, k1, handle_cpu_real
-	mfc0	k0, CP0_CAUSE
-	srl	k0, CAUSEB_CE
-	andi	k0, 0x3
-	li	k1, 1
-	bne	k0, k1, handle_cpu_real
-	eret
-	END(handle_cpu)
-#endif
 
 	.align	5
 	LEAF(handle_ri_rdhwr_vivt)

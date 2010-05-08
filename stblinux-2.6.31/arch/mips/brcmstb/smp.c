@@ -84,7 +84,7 @@ static void brcmstb_prepare_cpus(unsigned int max_cpus)
 	
 
 /* TP1 MIPS init - reset vector jumps here */
-static void brcmstb_tp1_entry(void)
+asmlinkage void brcmstb_tp1_entry(void)
 {
 	unsigned long tmp0, tmp1;
 
@@ -154,8 +154,6 @@ static void brcmstb_tp1_entry(void)
 /* Tell the hardware to boot TP1 - runs on TP0 */
 static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
 {
-	u32 entry;
-
 #if defined(CONFIG_BMIPS4380)
 	/* NBK and weak order flags */
 	set_c0_brcm_config_0(0x30000);
@@ -184,20 +182,15 @@ static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
 	smp_boot_gp = (unsigned long)task_thread_info(idle);
 
 	/*
-	 * NOTE: TP0/TP1 reset and exception vectors have been relocated
-	 * TP1 will start executing the jump code (below) from a000_0000.
-	 * Changes are in include/asm/mach-brcmstb/kernel-entry-init.h and
-	 * arch/mips/kernel/traps.c (search for BMIPS4380).
+	 * TP1 boot sequence:
+	 *   a000_0000 (relocated reset vector) ->
+	 *   brcm_reset_nmi_vec (uncached jump) ->
+	 *   brcmstb_tp1_entry (uncached jump)
+	 *   brcm_upper_tlb_setup (cached function call) ->
+	 *   start_secondary (cached jump)
+	 * 
+	 * Vector relocation code is in arch/mips/brcmstb/prom.c
 	 */
-
-	entry = KSEG1ADDR((u32)&brcmstb_tp1_entry);
-	DEV_WR(KSEG0 + 0, 0x3c1a0000 | (entry >> 16));	  // lui k0, HI(entry)
-	DEV_WR(KSEG0 + 4, 0x375a0000 | (entry & 0xffff)); // ori k0, LO(entry)
-	DEV_WR(KSEG0 + 8, 0x03400008);			  // jr k0
-	DEV_WR(KSEG0 + 12, 0x00000000);			  // nop
-
-	dma_cache_wback(KSEG0, 16);
-	flush_icache_range(KSEG0, KSEG0 + 16);
 
 	printk(KERN_INFO "SMP: Booting CPU%d...\n", cpu);
 #if defined(CONFIG_BMIPS4380)

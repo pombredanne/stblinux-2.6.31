@@ -49,7 +49,7 @@ do {										\
 	GOT_BASE[0] = (unsigned long) _dl_runtime_resolve;			\
 	GOT_BASE[1] = (unsigned long) MODULE;					\
 	idx = 2;								\
-	if (MODULE->dynamic_info[DT_JMPREL])					\
+	if (0 && MODULE->dynamic_info[DT_JMPREL])				\
 		GOT_BASE[idx++] = (unsigned long) _dl_linux_resolve;		\
 										\
 	/* Add load address displacement to all local GOT entries */		\

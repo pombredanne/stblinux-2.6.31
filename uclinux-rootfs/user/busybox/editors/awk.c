@@ -114,7 +114,7 @@ typedef struct nvblock_s {
 	var *pos;
 	struct nvblock_s *prev;
 	struct nvblock_s *next;
-	var nv[0];
+	var nv[];
 } nvblock;
 
 typedef struct tsplitter_s {
@@ -250,7 +250,7 @@ enum {
 
 /* builtins */
 enum {
-	B_a2,	B_ix,	B_ma,	B_sp,	B_ss,	B_ti,	B_lo,	B_up,
+	B_a2,	B_ix,	B_ma,	B_sp,	B_ss,	B_ti,   B_mt,	B_lo,	B_up,
 	B_ge,	B_gs,	B_su,
 	B_an,	B_co,	B_ls,	B_or,	B_rs,	B_xo,
 };
@@ -299,7 +299,7 @@ static const char tokenlist[] ALIGN1 =
 	"\4rand"    "\3sin"     "\4sqrt"    "\5srand"
 	"\6gensub"  "\4gsub"    "\5index"   "\6length"
 	"\5match"   "\5split"   "\7sprintf" "\3sub"
-	"\6substr"  "\7systime" "\10strftime"
+	"\6substr"  "\7systime" "\10strftime" "\6mktime"
 	"\7tolower" "\7toupper" NTC
 	"\7getline" NTC
 	"\4func"    "\10function"   NTC
@@ -353,7 +353,7 @@ static const uint32_t tokeninfo[] = {
 	OC_FBLTIN|F_rn,    OC_FBLTIN|Nx|F_si, OC_FBLTIN|Nx|F_sq, OC_FBLTIN|Nx|F_sr,
 	OC_B|B_ge|P(0xd6), OC_B|B_gs|P(0xb6), OC_B|B_ix|P(0x9b), OC_FBLTIN|Sx|F_le,
 	OC_B|B_ma|P(0x89), OC_B|B_sp|P(0x8b), OC_SPRINTF,        OC_B|B_su|P(0xb6),
-	OC_B|B_ss|P(0x8f), OC_FBLTIN|F_ti,    OC_B|B_ti|P(0x0b),
+	OC_B|B_ss|P(0x8f), OC_FBLTIN|F_ti,    OC_B|B_ti|P(0x0b), OC_B|B_mt|P(0x0b),
 	OC_B|B_lo|P(0x49), OC_B|B_up|P(0x49),
 	OC_GETLINE|SV|P(0),
 	0,	0,
@@ -366,25 +366,22 @@ static const uint32_t tokeninfo[] = {
 enum {
 	CONVFMT,    OFMT,       FS,         OFS,
 	ORS,        RS,         RT,         FILENAME,
-	SUBSEP,     ARGIND,     ARGC,       ARGV,
-	ERRNO,      FNR,
-	NR,         NF,         IGNORECASE,
-	ENVIRON,    F0,         NUM_INTERNAL_VARS
+	SUBSEP,     F0,         ARGIND,     ARGC,
+	ARGV,       ERRNO,      FNR,        NR,
+	NF,         IGNORECASE,	ENVIRON,    NUM_INTERNAL_VARS
 };
 
 static const char vNames[] ALIGN1 =
 	"CONVFMT\0" "OFMT\0"    "FS\0*"     "OFS\0"
 	"ORS\0"     "RS\0*"     "RT\0"      "FILENAME\0"
-	"SUBSEP\0"  "ARGIND\0"  "ARGC\0"    "ARGV\0"
-	"ERRNO\0"   "FNR\0"
-	"NR\0"      "NF\0*"     "IGNORECASE\0*"
-	"ENVIRON\0" "$\0*"      "\0";
+	"SUBSEP\0"  "$\0*"      "ARGIND\0"  "ARGC\0"
+	"ARGV\0"    "ERRNO\0"   "FNR\0"     "NR\0"
+	"NF\0*"     "IGNORECASE\0*" "ENVIRON\0" "\0";
 
 static const char vValues[] ALIGN1 =
 	"%.6g\0"    "%.6g\0"    " \0"       " \0"
 	"\n\0"      "\n\0"      "\0"        "\0"
-	"\034\0"
-	"\377";
+	"\034\0"    "\0"        "\377";
 
 /* hash size may grow to these values */
 #define FIRST_PRIME 61
@@ -392,8 +389,12 @@ static const uint16_t PRIMES[] ALIGN2 = { 251, 1021, 4093, 16381, 65521 };
 
 
 /* Globals. Split in two parts so that first one is addressed
- * with (mostly short) negative offsets */
+ * with (mostly short) negative offsets.
+ * NB: it's unsafe to put members of type "double"
+ * into globals2 (gcc may fail to align them).
+ */
 struct globals {
+	double t_double;
 	chain beginseq, mainseq, endseq;
 	chain *seq;
 	node *break_ptr, *continue_ptr;
@@ -442,16 +443,16 @@ struct globals2 {
 	tsplitter exec_builtin__tspl;
 
 	/* biggest and least used members go last */
-	double t_double;
 	tsplitter fsplitter, rsplitter;
 };
 #define G1 (ptr_to_globals[-1])
 #define G (*(struct globals2 *)ptr_to_globals)
 /* For debug. nm --size-sort awk.o | grep -vi ' [tr] ' */
-/* char G1size[sizeof(G1)]; - 0x6c */
-/* char Gsize[sizeof(G)]; - 0x1cc */
+/*char G1size[sizeof(G1)]; - 0x74 */
+/*char Gsize[sizeof(G)]; - 0x1c4 */
 /* Trying to keep most of members accessible with short offsets: */
-/* char Gofs_seed[offsetof(struct globals2, evaluate__seed)]; - 0x90 */
+/*char Gofs_seed[offsetof(struct globals2, evaluate__seed)]; - 0x90 */
+#define t_double     (G1.t_double    )
 #define beginseq     (G1.beginseq    )
 #define mainseq      (G1.mainseq     )
 #define endseq       (G1.endseq      )
@@ -479,14 +480,13 @@ struct globals2 {
 #define t_info       (G.t_info      )
 #define t_tclass     (G.t_tclass    )
 #define t_string     (G.t_string    )
-#define t_double     (G.t_double    )
 #define t_lineno     (G.t_lineno    )
 #define t_rollback   (G.t_rollback  )
 #define intvar       (G.intvar      )
 #define fsplitter    (G.fsplitter   )
 #define rsplitter    (G.rsplitter   )
 #define INIT_G() do { \
-	SET_PTR_TO_GLOBALS(xzalloc(sizeof(G1) + sizeof(G)) + sizeof(G1)); \
+	SET_PTR_TO_GLOBALS((char*)xzalloc(sizeof(G1)+sizeof(G)) + sizeof(G1)); \
 	G.next_token__ltclass = TC_OPTERM; \
 	G.evaluate__seed = 1; \
 } while (0)
@@ -499,7 +499,7 @@ static void chain_group(void);
 static var *evaluate(node *, var *);
 static rstream *next_input_file(void);
 static int fmt_num(char *, int, const char *, double, int);
-static int awk_exit(int) ATTRIBUTE_NORETURN;
+static int awk_exit(int) NORETURN;
 
 /* ---- error handling ---- */
 
@@ -512,17 +512,17 @@ static const char EMSG_TOO_FEW_ARGS[] ALIGN1 = "Too few arguments for builtin";
 static const char EMSG_NOT_ARRAY[] ALIGN1 = "Not an array";
 static const char EMSG_POSSIBLE_ERROR[] ALIGN1 = "Possible syntax error";
 static const char EMSG_UNDEF_FUNC[] ALIGN1 = "Call to undefined function";
-#if !ENABLE_FEATURE_AWK_MATH
+#if !ENABLE_FEATURE_AWK_LIBM
 static const char EMSG_NO_MATH[] ALIGN1 = "Math support is not compiled in";
 #endif
 
-static void zero_out_var(var * vp)
+static void zero_out_var(var *vp)
 {
 	memset(vp, 0, sizeof(*vp));
 }
 
-static void syntax_error(const char *const message) ATTRIBUTE_NORETURN;
-static void syntax_error(const char *const message)
+static void syntax_error(const char *message) NORETURN;
+static void syntax_error(const char *message)
 {
 	bb_error_msg_and_die("%s:%i: %s", g_progname, g_lineno, message);
 }
@@ -533,7 +533,8 @@ static unsigned hashidx(const char *name)
 {
 	unsigned idx = 0;
 
-	while (*name) idx = *name++ + (idx << 6) - idx;
+	while (*name)
+		idx = *name++ + (idx << 6) - idx;
 	return idx;
 }
 
@@ -542,9 +543,9 @@ static xhash *hash_init(void)
 {
 	xhash *newhash;
 
-	newhash = xzalloc(sizeof(xhash));
+	newhash = xzalloc(sizeof(*newhash));
 	newhash->csize = FIRST_PRIME;
-	newhash->items = xzalloc(newhash->csize * sizeof(hash_item *));
+	newhash->items = xzalloc(FIRST_PRIME * sizeof(newhash->items[0]));
 
 	return newhash;
 }
@@ -554,7 +555,7 @@ static void *hash_search(xhash *hash, const char *name)
 {
 	hash_item *hi;
 
-	hi = hash->items [ hashidx(name) % hash->csize ];
+	hi = hash->items[hashidx(name) % hash->csize];
 	while (hi) {
 		if (strcmp(hi->name, name) == 0)
 			return &(hi->data);
@@ -573,7 +574,7 @@ static void hash_rebuild(xhash *hash)
 		return;
 
 	newsize = PRIMES[hash->nprime++];
-	newitems = xzalloc(newsize * sizeof(hash_item *));
+	newitems = xzalloc(newsize * sizeof(newitems[0]));
 
 	for (i = 0; i < hash->csize; i++) {
 		hi = hash->items[i];
@@ -604,8 +605,8 @@ static void *hash_find(xhash *hash, const char *name)
 			hash_rebuild(hash);
 
 		l = strlen(name) + 1;
-		hi = xzalloc(sizeof(hash_item) + l);
-		memcpy(hi->name, name, l);
+		hi = xzalloc(sizeof(*hi) + l);
+		strcpy(hi->name, name);
 
 		idx = hashidx(name) % hash->csize;
 		hi->next = hash->items[idx];
@@ -659,9 +660,8 @@ static void skip_spaces(char **s)
 static char *nextword(char **s)
 {
 	char *p = *s;
-
-	while (*(*s)++) /* */;
-
+	while (*(*s)++)
+		continue;
 	return p;
 }
 
@@ -671,14 +671,28 @@ static char nextchar(char **s)
 
 	c = *((*s)++);
 	pps = *s;
-	if (c == '\\') c = bb_process_escape_sequence((const char**)s);
-	if (c == '\\' && *s == pps) c = *((*s)++);
+	if (c == '\\')
+		c = bb_process_escape_sequence((const char**)s);
+	if (c == '\\' && *s == pps)
+		c = *((*s)++);
 	return c;
 }
 
 static ALWAYS_INLINE int isalnum_(int c)
 {
 	return (isalnum(c) || c == '_');
+}
+
+static double my_strtod(char **pp)
+{
+#if ENABLE_DESKTOP
+	if ((*pp)[0] == '0'
+	 && ((((*pp)[1] | 0x20) == 'x') || isdigit((*pp)[1]))
+	) {
+		return strtoull(*pp, pp, 0);
+	}
+#endif
+	return strtod(*pp, pp);
 }
 
 /* -------- working with variables (set/get/copy/etc) -------- */
@@ -742,10 +756,10 @@ static var *setvar_s(var *v, const char *value)
 	return setvar_p(v, (value && *value) ? xstrdup(value) : NULL);
 }
 
-/* same as setvar_s but set USER flag */
+/* same as setvar_s but sets USER flag */
 static var *setvar_u(var *v, const char *value)
 {
-	setvar_s(v, value);
+	v = setvar_s(v, value);
 	v->type |= VF_USER;
 	return v;
 }
@@ -753,11 +767,9 @@ static var *setvar_u(var *v, const char *value)
 /* set array element to user string */
 static void setari_u(var *a, int idx, const char *s)
 {
-	char sidx[sizeof(int)*3 + 1];
 	var *v;
 
-	sprintf(sidx, "%d", idx);
-	v = findvar(iamarray(a), sidx);
+	v = findvar(iamarray(a), itoa(idx));
 	setvar_u(v, s);
 }
 
@@ -790,7 +802,7 @@ static double getvar_i(var *v)
 		v->number = 0;
 		s = v->string;
 		if (s && *s) {
-			v->number = strtod(s, &s);
+			v->number = my_strtod(&s);
 			if (v->type & VF_USER) {
 				skip_spaces(&s);
 				if (*s != '\0')
@@ -802,6 +814,19 @@ static double getvar_i(var *v)
 		v->type |= VF_CACHED;
 	}
 	return v->number;
+}
+
+/* Used for operands of bitwise ops */
+static unsigned long getvar_i_int(var *v)
+{
+	double d = getvar_i(v);
+
+	/* Casting doubles to longs is undefined for values outside
+	 * of target type range. Try to widen it as much as possible */
+	if (d >= 0)
+		return (unsigned long)d;
+	/* Why? Think about d == -4294967295.0 (assuming 32bit longs) */
+	return - (long) (unsigned long) (-d);
 }
 
 static var *copyvar(var *dest, const var *src)
@@ -819,7 +844,7 @@ static var *copyvar(var *dest, const var *src)
 
 static var *incvar(var *v)
 {
-	return setvar_i(v, getvar_i(v) + 1.);
+	return setvar_i(v, getvar_i(v) + 1.0);
 }
 
 /* return true if v is number or numeric string */
@@ -833,8 +858,8 @@ static int is_numeric(var *v)
 static int istrue(var *v)
 {
 	if (is_numeric(v))
-		return (v->number == 0) ? 0 : 1;
-	return (v->string && *(v->string)) ? 1 : 0;
+		return (v->number != 0);
+	return (v->string && v->string[0]);
 }
 
 /* temporary variables allocator. Last allocated should be first freed */
@@ -846,18 +871,20 @@ static var *nvalloc(int n)
 
 	while (g_cb) {
 		pb = g_cb;
-		if ((g_cb->pos - g_cb->nv) + n <= g_cb->size) break;
+		if ((g_cb->pos - g_cb->nv) + n <= g_cb->size)
+			break;
 		g_cb = g_cb->next;
 	}
 
 	if (!g_cb) {
 		size = (n <= MINNVBLOCK) ? MINNVBLOCK : n;
-		g_cb = xmalloc(sizeof(nvblock) + size * sizeof(var));
+		g_cb = xzalloc(sizeof(nvblock) + size * sizeof(var));
 		g_cb->size = size;
 		g_cb->pos = g_cb->nv;
 		g_cb->prev = pb;
-		g_cb->next = NULL;
-		if (pb) pb->next = g_cb;
+		/*g_cb->next = NULL; - xzalloc did it */
+		if (pb)
+			pb->next = g_cb;
 	}
 
 	v = r = g_cb->pos;
@@ -973,7 +1000,7 @@ static uint32_t next_token(uint32_t expected)
 
 		} else if (*p == '.' || isdigit(*p)) {
 			/* it's a number */
-			t_double = strtod(p, &p);
+			t_double = my_strtod(&p);
 			if (*p == '.')
 				syntax_error(EMSG_UNEXP_TOKEN);
 			tc = TC_NUMBER;
@@ -1120,9 +1147,11 @@ static node *parse_expr(uint32_t iexp)
 			/* for binary and postfix-unary operators, jump back over
 			 * previous operators with higher priority */
 			vn = cn;
-			while ( ((t_info & PRIMASK) > (vn->a.n->info & PRIMASK2))
-			 || ((t_info == vn->info) && ((t_info & OPCLSMASK) == OC_COLON)) )
+			while (((t_info & PRIMASK) > (vn->a.n->info & PRIMASK2))
+			    || ((t_info == vn->info) && ((t_info & OPCLSMASK) == OC_COLON))
+			) {
 				vn = vn->a.n;
+			}
 			if ((t_info & OPCLSMASK) == OC_TERNARY)
 				t_info += P(6);
 			cn = vn->a.n->r.n = new_node(t_info);
@@ -1457,6 +1486,7 @@ static node *mk_splitter(const char *s, tsplitter *spl)
  */
 static regex_t *as_regex(node *op, regex_t *preg)
 {
+	int cflags;
 	var *v;
 	const char *s;
 
@@ -1465,7 +1495,17 @@ static regex_t *as_regex(node *op, regex_t *preg)
 	}
 	v = nvalloc(1);
 	s = getvar_s(evaluate(op, v));
-	xregcomp(preg, s, icase ? REG_EXTENDED | REG_ICASE : REG_EXTENDED);
+
+	cflags = icase ? REG_EXTENDED | REG_ICASE : REG_EXTENDED;
+	/* Testcase where REG_EXTENDED fails (unpaired '{'):
+	 * echo Hi | awk 'gsub("@(samp|code|file)\{","");'
+	 * gawk 3.1.5 eats this. We revert to ~REG_EXTENDED
+	 * (maybe gsub is not supposed to use REG_EXTENDED?).
+	 */
+	if (regcomp(preg, s, cflags)) {
+		cflags &= ~REG_EXTENDED;
+		xregcomp(preg, s, cflags);
+	}
 	nvfree(v);
 	return preg;
 }
@@ -1473,8 +1513,10 @@ static regex_t *as_regex(node *op, regex_t *preg)
 /* gradually increasing buffer */
 static void qrealloc(char **b, int n, int *size)
 {
-	if (!*b || n >= *size)
-		*b = xrealloc(*b, *size = n + (n>>1) + 80);
+	if (!*b || n >= *size) {
+		*size = n + (n>>1) + 80;
+		*b = xrealloc(*b, *size);
+	}
 }
 
 /* resize field storage space */
@@ -1533,10 +1575,14 @@ static int awk_split(const char *s, node *spl, char **slist)
 				n++; /* we saw yet another delimiter */
 			} else {
 				pmatch[0].rm_eo = l;
-				if (s[l]) pmatch[0].rm_eo++;
+				if (s[l])
+					pmatch[0].rm_eo++;
 			}
 			memcpy(s1, s, l);
-			s1[l] = '\0';
+			/* make sure we remove *all* of the separator chars */
+			do {
+				s1[l] = '\0';
+			} while (++l < pmatch[0].rm_eo);
 			nextword(&s1);
 			s += pmatch[0].rm_eo;
 		} while (*s);
@@ -1829,7 +1875,6 @@ static int fmt_num(char *b, int size, const char *format, double n, int int_as_i
 	return r;
 }
 
-
 /* formatted output into an allocated buffer, return ptr to buffer */
 static char *awk_printf(node *n)
 {
@@ -1946,25 +1991,55 @@ static int awk_sub(node *rn, const char *repl, int nm, var *src, var *dest, int 
 		}
 
 		sp += eo;
-		if (i == nm) break;
+		if (i == nm)
+			break;
 		if (eo == so) {
 			ds[di] = *sp++;
-			if (!ds[di++]) break;
+			if (!ds[di++])
+				break;
 		}
 	}
 
 	qrealloc(&ds, di + strlen(sp), &dssize);
 	strcpy(ds + di, sp);
 	setvar_p(dest, ds);
-	if (re == &sreg) regfree(re);
+	if (re == &sreg)
+		regfree(re);
 	return i;
 }
 
-static var *exec_builtin(node *op, var *res)
+static NOINLINE int do_mktime(const char *ds)
+{
+	struct tm then;
+	int count;
+
+	/*memset(&then, 0, sizeof(then)); - not needed */
+	then.tm_isdst = -1; /* default is unknown */
+
+	/* manpage of mktime says these fields are ints,
+	 * so we can sscanf stuff directly into them */
+	count = sscanf(ds, "%u %u %u %u %u %u %d",
+		&then.tm_year, &then.tm_mon, &then.tm_mday,
+		&then.tm_hour, &then.tm_min, &then.tm_sec,
+		&then.tm_isdst);
+
+	if (count < 6
+	 || (unsigned)then.tm_mon < 1
+	 || (unsigned)then.tm_year < 1900
+	) {
+		return -1;
+	}
+
+	then.tm_mon -= 1;
+	then.tm_year -= 1900;
+
+	return mktime(&then);
+}
+
+static NOINLINE var *exec_builtin(node *op, var *res)
 {
 #define tspl (G.exec_builtin__tspl)
 
-	int (*to_xxx)(int);
 	var *tv;
 	node *an[4];
 	var *av[4];
@@ -1994,11 +2069,12 @@ static var *exec_builtin(node *op, var *res)
 	if ((uint32_t)nargs < (info >> 30))
 		syntax_error(EMSG_TOO_FEW_ARGS);
 
-	switch (info & OPNMASK) {
+	info &= OPNMASK;
+	switch (info) {
 
 	case B_a2:
-#if ENABLE_FEATURE_AWK_MATH
-		setvar_i(res, atan2(getvar_i(av[i]), getvar_i(av[1])));
+#if ENABLE_FEATURE_AWK_LIBM
+		setvar_i(res, atan2(getvar_i(av[0]), getvar_i(av[1])));
 #else
 		syntax_error(EMSG_NO_MATH);
 #endif
@@ -2015,7 +2091,7 @@ static var *exec_builtin(node *op, var *res)
 		n = awk_split(as[0], spl, &s);
 		s1 = s;
 		clear_array(iamarray(av[1]));
-		for (i=1; i<=n; i++)
+		for (i = 1; i <= n; i++)
 			setari_u(av[1], i, nextword(&s1));
 		free(s);
 		setvar_i(res, n);
@@ -2028,46 +2104,43 @@ static var *exec_builtin(node *op, var *res)
 		if (i < 0) i = 0;
 		n = (nargs > 2) ? getvar_i(av[2]) : l-i;
 		if (n < 0) n = 0;
-		s = xmalloc(n+1);
-		strncpy(s, as[0]+i, n);
-		s[n] = '\0';
+		s = xstrndup(as[0]+i, n);
 		setvar_p(res, s);
 		break;
 
+	/* Bitwise ops must assume that operands are unsigned. GNU Awk 3.1.5:
+	 * awk '{ print or(-1,1) }' gives "4.29497e+09", not "-2.xxxe+09" */
 	case B_an:
-		setvar_i(res, (long)getvar_i(av[0]) & (long)getvar_i(av[1]));
+		setvar_i(res, getvar_i_int(av[0]) & getvar_i_int(av[1]));
 		break;
 
 	case B_co:
-		setvar_i(res, ~(long)getvar_i(av[0]));
+		setvar_i(res, ~getvar_i_int(av[0]));
 		break;
 
 	case B_ls:
-		setvar_i(res, (long)getvar_i(av[0]) << (long)getvar_i(av[1]));
+		setvar_i(res, getvar_i_int(av[0]) << getvar_i_int(av[1]));
 		break;
 
 	case B_or:
-		setvar_i(res, (long)getvar_i(av[0]) | (long)getvar_i(av[1]));
+		setvar_i(res, getvar_i_int(av[0]) | getvar_i_int(av[1]));
 		break;
 
 	case B_rs:
-		setvar_i(res, (long)((unsigned long)getvar_i(av[0]) >> (unsigned long)getvar_i(av[1])));
+		setvar_i(res, getvar_i_int(av[0]) >> getvar_i_int(av[1]));
 		break;
 
 	case B_xo:
-		setvar_i(res, (long)getvar_i(av[0]) ^ (long)getvar_i(av[1]));
+		setvar_i(res, getvar_i_int(av[0]) ^ getvar_i_int(av[1]));
 		break;
 
 	case B_lo:
-		to_xxx = tolower;
-		goto lo_cont;
-
 	case B_up:
-		to_xxx = toupper;
- lo_cont:
 		s1 = s = xstrdup(as[0]);
 		while (*s1) {
-			*s1 = (*to_xxx)(*s1);
+			//*s1 = (info == B_up) ? toupper(*s1) : tolower(*s1);
+			if ((unsigned char)((*s1 | 0x20) - 'a') <= ('z' - 'a'))
+				*s1 = (info == B_up) ? (*s1 & 0xdf) : (*s1 | 0x20);
 			s1++;
 		}
 		setvar_p(res, s);
@@ -2107,6 +2180,10 @@ static var *exec_builtin(node *op, var *res)
 			localtime(&tt));
 		g_buf[i] = '\0';
 		setvar_s(res, g_buf);
+		break;
+
+	case B_mt:
+		setvar_i(res, do_mktime(as[0]));
 		break;
 
 	case B_ma:
@@ -2347,17 +2424,19 @@ static var *evaluate(node *op, var *res)
 			X.re = as_regex(op1, &sreg);
 			R.i = regexec(X.re, L.s, 0, NULL, 0);
 			if (X.re == &sreg) regfree(X.re);
-			setvar_i(res, (R.i == 0 ? 1 : 0) ^ (opn == '!' ? 1 : 0));
+			setvar_i(res, (R.i == 0) ^ (opn == '!'));
 			break;
 
 		case XC( OC_MOVE ):
 			/* if source is a temporary string, jusk relink it to dest */
-			if (R.v == v1+1 && R.v->string) {
-				res = setvar_p(L.v, R.v->string);
-				R.v->string = NULL;
-			} else {
+//Disabled: if R.v is numeric but happens to have cached R.v->string,
+//then L.v ends up being a string, which is wrong
+//			if (R.v == v1+1 && R.v->string) {
+//				res = setvar_p(L.v, R.v->string);
+//				R.v->string = NULL;
+//			} else {
 				res = copyvar(L.v, R.v);
-			}
+//			}
 			break;
 
 		case XC( OC_TERNARY ):
@@ -2370,7 +2449,7 @@ static var *evaluate(node *op, var *res)
 			if (!op->r.f->body.first)
 				syntax_error(EMSG_UNDEF_FUNC);
 
-			X.v = R.v = nvalloc(op->r.f->nargs+1);
+			X.v = R.v = nvalloc(op->r.f->nargs + 1);
 			while (op1) {
 				L.v = evaluate(nextarg(&op1), v1);
 				copyvar(R.v, L.v);
@@ -2400,7 +2479,7 @@ static var *evaluate(node *op, var *res)
 						X.rsm->F = popen(L.s, "r");
 						X.rsm->is_pipe = TRUE;
 					} else {
-						X.rsm->F = fopen(L.s, "r");		/* not xfopen! */
+						X.rsm->F = fopen_for_read(L.s);		/* not xfopen! */
 					}
 				}
 			} else {
@@ -2438,7 +2517,7 @@ static var *evaluate(node *op, var *res)
 			case F_rn:
 				R.d = (double)rand() / (double)RAND_MAX;
 				break;
-#if ENABLE_FEATURE_AWK_MATH
+#if ENABLE_FEATURE_AWK_LIBM
 			case F_co:
 				R.d = cos(L.d);
 				break;
@@ -2484,7 +2563,7 @@ static var *evaluate(node *op, var *res)
 				break;
 
 			case F_sy:
-				fflush(NULL);
+				fflush_all();
 				R.d = (ENABLE_FEATURE_ALLOW_EXEC && L.s && *L.s)
 						? (system(L.s) >> 8) : 0;
 				break;
@@ -2497,7 +2576,7 @@ static var *evaluate(node *op, var *res)
 						X.rsm = newfile(L.s);
 						fflush(X.rsm->F);
 					} else {
-						fflush(NULL);
+						fflush_all();
 					}
 				}
 				break;
@@ -2542,7 +2621,7 @@ static var *evaluate(node *op, var *res)
 				R.d--;
 				goto r_op_change;
 			case '!':
-				L.d = istrue(X.v) ? 0 : 1;
+				L.d = !istrue(X.v);
 				break;
 			case '-':
 				L.d = -R.d;
@@ -2602,18 +2681,20 @@ static var *evaluate(node *op, var *res)
 				L.d *= R.d;
 				break;
 			case '/':
-				if (R.d == 0) syntax_error(EMSG_DIV_BY_ZERO);
+				if (R.d == 0)
+					syntax_error(EMSG_DIV_BY_ZERO);
 				L.d /= R.d;
 				break;
 			case '&':
-#if ENABLE_FEATURE_AWK_MATH
+#if ENABLE_FEATURE_AWK_LIBM
 				L.d = pow(L.d, R.d);
 #else
 				syntax_error(EMSG_NO_MATH);
 #endif
 				break;
 			case '%':
-				if (R.d == 0) syntax_error(EMSG_DIV_BY_ZERO);
+				if (R.d == 0)
+					syntax_error(EMSG_DIV_BY_ZERO);
 				L.d -= (int)(L.d / R.d) * R.d;
 				break;
 			}
@@ -2639,7 +2720,7 @@ static var *evaluate(node *op, var *res)
 				R.i = (L.d == 0);
 				break;
 			}
-			setvar_i(res, (opn & 0x1 ? R.i : !R.i) ? 1 : 0);
+			setvar_i(res, (opn & 1 ? R.i : !R.i) ? 1 : 0);
 			break;
 
 		default:
@@ -2721,7 +2802,8 @@ static rstream *next_input_file(void)
 	FILE *F = NULL;
 	const char *fname, *ind;
 
-	if (rsm.F) fclose(rsm.F);
+	if (rsm.F)
+		fclose(rsm.F);
 	rsm.F = NULL;
 	rsm.pos = rsm.adv = 0;
 
@@ -2839,18 +2921,18 @@ int awk_main(int argc, char **argv)
 			parse_program(s + 1);
 			free(s);
 		} while (list_f);
+		argc++;
 	} else { // no -f: take program from 1st parameter
 		if (!argc)
 			bb_show_usage();
 		g_progname = "cmd. line";
 		parse_program(*argv++);
-		argc--;
 	}
 	if (opt & 0x8) // -W
 		bb_error_msg("warning: unrecognized option '-W %s' ignored", opt_W);
 
 	/* fill in ARGV array */
-	setvar_i(intvar[ARGC], argc + 1);
+	setvar_i(intvar[ARGC], argc);
 	setari_u(intvar[ARGV], 0, "awk");
 	i = 0;
 	while (*argv)
@@ -2861,7 +2943,8 @@ int awk_main(int argc, char **argv)
 		awk_exit(EXIT_SUCCESS);
 
 	/* input file could already be opened in BEGIN block */
-	if (!iF) iF = next_input_file();
+	if (!iF)
+		iF = next_input_file();
 
 	/* passing through input files */
 	while (iF) {

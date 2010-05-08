@@ -125,6 +125,20 @@ static const char *human_fstype(uint32_t f_type)
 	return humantypes[i].fs;
 }
 
+/* "man statfs" says that statfsbuf->f_fsid is a mess */
+/* coreutils treats it as an array of ints, most significant first */
+static unsigned long long get_f_fsid(const struct statfs *statfsbuf)
+{
+	const unsigned *p = (const void*) &statfsbuf->f_fsid;
+	unsigned sz = sizeof(statfsbuf->f_fsid) / sizeof(unsigned);
+	unsigned long long r = 0;
+
+	do
+		r = (r << (sizeof(unsigned)*8)) | *p++;
+	while (--sz > 0);
+	return r;
+}
+
 #if ENABLE_FEATURE_STAT_FORMAT
 static void strcatc(char *str, char c)
 {
@@ -142,17 +156,17 @@ static void printfs(char *pformat, const char *msg)
 /* print statfs info */
 static void print_statfs(char *pformat, const char m,
 		const char *const filename, const void *data
-		USE_SELINUX(, security_context_t scontext))
+		IF_SELINUX(, security_context_t scontext))
 {
 	const struct statfs *statfsbuf = data;
 	if (m == 'n') {
 		printfs(pformat, filename);
 	} else if (m == 'i') {
-		strcat(pformat, "Lx");
-		printf(pformat, statfsbuf->f_fsid);
+		strcat(pformat, "llx");
+		printf(pformat, get_f_fsid(statfsbuf));
 	} else if (m == 'l') {
 		strcat(pformat, "lu");
-		printf(pformat, statfsbuf->f_namelen);
+		printf(pformat, (unsigned long) (statfsbuf->f_namelen));
 	} else if (m == 't') {
 		strcat(pformat, "lx");
 		printf(pformat, (unsigned long) (statfsbuf->f_type)); /* no equiv */
@@ -189,7 +203,7 @@ static void print_statfs(char *pformat, const char m,
 /* print stat info */
 static void print_stat(char *pformat, const char m,
 		const char *const filename, const void *data
-		USE_SELINUX(, security_context_t scontext))
+		IF_SELINUX(, security_context_t scontext))
 {
 #define TYPE_SIGNED(t) (! ((t) 0 < (t) -1))
 	struct stat *statbuf = (struct stat *) data;
@@ -240,14 +254,14 @@ static void print_stat(char *pformat, const char m,
 	} else if (m == 'U') {
 		setpwent();
 		pw_ent = getpwuid(statbuf->st_uid);
-		printfs(pformat, (pw_ent != 0L) ? pw_ent->pw_name : "UNKNOWN");
+		printfs(pformat, (pw_ent != NULL) ? pw_ent->pw_name : "UNKNOWN");
 	} else if (m == 'g') {
 		strcat(pformat, "lu");
 		printf(pformat, (unsigned long) statbuf->st_gid);
 	} else if (m == 'G') {
 		setgrent();
 		gw_ent = getgrgid(statbuf->st_gid);
-		printfs(pformat, (gw_ent != 0L) ? gw_ent->gr_name : "UNKNOWN");
+		printfs(pformat, (gw_ent != NULL) ? gw_ent->gr_name : "UNKNOWN");
 	} else if (m == 't') {
 		strcat(pformat, "lx");
 		printf(pformat, (unsigned long) major(statbuf->st_rdev));
@@ -292,9 +306,9 @@ static void print_stat(char *pformat, const char m,
 }
 
 static void print_it(const char *masterformat, const char *filename,
-		void (*print_func) (char*, char, const char*, const void* USE_SELINUX(, security_context_t scontext)),
+		void (*print_func) (char*, char, const char*, const void* IF_SELINUX(, security_context_t scontext)),
 		const void *data
-		USE_SELINUX(, security_context_t scontext) )
+		IF_SELINUX(, security_context_t scontext) )
 {
 	/* Create a working copy of the format string */
 	char *format = xstrdup(masterformat);
@@ -333,7 +347,7 @@ static void print_it(const char *masterformat, const char *filename,
 			break;
 		default:
 			/* Completes "%<modifiers>" with specifier and printfs */
-			print_func(dest, *p, filename, data USE_SELINUX(,scontext));
+			print_func(dest, *p, filename, data IF_SELINUX(,scontext));
 			break;
 		}
 	}
@@ -349,10 +363,11 @@ static void print_it(const char *masterformat, const char *filename,
 #endif
 static bool do_statfs(const char *filename, const char *format)
 {
+	struct statfs statfsbuf;
+
 #if !ENABLE_FEATURE_STAT_FORMAT
 	const char *format;
 #endif
-	struct statfs statfsbuf;
 #if ENABLE_SELINUX
 	security_context_t scontext = NULL;
 
@@ -368,7 +383,7 @@ static bool do_statfs(const char *filename, const char *format)
 	}
 #endif
 	if (statfs(filename, &statfsbuf) != 0) {
-		bb_perror_msg("cannot read file system information for '%s'", filename);
+		bb_perror_msg("can't read file system information for '%s'", filename);
 		return 0;
 	}
 
@@ -401,15 +416,15 @@ static bool do_statfs(const char *filename, const char *format)
 			);
 #endif /* SELINUX */
 	}
-	print_it(format, filename, print_statfs, &statfsbuf USE_SELINUX(, scontext));
+	print_it(format, filename, print_statfs, &statfsbuf IF_SELINUX(, scontext));
 #else /* FEATURE_STAT_FORMAT */
 	format = (option_mask32 & OPT_TERSE
 		? "%s %llx %lu "
 		: "  File: \"%s\"\n"
-		  "    ID: %-8Lx Namelen: %-7lu ");
+		  "    ID: %-8llx Namelen: %-7lu ");
 	printf(format,
 	       filename,
-	       statfsbuf.f_fsid,
+	       get_f_fsid(&statfsbuf),
 	       statfsbuf.f_namelen);
 
 	if (option_mask32 & OPT_TERSE)
@@ -480,7 +495,7 @@ static bool do_stat(const char *filename, const char *format)
 	}
 #endif
 	if ((option_mask32 & OPT_DEREFERENCE ? stat : lstat) (filename, &statbuf) != 0) {
-		bb_perror_msg("cannot stat '%s'", filename);
+		bb_perror_msg("can't stat '%s'", filename);
 		return 0;
 	}
 
@@ -545,11 +560,11 @@ static bool do_stat(const char *filename, const char *format)
 		}
 #endif
 	}
-	print_it(format, filename, print_stat, &statbuf USE_SELINUX(, scontext));
+	print_it(format, filename, print_stat, &statbuf IF_SELINUX(, scontext));
 #else	/* FEATURE_STAT_FORMAT */
 	if (option_mask32 & OPT_TERSE) {
 		printf("%s %ju %ju %lx %lu %lu %jx %ju %lu %lx %lx %lu %lu %lu %lu"
-		       SKIP_SELINUX("\n"),
+		       IF_NOT_SELINUX("\n"),
 		       filename,
 		       (uintmax_t) (statbuf.st_size),
 		       (uintmax_t) statbuf.st_blocks,
@@ -609,9 +624,9 @@ static bool do_stat(const char *filename, const char *format)
 		       (unsigned long) (statbuf.st_mode & (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)),
 		       bb_mode_string(statbuf.st_mode),
 		       (unsigned long) statbuf.st_uid,
-		       (pw_ent != 0L) ? pw_ent->pw_name : "UNKNOWN",
+		       (pw_ent != NULL) ? pw_ent->pw_name : "UNKNOWN",
 		       (unsigned long) statbuf.st_gid,
-		       (gw_ent != 0L) ? gw_ent->gr_name : "UNKNOWN");
+		       (gw_ent != NULL) ? gw_ent->gr_name : "UNKNOWN");
 #if ENABLE_SELINUX
 		printf("   S_Context: %lc\n", *scontext);
 #endif
@@ -625,30 +640,30 @@ static bool do_stat(const char *filename, const char *format)
 }
 
 int stat_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int stat_main(int argc, char **argv)
+int stat_main(int argc UNUSED_PARAM, char **argv)
 {
-	USE_FEATURE_STAT_FORMAT(char *format = NULL;)
+	IF_FEATURE_STAT_FORMAT(char *format = NULL;)
 	int i;
-	int ok = 1;
+	int ok;
+	unsigned opts;
 	statfunc_ptr statfunc = do_stat;
 
-	getopt32(argv, "ftL"
-		USE_SELINUX("Z")
-		USE_FEATURE_STAT_FORMAT("c:", &format)
+	opt_complementary = "-1"; /* min one arg */
+	opts = getopt32(argv, "ftL"
+		IF_SELINUX("Z")
+		IF_FEATURE_STAT_FORMAT("c:", &format)
 	);
-
-	if (option_mask32 & OPT_FILESYS) /* -f */
+	if (opts & OPT_FILESYS) /* -f */
 		statfunc = do_statfs;
-	if (argc == optind)           /* files */
-		bb_show_usage();
-
 #if ENABLE_SELINUX
-	if (option_mask32 & OPT_SELINUX) {
+	if (opts & OPT_SELINUX) {
 		selinux_or_die();
 	}
-#endif	/* ENABLE_SELINUX */
-	for (i = optind; i < argc; ++i)
-		ok &= statfunc(argv[i] USE_FEATURE_STAT_FORMAT(, format));
+#endif
+	ok = 1;
+	argv += optind;
+	for (i = 0; argv[i]; ++i)
+		ok &= statfunc(argv[i] IF_FEATURE_STAT_FORMAT(, format));
 
 	return (ok ? EXIT_SUCCESS : EXIT_FAILURE);
 }

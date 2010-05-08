@@ -77,34 +77,34 @@ void mii_write(struct net_device *dev, int phy_id, int location, int val)
 	mutex_unlock(&pDevCtrl->mdio_mutex);
 }
 /* probe for an external PHY via MDIO; return PHY address */
-int mii_probe(struct net_device * dev, int phy_id)
+int mii_probe(struct net_device * dev, void *p)
 {
 	BcmEnet_devctrl * pDevCtrl = netdev_priv(dev);
 	int i;
+	struct bcmemac_platform_data * cfg = p;
 
-	if(phy_id == BRCM_PHY_ID_AUTO)
+	if(cfg->phy_type != BRCM_PHY_TYPE_EXT_MII)
 	{
-		/* 
-	 	 * Enable RGMII to interface external PHY, disable internal 10/100 MII.
-	 	 */
+	   /* 
+ 	 	* Enable RGMII to interface external PHY, disable internal 10/100 MII.
+ 	 	*/
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
 		/* Power down EPHY */
 		pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY | EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
-
-		for (i = 0; i < 32; i++) {
-			if( mii_read(dev, i, MII_BMSR) != 0)
-			{
-				pDevCtrl->phyAddr = i;
-#if defined(CONFIG_BCMGENET_0_GPHY)
-				if(i == 1) continue;
-#endif
-				return 0;
-			}
-			TRACE(("I=%d\n", i));
-		}
-		return -ENODEV;
 	}
-	return 0;
+
+	for (i = 0; i < 32; i++) {
+		if( mii_read(dev, i, MII_BMSR) != 0)
+		{
+			pDevCtrl->phyAddr = i;
+#if defined(CONFIG_BCMGENET_0_GPHY)
+			if(i == 1) continue;
+#endif
+			return 0;
+		}
+		TRACE(("I=%d\n", i));
+	}
+	return -ENODEV;
 }
 
 /*
@@ -115,6 +115,7 @@ void mii_setup(struct net_device *dev)
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd ;
 	volatile uniMacRegs * umac = pDevCtrl->umac;
+	int bmcr;
 
 	TRACE(("%s: %s\n", __FUNCTION__, netif_carrier_ok(pDevCtrl->dev)? "netif_carrier_on":"netif_carrier_off"));
 	if(pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
@@ -124,6 +125,15 @@ void mii_setup(struct net_device *dev)
 		pDevCtrl->dev->flags |= IFF_RUNNING;
 		return ;
 	}
+
+	/* Enable autoneg if it's not */
+	bmcr = mii_read(dev, pDevCtrl->phyAddr, MII_BMCR);
+	if(!(bmcr & BMCR_ANENABLE)) {
+		bmcr |= BMCR_ANENABLE;
+		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr);
+		mii_nway_restart(&pDevCtrl->mii);
+	}
+
 	mii_ethtool_gset(&pDevCtrl->mii, &ecmd);
 
 	if(mii_link_ok(&pDevCtrl->mii)&& !netif_carrier_ok(pDevCtrl->dev))
@@ -202,6 +212,14 @@ int mii_init(struct net_device *dev)
 		case BRCM_PHY_TYPE_INT:
 			pDevCtrl->mii.supports_gmii = 0;
 			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_INT_EPHY;
+			/* enable APD */
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
+			udelay(5);
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+			/* enable 64 clock MDIO */
+			mii_write(dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
+			mii_read(dev, pDevCtrl->phyAddr, 0x1d);
 			printk(KERN_INFO "Config internal EPHY through MDIO\n");
 			break;
 		case BRCM_PHY_TYPE_EXT_MII:

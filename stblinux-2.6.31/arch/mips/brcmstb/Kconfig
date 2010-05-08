@@ -362,28 +362,6 @@ config BCM7408A0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 
-config BCM7420B0
-	bool "7420 Bx"
-	select BRCM_PLATFORM_DEFAULTS
-	select BCM7420
-	select BMIPS5000
-	select BRCM_UARTA_IS_16550
-	select BRCM_UARTB_IS_16550
-	select BRCM_UARTC_IS_16550
-	select BRCM_HAS_PCI23
-	select BRCM_HAS_PCIE
-	select BRCM_HAS_GENET
-	select BRCM_HAS_MOCA
-	select BRCM_HAS_NOR
-	select BRCM_HAS_NAND_MAJOR_3
-	select BRCM_HAS_NAND_MINOR_3
-	select BRCM_HAS_EDU
-	select BRCM_HAS_SPI
-	select BRCM_HAS_SATA2
-	select BRCM_SATA_75MHZ_PLL
-	select BRCM_HAS_WKTMR
-	select BRCM_HAS_UPPER_MEMORY
-
 config BCM7420C0
 	bool "7420 Cx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -938,6 +916,13 @@ config SERIAL_BCM3250_TTYS
 
 	  If unsure, say Y.
 
+config BRCM_SCSI_NO_RW10_RETRIES
+       bool "No retries on SCSI READ/WRITE10 command"
+       depends on SCSI
+       default n
+       ---help---
+         Certain applications prefer minimal retries on reading/writing bad sectors
+         that will be performed at lower level like libata.
 
 #####################################################################
 # User options: Debugging options
@@ -950,16 +935,6 @@ config BRCM_DEBUG_OPTIONS
 	default n
 	help
 	  Show extra debugging options.
-
-
-config WARN_UNINITIALIZED
-	bool "Enable gcc uninitialized variable warnings"
-	depends on BRCM_DEBUG_OPTIONS
-	default n
-	help
-	  Say Y here if you want gcc to complain about uninitialized
-	  variables during compilation.  This generates a lot of false
-	  positives on some versions of the compiler (e.g. gcc-4.2.0).
 
 
 config NO_INLINE

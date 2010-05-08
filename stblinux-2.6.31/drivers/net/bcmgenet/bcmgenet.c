@@ -25,9 +25,10 @@
 //               
 // Updates    : 
 // 09/24/2008  lei sun. Created from bcmemac.c 
-// 05/04/2009  lei sun, Revision for 7420B0
+// 05/04/2009  lei sun, Revision for 7420C0
 // 08/21/2009  lei sun, bug fixes and added ring buffer and legacy netaccel hooks.
 // 01/26/2010  lei sun, add multi-queue support for GENET2.
+// 04/08/2010  lei sun, clearn up ring buffer code.
 //**************************************************************************
 
 #define CARDNAME    "bcmgenet"
@@ -63,6 +64,7 @@
 #include <asm/mipsregs.h>
 #include <asm/cacheflush.h>
 #include <asm/brcmstb/brcmstb.h>
+#include <asm/brcmstb/brcmapi.h>
 #include "bcmmii.h"
 #include "bcmgenet.h"
 #include "if_net.h"
@@ -166,14 +168,13 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode);
 static void __maybe_unused dumpHexData(unsigned char *head, int len);
 /* dumpMem32 dump out the number of 32 bit hex data  */
 static void __maybe_unused dumpMem32(unsigned int * pMemAddr, int iNumWords);
-/* experimental ring buffer functions */
-static struct sk_buff * __bcmgenet_alloc_skb_from_buf(unsigned char * buf, int len, int headroom, int users);
-static int __bcmgenet_free_skb(struct sk_buff * skb, int free );
-
+/* allocate an skb, the data comes from ring buffer */
+static struct sk_buff * __bcmgenet_alloc_skb_from_buf(unsigned char * buf, int len, int headroom);
+/* xmit a packet through a ring buffer.*/
+int __maybe_unused bcmgenet_ring_xmit(struct sk_buff * skb, struct net_device *dev, int index, int drop);
 /* misc variables */
 static struct net_device *eth_root_dev = NULL;
 static int DmaDescThres = DMA_DESC_THRES;
-static struct kmem_cache * genet_skb_cache __read_mostly;
 /* 
  * HFB data for ARP request.
  * In WoL (Magic Packet or ACPI) mode, we need to response
@@ -504,11 +505,9 @@ static int bcmgenet_open(struct net_device * dev)
 	pDevCtrl->txDma->tdma_ctrl &= ~(1 << (DMA_RING_DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN);
 	pDevCtrl->rxDma->rdma_ctrl &= ~(1 << (DMA_RING_DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN);
 	pDevCtrl->umac->tx_flush = 1;
-	//pDevCtrl->rbuf->rbuf_flush_ctrl = 1;
 	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 1;
 	udelay(10);
 	pDevCtrl->umac->tx_flush = 0;
-	//pDevCtrl->rbuf->rbuf_flush_ctrl = 0;
 	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 0;
 
 	/* reset dma, start from begainning of the ring. */
@@ -694,27 +693,28 @@ static u16 __maybe_unused bcmgenet_select_queue(struct net_device *dev, struct s
  Name: __bcmgenet_alloc_skb_from_buf
  Purpose: Allocated an skb from exsiting buffer.
 -------------------------------------------------------------------------- */
-static struct sk_buff * __bcmgenet_alloc_skb_from_buf(unsigned char * buf, int len, int headroom, int users)
+static struct sk_buff * __bcmgenet_alloc_skb_from_buf(unsigned char * buf, int len, int headroom)
 {
 	struct skb_shared_info * shinfo;
 	struct sk_buff * skb;
 
-	skb = kmem_cache_alloc(genet_skb_cache, GFP_ATOMIC);
+	skb = kmem_cache_alloc(skbuff_head_cache, GFP_ATOMIC);
 	if(!skb)
 		return NULL;
 	memset(skb, 0, offsetof(struct sk_buff, tail));
 	skb->truesize = len + sizeof(struct sk_buff);
-	/* Set user count to 2, upper layer won't free it */
-	atomic_set(&skb->users, users);
+	atomic_set(&skb->users, 1);
 	skb->head = buf;
 	skb->data = buf;
 	skb_reset_tail_pointer(skb);
 	skb->end = skb->tail + len - sizeof(struct skb_shared_info);
-	skb->cloned = SKB_FCLONE_UNAVAILABLE;
+	skb->cloned = 0;
 
 	skb_reserve(skb, headroom);
 	shinfo = skb_shinfo(skb);
-	atomic_set(&shinfo->dataref, 1);
+
+	/* Set dataref to 2, so upper layer won't free the data buffer */
+	atomic_set(&shinfo->dataref, 2);
 	shinfo->nr_frags = 0;
 	shinfo->gso_size = 0;
 	shinfo->gso_segs = 0;
@@ -725,48 +725,6 @@ static struct sk_buff * __bcmgenet_alloc_skb_from_buf(unsigned char * buf, int l
 	memset(&shinfo->hwtstamps, 0, sizeof(shinfo->hwtstamps));
 	
 	return skb;
-}
-/* --------------------------------------------------------------------------
- Name: __bcmgenet_free_skb
- Purpose: reclaim or free an skb for ring buffer.
- Note: For ring buffer experiment implmentation. 
--------------------------------------------------------------------------- */
-static int __bcmgenet_free_skb(struct sk_buff * skb, int free )
-{
-	struct skb_shared_info * shinfo;
-	
-	if(skb_is_nonlinear(skb) ) {
-		printk(KERN_EMERG "Trying to recycle nonlinear skb for ring buffer\n"
-			"len=%d head=%p data=%p tail=%p end=%p\n",
-			skb->len, skb->head, skb->data, skb->tail, skb->end);
-		/* How could this be happening ?*/
-		BUG();
-		return 0;
-	}
-	TRACE(("skb->users=%d\n", atomic_read(&skb->users)) );
-	if(skb_shared(skb) || skb_cloned(skb))
-		return 0;
-	//skb_release_head_state(skb);
-	if(free) {
-		kmem_cache_free((struct kmem_cache *)skb, NULL);
-		return 1;
-	}
-	atomic_set(&skb->users, 2);
-	shinfo = skb_shinfo(skb);
-	atomic_set(&shinfo->dataref, 1);
-	shinfo->nr_frags = 0;
-	shinfo->gso_size = 0;
-	shinfo->gso_segs = 0;
-	shinfo->gso_type = 0;
-	shinfo->ip6_frag_id = 0;
-	shinfo->tx_flags.flags = 0;
-	shinfo->frag_list = NULL;
-	memset(&shinfo->hwtstamps, 0, sizeof(shinfo->hwtstamps));
-	memset(skb, 0, offsetof(struct sk_buff, tail));
-	skb->data = skb->head ;
-	skb_reset_tail_pointer(skb);
-
-	return 1;
 }
 /* --------------------------------------------------------------------------
  Name: bcmgenet_alloc_txring_skb
@@ -794,8 +752,7 @@ struct sk_buff * bcmgenet_alloc_txring_skb(struct net_device * dev, int index)
 	skb = __bcmgenet_alloc_skb_from_buf(
 			(unsigned char *)phys_to_virt(pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer),
 			RX_BUF_LENGTH,
-			64,
-			1);
+			64);
 	
 	spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 
@@ -896,11 +853,19 @@ static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 		else
 			txCBPtr = pDevCtrl->txRingCBs[index] + lastCIndex;
 		if(txCBPtr->skb != NULL) {
-			skb_dma_unmap(&pDevCtrl->dev->dev, 
-					txCBPtr->skb,
+			dma_unmap_single(&pDevCtrl->dev->dev,
+					txCBPtr->dma_addr,
+					txCBPtr->skb->len,
 					DMA_TO_DEVICE);
             dev_kfree_skb_any (txCBPtr->skb);
 			txCBPtr->skb = NULL;
+			txCBPtr->dma_addr = 0;
+		}else if (txCBPtr->dma_addr) {
+			dma_unmap_page(&pDevCtrl->dev->dev,
+					txCBPtr->dma_addr,
+					txCBPtr->dma_len,
+					DMA_TO_DEVICE);
+			txCBPtr->dma_addr = 0;
 		}
 		if(index == DMA_RING_DESC_INDEX)
 			pDevCtrl->txFreeBds += 1;
@@ -947,15 +912,15 @@ static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 -------------------------------------------------------------------------- */
 static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 {
-    BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
-    Enet_CB *txCBPtr;
+	BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+	Enet_CB *txCBPtr;
 	unsigned int write_ptr = 0;
 	int i = 0;
-    unsigned long flags;
-	StatusBlock * Status;
+	unsigned long flags;
+	StatusBlock *Status = NULL;
 	int index = DMA_RING_DESC_INDEX;
 
-    spin_lock_irqsave(&pDevCtrl->lock, flags);
+	spin_lock_irqsave(&pDevCtrl->lock, flags);
 
 #if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(skb) {
@@ -1054,12 +1019,14 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
      * Set addr and length of DMA BD to be transmitted.
      */
 	if(!skb_shinfo(skb)->nr_frags) {
-		if(skb_dma_map(&pDevCtrl->dev->dev, skb, DMA_TO_DEVICE)) {
+		txCBPtr->dma_addr = dma_map_single(&pDevCtrl->dev->dev, skb->data, skb->len, DMA_TO_DEVICE);
+		if(!txCBPtr->dma_addr) {
 			dev_err(&pDevCtrl->dev->dev, "Tx DMA map failed\n");
 			spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 			return 0;
 		}
-    	txCBPtr->BdAddr->address = skb_shinfo(skb)->dma_head;
+		txCBPtr->dma_len = skb->len;
+    	txCBPtr->BdAddr->address = txCBPtr->dma_addr;
 		txCBPtr->BdAddr->length_status = ((unsigned long)((skb->len < ETH_ZLEN) ? ETH_ZLEN : skb->len))<<16;
 		txCBPtr->BdAddr->length_status |= DMA_SOP | DMA_EOP | DMA_TX_APPEND_CRC;
 		if(skb->ip_summed  == CHECKSUM_PARTIAL)
@@ -1088,13 +1055,14 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
     	dev->stats.tx_packets++;
 	}else {
 		/* xmit head */
-		if(skb_dma_map(&pDevCtrl->dev->dev, skb, DMA_TO_DEVICE)) {
+		txCBPtr->dma_addr = dma_map_single(&pDevCtrl->dev->dev, skb->data, skb_headlen(skb), DMA_TO_DEVICE);
+		if(!txCBPtr->dma_addr) {
 			dev_err(&pDevCtrl->dev->dev, "Tx DMA map failed\n");
     		spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 			return 0;
 		}
-		
-    	txCBPtr->BdAddr->address = skb_shinfo(skb)->dma_head;
+		txCBPtr->dma_len = skb_headlen(skb);
+    	txCBPtr->BdAddr->address = txCBPtr->dma_addr;
 		txCBPtr->BdAddr->length_status = skb_headlen(skb) << 16;
 		txCBPtr->BdAddr->length_status |= DMA_SOP | DMA_TX_APPEND_CRC;
 		if(skb->ip_summed  == CHECKSUM_PARTIAL)
@@ -1128,7 +1096,18 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 			if(unlikely(!txCBPtr))
 				BUG();
     		txCBPtr->skb = NULL;
-			txCBPtr->BdAddr->address = skb_shinfo(skb)->dma_maps[i];
+			txCBPtr->dma_addr = dma_map_page(&pDevCtrl->dev->dev, 
+					frag->page,
+					frag->page_offset,
+					frag->size,
+					DMA_TO_DEVICE);
+			if(txCBPtr->dma_addr == 0) {
+				dev_err(&pDevCtrl->dev->dev, "Tx DMA map failed\n");
+    			spin_unlock_irqrestore(&pDevCtrl->lock, flags);
+				return 0;
+			}
+			txCBPtr->dma_len = frag->size;
+			txCBPtr->BdAddr->address = txCBPtr->dma_addr; 
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 			printk("%s: frag%d len %d", __FUNCTION__, i, frag->size);
 			dumpHexData((page_address(frag->page)+frag->page_offset), frag->size);
@@ -1180,70 +1159,97 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 
     return 0;
 }
+/* --------------------------------------------------------------------------
+ Name: bcmgenet_tx_ring_reclaim
+ Purpose: reclaim xmited skb for a ring buffer
+-------------------------------------------------------------------------- */
+static void bcmgenet_tx_ring_reclaim(struct net_device * dev, int ring_index, 
+		unsigned int p_index, unsigned int c_index)
+{
+    BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+	Enet_CB * txCBPtr;
+	int lastTxedCnt = 0, lastCIndex = 0;
+	struct sk_buff * skb;
+	
+	/* Compute how many buffers are transmited since last xmit call */
+ 
+	if(c_index >= pDevCtrl->txRingCIndex[ring_index]) {
+		/* index not wrapped */
+		lastTxedCnt = c_index - pDevCtrl->txRingCIndex[ring_index];
+	}else {
+		/* index wrapped */
+		lastTxedCnt = pDevCtrl->txRingSize[ring_index] - pDevCtrl->txRingCIndex[ring_index] + c_index;
+	}
+	TRACE(("%s: ring %d: p_index=%d c_index=%d lastTxedCnt=%d txLastCIndex=%d\n", __FUNCTION__,
+				ring_index, 
+				p_index, 
+				c_index, 
+				lastTxedCnt, 
+				pDevCtrl->txRingCIndex[ring_index]
+				));
+	pDevCtrl->txRingFreeBds[ring_index] += lastTxedCnt;
+   
+	lastCIndex = pDevCtrl->txRingCIndex[ring_index];
+	pDevCtrl->txRingCIndex[ring_index] = c_index;
 
+	/* free xmited skb */
+	while(lastTxedCnt-- > 0) {
+		txCBPtr = pDevCtrl->txRingCBs[ring_index] + lastCIndex;
+		skb = txCBPtr->skb;
+		if(skb != NULL) {
+			/* 
+			 * This will consume skb, we don't want to run destructor, which 
+			 * is to drop the skb.
+			 */
+			if(skb->destructor != NULL)
+				skb->destructor = NULL;
+			/* make sure dev_kfree_skb_any() don't try to release data */
+			if((atomic_read(&skb_shinfo(skb)->dataref) & SKB_DATAREF_MASK) < 2);
+				atomic_set(&(skb_shinfo(skb)->dataref), 2);
+			dev_kfree_skb_any(skb);
+			txCBPtr->skb = NULL;
+		}
+		if( lastCIndex == (pDevCtrl->txRingSize[ring_index] - 1 )) lastCIndex = 0;
+		else lastCIndex++;
+	}
+	if (pDevCtrl->txRingFreeBds[ring_index] > 0 &&
+			netif_queue_stopped(dev)) 
+	{
+		/* Disable txdma multibuf done interrupt for this ring since we have free tx bds */
+		pDevCtrl->intrl2_1->cpu_mask_set |= (1 << ring_index);
+		netif_wake_queue(dev);
+	}
+}
 /* --------------------------------------------------------------------------
  Name: bcmgenet_ring_xmit
  Purpose: Send ethernet traffic through ring buffer
 -------------------------------------------------------------------------- */
-static int __maybe_unused bcmgenet_ring_xmit(struct sk_buff * skb, struct net_device * dev, int index)
+int __maybe_unused bcmgenet_ring_xmit(struct sk_buff * skb, struct net_device * dev, int index, int drop)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
     Enet_CB *txCBPtr;
 	unsigned int p_index = 0, c_index = 0;
-	int lastTxedCnt = 0, i = 0;
 	StatusBlock * Status;
 
 	/* Compute how many buffers are transmited since last xmit call */
 	p_index = (DMA_PRODUCER_INDEX_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_producer_index);
 	c_index = (DMA_CONSUMER_INDEX_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_consumer_index);
 	
-	p_index = p_index & (pDevCtrl->txRingSize[index] - 1);
-	c_index = c_index & (pDevCtrl->txRingSize[index] - 1);
+	/* P/C index is 16 bits, we do modulo of RING_SIZE */
+	p_index &= (pDevCtrl->txRingSize[index] - 1);
+	c_index &= (pDevCtrl->txRingSize[index] - 1);
 
-	if(c_index >= pDevCtrl->txRingCIndex[index]) {
-		lastTxedCnt = c_index - pDevCtrl->txRingCIndex[index];
-	}else {
-		lastTxedCnt = pDevCtrl->txRingSize[index] - pDevCtrl->txRingCIndex[index] + c_index;
-	}
-	TRACE(("%s: ring %d: p_index=%d r_index=%d lastTxedCnt=%d txLastCIndex=%d\n", __FUNCTION__,
-				index, p_index, c_index, lastTxedCnt, pDevCtrl->txRingCIndex[index]));
-	
-	/* Recycle transmitted skbs */
-	i = pDevCtrl->txRingCIndex[index];
-	while(lastTxedCnt-- > 0)
-	{
-		txCBPtr = pDevCtrl->txRingCBs[index] + i;
-		if(txCBPtr->skb != NULL) {
-			skb_dma_unmap(&pDevCtrl->dev->dev, 
-					txCBPtr->skb,
-					DMA_TO_DEVICE);
-			if(likely(__bcmgenet_free_skb(txCBPtr->skb, 0)) ) {
-				txCBPtr->skb = NULL;
-				pDevCtrl->txRingFreeBds[index] += 1;
-				if( i == ((pDevCtrl->txDma->tDmaRings[index].tdma_ring_buf_size >> DMA_RING_SIZE_SHIFT) - 1 ))
-					i = 0;
-				else
-					i += 1;
-			}else {
-				/* ooops, who touched our tx ring skb ?*/
-				printk(KERN_EMERG "Failed to free tx skb (head=0x%08x)\n", (unsigned int)txCBPtr->skb->head);
-				BUG();
-			}
-		}
-	}
-    if (skb == NULL && pDevCtrl->txRingFreeBds[index] > 0) {
-		/* Disable txdma multibuf done interrupt for this ring if we have free tx bds */
-		pDevCtrl->intrl2_1->cpu_mask_set |= (1 << index);
-		netif_wake_subqueue(dev, index);
-        return 0;
-    }
-	pDevCtrl->txRingCIndex[index] = c_index;
-	
+	bcmgenet_tx_ring_reclaim(dev, index, p_index, c_index);
+
+	if(!skb)
+		return 0;
 	/* Obtain a tx control block */
 	txCBPtr = pDevCtrl->txRingCBs[index] + p_index;
     txCBPtr->skb = skb;
-	/* Can't use skb_dma_map here, since we need to map the skb->head */
-	txCBPtr->dma_addr = dma_map_single(&pDevCtrl->dev->dev, skb->head, pDevCtrl->rxBufLen, DMA_TO_DEVICE);
+
+	TRACE(("%s: txCBPtr=0x%08x skb->0x%08x skb->head=0x%08x\n", __FUNCTION__, txCBPtr, skb, skb->head));
+	
+	//txCBPtr->dma_addr = dma_map_single(&pDevCtrl->dev->dev, skb->head, pDevCtrl->rxBufLen, DMA_TO_DEVICE);
 	/* 
 	 * Make sure we have headroom for us to insert 64B status block.
 	 */
@@ -1252,7 +1258,9 @@ static int __maybe_unused bcmgenet_ring_xmit(struct sk_buff * skb, struct net_de
 		BUG();
 	}
 	Status = (StatusBlock *)skb->head;
-	//if((skb->ip_summed  == CHECKSUM_PARTIAL) && (pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
+	Status->length_status = ((unsigned long)((skb->len < ETH_ZLEN) ? ETH_ZLEN : skb->len))<<16;
+	Status->length_status += (sizeof(struct Status) << 16);
+	Status->length_status |= DMA_SOP | DMA_EOP | DMA_TX_APPEND_CRC;
 	if((skb->ip_summed  == CHECKSUM_PARTIAL) && (GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN))
 	{
 		u16 offset;
@@ -1261,41 +1269,69 @@ static int __maybe_unused bcmgenet_ring_xmit(struct sk_buff * skb, struct net_de
 		Status->tx_csum_info = (offset << STATUS_TX_CSUM_START_SHIFT) | (offset + skb->csum_offset) | STATUS_TX_CSUM_LV;
 		Status->length_status |= DMA_TX_DO_CSUM;
 		TRACE(("Tx Hw Csum: head=0x%08x data=0x%08x csum_start=%d csum_offset=%d\n", 
-					skb->head, skb->data, skb->csum_start, skb->csum_offset));
+					skb->head, 
+					skb->data, 
+					skb->csum_start, 
+					skb->csum_offset));
+	}else {
+		Status->tx_csum_info = 0;
 	}
-
-	Status->length_status = ((unsigned long)((skb->len < ETH_ZLEN) ? ETH_ZLEN : skb->len))<<16;
-	Status->length_status |= DMA_SOP | DMA_EOP | DMA_TX_APPEND_CRC;
+	/* Default QTAG for MoCA */
+	Status->length_status |= (DMA_TX_QTAG_MASK << DMA_TX_QTAG_SHIFT);
+	txCBPtr->dma_addr = dma_map_single(&pDevCtrl->dev->dev, skb->head, skb->len + 64, DMA_TO_DEVICE);
 
 #ifdef CONFIG_BCMGENET_DUMP_DATA
     printk("bcmgenet_xmit: len %d", skb->len);
-    dumpHexData(skb->head, skb->len);
+    dumpHexData(skb->head, skb->len + 64);
 #endif
 
-    /* Decrement total BD count and advance our write pointer */
+    /* Decrement total BD count and advance our write pointer/producer index */
     pDevCtrl->txRingFreeBds[index] -= 1;
 
-	/* advance producer index and write pointer.*/
-	pDevCtrl->txDma->tDmaRings[index].tdma_producer_index += 1;
-	if((pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer + RX_BUF_LENGTH) > 
-		pDevCtrl->txDma->tDmaRings[index].tdma_end_addr) {
-		pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer = pDevCtrl->txDma->tDmaRings[index].tdma_start_addr;
+	if(likely(txCBPtr->dma_addr == pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer))
+	{
+		if(unlikely(drop)) {
+			/* 
+			 * Don't xmit current packet pointed by read_pointer, there is no such mechanism 
+			 * in GENET's TDMA, so we disable TDMA and increment consumer index/read pointer 
+			 * to skip this packet as a work around.
+			 */
+			pDevCtrl->txDma->tdma_ctrl &= ~DMA_EN;
+			pDevCtrl->txDma->tDmaRings[index].tdma_consumer_index += 1;
+			if((pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer + RX_BUF_LENGTH) > 
+				pDevCtrl->txDma->tDmaRings[index].tdma_end_addr) {
+				pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer = pDevCtrl->txDma->tDmaRings[index].tdma_start_addr;
+			}else {
+				pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer += RX_BUF_LENGTH;
+			}
+		}
+		/* advance producer index and write pointer.*/
+		pDevCtrl->txDma->tDmaRings[index].tdma_producer_index += 1;
+		if((pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer + RX_BUF_LENGTH) > 
+			pDevCtrl->txDma->tDmaRings[index].tdma_end_addr) {
+			pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer = pDevCtrl->txDma->tDmaRings[index].tdma_start_addr;
+		}else {
+			pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer += RX_BUF_LENGTH;
+		}
+		if(unlikely(drop))
+			pDevCtrl->txDma->tdma_ctrl |= DMA_EN;
 	}else {
-		pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer += RX_BUF_LENGTH;
+		/* ooops! how can we get here ?*/
+		BUG();
 	}
-	
-
-    if ( pDevCtrl->txRingFreeBds[index] == 0 ) {
+    
+	if ( pDevCtrl->txRingFreeBds[index] == 0 ) {
         TRACE(("%s: bcmgenet_xmit no transmit queue space -- stopping queues\n", dev->name));
 		/* Enable Tx bdone/pdone interrupt !*/
 		pDevCtrl->intrl2_0->cpu_mask_clear |= (1 << index);
         netif_stop_subqueue(dev, index);
     }
 
-    /* update stats */
-    dev->stats.tx_bytes += ((skb->len < ETH_ZLEN) ? ETH_ZLEN : skb->len);
-    dev->stats.tx_packets++;
-
+	if(!drop) {
+	    /* update stats */
+		dev->stats.tx_bytes += ((skb->len < ETH_ZLEN) ? ETH_ZLEN : skb->len);
+		dev->stats.tx_packets++;
+	}
     dev->trans_start = jiffies;
 
     return 0;
@@ -1332,6 +1368,8 @@ static int bcmgenet_ring_poll(struct napi_struct * napi, int budget)
 	unsigned int work_done;
 	work_done = bcmgenet_ring_rx(pDevCtrl, budget);
 
+	/* tx reclaim */
+	bcmgenet_ring_xmit(NULL, pDevCtrl->dev, 0, 0);
 	if(work_done < budget)
 	{
 		napi_complete(napi);
@@ -1407,61 +1445,13 @@ static void bcmgenet_irq_task(struct work_struct * work)
 		}
 	}
 }
-/* try to recycle rx skb allocated for ring buffer
- * pDevctrl device private data pointer
- * index: ring index.
- * budget: loop count.
- * wrap: if none-zero , means DMA wrapp occured.
- * return: if all skbs have been recycled reurn 0, otherwise return budget.
- */
-static int bcmgenet_rxskb_recycle(BcmEnet_devctrl * pDevCtrl, int index, int budget, int wrap)
-{
-	Enet_CB * cb;
-	struct sk_buff * skb;
-	int loopcnt = 0, retvalue = 0;
-	int p_index = (DMA_PRODUCER_INDEX_MASK) & pDevCtrl->rxDma->rDmaRings[index].rdma_producer_index;
-	if(!wrap)
-		p_index = p_index & (pDevCtrl->rxRingSize[index] - 1);
-	while(loopcnt++ < budget)
-	{
-		/* 
-		 * Advancing consumer index if buffer has been consumed by stack layer
-		 */
-		TRACE(("p_index=%d CIndex=%d\n", p_index, pDevCtrl->rxRingCIndex[index]));
-		//printk("p_index=%d CIndex=%d\n", p_index, pDevCtrl->rxRingCIndex[index]);
-		if(!wrap) {
-			if(pDevCtrl->rxRingCIndex[index] == p_index) {
-				retvalue = 0;
-				break;
-			}
-		}
-		cb = pDevCtrl->rxRingCbs[index] + pDevCtrl->rxRingCIndex[index];
-		skb = cb->skb;
-		if(__bcmgenet_free_skb(skb, 0)) {
-			TRACE(("buffer 0x%x is recycled \n", skb->data));
-			//printk("buffer 0x%x is recycled \n", skb->data);
-			pDevCtrl->rxDma->rDmaRings[index].rdma_consumer_index++;
-			if(pDevCtrl->rxRingCIndex[index] == pDevCtrl->rxRingSize[index] - 1)
-				pDevCtrl->rxRingCIndex[index] = 0;
-			else
-				pDevCtrl->rxRingCIndex[index]++;
-		}else {
-			/* Tells NAPI that we are not done even no new packet came in! */
-			retvalue = budget;
-			break;
-		}
-	}
-
-	return retvalue;
-}
-
 /*
  * bcmgenet_ring_rx: ring buffer rx function.
  */
 static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
 {
     BcmEnet_devctrl *pDevCtrl = ptr;
-	int i, len;
+	int i, len, rx_discard_flag = 0;
 	Enet_CB * cb;
 	struct sk_buff * skb;
     unsigned long dmaFlag;
@@ -1469,12 +1459,14 @@ static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
     unsigned int rxpktprocessed = 0, rxpkttoprocess = 0, retvalue = 0;
 	unsigned int read_ptr = 0, write_ptr = 0, p_index = 0, c_index = 0;
     
-	TRACE(("%s: irq_stat=0x%08x\n", __FUNCTION__, pDevCtrl->irq1_stat));
+	TRACE(("%s: ifindex=%d irq_stat=0x%08x\n", __FUNCTION__, pDevCtrl->dev->ifindex, pDevCtrl->irq1_stat));
 
 	/* loop for each ring */
 	for(i = 0; i < GENET_RX_RING_COUNT; i++)
 	{
 		if(!(pDevCtrl->rxDma->rdma_ctrl & (1 << (i + DMA_RING_BUF_EN_SHIFT))) )
+			continue;
+		if(!(pDevCtrl->irq1_stat & (1 << (16 + i))) )
 			continue;
 		
 		write_ptr = pDevCtrl->rxDma->rDmaRings[i].rdma_write_pointer;
@@ -1482,24 +1474,21 @@ static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
 		p_index = (DMA_PRODUCER_INDEX_MASK) & pDevCtrl->rxDma->rDmaRings[i].rdma_producer_index;
 		c_index = (DMA_PRODUCER_INDEX_MASK) & pDevCtrl->rxDma->rDmaRings[i].rdma_consumer_index;
 		
-		/* Check to see if the packets we pushed up have been consumed
-		 * or not, if they have, advancing consumer index.
-		 * Note that producer index is 16 bits, we need to find modulo of ring size to 
-		 * figure out where it's pointing to in the ring.
-		 */
-
-		if(p_index - c_index == pDevCtrl->rxRingSize[i]) {
-			/* overflow, we couldn't keep up with DMA and DMA wrapped around */
-			pDevCtrl->dev->stats.rx_over_errors += (pDevCtrl->rxDma->rDmaRings[i].rdma_producer_index >> 16) 
-				- pDevCtrl->rxRingDiscCnt[i];
-			pDevCtrl->rxRingDiscCnt[i] = pDevCtrl->rxDma->rDmaRings[i].rdma_producer_index >> 16;
-			/* Try to recycle rx skbs and increment consumer index*/
-			retvalue = bcmgenet_rxskb_recycle(pDevCtrl, i, budget, 1);
-		}else  {
-			retvalue = bcmgenet_rxskb_recycle(pDevCtrl, i, budget, 0);
+		if(p_index < c_index ) {
+			/* index wrapped */
+			if((DMA_PRODUCER_INDEX_MASK - c_index + p_index) == (pDevCtrl->rxRingSize[i] - 1))
+				rx_discard_flag = 1;
+		}else if (p_index > c_index ) {
+			/* index not wrapped */
+			if(p_index - c_index == pDevCtrl->rxRingSize[i])
+				rx_discard_flag = 1;
 		}
-		if(!(pDevCtrl->irq1_stat & (1 << (16 + i))) )
-			continue;
+		
+		if(rx_discard_flag) {
+ 			pDevCtrl->dev->stats.rx_over_errors += (pDevCtrl->rxDma->rDmaRings[i].rdma_producer_index >> 16) 
+ 				- pDevCtrl->rxRingDiscCnt[i];
+ 			pDevCtrl->rxRingDiscCnt[i] = pDevCtrl->rxDma->rDmaRings[i].rdma_producer_index >> 16;
+		}
 		
 		/* 
 		 * We can't use produer/consumer index to compute how many outstanding packets are there, 
@@ -1507,13 +1496,24 @@ static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
 		 * Here we use read/write pointer to do the math.
 		 */
 		if(write_ptr < read_ptr) {
+			/* pointer wrapped */
 			rxpkttoprocess = (pDevCtrl->rxDma->rDmaRings[i].rdma_end_addr + 1 - read_ptr) >> (RX_BUF_BITS - 1);
 			rxpkttoprocess += (write_ptr - pDevCtrl->rxDma->rDmaRings[i].rdma_start_addr) >> (RX_BUF_BITS - 1);
-		}else {
+		}else if(write_ptr > read_ptr){
+			/* pointer not wrapped */
 			rxpkttoprocess = (write_ptr - read_ptr) >> (RX_BUF_BITS - 1);
+		}else if(write_ptr == read_ptr && p_index != c_index) {
+			/* overflowed, some packets are discarded by DMA */
+			rxpkttoprocess = pDevCtrl->rxDma->rDmaRings[i].rdma_ring_buf_size >> 16;
 		}
-		TRACE(("%s: p_inde=%d write_ptr=0x%08x read_ptr=0x%08x rxpkttoprocess=%d\n", __FUNCTION__,
-						p_index, write_ptr, read_ptr, rxpkttoprocess));
+			
+		TRACE(("%s: p_index=%d c_index=%d write_ptr=0x%08x read_ptr=0x%08x rxpkttoprocess=%d\n",
+					__FUNCTION__,
+					p_index, 
+					c_index, 
+					write_ptr, 
+					read_ptr, 
+					rxpkttoprocess));
 
 		while((rxpktprocessed < rxpkttoprocess) && (rxpktprocessed < budget)) 
 		{
@@ -1523,11 +1523,13 @@ static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
 			 */
 			cbi = (read_ptr - pDevCtrl->rxDma->rDmaRings[i].rdma_start_addr) >> (RX_BUF_BITS - 1);
 			cb = pDevCtrl->rxRingCbs[i] + cbi;
+			dma_cache_inv((unsigned long)(cb->BdAddr), 64);
 			status = (StatusBlock *)cb->BdAddr;
-			TRACE(("cbi = %d cb->BdAddr=0x%08x length_status=0x%08x f_index=0x%08x\n", 
-					cbi, (unsigned long)cb->BdAddr, status->length_status, status->filter_index));
 			dmaFlag = status->length_status & 0xffff;
 			len = status->length_status >> 16;
+
+			dma_cache_inv((unsigned long)(cb->BdAddr) + 64, len);
+
 			/*
 			 * Advancing our read pointer.
 			 */
@@ -1539,16 +1541,23 @@ static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
 			/*
 			 * start processing packet.
 			 */
-			skb = cb->skb;
+			skb = __bcmgenet_alloc_skb_from_buf((unsigned char*)cb->BdAddr, RX_BUF_LENGTH, 0);
 			rxpktprocessed++;
 			BUG_ON(skb == NULL);
 			
+			TRACE(("%s: cbi=%d skb=0x%08x skb->head=0x%08x dataref=%d\n", __FUNCTION__, 
+					cbi, 
+					skb, 
+					skb->head,
+					atomic_read(&skb_shinfo(skb)->dataref) & SKB_DATAREF_MASK));
 			/* report errors */
 			if(unlikely(!(dmaFlag & DMA_EOP) || !(dmaFlag & DMA_SOP)) ) {
 				/* probably can't do this for scater gather ?*/
 				printk(KERN_WARNING "Droping fragmented packet!\n");
 				pDevCtrl->dev->stats.rx_dropped++;
 				pDevCtrl->dev->stats.rx_errors++;
+				dev_kfree_skb_any(cb->skb);
+				cb->skb = NULL;
 				continue;
 			}
        		if (unlikely(dmaFlag & (DMA_RX_CRC_ERROR | DMA_RX_OV | DMA_RX_NO | DMA_RX_LG |DMA_RX_RXER))) {
@@ -1564,6 +1573,8 @@ static unsigned int bcmgenet_ring_rx(void * ptr, unsigned int budget)
           		
 				pDevCtrl->dev->stats.rx_dropped++;
            		pDevCtrl->dev->stats.rx_errors++;
+				dev_kfree_skb_any(cb->skb);
+				cb->skb = NULL;
 				continue;
 			}/* error packet */
 
@@ -2094,14 +2105,8 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
 		pDevCtrl->rxRingDiscCnt[index] = 0;
 		
 		for(i = 0; i < size; i++) {
-			cb->skb = __bcmgenet_alloc_skb_from_buf(*buf + i*buf_len, buf_len, 0, 2);
+			cb->skb = NULL;
 			cb->BdAddr = (DmaDesc*)(*buf + i*buf_len);
-			if(cb->skb == NULL) {
-				printk(KERN_ERR "Failed to allocate skb for ring buffer %d\n", index);
-				kfree(pDevCtrl->rxRingCbs[index]);
-				spin_unlock_irqrestore(&pDevCtrl->lock, flags);
-				return -ENOMEM;
-			}
 			cb++;
 		}
 
@@ -2110,7 +2115,8 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
 		pDevCtrl->rxDma->rDmaRings[index].rdma_producer_index = 0;
 		pDevCtrl->rxDma->rDmaRings[index].rdma_consumer_index = 0;
 		pDevCtrl->rxDma->rDmaRings[index].rdma_ring_buf_size = (size << DMA_RING_SIZE_SHIFT) | buf_len;
-		dma_start = dma_map_single(&dev->dev, *buf, buf_len * size, DMA_FROM_DEVICE);
+		//dma_start = dma_map_single(&dev->dev, *buf, buf_len * size, DMA_FROM_DEVICE);
+		dma_start = dma_map_single(&dev->dev, *buf, buf_len * size, DMA_BIDIRECTIONAL);
 		pDevCtrl->rxDma->rDmaRings[index].rdma_start_addr = dma_start; 
 		pDevCtrl->rxDma->rDmaRings[index].rdma_end_addr = dma_start + size * buf_len - 1;
 		pDevCtrl->rxDma->rDmaRings[index].rdma_xon_xoff_threshold = (DMA_FC_THRESH_LO << DMA_XOFF_THRESHOLD_SHIFT) | DMA_FC_THRESH_HI;
@@ -2131,7 +2137,7 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
 
 		/* Enable interrupt for this ring */
 		pDevCtrl->intrl2_1->cpu_mask_clear |= ( 1<< (index + 16));
-		pDevCtrl->rxDma->rdma_ctrl = (1 << (index + DMA_RING_BUF_EN_SHIFT));
+		pDevCtrl->rxDma->rdma_ctrl |= (1 << (index + DMA_RING_BUF_EN_SHIFT));
 		if(!(pDevCtrl->rbuf->rbuf_ctrl & RBUF_64B_EN))
 			pDevCtrl->rbuf->rbuf_ctrl |= RBUF_64B_EN;
 		if(dma_enable)
@@ -2151,20 +2157,21 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
 		pDevCtrl->txDma->tDmaRings[index].tdma_producer_index = 0;
 		pDevCtrl->txDma->tDmaRings[index].tdma_consumer_index = 0;
 		pDevCtrl->txDma->tDmaRings[index].tdma_ring_buf_size = (size << DMA_RING_SIZE_SHIFT) | buf_len;
-		dma_start = dma_map_single(&dev->dev, buf, buf_len * size, DMA_TO_DEVICE);
+		//dma_start = dma_map_single(&dev->dev, buf, buf_len * size, DMA_TO_DEVICE);
+		dma_start = dma_map_single(&dev->dev, *buf, buf_len * size, DMA_BIDIRECTIONAL);
 		pDevCtrl->txDma->tDmaRings[index].tdma_start_addr = dma_start; 
 		pDevCtrl->txDma->tDmaRings[index].tdma_end_addr = dma_start + size * buf_len - 1;
 		pDevCtrl->txDma->tDmaRings[index].tdma_flow_period = ENET_MAX_MTU_SIZE << 16;
 		pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer = dma_start;
 		pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer = dma_start;
-		//if(!(pDevCtrl->rbuf->tbuf_ctrl & RBUF_64B_EN))
 		if(!(GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN))
 		{
-			//pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
 			GENET_TBUF_CTRL(pDevCtrl) |= RBUF_64B_EN;
 			if(dev->needed_headroom < 64)
 				dev->needed_headroom += 64;
 		}
+		pDevCtrl->txDma->tdma_ctrl |= DMA_TSB_SWAP_EN;
+		pDevCtrl->txDma->tdma_ctrl |= (1 << (index + DMA_RING_BUF_EN_SHIFT));
 		if(dma_enable)
 			pDevCtrl->txDma->tdma_ctrl |= DMA_EN;
 	}
@@ -2178,11 +2185,11 @@ int bcmgenet_init_ringbuf(struct net_device * dev, int direction, unsigned int i
  */
 int bcmgenet_uninit_ringbuf(struct net_device * dev, int direction, unsigned int index, int free)
 {
-	int dma_enable, size, buflen, i;
+	int dma_enable, size = 0, buflen, i;
 	Enet_CB * cb;
 	void * buf;
 	unsigned long flags;
-    BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+	BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	
 	if(index < 0 || index > 15 || size & (size - 1 ))
 		return -EINVAL;
@@ -2207,9 +2214,7 @@ int bcmgenet_uninit_ringbuf(struct net_device * dev, int direction, unsigned int
 		
 		for(i = 0; i < size; i++) {
 			if(cb->skb != NULL) {
-				if(!__bcmgenet_free_skb(cb->skb, 1)) {
-					printk(KERN_WARNING "Failed to free skb (0x%08x)\n", (unsigned int)cb->skb->head);
-				}
+				dev_kfree_skb_any(cb->skb);
 			}
 			cb++;
 		}
@@ -2238,7 +2243,6 @@ int bcmgenet_uninit_ringbuf(struct net_device * dev, int direction, unsigned int
 		/* if all rings are disabled and tx csum offloading is off, disable TSB */
 		if(!(pDevCtrl->txDma->tdma_ctrl & (0xFFFF << 1)) && !(dev->features & NETIF_F_IP_CSUM))
 		{
-			//pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
 			GENET_TBUF_CTRL(pDevCtrl) &= ~RBUF_64B_EN;
 			if(dev->needed_headroom > 64)
 				dev->needed_headroom -= 64;
@@ -2382,19 +2386,6 @@ static int bcmgenet_init_dev(BcmEnet_devctrl *pDevCtrl)
     
 	/* init dma registers */
     init_edma(pDevCtrl);
-#if 0
-	/* DEBUG code , init ring buffer # 0 */
-	{
-		unsigned char * buf = NULL;
-		static unsigned int hfb[] = { 0x000F0010, 0x000F1888, 0x000FE28B};
-		if(bcmgenet_update_hfb(pDevCtrl->dev, hfb, 3, 0) < 0)
-			printk(KERN_ERR "Failed to program hfb\n");
-		pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_HFB_EN;
-		if( bcmgenet_init_ringbuf(pDevCtrl->dev, 0, 0, 512, RX_BUF_LENGTH, &buf) < 0)
-			printk(KERN_ERR "Failed to init ring buffer\n");
-		napi_enable(&pDevCtrl->ring_napi);
-	}
-#endif
 
 	TRACE(("%s done! \n", __FUNCTION__));
     /* if we reach this point, we've init'ed successfully */
@@ -2465,7 +2456,6 @@ int bcmgenet_update_hfb(struct net_device *dev, unsigned int *data, int len, int
 	unsigned int * tmp;
 	
 	TRACE(("Updating HFB len=0x%d\n", len));
-	//if(rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
 	if(GENET_HFB_CTRL(pDevCtrl) & RBUF_HFB_256B)
 	{
 		if (len > 256)
@@ -2480,7 +2470,6 @@ int bcmgenet_update_hfb(struct net_device *dev, unsigned int *data, int len, int
 	}
 	/* find next unused filter */
 	for (filter = 0; filter < count; filter++) {
-		//if(!((rbuf->rbuf_hfb_ctrl >> (filter + RBUF_HFB_FILTER_EN_SHIFT)) & 0X1))
 		if(!((GENET_HFB_CTRL(pDevCtrl) >> (filter + RBUF_HFB_FILTER_EN_SHIFT)) & 0x01))
 			break;
 	}
@@ -2520,11 +2509,9 @@ int bcmgenet_update_hfb(struct net_device *dev, unsigned int *data, int len, int
 	}
 
 	/* set the filter length*/
-	//rbuf->rbuf_fltr_len[3-(filter>>2)] |= (len*2 << (RBUF_FLTR_LEN_SHIFT * (filter&0x03)) );
 	GENET_HFB_FLTR_LEN(pDevCtrl, 3-(filter>>2)) |= (len*2 << (RBUF_FLTR_LEN_SHIFT * (filter&0x03)) );
 	
 	/*enable this filter.*/
-	//rbuf->rbuf_hfb_ctrl |= (1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
 	GENET_HFB_CTRL(pDevCtrl) |= (1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
 
 	return filter;
@@ -2544,7 +2531,6 @@ static int bcmgenet_read_hfb(struct net_device * dev, struct acpi_data * u_data)
 		return -EFAULT;
 	}
 	
-	//if(rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
 	if(GENET_HFB_CTRL(pDevCtrl) & RBUF_HFB_256B){
 		count = 8;
 		offset = 256;
@@ -2556,14 +2542,12 @@ static int bcmgenet_read_hfb(struct net_device * dev, struct acpi_data * u_data)
 		return -EINVAL;
 	
 	/* see if this filter is enabled, if not, return length 0 */
-	//if ((rbuf->rbuf_hfb_ctrl & (1 << (filter + RBUF_HFB_FILTER_EN_SHIFT)) ) == 0) {
 	if ((GENET_HFB_CTRL(pDevCtrl) & (1 << (filter + RBUF_HFB_FILTER_EN_SHIFT)) ) == 0) {
 		len = 0;
 		put_user(len , &u_data->count);
 		return 0;
 	}
 	/* check the filter length, in bytes */
-	//len = RBUF_FLTR_LEN_MASK & (rbuf->rbuf_fltr_len[filter>>2] >> (RBUF_FLTR_LEN_SHIFT * (filter & 0x3)) );
 	len = RBUF_FLTR_LEN_MASK & (GENET_HFB_FLTR_LEN(pDevCtrl, filter>>2) >> (RBUF_FLTR_LEN_SHIFT * (filter & 0x3)) );
 	if( u_data->count < len)
 		return -EINVAL;
@@ -2582,7 +2566,6 @@ static inline void bcmgenet_clear_hfb(BcmEnet_devctrl * pDevCtrl, int filter)
 {
 	int offset;
 
-	//if(pDevCtrl->rbuf->rbuf_hfb_ctrl & RBUF_HFB_256B) {
 	if(GENET_HFB_CTRL(pDevCtrl) & RBUF_HFB_256B) {
 		offset = 256;
 	}else {
@@ -2590,17 +2573,13 @@ static inline void bcmgenet_clear_hfb(BcmEnet_devctrl * pDevCtrl, int filter)
 	}
 	if (filter == CLEAR_ALL_HFB)
 	{
-		//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~(0xffff << (RBUF_HFB_FILTER_EN_SHIFT));
-		//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_HFB_EN;
 		GENET_HFB_CTRL(pDevCtrl) &= ~(0xffff << (RBUF_HFB_FILTER_EN_SHIFT));
 		GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_HFB_EN;
 	}else 
 	{
 		/* disable this filter */
-		//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~(1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
 		GENET_HFB_CTRL(pDevCtrl) &= ~(1 << (RBUF_HFB_FILTER_EN_SHIFT + filter));
 		/* clear filter length register */
-		//pDevCtrl->rbuf->rbuf_fltr_len[3-(filter>>2)] &= ~(0xff << (RBUF_FLTR_LEN_SHIFT * (filter & 0x03)) );
 		GENET_HFB_FLTR_LEN(pDevCtrl,(3-(filter>>2))) &= ~(0xff << (RBUF_FLTR_LEN_SHIFT * (filter & 0x03)) );
 	}
 	
@@ -2684,7 +2663,6 @@ static int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 			printk(KERN_ERR "%s: Unable to update HFB\n", __FUNCTION__);
 			return -EFAULT;
 		} 
-		//pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_HFB_EN;
 		GENET_HFB_CTRL(pDevCtrl) |= RBUF_HFB_EN;
 	}
 	if(wol->wolopts & WAKE_MAGICSECURE)
@@ -2769,14 +2747,12 @@ static int bcmgenet_set_tx_csum(struct net_device * dev, u32 val)
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
     spin_lock_irqsave(&pDevCtrl->lock, flags);
 	if(val == 0) {
-		dev->features &= ~NETIF_F_IP_CSUM;
-		//pDevCtrl->rbuf->tbuf_ctrl &= ~RBUF_64B_EN;
+		dev->features &= ~(NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
 		GENET_TBUF_CTRL(pDevCtrl) &= ~RBUF_64B_EN;
 		if(dev->needed_headroom > 64)
 			dev->needed_headroom -= 64;
 	}else {
-		dev->features |= NETIF_F_IP_CSUM;
-		//pDevCtrl->rbuf->tbuf_ctrl |= RBUF_64B_EN;
+		dev->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM ;
 		GENET_TBUF_CTRL(pDevCtrl) |= RBUF_64B_EN;
 		if(dev->needed_headroom < 64)
 			dev->needed_headroom += 64;
@@ -2845,10 +2821,8 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 
 	switch(mode) {
 		case GENET_POWER_CABLE_SENSE:
-			/* PHY bug , disble DLL only for now */
-			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DOWN_DLL;
-			//	EXT_PWR_DOWN_PHY ;
-			//pDevCtrl->rbuf->rgmii_oob_ctrl &= ~RGMII_MODE_EN;
+			/* EPHY bug, leave ext_pwr_down_dll ext_pwr_down_phy on */
+			//pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DOWN_PHY;
 			GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~RGMII_MODE_EN;
 			bcmgenet_disable_clocks(pDevCtrl, mode);
 			break;
@@ -2871,13 +2845,11 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 			pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_HFB_MM | UMAC_IRQ_HFB_SM;
 			break;
 		case GENET_POWER_WOL_ACPI:
-			//pDevCtrl->rbuf->rbuf_hfb_ctrl |= RBUF_ACPI_EN;
 			GENET_HFB_CTRL(pDevCtrl) |= RBUF_ACPI_EN;
 			while(!(pDevCtrl->rbuf->rbuf_status & RBUF_STATUS_WOL)) {
 				retries++;
 				if(retries > 5) {
 					printk(KERN_CRIT "bcmumac_power_down polling wol mode timeout\n");
-					//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_ACPI_EN;
 					GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_ACPI_EN;
 					return;
 				}
@@ -2896,12 +2868,19 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 {
 	switch(mode) {
 		case GENET_POWER_CABLE_SENSE:
+#if 0
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_DLL;
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_PHY;
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_BIAS;
+#endif
+			/* enable APD */
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
 			udelay(5);
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+			/* enable 64 clock MDIO */
+			pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
+			pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d);
 			//bcmgenet_enable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_MAGIC:
@@ -2910,10 +2889,8 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			 * If ACPI is enabled at the same time, disable it, since 
 			 * we have been waken up.
 			 */
-			//if( !(pDevCtrl->rbuf->rbuf_hfb_ctrl & RBUF_ACPI_EN))
 			if( !(GENET_HFB_CTRL(pDevCtrl) & RBUF_ACPI_EN))
 			{
-				//pDevCtrl->rbuf->rbuf_hfb_ctrl &= RBUF_ACPI_EN;
 				GENET_HFB_CTRL(pDevCtrl) &= RBUF_ACPI_EN;
 				bcmgenet_enable_clocks(pDevCtrl, GENET_POWER_WOL_ACPI);
 				/* Stop monitoring ACPI interrupts */
@@ -2923,7 +2900,6 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			//bcmgenet_enable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_ACPI:
-			//pDevCtrl->rbuf->rbuf_hfb_ctrl &= ~RBUF_ACPI_EN;
 			GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_ACPI_EN;
 			/* 
 			 * If Magic packet is enabled at the same time, disable it, 
@@ -3000,7 +2976,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	struct resource *mres, *ires;
 	void __iomem *base;
 	unsigned long res_size;
-	int err;
+	int err = -EIO;
 	/*
 	 * bcmemac and bcmgenet use same platform data structure.
 	 */
@@ -3058,6 +3034,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	pDevCtrl->irq0 = platform_get_irq(pdev, 0);
 	pDevCtrl->irq1 = platform_get_irq(pdev, 1);
 	pDevCtrl->devnum = pdev->id;
+	/* NOTE: with fast-bridge , must turn this off! */
 	pDevCtrl->bIPHdrOptimize = 1;
 	
 	spin_lock_init(&pDevCtrl->lock);
@@ -3076,7 +3053,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	
 	if(cfg->phy_id == BRCM_PHY_ID_AUTO)
 	{
-		if( mii_probe(dev, cfg->phy_id) < 0)
+		if( mii_probe(dev, cfg) < 0)
 		{
 			printk(KERN_ERR "No PHY detected, not registering interface:%d\n", pdev->id);
 			goto err1;
@@ -3125,6 +3102,8 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	bcmgenet_set_tx_csum(dev, 0);
 	bcmgenet_set_sg(dev, 0);
 	
+	pDevCtrl->next_dev = eth_root_dev;
+	eth_root_dev = dev;
 	return(0);
 
 err2:
@@ -3162,19 +3141,12 @@ static struct platform_driver bcmgenet_plat_drv = {
 
 static int bcmgenet_module_init(void)
 {
-	genet_skb_cache = kmem_cache_create("genet_skb_cache", 
-			sizeof(struct sk_buff), 0, SLAB_HWCACHE_ALIGN|SLAB_PANIC,
-			NULL);
-	if(genet_skb_cache == NULL) 
-		printk(KERN_ERR "Failed to create cache\n");
-	
 	platform_driver_register(&bcmgenet_plat_drv);
 	return(0);
 }
 
 static void bcmgenet_module_cleanup(void)
 {
-	kmem_cache_destroy(genet_skb_cache);
 	platform_driver_unregister(&bcmgenet_plat_drv);
 }
 

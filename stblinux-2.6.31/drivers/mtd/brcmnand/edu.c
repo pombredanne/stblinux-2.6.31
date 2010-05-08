@@ -130,7 +130,10 @@ int EDU_buffer_OK(volatile void* vaddr, int command)
 {
 	unsigned long addr = (unsigned long) vaddr;
 
-#if !defined(CONFIG_BCM7440) && !defined(CONFIG_BCM7601) && !defined(CONFIG_BCM7635)
+// Andover architecture do not use SCB protocol.  EDU SCB conformance fixed in 3.3 or later (7420cx)
+#if !(defined(CONFIG_BCM7440) || defined(CONFIG_BCM7601) || defined(CONFIG_BCM7635)\
+	|| (CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3))
+      
 // Requires 32byte alignment only of platforms other than 7440 and 7601 (and Dune)
 	if (addr & 0x1f) {
 		// Must be 32-byte-aligned
@@ -148,13 +151,6 @@ dump_stack();
 	}
 #endif
 
-	else if (!(addr & KSEG0)) { 
-		// User Space
-		return 0;
-	}
-
-	
-
 	// TBD: Since we only enable block for MEM0, we should make sure that the physical
 	// address falls in MEM0.
 	
@@ -163,12 +159,20 @@ dump_stack();
 		return 0;
 	}
 
+	else if ((addr & 0xe0000000) != KSEG0) { 
+		// !KSEG 0
+		return 0;
+	}
+
+
 #if 0 //def CONFIG_BCM7420
 	else if (command == EDU_WRITE && (addr & 0xff)) { // Write must be aligned on 256B
 printk("Write must be aligned on 128B (addr=%08x)\n", addr);
 		return 0;
 	}
 #endif
+
+	// OK to proceed with EDU
 	return 1;
 }
 

@@ -14,6 +14,95 @@
 #include "libbb.h"
 #include "unarchive.h"
 
+/* GNU cpio 2.9 --help (abridged):
+
+ Modes:
+  -t, --list                 List the archive
+  -i, --extract              Extract files from an archive
+  -o, --create               Create the archive
+  -p, --pass-through         Copy-pass mode [was ist das?!]
+
+ Options valid in any mode:
+      --block-size=SIZE      I/O block size = SIZE * 512 bytes
+  -B                         I/O block size = 5120 bytes
+  -c                         Use the old portable (ASCII) archive format
+  -C, --io-size=NUMBER       I/O block size in bytes
+  -f, --nonmatching          Only copy files that do not match given pattern
+  -F, --file=FILE            Use FILE instead of standard input or output
+  -H, --format=FORMAT        Use given archive FORMAT
+  -M, --message=STRING       Print STRING when the end of a volume of the
+                             backup media is reached
+  -n, --numeric-uid-gid      If -v, show numeric UID and GID
+      --quiet                Do not print the number of blocks copied
+      --rsh-command=COMMAND  Use remote COMMAND instead of rsh
+  -v, --verbose              Verbosely list the files processed
+  -V, --dot                  Print a "." for each file processed
+  -W, --warning=FLAG         Control warning display: 'none','truncate','all';
+                             multiple options accumulate
+
+ Options valid only in --extract mode:
+  -b, --swap                 Swap both halfwords of words and bytes of
+                             halfwords in the data (equivalent to -sS)
+  -r, --rename               Interactively rename files
+  -s, --swap-bytes           Swap the bytes of each halfword in the files
+  -S, --swap-halfwords       Swap the halfwords of each word (4 bytes)
+      --to-stdout            Extract files to standard output
+  -E, --pattern-file=FILE    Read additional patterns specifying filenames to
+                             extract or list from FILE
+      --only-verify-crc      Verify CRC's, don't actually extract the files
+
+ Options valid only in --create mode:
+  -A, --append               Append to an existing archive
+  -O FILE                    File to use instead of standard output
+
+ Options valid only in --pass-through mode:
+  -l, --link                 Link files instead of copying them, when possible
+
+ Options valid in --extract and --create modes:
+      --absolute-filenames   Do not strip file system prefix components from
+                             the file names
+      --no-absolute-filenames Create all files relative to the current dir
+
+ Options valid in --create and --pass-through modes:
+  -0, --null                 A list of filenames is terminated by a NUL
+  -a, --reset-access-time    Reset the access times of files after reading them
+  -I FILE                    File to use instead of standard input
+  -L, --dereference          Dereference symbolic links (copy the files
+                             that they point to instead of copying the links)
+  -R, --owner=[USER][:.][GROUP] Set owner of created files
+
+ Options valid in --extract and --pass-through modes:
+  -d, --make-directories     Create leading directories where needed
+  -m, --preserve-modification-time  Retain mtime when creating files
+      --no-preserve-owner    Do not change the ownership of the files
+      --sparse               Write files with blocks of zeros as sparse files
+  -u, --unconditional        Replace all files unconditionally
+ */
+enum {
+	CPIO_OPT_EXTRACT            = (1 << 0),
+	CPIO_OPT_TEST               = (1 << 1),
+	CPIO_OPT_NUL_TERMINATED     = (1 << 2),
+	CPIO_OPT_UNCONDITIONAL      = (1 << 3),
+	CPIO_OPT_VERBOSE            = (1 << 4),
+	CPIO_OPT_CREATE_LEADING_DIR = (1 << 5),
+	CPIO_OPT_PRESERVE_MTIME     = (1 << 6),
+	CPIO_OPT_DEREF              = (1 << 7),
+	CPIO_OPT_FILE               = (1 << 8),
+	OPTBIT_FILE = 8,
+	IF_FEATURE_CPIO_O(OPTBIT_CREATE     ,)
+	IF_FEATURE_CPIO_O(OPTBIT_FORMAT     ,)
+	IF_FEATURE_CPIO_P(OPTBIT_PASSTHROUGH,)
+	IF_LONG_OPTS(     OPTBIT_QUIET      ,)
+	IF_LONG_OPTS(     OPTBIT_2STDOUT    ,)
+	CPIO_OPT_CREATE             = IF_FEATURE_CPIO_O((1 << OPTBIT_CREATE     )) + 0,
+	CPIO_OPT_FORMAT             = IF_FEATURE_CPIO_O((1 << OPTBIT_FORMAT     )) + 0,
+	CPIO_OPT_PASSTHROUGH        = IF_FEATURE_CPIO_P((1 << OPTBIT_PASSTHROUGH)) + 0,
+	CPIO_OPT_QUIET              = IF_LONG_OPTS(     (1 << OPTBIT_QUIET      )) + 0,
+	CPIO_OPT_2STDOUT            = IF_LONG_OPTS(     (1 << OPTBIT_2STDOUT    )) + 0,
+};
+
+#define OPTION_STR "it0uvdmLF:"
+
 #if ENABLE_FEATURE_CPIO_O
 static off_t cpio_pad4(off_t size)
 {
@@ -28,8 +117,9 @@ static off_t cpio_pad4(off_t size)
 
 /* Return value will become exit code.
  * It's ok to exit instead of return. */
-static int cpio_o(void)
+static NOINLINE int cpio_o(void)
 {
+	static const char trailer[] ALIGN1 = "TRAILER!!!";
 	struct name_s {
 		struct name_s *next;
 		char name[1];
@@ -48,7 +138,9 @@ static int cpio_o(void)
 		char *line;
 		struct stat st;
 
-		line = xmalloc_fgetline(stdin);
+		line = (option_mask32 & CPIO_OPT_NUL_TERMINATED)
+				? bb_get_chunk_from_file(stdin, NULL)
+				: xmalloc_fgetline(stdin);
 
 		if (line) {
 			/* Strip leading "./[./]..." from the filename */
@@ -61,7 +153,10 @@ static int cpio_o(void)
 				free(line);
 				continue;
 			}
-			if (lstat(name, &st)) {
+			if ((option_mask32 & CPIO_OPT_DEREF)
+					? stat(name, &st)
+					: lstat(name, &st)
+			) {
  abort_cpio_o:
 				bb_simple_perror_msg_and_die(name);
 			}
@@ -119,7 +214,7 @@ static int cpio_o(void)
 			} else {
 				/* If no (more) hardlinks to output,
 				 * output "trailer" entry */
-				name = "TRAILER!!!";
+				name = trailer;
 				/* st.st_size == 0 is a must, but for uniformity
 				 * in the output, we zero out everything */
 				memset(&st, 0, sizeof(st));
@@ -157,7 +252,7 @@ static int cpio_o(void)
 				free(lpath);
 			} else { /* S_ISREG */
 				int fd = xopen(name, O_RDONLY);
-				fflush(stdout);
+				fflush_all();
 				/* We must abort if file got shorter too! */
 				bb_copyfd_exact_size(fd, STDOUT_FILENO, st.st_size);
 				bytes += st.st_size;
@@ -167,7 +262,7 @@ static int cpio_o(void)
 		}
 
 		if (!line) {
-			if (links)
+			if (name != trailer)
 				goto next_link;
 			/* TODO: GNU cpio pads trailer to 512 bytes, do we want that? */
 			return EXIT_SUCCESS;
@@ -178,127 +273,109 @@ static int cpio_o(void)
 }
 #endif
 
-/* GNU cpio (GNU cpio) 2.9 help (abridged):
-
- Main operation mode:
-  -i, --extract              Extract files from an archive
-  -o, --create               Create the archive
-  -p, --pass-through         Copy-pass mode (was ist das?!)
-  -t, --list                 List the archive
-
- Operation modifiers valid in any mode:
-      --block-size=SIZE      I/O block size = SIZE * 512 bytes
-  -B                         I/O block size = 5120 bytes
-  -c                         Use the old portable (ASCII) archive format
-  -C, --io-size=NUMBER       I/O block size to the given NUMBER bytes
-  -f, --nonmatching          Only copy files that do not match given pattern
-  -F, --file=FILE            Use FILE instead of standard input or output
-  -H, --format=FORMAT        Use given archive FORMAT
-  -M, --message=STRING       Print STRING when the end of a volume of the
-                             backup media is reached
-  -n, --numeric-uid-gid      If -v, show numeric UID and GID
-      --quiet                Do not print the number of blocks copied
-      --rsh-command=COMMAND  Use remote COMMAND instead of rsh
-  -v, --verbose              Verbosely list the files processed
-  -V, --dot                  Print a "." for each file processed
-  -W, --warning=FLAG         Control warning display: 'none','truncate','all';
-                             multiple options accumulate
-
- Operation modifiers valid only in --extract mode:
-  -b, --swap                 Swap both halfwords of words and bytes of
-                             halfwords in the data (equivalent to -sS)
-  -r, --rename               Interactively rename files
-  -s, --swap-bytes           Swap the bytes of each halfword in the files
-  -S, --swap-halfwords       Swap the halfwords of each word (4 bytes)
-      --to-stdout            Extract files to standard output
-  -E, --pattern-file=FILE    Read additional patterns specifying filenames to
-                             extract or list from FILE
-      --only-verify-crc      Verify CRC's, don't actually extract the files
-
- Operation modifiers valid only in --create mode:
-  -A, --append               Append to an existing archive
-  -O FILE                    File to use instead of standard output
-
- Operation modifiers valid only in --pass-through mode:
-  -l, --link                 Link files instead of copying them, when possible
-
- Operation modifiers valid in --extract and --create modes:
-      --absolute-filenames   Do not strip file system prefix components from
-                             the file names
-      --no-absolute-filenames Create all files relative to the current dir
-
- Operation modifiers valid in --create and --pass-through modes:
-  -0, --null                 A list of filenames is terminated by a NUL
-  -a, --reset-access-time    Reset the access times of files after reading them
-  -I FILE                    File to use instead of standard input
-  -L, --dereference          Dereference symbolic links (copy  the files
-                             that they point to instead of copying the links)
-  -R, --owner=[USER][:.][GROUP] Set owner of created files
-
- Operation modifiers valid in --extract and --pass-through modes:
-  -d, --make-directories     Create leading directories where needed
-  -m, --preserve-modification-time
-                             Retain previous file modification times when
-                             creating files
-      --no-preserve-owner    Do not change the ownership of the files
-      --sparse               Write files with blocks of zeros as sparse files
-  -u, --unconditional        Replace all files unconditionally
- */
-
 int cpio_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int cpio_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int cpio_main(int argc UNUSED_PARAM, char **argv)
 {
 	archive_handle_t *archive_handle;
 	char *cpio_filename;
-	USE_FEATURE_CPIO_O(const char *cpio_fmt = "";)
+	IF_FEATURE_CPIO_O(const char *cpio_fmt = "";)
 	unsigned opt;
-	enum {
-		CPIO_OPT_EXTRACT            = (1 << 0),
-		CPIO_OPT_TEST               = (1 << 1),
-		CPIO_OPT_UNCONDITIONAL      = (1 << 2),
-		CPIO_OPT_VERBOSE            = (1 << 3),
-		CPIO_OPT_FILE               = (1 << 4),
-		CPIO_OPT_CREATE_LEADING_DIR = (1 << 5),
-		CPIO_OPT_PRESERVE_MTIME     = (1 << 6),
-		CPIO_OPT_CREATE             = (1 << 7),
-		CPIO_OPT_FORMAT             = (1 << 8),
-	};
 
-#if ENABLE_GETOPT_LONG && ENABLE_DESKTOP
+#if ENABLE_LONG_OPTS
 	applet_long_options =
 		"extract\0"      No_argument       "i"
 		"list\0"         No_argument       "t"
 #if ENABLE_FEATURE_CPIO_O
 		"create\0"       No_argument       "o"
 		"format\0"       Required_argument "H"
+#if ENABLE_FEATURE_CPIO_P
+		"pass-through\0" No_argument       "p"
 #endif
+#endif
+		"verbose\0"      No_argument       "v"
+		"quiet\0"        No_argument       "\xff"
+		"to-stdout\0"    No_argument       "\xfe"
 		;
 #endif
 
-	/* Initialize */
 	archive_handle = init_handle();
-	archive_handle->src_fd = STDIN_FILENO;
-	archive_handle->seek = seek_by_read;
-	archive_handle->flags = ARCHIVE_EXTRACT_NEWER;
+	/* archive_handle->src_fd = STDIN_FILENO; - done by init_handle */
+	archive_handle->ah_flags = ARCHIVE_EXTRACT_NEWER;
 
-#if ENABLE_FEATURE_CPIO_O
-	opt = getopt32(argv, "ituvF:dmoH:", &cpio_filename, &cpio_fmt);
+	/* As of now we do not enforce this: */
+	/* -i,-t,-o,-p are mutually exclusive */
+	/* -u,-d,-m make sense only with -i or -p */
+	/* -L makes sense only with -o or -p */
 
-	if (opt & CPIO_OPT_CREATE) {
-		if (*cpio_fmt != 'n')
-			bb_show_usage();
-		if (opt & CPIO_OPT_FILE) {
-			fclose(stdout);
-			stdout = fopen(cpio_filename, "w");
-			/* Paranoia: I don't trust libc that much */
-			xdup2(fileno(stdout), STDOUT_FILENO);
-		}
-		return cpio_o();
+#if !ENABLE_FEATURE_CPIO_O
+	/* no parameters */
+	opt_complementary = "=0";
+	opt = getopt32(argv, OPTION_STR, &cpio_filename);
+	if (opt & CPIO_OPT_FILE) { /* -F */
+		xmove_fd(xopen(cpio_filename, O_RDONLY), STDIN_FILENO);
 	}
 #else
-	opt = getopt32(argv, "ituvF:dm", &cpio_filename);
-#endif
+	/* _exactly_ one parameter for -p, thus <= 1 param if -p is allowed */
+	opt_complementary = ENABLE_FEATURE_CPIO_P ? "?1" : "=0";
+	opt = getopt32(argv, OPTION_STR "oH:" IF_FEATURE_CPIO_P("p"), &cpio_filename, &cpio_fmt);
 	argv += optind;
+	if ((opt & (CPIO_OPT_FILE|CPIO_OPT_CREATE)) == CPIO_OPT_FILE) { /* -F without -o */
+		xmove_fd(xopen(cpio_filename, O_RDONLY), STDIN_FILENO);
+	}
+	if (opt & CPIO_OPT_PASSTHROUGH) {
+		pid_t pid;
+		struct fd_pair pp;
+
+		if (argv[0] == NULL)
+			bb_show_usage();
+		if (opt & CPIO_OPT_CREATE_LEADING_DIR)
+			mkdir(argv[0], 0777);
+		/* Crude existence check:
+		 * close(xopen(argv[0], O_RDONLY | O_DIRECTORY));
+		 * We can also xopen, fstat, IS_DIR, later fchdir.
+		 * This would check for existence earlier and cleaner.
+		 * As it stands now, if we fail xchdir later,
+		 * child dies on EPIPE, unless it caught
+		 * a diffrerent problem earlier.
+		 * This is good enough for now.
+		 */
+#if !BB_MMU
+		pp.rd = 3;
+		pp.wr = 4;
+		if (!re_execed) {
+			close(3);
+			close(4);
+			xpiped_pair(pp);
+		}
+#else
+		xpiped_pair(pp);
+#endif
+		pid = fork_or_rexec(argv - optind);
+		if (pid == 0) { /* child */
+			close(pp.rd);
+			xmove_fd(pp.wr, STDOUT_FILENO);
+			goto dump;
+		}
+		/* parent */
+		xchdir(*argv++);
+		close(pp.wr);
+		xmove_fd(pp.rd, STDIN_FILENO);
+		//opt &= ~CPIO_OPT_PASSTHROUGH;
+		opt |= CPIO_OPT_EXTRACT;
+		goto skip;
+	}
+	/* -o */
+	if (opt & CPIO_OPT_CREATE) {
+		if (cpio_fmt[0] != 'n') /* we _require_ "-H newc" */
+			bb_show_usage();
+		if (opt & CPIO_OPT_FILE) {
+			xmove_fd(xopen3(cpio_filename, O_WRONLY | O_CREAT | O_TRUNC, 0666), STDOUT_FILENO);
+		}
+ dump:
+		return cpio_o();
+	}
+ skip:
+#endif
 
 	/* One of either extract or test options must be given */
 	if ((opt & (CPIO_OPT_TEST | CPIO_OPT_EXTRACT)) == 0) {
@@ -307,17 +384,17 @@ int cpio_main(int argc ATTRIBUTE_UNUSED, char **argv)
 
 	if (opt & CPIO_OPT_TEST) {
 		/* if both extract and test options are given, ignore extract option */
-		if (opt & CPIO_OPT_EXTRACT) {
-			opt &= ~CPIO_OPT_EXTRACT;
-		}
+		opt &= ~CPIO_OPT_EXTRACT;
 		archive_handle->action_header = header_list;
 	}
 	if (opt & CPIO_OPT_EXTRACT) {
 		archive_handle->action_data = data_extract_all;
+		if (opt & CPIO_OPT_2STDOUT)
+			archive_handle->action_data = data_extract_to_stdout;
 	}
 	if (opt & CPIO_OPT_UNCONDITIONAL) {
-		archive_handle->flags |= ARCHIVE_EXTRACT_UNCONDITIONAL;
-		archive_handle->flags &= ~ARCHIVE_EXTRACT_NEWER;
+		archive_handle->ah_flags |= ARCHIVE_UNLINK_OLD;
+		archive_handle->ah_flags &= ~ARCHIVE_EXTRACT_NEWER;
 	}
 	if (opt & CPIO_OPT_VERBOSE) {
 		if (archive_handle->action_header == header_list) {
@@ -326,25 +403,29 @@ int cpio_main(int argc ATTRIBUTE_UNUSED, char **argv)
 			archive_handle->action_header = header_list;
 		}
 	}
-	if (opt & CPIO_OPT_FILE) { /* -F */
-		archive_handle->src_fd = xopen(cpio_filename, O_RDONLY);
-		archive_handle->seek = seek_by_jump;
-	}
 	if (opt & CPIO_OPT_CREATE_LEADING_DIR) {
-		archive_handle->flags |= ARCHIVE_CREATE_LEADING_DIRS;
+		archive_handle->ah_flags |= ARCHIVE_CREATE_LEADING_DIRS;
 	}
 	if (opt & CPIO_OPT_PRESERVE_MTIME) {
-		archive_handle->flags |= ARCHIVE_PRESERVE_DATE;
+		archive_handle->ah_flags |= ARCHIVE_RESTORE_DATE;
 	}
 
 	while (*argv) {
 		archive_handle->filter = filter_accept_list;
-		llist_add_to(&(archive_handle->accept), *argv);
+		llist_add_to(&archive_handle->accept, *argv);
 		argv++;
 	}
 
+	/* see get_header_cpio */
+	archive_handle->cpio__blocks = (off_t)-1;
 	while (get_header_cpio(archive_handle) == EXIT_SUCCESS)
 		continue;
+
+	if (archive_handle->cpio__blocks != (off_t)-1
+	 && !(opt & CPIO_OPT_QUIET)
+	) {
+		printf("%"OFF_FMT"u blocks\n", archive_handle->cpio__blocks);
+	}
 
 	return EXIT_SUCCESS;
 }

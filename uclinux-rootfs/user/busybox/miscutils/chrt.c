@@ -1,7 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /*
  * chrt - manipulate real-time attributes of a process
- * Copyright (c) 2006-2007 Bernhard Fischer
+ * Copyright (c) 2006-2007 Bernhard Reutner-Fischer
  *
  * Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
  */
@@ -41,7 +41,7 @@ static void show_min_max(int pol)
 #define OPT_o (1<<4)
 
 int chrt_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int chrt_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int chrt_main(int argc UNUSED_PARAM, char **argv)
 {
 	pid_t pid = 0;
 	unsigned opt;

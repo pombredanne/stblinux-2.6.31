@@ -3,7 +3,7 @@
  *  setconsole.c - redirect system console output
  *
  *  Copyright (C) 2004,2005  Enrik Berkhan <Enrik.Berkhan@inka.de>
- *  Copyright (C) 2008 Bernhard Fischer
+ *  Copyright (C) 2008 Bernhard Reutner-Fischer
  *
  * Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
  */
@@ -11,7 +11,7 @@
 #include "libbb.h"
 
 int setconsole_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int setconsole_main(int ATTRIBUTE_UNUSED argc, char **argv)
+int setconsole_main(int argc UNUSED_PARAM, char **argv)
 {
 	const char *device = CURRENT_TTY;
 	bool reset;

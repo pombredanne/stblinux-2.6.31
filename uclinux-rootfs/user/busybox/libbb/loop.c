@@ -7,27 +7,35 @@
  *
  * Licensed under the GPL v2 or later, see the file LICENSE in this tarball.
  */
-
 #include "libbb.h"
+#include <linux/version.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 
 /* For 2.6, use the cleaned up header to get the 64 bit API. */
-#include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
-#include <linux/loop.h>
+/* linux/loop.h relies on __u64. Make sure we have that as a proper type
+ * until userspace is widely fixed. */
+# if (defined __INTEL_COMPILER && !defined __GNUC__) \
+  || (defined __GNUC__ && defined __STRICT_ANSI__)
+__extension__ typedef long long __s64;
+__extension__ typedef unsigned long long __u64;
+# endif
+# include <linux/loop.h>
 typedef struct loop_info64 bb_loop_info;
-#define BB_LOOP_SET_STATUS LOOP_SET_STATUS64
-#define BB_LOOP_GET_STATUS LOOP_GET_STATUS64
+# define BB_LOOP_SET_STATUS LOOP_SET_STATUS64
+# define BB_LOOP_GET_STATUS LOOP_GET_STATUS64
+
+#else
 
 /* For 2.4 and earlier, use the 32 bit API (and don't trust the headers) */
-#else
-/* Stuff stolen from linux/loop.h for 2.4 and earlier kernels*/
-#include <linux/posix_types.h>
-#define LO_NAME_SIZE        64
-#define LO_KEY_SIZE         32
-#define LOOP_SET_FD         0x4C00
-#define LOOP_CLR_FD         0x4C01
-#define BB_LOOP_SET_STATUS  0x4C02
-#define BB_LOOP_GET_STATUS  0x4C03
+/* Stuff stolen from linux/loop.h for 2.4 and earlier kernels */
+# include <linux/posix_types.h>
+# define LO_NAME_SIZE        64
+# define LO_KEY_SIZE         32
+# define LOOP_SET_FD         0x4C00
+# define LOOP_CLR_FD         0x4C01
+# define BB_LOOP_SET_STATUS  0x4C02
+# define BB_LOOP_GET_STATUS  0x4C03
 typedef struct {
 	int                lo_number;
 	__kernel_dev_t     lo_device;
@@ -44,7 +52,7 @@ typedef struct {
 } bb_loop_info;
 #endif
 
-char *query_loop(const char *device)
+char* FAST_FUNC query_loop(const char *device)
 {
 	int fd;
 	bb_loop_info loopinfo;
@@ -60,8 +68,7 @@ char *query_loop(const char *device)
 	return dev;
 }
 
-
-int del_loop(const char *device)
+int FAST_FUNC del_loop(const char *device)
 {
 	int fd, rc;
 
@@ -79,7 +86,7 @@ int del_loop(const char *device)
    search will re-use an existing loop device already bound to that
    file/offset if it finds one.
  */
-int set_loop(char **device, const char *file, unsigned long long offset)
+int FAST_FUNC set_loop(char **device, const char *file, unsigned long long offset)
 {
 	char dev[LOOP_NAMESIZE];
 	char *try;
@@ -98,7 +105,7 @@ int set_loop(char **device, const char *file, unsigned long long offset)
 	}
 
 	/* Find a loop device.  */
-	try = *device ? : dev;
+	try = *device ? *device : dev;
 	for (i = 0; rc; i++) {
 		sprintf(dev, LOOP_FORMAT, i);
 

@@ -19,7 +19,9 @@ enum { STACK_SIZE = (COMMON_BUFSIZE - offsetof(struct globals, stack)) / sizeof(
 #define pointer   (G.pointer   )
 #define base      (G.base      )
 #define stack     (G.stack     )
-#define INIT_G() do { } while (0)
+#define INIT_G() do { \
+	base = 10; \
+} while (0)
 
 
 static void push(double a)
@@ -53,12 +55,14 @@ static void mul(void)
 	push(pop() * pop());
 }
 
+#if ENABLE_FEATURE_DC_LIBM
 static void power(void)
 {
 	double topower = pop();
 
 	push(pow(pop(), topower));
 }
+#endif
 
 static void divide(void)
 {
@@ -96,19 +100,45 @@ static void not(void)
 
 static void set_output_base(void)
 {
-	base = (unsigned)pop();
-	if ((base != 10) && (base != 16)) {
-		bb_error_msg("error, base %d is not supported", base);
+	static const char bases[] ALIGN1 = { 2, 8, 10, 16, 0 };
+	unsigned b = (unsigned)pop();
+
+	base = *strchrnul(bases, b);
+	if (base == 0) {
+		bb_error_msg("error, base %u is not supported", b);
 		base = 10;
 	}
 }
 
 static void print_base(double print)
 {
-	if (base == 16)
-		printf("%x\n", (unsigned)print);
-	else
+	unsigned x, i;
+
+	if (base == 10) {
 		printf("%g\n", print);
+		return;
+	}
+
+	x = (unsigned)print;
+	switch (base) {
+	case 16:
+		printf("%x\n", x);
+		break;
+	case 8:
+		printf("%o\n", x);
+		break;
+	default: /* base 2 */
+		i = (unsigned)INT_MAX + 1;
+		do {
+			if (x & i) break;
+			i >>= 1;
+		} while (i > 1);
+		do {
+			bb_putchar('1' - !(x & i));
+			i >>= 1;
+		} while (i);
+		bb_putchar('\n');
+	}
 }
 
 static void print_stack_no_pop(void)
@@ -137,9 +167,11 @@ static const struct op operators[] = {
 	{"mul", mul},
 	{"/",   divide},
 	{"div", divide},
+#if ENABLE_FEATURE_DC_LIBM
 	{"**",  power},
 	{"exp", power},
 	{"pow", power},
+#endif
 	{"%",   mod},
 	{"mod", mod},
 	{"and", and},
@@ -150,7 +182,7 @@ static const struct op operators[] = {
 	{"p", print_no_pop},
 	{"f", print_stack_no_pop},
 	{"o", set_output_base},
-	{ /* zero filled */ }
+	{ "", NULL }
 };
 
 static void stack_machine(const char *argument)
@@ -159,24 +191,21 @@ static void stack_machine(const char *argument)
 	double d;
 	const struct op *o = operators;
 
-	if (argument == 0)
-		return;
-
 	d = strtod(argument, &endPointer);
 
-	if (endPointer != argument) {
+	if (endPointer != argument && *endPointer == '\0') {
 		push(d);
 		return;
 	}
 
-	while (o->name[0]) {
+	while (o->function) {
 		if (strcmp(o->name, argument) == 0) {
 			o->function();
 			return;
 		}
 		o++;
 	}
-	bb_error_msg_and_die("%s: syntax error", argument);
+	bb_error_msg_and_die("syntax error at '%s'", argument);
 }
 
 /* return pointer to next token in buffer and set *buffer to one char
@@ -193,7 +222,7 @@ static char *get_token(char **buffer)
 }
 
 int dc_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int dc_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int dc_main(int argc UNUSED_PARAM, char **argv)
 {
 	INIT_G();
 
@@ -207,15 +236,17 @@ int dc_main(int argc ATTRIBUTE_UNUSED, char **argv)
 			cursor = line;
 			while (1) {
 				token = get_token(&cursor);
-				if (!token) break;
+				if (!token)
+					break;
 				*cursor++ = '\0';
 				stack_machine(token);
 			}
 			free(line);
 		}
 	} else {
-		if (argv[0][0] == '-')
-			bb_show_usage();
+		// why? it breaks "dc -2 2 * p"
+		//if (argv[0][0] == '-')
+		//	bb_show_usage();
 		do {
 			stack_machine(*argv);
 		} while (*++argv);

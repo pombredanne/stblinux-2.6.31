@@ -1566,6 +1566,9 @@ void scsi_eh_flush_done_q(struct list_head *done_q)
 	list_for_each_entry_safe(scmd, next, done_q, eh_entry) {
 		list_del_init(&scmd->eh_entry);
 		if (scsi_device_online(scmd->device) &&
+#if	defined(CONFIG_BRCM_SCSI_NO_RW10_RETRIES)                
+                    (scmd->cmnd[0] != READ_10) && (scmd->cmnd[0] != WRITE_10) &&
+#endif
 		    !scsi_noretry_cmd(scmd) &&
 		    (++scmd->retries <= scmd->allowed)) {
 			SCSI_LOG_ERROR_RECOVERY(3, printk("%s: flush"

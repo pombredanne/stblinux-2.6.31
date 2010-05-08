@@ -2,8 +2,9 @@
 /*
  * mkfs.c - make a linux (minix) file-system.
  *
- * (C) 1991 Linus Torvalds. This file may be redistributed as per
- * the Linux copyright.
+ * (C) 1991 Linus Torvalds.
+ *
+ * Licensed under GPLv2, see file LICENSE in this tarball for details.
  */
 
 /*
@@ -109,7 +110,7 @@ struct globals {
 	unsigned currently_testing;
 
 	char root_block[BLOCK_SIZE];
-	char super_block_buffer[BLOCK_SIZE];
+	char superblock_buffer[BLOCK_SIZE];
 	char boot_block_buffer[512];
 	unsigned short good_blocks_table[MAX_GOOD_BLOCKS];
 	/* check_blocks(): buffer[] was the biggest static in entire bbox */
@@ -133,7 +134,7 @@ static ALWAYS_INLINE unsigned div_roundup(unsigned size, unsigned n)
 #define INODE_BUF1              (((struct minix1_inode*)G.inode_buffer) - 1)
 #define INODE_BUF2              (((struct minix2_inode*)G.inode_buffer) - 1)
 
-#define SB                      (*(struct minix_super_block*)G.super_block_buffer)
+#define SB                      (*(struct minix_superblock*)G.superblock_buffer)
 
 #define SB_INODES               (SB.s_ninodes)
 #define SB_IMAPS                (SB.s_imap_blocks)
@@ -160,7 +161,7 @@ static ALWAYS_INLINE unsigned div_roundup(unsigned size, unsigned n)
 
 static int minix_bit(const char* a, unsigned i)
 {
-	  return a[i >> 3] & (1<<(i & 7));
+	return a[i >> 3] & (1<<(i & 7));
 }
 
 static void minix_setbit(char *a, unsigned i)
@@ -235,29 +236,29 @@ static int get_size(const char *file)
 
 static void write_tables(void)
 {
-	/* Mark the super block valid. */
+	/* Mark the superblock valid. */
 	SB.s_state |= MINIX_VALID_FS;
 	SB.s_state &= ~MINIX_ERROR_FS;
 
 	msg_eol = "seek to 0 failed";
 	xlseek(dev_fd, 0, SEEK_SET);
 
-	msg_eol = "cannot clear boot sector";
+	msg_eol = "can't clear boot sector";
 	xwrite(dev_fd, G.boot_block_buffer, 512);
 
 	msg_eol = "seek to BLOCK_SIZE failed";
 	xlseek(dev_fd, BLOCK_SIZE, SEEK_SET);
 
-	msg_eol = "cannot write superblock";
-	xwrite(dev_fd, G.super_block_buffer, BLOCK_SIZE);
+	msg_eol = "can't write superblock";
+	xwrite(dev_fd, G.superblock_buffer, BLOCK_SIZE);
 
-	msg_eol = "cannot write inode map";
+	msg_eol = "can't write inode map";
 	xwrite(dev_fd, G.inode_map, SB_IMAPS * BLOCK_SIZE);
 
-	msg_eol = "cannot write zone map";
+	msg_eol = "can't write zone map";
 	xwrite(dev_fd, G.zone_map, SB_ZMAPS * BLOCK_SIZE);
 
-	msg_eol = "cannot write inodes";
+	msg_eol = "can't write inodes";
 	xwrite(dev_fd, G.inode_buffer, INODE_BUFFER_SIZE);
 
 	msg_eol = "\n";
@@ -495,7 +496,7 @@ static size_t do_check(char *buffer, size_t try, unsigned current_block)
 	return try;
 }
 
-static void alarm_intr(int alnum ATTRIBUTE_UNUSED)
+static void alarm_intr(int alnum UNUSED_PARAM)
 {
 	if (G.currently_testing >= SB_ZONES)
 		return;
@@ -504,7 +505,7 @@ static void alarm_intr(int alnum ATTRIBUTE_UNUSED)
 	if (!G.currently_testing)
 		return;
 	printf("%d ...", G.currently_testing);
-	fflush(stdout);
+	fflush_all();
 }
 
 static void check_blocks(void)
@@ -540,7 +541,7 @@ static void get_list_blocks(char *filename)
 	FILE *listfile;
 	unsigned long blockno;
 
-	listfile = xfopen(filename, "r");
+	listfile = xfopen_for_read(filename);
 	while (!feof(listfile)) {
 		fscanf(listfile, "%ld\n", &blockno);
 		mark_zone(blockno);
@@ -556,7 +557,7 @@ static void setup_tables(void)
 	unsigned sb_zmaps;
 	unsigned i;
 
-	/* memset(G.super_block_buffer, 0, BLOCK_SIZE); */
+	/* memset(G.superblock_buffer, 0, BLOCK_SIZE); */
 	/* memset(G.boot_block_buffer, 0, 512); */
 	SB_MAGIC = G.magic;
 	SB_ZONE_SIZE = 0;
@@ -621,9 +622,8 @@ static void setup_tables(void)
 }
 
 int mkfs_minix_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int mkfs_minix_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int mkfs_minix_main(int argc UNUSED_PARAM, char **argv)
 {
-	struct mntent *mp;
 	unsigned opt;
 	char *tmp;
 	struct stat statbuf;
@@ -682,15 +682,12 @@ int mkfs_minix_main(int argc ATTRIBUTE_UNUSED, char **argv)
 		G.total_blocks = 65535;
 
 	/* Check if it is mounted */
-	mp = find_mount_point(G.device_name, NULL);
-	if (mp && strcmp(G.device_name, mp->mnt_fsname) == 0)
-		bb_error_msg_and_die("%s is mounted on %s; "
-				"refusing to make a filesystem",
-				G.device_name, mp->mnt_dir);
+	if (find_mount_point(G.device_name, 0))
+		bb_error_msg_and_die("can't format mounted filesystem");
 
 	xmove_fd(xopen(G.device_name, O_RDWR), dev_fd);
 	if (fstat(dev_fd, &statbuf) < 0)
-		bb_error_msg_and_die("cannot stat %s", G.device_name);
+		bb_error_msg_and_die("can't stat %s", G.device_name);
 	if (!S_ISBLK(statbuf.st_mode))
 		opt &= ~1; // clear -c (check)
 

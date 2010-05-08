@@ -61,6 +61,7 @@ typedef struct Enet_CB {
  */ 
 typedef struct BcmEnet_devctrl {
     struct net_device *dev;             /* ptr to net_device */
+	struct net_device *next_dev;
     spinlock_t      lock;               /* Serializing lock */
 	spinlock_t		bh_lock;			/* soft IRQ lock */
 	struct mii_if_info mii;				/* mii interface info */
@@ -96,6 +97,7 @@ typedef struct BcmEnet_devctrl {
 	unsigned int txRingSize[16];
 	unsigned int txRingCIndex[16];
 	int txRingFreeBds[16];
+	unsigned char * txRingStart[16];
 
     /* receive variables */
     volatile rDmaRegs *rxDma;			/* location of receive DMA register set */
@@ -109,6 +111,7 @@ typedef struct BcmEnet_devctrl {
 	unsigned int rxRingSize[16];		/* size of each ring */
 	unsigned int rxRingCIndex[16];		/* consumer index for each ring */
 	unsigned int rxRingDiscCnt[16];		/* Discarded packet count for each ring */
+	unsigned char * rxRingStart[16];
 
 
     int irq0;							/* regular IRQ */

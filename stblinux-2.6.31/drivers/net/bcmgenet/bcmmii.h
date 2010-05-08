@@ -46,6 +46,6 @@
 
 extern void mii_setup(struct net_device *dev);
 extern int mii_init(struct net_device *dev);
-extern int mii_probe(struct net_device * dev, int phy_id);
+extern int mii_probe(struct net_device * dev, void * p);
 
 #endif /* _BCMMII_H_ */

@@ -1,28 +1,62 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-03-04
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-05-07
 #
-# Original package: busybox-1.11.1.tar.bz2
+# Original package: busybox-1.16.1.tar.bz2
 #
-diff -ruNp busybox.orig/Makefile.custom busybox/Makefile.custom
---- busybox.orig/Makefile.custom	2008-06-25 05:51:33.000000000 -0700
-+++ busybox/Makefile.custom	2010-03-04 20:36:39.000000000 -0800
-@@ -23,6 +23,7 @@ ifeq ($(CONFIG_INSTALL_SH_APPLET_SCRIPT_
- INSTALL_OPTS:= --scriptwrapper
- endif
- endif
-+romfs:	install
- install: $(srctree)/applets/install.sh busybox busybox.links
- 	$(Q)DO_INSTALL_LIBS="$(strip $(LIBBUSYBOX_SONAME) $(DO_INSTALL_LIBS))" \
- 		$(SHELL) $< $(CONFIG_PREFIX) $(INSTALL_OPTS)
+diff -ruNp busybox.orig/makefile busybox/makefile
+--- busybox.orig/makefile	1969-12-31 16:00:00.000000000 -0800
++++ busybox/makefile	2010-05-07 13:25:04.000000000 -0700
+@@ -0,0 +1,41 @@
++#
++# General settings
++#
++
++include $(ROOTDIR)/config.arch
++
++BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
++
++CC			:= $(MACHINE)-linux-gcc
++STRIP			:= $(MACHINE)-linux-strip
++CFLAGS			:= -Os -fno-strict-aliasing
++
++export CC CFLAGS
++
++#
++# Settings that are specific to this package
++#
++
++#
++# Build targets
++#
++
++.PHONY: all
++all::
++	$(MAKE) -f Makefile
++
++.PHONY: romfs
++romfs::
++	$(MAKE) -f Makefile CONFIG_PREFIX=$(ROOTDIR)/romfs install
++
++.PHONY: clean distclean
++clean distclean::
++	$(MAKE) -f Makefile clean
++
++# These targets must not be passed through to the original Makefile
++.PHONY: $(BOGUS_TARGETS)
++$(BOGUS_TARGETS)::
++
++# Everything else (maybe including clean, distclean) does get passed through
++%:: FORCE
++	$(MAKE) -f Makefile $@
 diff -ruNp busybox.orig/networking/tftp.c busybox/networking/tftp.c
---- busybox.orig/networking/tftp.c	2008-06-25 05:51:14.000000000 -0700
-+++ busybox/networking/tftp.c	2010-03-04 20:36:39.000000000 -0800
-@@ -245,7 +245,7 @@ static int tftp_protocol(
- 	if (!(option_mask32 & TFTPD_OPT)) {
+--- busybox.orig/networking/tftp.c	2010-03-28 10:44:04.000000000 -0700
++++ busybox/networking/tftp.c	2010-05-07 13:25:04.000000000 -0700
+@@ -336,7 +336,7 @@ static int tftp_protocol(
+ 		/* Open file (must be after changing user) */
  		local_fd = CMD_GET(option_mask32) ? STDOUT_FILENO : STDIN_FILENO;
  		if (NOT_LONE_DASH(local_file))
 -			local_fd = xopen(local_file, open_mode);
 +			local_fd = xopen3(local_file, open_mode, 0755);
- 	} else {
- 		local_fd = open(local_file, open_mode);
- 		if (local_fd < 0) {
+ /* Removing #if, or using if() statement instead of #if may lead to
+  * "warning: null argument where non-null required": */
+ #if ENABLE_TFTP

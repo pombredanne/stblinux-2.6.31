@@ -713,7 +713,7 @@ static int brcmnand_write_bbt(struct mtd_info *mtd, uint8_t *buf,
 	struct erase_info einfo;
 	int i, j, res, chip = 0, skip = 0, dir = 0;
 	uint32_t bits, offs, sft, sftmsk, bbtoffs;
-	int64_t startblock = 0LL, numblocks, page, i64;
+	int64_t startblock = 0LL, numblocks, page = 0, i64;
 	int nrchips,  pageoffs, ooboffs;
 	uint8_t msk[4];
 	uint8_t rcode = td->reserved_block_code;

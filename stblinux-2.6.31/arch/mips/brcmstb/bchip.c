@@ -147,12 +147,18 @@ void __init bchip_check_compat(void)
 #elif defined(CONFIG_BCM7335)
 	ALT_CHIP_ID(7336, a0);
 	MAIN_CHIP_ID(7335, b0);
-#elif defined(CONFIG_BCM7340)
+#elif defined(CONFIG_BCM7340A0)
 	ALT_CHIP_ID(7350, a0);
 	MAIN_CHIP_ID(7340, a0);
-#elif defined(CONFIG_BCM7342)
+#elif defined(CONFIG_BCM7340B0)
+	ALT_CHIP_ID(7350, b0);
+	MAIN_CHIP_ID(7340, b0);
+#elif defined(CONFIG_BCM7342A0)
 	ALT_CHIP_ID(7352, a0);
 	MAIN_CHIP_ID(7342, a0);
+#elif defined(CONFIG_BCM7342B0)
+	ALT_CHIP_ID(7352, b0);
+	MAIN_CHIP_ID(7342, b0);
 #elif defined(CONFIG_BCM7400)
 	MAIN_CHIP_ID(7400, d0);
 #elif defined(CONFIG_BCM7401)
@@ -164,12 +170,10 @@ void __init bchip_check_compat(void)
 	MAIN_CHIP_ID(7405, b0);
 #elif defined(CONFIG_BCM7408)
 	MAIN_CHIP_ID(7408, a0);
-#elif defined(CONFIG_BCM7420B0)
-	ALT_CHIP_ID(3320, b0);
-	ALT_CHIP_ID(7220, b0);
-	ALT_CHIP_ID(7410, b0);
-	MAIN_CHIP_ID(7420, b0);
-#elif defined(CONFIG_BCM7420C0)
+#elif defined(CONFIG_BCM7420)
+	ALT_CHIP_ID(3320, c0);
+	ALT_CHIP_ID(7220, c0);
+	ALT_CHIP_ID(7410, c0);
 	MAIN_CHIP_ID(7420, c0);
 #elif defined(CONFIG_BCM7468)
 	MAIN_CHIP_ID(7468, a0);
@@ -233,6 +237,11 @@ void __init bchip_mips_setup(void)
 
 	// clear BHTD to enable branch history table
 	clear_c0_brcm_config_0(1 << 21);
+
+#elif defined(CONFIG_BMIPS5000)
+
+	// enable RDHWR, BRDHWR
+	set_c0_brcm_config((1 << 17) | (1 << 21));
 
 #elif defined(CONFIG_MTI_R5K)
 
@@ -332,15 +341,6 @@ void __init bchip_sdio_init(void)
 }
 #endif
 
-#ifdef CONFIG_BCM7420B0
-static int __init smp_setup(char *str)
-{
-	brcm_smp_enabled = 1;
-	return 0;
-}
-early_param("smp", smp_setup);
-#endif
-
 void __init bchip_set_features(void)
 {
 #if defined(CONFIG_BRCM_HAS_SATA)
@@ -399,10 +399,6 @@ void __init bchip_set_features(void)
 		brcm_emac_1_enabled = 0;
 		break;
 	}
-#endif
-
-#ifdef CONFIG_BCM7420B0
-	brcm_smp_enabled = 0;
 #endif
 
 #ifdef BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_sata_disable_MASK

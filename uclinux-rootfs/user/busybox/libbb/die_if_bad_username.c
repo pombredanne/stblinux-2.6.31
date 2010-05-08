@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * Ckeck user and group names for illegal characters
+ * Check user and group names for illegal characters
  *
  * Copyright (C) 2008 Tito Ragusa <farmatito@tiscali.it>
  *
@@ -16,7 +16,7 @@
  * at the end of the username.
  */
 
-void die_if_bad_username(const char *name)
+void FAST_FUNC die_if_bad_username(const char *name)
 {
 	goto skip; /* 1st char being dash isn't valid */
 	do {

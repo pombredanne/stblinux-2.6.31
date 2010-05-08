@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Dec  3 10:49:52 2009
- *                 MD5 Checksum         38b24b225d0e88942a53c4083ac0fc2f
+ * Date:           Generated on         Tue Feb  9 10:00:25 2010
+ *                 MD5 Checksum         4851e25353906805efc25a46b37246bb
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7420/rdb/c0/bchp_common.h $
  * 
- * Hydra_Software_Devel/2   12/3/09 12:02p tdo
- * SW7420-455: Update 7420C0 header files
+ * Hydra_Software_Devel/3   2/9/10 2:04p tdo
+ * SW7420-575: Sync up header files with RDB update
  *
  ***************************************************************************/
 
@@ -937,12 +937,12 @@
 #define BCHP_HD_ANR_MCTF_0_REG_END                         0x007951fc
 #define BCHP_HD_ANR_AND_0_REG_START                        0x00795400
 #define BCHP_HD_ANR_AND_0_REG_END                          0x00795478
-#define BCHP_MCDI_TOP_0_REG_START                          0x00796000
-#define BCHP_MCDI_TOP_0_REG_END                            0x00796030
-#define BCHP_MCDI_FCB_0_REG_START                          0x00796400
-#define BCHP_MCDI_FCB_0_REG_END                            0x007964ec
-#define BCHP_MCDI_PPB_0_REG_START                          0x00796800
-#define BCHP_MCDI_PPB_0_REG_END                            0x007968a4
+#define BCHP_MDI_TOP_0_REG_START                           0x00796000
+#define BCHP_MDI_TOP_0_REG_END                             0x00796030
+#define BCHP_MDI_FCB_0_REG_START                           0x00796400
+#define BCHP_MDI_FCB_0_REG_END                             0x007964ec
+#define BCHP_MDI_PPB_0_REG_START                           0x00796800
+#define BCHP_MDI_PPB_0_REG_END                             0x007968a4
 #define BCHP_DMISC_REG_START                               0x00797000
 #define BCHP_DMISC_REG_END                                 0x0079700c
 #define BCHP_DVP_HT_REG_START                              0x00798000
@@ -1285,7 +1285,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1304,7 +1304,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1323,7 +1323,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

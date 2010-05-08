@@ -320,7 +320,7 @@ void *dlopen(const char *libname, int flag)
 
 	relro_ptr = rpnt;
 	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
-	if (getenv("LD_BIND_NOW"))
+	//if (getenv("LD_BIND_NOW"))
 		now_flag = RTLD_NOW;
 
 	/* Try to load the specified library */

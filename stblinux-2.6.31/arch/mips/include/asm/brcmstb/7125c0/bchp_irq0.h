@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jan 22 20:20:28 2010
- *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
+ * Date:           Generated on         Mon Feb  1 16:35:53 2010
+ *                 MD5 Checksum         db70f79a01ba8d8eb2f9421f260a9754
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_irq0.h $
  * 
- * Hydra_Software_Devel/1   1/25/10 8:43p albertl
- * SW7125-177: Initial revision.
+ * Hydra_Software_Devel/2   2/2/10 7:22p albertl
+ * SW7125-98: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -107,9 +107,9 @@
 #define BCHP_IRQ0_IRQEN_uc_irqen_MASK                              0x00000200
 #define BCHP_IRQ0_IRQEN_uc_irqen_SHIFT                             9
 
-/* IRQ0 :: IRQEN :: kbd3_irqen [08:08] */
-#define BCHP_IRQ0_IRQEN_kbd3_irqen_MASK                            0x00000100
-#define BCHP_IRQ0_IRQEN_kbd3_irqen_SHIFT                           8
+/* IRQ0 :: IRQEN :: reserved4 [08:08] */
+#define BCHP_IRQ0_IRQEN_reserved4_MASK                             0x00000100
+#define BCHP_IRQ0_IRQEN_reserved4_SHIFT                            8
 
 /* IRQ0 :: IRQEN :: icap_irqen [07:07] */
 #define BCHP_IRQ0_IRQEN_icap_irqen_MASK                            0x00000080
@@ -202,9 +202,9 @@
 #define BCHP_IRQ0_IRQSTAT_ucirq_MASK                               0x00000200
 #define BCHP_IRQ0_IRQSTAT_ucirq_SHIFT                              9
 
-/* IRQ0 :: IRQSTAT :: kbd3irq [08:08] */
-#define BCHP_IRQ0_IRQSTAT_kbd3irq_MASK                             0x00000100
-#define BCHP_IRQ0_IRQSTAT_kbd3irq_SHIFT                            8
+/* IRQ0 :: IRQSTAT :: reserved4 [08:08] */
+#define BCHP_IRQ0_IRQSTAT_reserved4_MASK                           0x00000100
+#define BCHP_IRQ0_IRQSTAT_reserved4_SHIFT                          8
 
 /* IRQ0 :: IRQSTAT :: icapirq [07:07] */
 #define BCHP_IRQ0_IRQSTAT_icapirq_MASK                             0x00000080

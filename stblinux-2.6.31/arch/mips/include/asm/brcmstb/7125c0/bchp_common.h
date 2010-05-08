@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jan 22 20:05:34 2010
- *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
+ * Date:           Generated on         Mon Feb  1 16:20:01 2010
+ *                 MD5 Checksum         db70f79a01ba8d8eb2f9421f260a9754
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_common.h $
  * 
- * Hydra_Software_Devel/1   1/25/10 7:40p albertl
- * SW7125-177: Initial revision.
+ * Hydra_Software_Devel/2   2/2/10 7:22p albertl
+ * SW7125-98: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -725,8 +725,8 @@
 #define BCHP_EXT_656_TOP_0_REG_END                         0x008c3094
 #define BCHP_IN656_0_REG_START                             0x008c3100
 #define BCHP_IN656_0_REG_END                               0x008c312c
-#define BCHP_BMIPS4380_REG_START                           0x01fa0000
-#define BCHP_BMIPS4380_REG_END                             0x0201ffff
+#define BCHP_BMIPS4380_REG_START                           0x01f00000
+#define BCHP_BMIPS4380_REG_END                             0x01f7ffff
 #define BCHP_MEMC_DDR23_APHY_AC_REG_START                  0x02000000
 #define BCHP_MEMC_DDR23_APHY_AC_REG_END                    0x020000c0
 #define BCHP_MEMC_DDR23_APHY_WL1_REG_START                 0x02001000
@@ -1963,7 +1963,26 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_1_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_11 - CLIENT_INFO_MEMC0_11_AVD_DBLK_1
+ *Type_CLIENT_INFO_10 - CLIENT_INFO_MEMC0_10_BNM_MIPS
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_10 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_10 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_10 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_10 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_10_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_11 - CLIENT_INFO_MEMC0_11_BNM_UBUS
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_11 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_11_reserved0_MASK        0xffe00000
@@ -2001,7 +2020,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_118_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_12 - CLIENT_INFO_MEMC0_12_AVD_ILA_1
+ *Type_CLIENT_INFO_12 - CLIENT_INFO_MEMC0_12_BNM_DMA
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_12 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_12_reserved0_MASK        0xffe00000
@@ -2020,7 +2039,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_12_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_120 - CLIENT_INFO_120_MEMC0_AVD_PFR_0
+ *Type_CLIENT_INFO_120 - CLIENT_INFO_120_MEMC0_AVD_PFR
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_120 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_120_reserved0_MASK       0xffe00000
@@ -2039,26 +2058,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_120_PR_TAG_SHIFT         0
 
 /***************************************************************************
- *Type_CLIENT_INFO_121 - CLIENT_INFO_121_MEMC0_AVD_PFR_1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_121 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_reserved0_MASK       0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_reserved0_SHIFT      21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_121 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_BO_VAL_MASK          0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_BO_VAL_SHIFT         8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_121 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_RR_EN_MASK           0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_RR_EN_SHIFT          7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_121 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_PR_TAG_MASK          0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_121_PR_TAG_SHIFT         0
-
-/***************************************************************************
- *Type_CLIENT_INFO_124 - CLIENT_INFO_124_MEMC0_CPU_LMB0_CPU_LMB1
+ *Type_CLIENT_INFO_124 - CLIENT_INFO_124_MEMC0_CPU_LMB
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_124 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_124_reserved0_MASK       0xffe00000
@@ -2113,63 +2113,6 @@
 /* MC_CORE_ARB :: Type_CLIENT_INFO_127 :: PR_TAG [06:00] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_127_PR_TAG_MASK          0x0000007f
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_127_PR_TAG_SHIFT         0
-
-/***************************************************************************
- *Type_CLIENT_INFO_13 - CLIENT_INFO_MEMC0_13_AVD_OLA_1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_13 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_13 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_13 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_13 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_13_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_14 - CLIENT_INFO_MEMC0_14_AVD_CAB_1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_14 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_14 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_14 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_14 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_14_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_15 - CLIENT_INFO_MEMC0_15_AVD_SYM_1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_15 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_15 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_15 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_15 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_15_PR_TAG_SHIFT          0
 
 /***************************************************************************
  *Type_CLIENT_INFO_16 - CLIENT_INFO_MEMC0_16_XPT_RD1
@@ -2267,7 +2210,26 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_20_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_22 - CLIENT_INFO_MEMC0_22_AEGIS
+ *Type_CLIENT_INFO_21 - CLIENT_INFO_MEMC0_21_BVN_I656_ANC0
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_21 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_21 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_21 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_21 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_21_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_22 - CLIENT_INFO_MEMC0_22_BSP
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_22 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_22_reserved0_MASK        0xffe00000
@@ -2303,25 +2265,6 @@
 /* MC_CORE_ARB :: Type_CLIENT_INFO_23 :: PR_TAG [06:00] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_23_PR_TAG_MASK           0x0000007f
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_23_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_24 - CLIENT_INFO_MEMC0_24_VEC_VBI_ENC2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_24 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_24 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_24 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_24 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_24_PR_TAG_SHIFT          0
 
 /***************************************************************************
  *Type_CLIENT_INFO_25 - CLIENT_INFO_MEMC0_25_VEC_VBI_ENC1
@@ -2362,25 +2305,6 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_26_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_27 - CLIENT_INFO_MEMC0_27_BVN_GFD2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_27 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_27 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_27 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_27 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_27_PR_TAG_SHIFT          0
-
-/***************************************************************************
  *Type_CLIENT_INFO_28 - CLIENT_INFO_MEMC0_28_BVN_GFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_28 :: reserved0 [31:21] */
@@ -2419,7 +2343,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_29_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_3 - CLIENT_INFO_MEMC0_3_M2MC0
+ *Type_CLIENT_INFO_3 - CLIENT_INFO_MEMC0_3_M2MC
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_3 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_3_reserved0_MASK         0xffe00000
@@ -2436,44 +2360,6 @@
 /* MC_CORE_ARB :: Type_CLIENT_INFO_3 :: PR_TAG [06:00] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_3_PR_TAG_MASK            0x0000007f
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_3_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_30 - CLIENT_INFO_MEMC0_30_BVN_CAP3
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_30 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_30 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_30 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_30 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_30_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_31 - CLIENT_INFO_31_MEMC0_BVN_CAP2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_31 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_31 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_31 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_31 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_31_PR_TAG_SHIFT          0
 
 /***************************************************************************
  *Type_CLIENT_INFO_32 - CLIENT_INFO_32_MEMC0_BVN_CAP1
@@ -2533,44 +2419,6 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_34_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_35 - CLIENT_INFO_35_MEMC0_BVN_VFD3
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_35 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_35 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_35 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_35 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_35_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_36 - CLIENT_INFO_36_MEMC0_BVN_VFD2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_36 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_36 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_36 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_36 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_36_PR_TAG_SHIFT          0
-
-/***************************************************************************
  *Type_CLIENT_INFO_37 - CLIENT_INFO_37_MEMC0_BVN_VFD1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_37 :: reserved0 [31:21] */
@@ -2609,26 +2457,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_38_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_39 - CLIENT_INFO_39_MEMC0_BVN_MFD0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_39 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_39 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_39 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_39 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_39_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_4 - CLIENT_INFO_MEMC0_4_AVD_DBLK_0
+ *Type_CLIENT_INFO_4 - CLIENT_INFO_MEMC0_4_AVD_DBLK
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_4 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_4_reserved0_MASK         0xffe00000
@@ -2647,7 +2476,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_4_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_40 - CLIENT_INFO_40_MEMC0_BVN_MFD1
+ *Type_CLIENT_INFO_40 - CLIENT_INFO_40_MEMC0_BVN_MFD0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_40 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_40_reserved0_MASK        0xffe00000
@@ -2666,7 +2495,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_40_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_41 - CLIENT_INFO_41_MEMC0_CPU_SCB0_CPU_SCB1
+ *Type_CLIENT_INFO_41 - CLIENT_INFO_41_MEMC0_CPU_SCB
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_41 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_41_reserved0_MASK        0xffe00000
@@ -2723,25 +2552,6 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_44_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_45 - CLIENT_INFO_45_MEMC0_ENET0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_45 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_45 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_45 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_45 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_45_PR_TAG_SHIFT          0
-
-/***************************************************************************
  *Type_CLIENT_INFO_46 - CLIENT_INFO_46_MEMC0_PIX_3D_GPORT
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_46 :: reserved0 [31:21] */
@@ -2761,7 +2571,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_46_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_47 - CLIENT_INFO_47_MEMC0_USB_20_USB_HI
+ *Type_CLIENT_INFO_47 - CLIENT_INFO_47_MEMC0_USB0
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_47 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_47_reserved0_MASK        0xffe00000
@@ -2780,7 +2590,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_47_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_48 - CLIENT_INFO_48_MEMC0_USB_11_USB_LO
+ *Type_CLIENT_INFO_48 - CLIENT_INFO_48_MEMC0_USB1
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_48 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_48_reserved0_MASK        0xffe00000
@@ -2799,7 +2609,26 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_48_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_5 - CLIENT_INFO_MEMC0_5_AVD_ILA_0
+ *Type_CLIENT_INFO_49 - CLIENT_INFO_49_MEMC0_MAD_FD0
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_49 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_49 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_49 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_49 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_49_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_5 - CLIENT_INFO_MEMC0_5_AVD_ILA
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_5 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_5_reserved0_MASK         0xffe00000
@@ -2818,7 +2647,83 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_5_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_54 - CLIENT_INFO_54_MEMC0_BVN_MCVP0
+ *Type_CLIENT_INFO_50 - CLIENT_INFO_50_MEMC0_MAD_FD1
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_50 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_50 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_50 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_50 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_50_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_51 - CLIENT_INFO_51_MEMC0_MAD_FD2
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_51 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_51 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_51 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_51 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_51_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_52 - CLIENT_INFO_52_MEMC0_MAD_FD3
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_52 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_52 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_52 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_52 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_52_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_53 - CLIENT_INFO_53_MEMC0_MAD_CAP
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_53 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_53 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_53 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_53 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_53_PR_TAG_SHIFT          0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_54 - CLIENT_INFO_54_MEMC0_MAD_QM
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_54 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_54_reserved0_MASK        0xffe00000
@@ -2835,25 +2740,6 @@
 /* MC_CORE_ARB :: Type_CLIENT_INFO_54 :: PR_TAG [06:00] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_54_PR_TAG_MASK           0x0000007f
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_54_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_55 - CLIENT_INFO_55_MEMC0_BVN_MCVP1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_55 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_55 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_55 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_55 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_55_PR_TAG_SHIFT          0
 
 /***************************************************************************
  *Type_CLIENT_INFO_56 - CLIENT_INFO_56_MEMC0_MCIF_RD
@@ -2913,7 +2799,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_58_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_59 - CLIENT_INFO_59_MEMC0_ENET1_MOCA_DATA
+ *Type_CLIENT_INFO_59 - CLIENT_INFO_59_MEMC0_ENET_MOCA_WR
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_59 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_59_reserved0_MASK        0xffe00000
@@ -2932,7 +2818,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_59_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_6 - CLIENT_INFO_MEMC0_6_AVD_OLA_0
+ *Type_CLIENT_INFO_6 - CLIENT_INFO_MEMC0_6_AVD_OLA
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_6 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_6_reserved0_MASK         0xffe00000
@@ -2949,6 +2835,25 @@
 /* MC_CORE_ARB :: Type_CLIENT_INFO_6 :: PR_TAG [06:00] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_6_PR_TAG_MASK            0x0000007f
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_6_PR_TAG_SHIFT           0
+
+/***************************************************************************
+ *Type_CLIENT_INFO_60 - CLIENT_INFO_60_MEMC0_ENET_MOCA_RD
+ ***************************************************************************/
+/* MC_CORE_ARB :: Type_CLIENT_INFO_60 :: reserved0 [31:21] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_reserved0_MASK        0xffe00000
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_reserved0_SHIFT       21
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_60 :: BO_VAL [20:08] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_BO_VAL_MASK           0x001fff00
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_BO_VAL_SHIFT          8
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_60 :: RR_EN [07:07] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_RR_EN_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_RR_EN_SHIFT           7
+
+/* MC_CORE_ARB :: Type_CLIENT_INFO_60 :: PR_TAG [06:00] */
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_PR_TAG_MASK           0x0000007f
+#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_60_PR_TAG_SHIFT          0
 
 /***************************************************************************
  *Type_CLIENT_INFO_62 - CLIENT_INFO_62_MEMC0_MOCA_MIPS
@@ -2970,44 +2875,6 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_62_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_63 - CLIENT_INFO_63_MEMC0_PCIE
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_63 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_63 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_63 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_63 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_63_PR_TAG_SHIFT          0
-
-/***************************************************************************
- *Type_CLIENT_INFO_64 - CLIENT_INFO_64_MEMC0_IEEE_1394
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_64 :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_reserved0_MASK        0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_reserved0_SHIFT       21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_64 :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_BO_VAL_MASK           0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_BO_VAL_SHIFT          8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_64 :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_RR_EN_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_RR_EN_SHIFT           7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_64 :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_PR_TAG_MASK           0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_64_PR_TAG_SHIFT          0
-
-/***************************************************************************
  *Type_CLIENT_INFO_65 - CLIENT_INFO_65_MEMC0_TPCAP
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_65 :: reserved0 [31:21] */
@@ -3027,7 +2894,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_65_PR_TAG_SHIFT          0
 
 /***************************************************************************
- *Type_CLIENT_INFO_7 - CLIENT_INFO_MEMC0_7_AVD_CAB_0
+ *Type_CLIENT_INFO_7 - CLIENT_INFO_MEMC0_7_AVD_CAB
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_7 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_7_reserved0_MASK         0xffe00000
@@ -3046,7 +2913,7 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_7_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_8 - CLIENT_INFO_MEMC0_8_AVD_SYM_0
+ *Type_CLIENT_INFO_8 - CLIENT_INFO_MEMC0_8_AVD_SYM
  ***************************************************************************/
 /* MC_CORE_ARB :: Type_CLIENT_INFO_8 :: reserved0 [31:21] */
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_8_reserved0_MASK         0xffe00000
@@ -3084,414 +2951,11 @@
 #define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_9_PR_TAG_SHIFT           0
 
 /***************************************************************************
- *Type_CLIENT_INFO_a - CLIENT_INFO_MEMC1_3_M2MC0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_a :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_a :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_a :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_a :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_a_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_b - CLIENT_INFO_MEMC1_27_BVN_GFD2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_b :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_b :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_b :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_b :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_b_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_c - CLIENT_INFO_MEMC1_28_BVN_GFD1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_c :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_c :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_c :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_c :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_c_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_d - CLIENT_INFO_MEMC1_29_BVN_GFD0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_d :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_d :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_d :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_d :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_d_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_e - CLIENT_INFO_MEMC1_30_BVN_CAP3
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_e :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_e :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_e :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_e :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_e_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_f - CLIENT_INFO_31_MEMC1_BVN_CAP2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_f :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_f :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_f :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_f :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_f_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_g - CLIENT_INFO_32_MEMC1_BVN_CAP1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_g :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_g :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_g :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_g :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_g_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_h - CLIENT_INFO_33_MEMC1_BVN_CAP0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_h :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_h :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_h :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_h :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_h_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_i - CLIENT_INFO_34_MEMC1_BVN_RDC
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_i :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_i :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_i :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_i :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_i_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_j - CLIENT_INFO_35_MEMC1_BVN_VFD3
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_j :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_j :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_j :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_j :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_j_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_k - CLIENT_INFO_36_MEMC1_BVN_VFD2
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_k :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_k :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_k :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_k :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_k_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_l - CLIENT_INFO_37_MEMC1_BVN_VFD1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_l :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_l :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_l :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_l :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_l_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_m - CLIENT_INFO_38_MEMC1_BVN_VFD0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_m :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_m :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_m :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_m :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_m_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_n - CLIENT_INFO_39_MEMC1_BVN_MFD0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_n :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_n :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_n :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_n :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_n_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_o - CLIENT_INFO_40_MEMC1_BVN_MFD1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_o :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_o :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_o :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_o :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_o_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_p - CLIENT_INFO_44_MEMC1_M2M_DMA0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_p :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_p :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_p :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_p :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_p_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_q - CLIENT_INFO_46_MEMC1_PIX_3D_GPORT
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_q :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_q :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_q :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_q :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_q_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_r - CLIENT_INFO_54_MEMC1_BVN_MCVP0
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_r :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_r :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_r :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_r :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_r_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_s - CLIENT_INFO_55_MEMC1_BVN_MCVP1
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_s :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_s :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_s :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_s :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_s_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_t - CLIENT_INFO_127_MEMC1_MEMC16_REF
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_t :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_t :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_t :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_t :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_t_PR_TAG_SHIFT           0
-
-/***************************************************************************
- *Type_CLIENT_INFO_u - CLIENT_INFO_118_MEMC1_MEMC16_SOFT
- ***************************************************************************/
-/* MC_CORE_ARB :: Type_CLIENT_INFO_u :: reserved0 [31:21] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_reserved0_MASK         0xffe00000
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_reserved0_SHIFT        21
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_u :: BO_VAL [20:08] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_BO_VAL_MASK            0x001fff00
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_BO_VAL_SHIFT           8
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_u :: RR_EN [07:07] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_RR_EN_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_RR_EN_SHIFT            7
-
-/* MC_CORE_ARB :: Type_CLIENT_INFO_u :: PR_TAG [06:00] */
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_PR_TAG_MASK            0x0000007f
-#define BCHP_MC_CORE_ARB_Type_CLIENT_INFO_u_PR_TAG_SHIFT           0
-
-/***************************************************************************
  *Type_REQ_MASK_0 - REQ_MASK_31_0
  ***************************************************************************/
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVN_CAP2 [31:31] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_CAP2_MASK             0x80000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_CAP2_SHIFT            31
-
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVN_CAP3 [30:30] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_CAP3_MASK             0x40000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_CAP3_SHIFT            30
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved0 [31:30] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved0_MASK            0xc0000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved0_SHIFT           30
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVN_GFD0 [29:29] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_GFD0_MASK             0x20000000
@@ -3501,9 +2965,9 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_GFD1_MASK             0x10000000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_GFD1_SHIFT            28
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVN_GFD2 [27:27] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_GFD2_MASK             0x08000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_GFD2_SHIFT            27
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved1 [27:27] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved1_MASK            0x08000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved1_SHIFT           27
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: VEC_VBI_ENC0 [26:26] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_VEC_VBI_ENC0_MASK         0x04000000
@@ -3513,21 +2977,21 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_VEC_VBI_ENC1_MASK         0x02000000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_VEC_VBI_ENC1_SHIFT        25
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: VEC_VBI_ENC2 [24:24] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_VEC_VBI_ENC2_MASK         0x01000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_VEC_VBI_ENC2_SHIFT        24
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved2 [24:24] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved2_MASK            0x01000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved2_SHIFT           24
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: XPT_RD2 [23:23] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_RD2_MASK              0x00800000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_RD2_SHIFT             23
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AEGIS_BSP [22:22] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AEGIS_BSP_MASK            0x00400000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AEGIS_BSP_SHIFT           22
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BSP [22:22] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BSP_MASK                  0x00400000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BSP_SHIFT                 22
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved0 [21:21] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved0_MASK            0x00200000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved0_SHIFT           21
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVN_I656_ANC0 [21:21] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_I656_ANC0_MASK        0x00200000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVN_I656_ANC0_SHIFT       21
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: AUD_AIO [20:20] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AUD_AIO_MASK              0x00100000
@@ -3537,9 +3001,9 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AUD_ZSP_MASK              0x00080000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AUD_ZSP_SHIFT             19
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved1 [18:18] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved1_MASK            0x00040000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved1_SHIFT           18
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved3 [18:18] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved3_MASK            0x00040000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved3_SHIFT           18
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: BVNM_FGT_EDU [17:17] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BVNM_FGT_EDU_MASK         0x00020000
@@ -3549,57 +3013,49 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_RD1_MASK              0x00010000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_RD1_SHIFT             16
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_SYM_1 [15:15] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_SYM_1_MASK            0x00008000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_SYM_1_SHIFT           15
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved4 [15:13] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved4_MASK            0x0000e000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved4_SHIFT           13
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_CAB_1 [14:14] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_CAB_1_MASK            0x00004000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_CAB_1_SHIFT           14
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BNM_DMA [12:12] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BNM_DMA_MASK              0x00001000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BNM_DMA_SHIFT             12
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_OLA_1 [13:13] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_OLA_1_MASK            0x00002000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_OLA_1_SHIFT           13
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BNM_UBUS [11:11] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BNM_UBUS_MASK             0x00000800
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BNM_UBUS_SHIFT            11
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_ILA_1 [12:12] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_ILA_1_MASK            0x00001000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_ILA_1_SHIFT           12
-
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_DBLK_1 [11:11] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_DBLK_1_MASK           0x00000800
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_DBLK_1_SHIFT          11
-
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: reserved2 [10:10] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved2_MASK            0x00000400
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_reserved2_SHIFT           10
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: BNM_MIPS [10:10] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BNM_MIPS_MASK             0x00000400
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_BNM_MIPS_SHIFT            10
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: XPT_RD0 [09:09] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_RD0_MASK              0x00000200
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_RD0_SHIFT             9
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_SYM_0 [08:08] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_SYM_0_MASK            0x00000100
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_SYM_0_SHIFT           8
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_SYM [08:08] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_SYM_MASK              0x00000100
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_SYM_SHIFT             8
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_CAB_0 [07:07] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_CAB_0_MASK            0x00000080
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_CAB_0_SHIFT           7
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_CAB [07:07] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_CAB_MASK              0x00000080
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_CAB_SHIFT             7
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_OLA_0 [06:06] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_OLA_0_MASK            0x00000040
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_OLA_0_SHIFT           6
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_OLA [06:06] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_OLA_MASK              0x00000040
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_OLA_SHIFT             6
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_ILA_0 [05:05] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_ILA_0_MASK            0x00000020
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_ILA_0_SHIFT           5
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_ILA [05:05] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_ILA_MASK              0x00000020
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_ILA_SHIFT             5
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_DBLK_0 [04:04] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_DBLK_0_MASK           0x00000010
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_DBLK_0_SHIFT          4
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: AVD_DBLK [04:04] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_DBLK_MASK             0x00000010
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_AVD_DBLK_SHIFT            4
 
-/* MC_CORE_ARB :: Type_REQ_MASK_0 :: M2MC0_GFX [03:03] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_M2MC0_GFX_MASK            0x00000008
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_M2MC0_GFX_SHIFT           3
+/* MC_CORE_ARB :: Type_REQ_MASK_0 :: M2MC [03:03] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_M2MC_MASK                 0x00000008
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_M2MC_SHIFT                3
 
 /* MC_CORE_ARB :: Type_REQ_MASK_0 :: XPT_WR2 [02:02] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_0_XPT_WR2_MASK              0x00000004
@@ -3616,13 +3072,25 @@
 /***************************************************************************
  *Type_REQ_MASK_1 - REQ_MASK_63_32
  ***************************************************************************/
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved0 [31:28] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved0_MASK            0xf0000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved0_SHIFT           28
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved0 [31:31] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved0_MASK            0x80000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved0_SHIFT           31
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: ENET1_MOCA_DATA [27:27] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET1_MOCA_DATA_MASK      0x08000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET1_MOCA_DATA_SHIFT     27
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MOCA_MIPS [30:30] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MOCA_MIPS_MASK            0x40000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MOCA_MIPS_SHIFT           30
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved1 [29:29] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved1_MASK            0x20000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved1_SHIFT           29
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: ENET_MOCA_RD [28:28] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET_MOCA_RD_MASK         0x10000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET_MOCA_RD_SHIFT        28
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: ENET_MOCA_WR [27:27] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET_MOCA_WR_MASK         0x08000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET_MOCA_WR_SHIFT        27
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: SATA [26:26] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_SATA_MASK                 0x04000000
@@ -3636,57 +3104,73 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MCIF_RD_MASK              0x01000000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MCIF_RD_SHIFT             24
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_MCVP1 [23:23] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MCVP1_MASK            0x00800000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MCVP1_SHIFT           23
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved2 [23:23] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved2_MASK            0x00800000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved2_SHIFT           23
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_MCVP0 [22:22] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MCVP0_MASK            0x00400000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MCVP0_SHIFT           22
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MAD_QM [22:22] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_QM_MASK               0x00400000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_QM_SHIFT              22
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved1 [21:17] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved1_MASK            0x003e0000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved1_SHIFT           17
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MAD_CAP [21:21] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_CAP_MASK              0x00200000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_CAP_SHIFT             21
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: USB_11_USB_LO [16:16] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB_11_USB_LO_MASK        0x00010000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB_11_USB_LO_SHIFT       16
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MAD_FD3 [20:20] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD3_MASK              0x00100000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD3_SHIFT             20
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: USB_20_USB_HI [15:15] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB_20_USB_HI_MASK        0x00008000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB_20_USB_HI_SHIFT       15
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MAD_FD2 [19:19] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD2_MASK              0x00080000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD2_SHIFT             19
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MAD_FD1 [18:18] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD1_MASK              0x00040000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD1_SHIFT             18
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: MAD_FD0 [17:17] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD0_MASK              0x00020000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_MAD_FD0_SHIFT             17
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: USB1 [16:16] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB1_MASK                 0x00010000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB1_SHIFT                16
+
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: USB0 [15:15] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB0_MASK                 0x00008000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_USB0_SHIFT                15
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: PIX_3D_GPORT [14:14] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_PIX_3D_GPORT_MASK         0x00004000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_PIX_3D_GPORT_SHIFT        14
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: ENET0 [13:13] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET0_MASK                0x00002000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_ENET0_SHIFT               13
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved3 [13:13] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved3_MASK            0x00002000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved3_SHIFT           13
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: M2M_DMA0 [12:12] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_M2M_DMA0_MASK             0x00001000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_M2M_DMA0_SHIFT            12
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved2 [11:11] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved2_MASK            0x00000800
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved2_SHIFT           11
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved4 [11:11] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved4_MASK            0x00000800
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved4_SHIFT           11
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: PCI_HIF_PCI [10:10] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_PCI_HIF_PCI_MASK          0x00000400
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_PCI_HIF_PCI_SHIFT         10
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: CPU_SCB0_SCB1 [09:09] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_CPU_SCB0_SCB1_MASK        0x00000200
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_CPU_SCB0_SCB1_SHIFT       9
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: CPU_SCB [09:09] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_CPU_SCB_MASK              0x00000200
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_CPU_SCB_SHIFT             9
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_MFD0 [08:08] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MFD0_MASK             0x00000100
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MFD0_SHIFT            8
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_MFD1 [07:07] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MFD1_MASK             0x00000080
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_MFD1_SHIFT            7
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved5 [07:07] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved5_MASK            0x00000080
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved5_SHIFT           7
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_VFD0 [06:06] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD0_MASK             0x00000040
@@ -3696,13 +3180,9 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD1_MASK             0x00000020
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD1_SHIFT            5
 
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_VFD2 [04:04] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD2_MASK             0x00000010
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD2_SHIFT            4
-
-/* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_VFD3 [03:03] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD3_MASK             0x00000008
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_VFD3_SHIFT            3
+/* MC_CORE_ARB :: Type_REQ_MASK_1 :: reserved6 [04:03] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved6_MASK            0x00000018
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_reserved6_SHIFT           3
 
 /* MC_CORE_ARB :: Type_REQ_MASK_1 :: BVN_RDC [02:02] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_1_BVN_RDC_MASK              0x00000004
@@ -3727,48 +3207,48 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_DRAM_INIT_MASK            0x40000000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_DRAM_INIT_SHIFT           30
 
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: CPU_LMB1 [29:29] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_CPU_LMB1_MASK             0x20000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_CPU_LMB1_SHIFT            29
+/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved0 [29:29] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved0_MASK            0x20000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved0_SHIFT           29
 
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: CPU_LMB0 [28:28] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_CPU_LMB0_MASK             0x10000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_CPU_LMB0_SHIFT            28
+/* MC_CORE_ARB :: Type_REQ_MASK_2 :: CPU_LMB [28:28] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_CPU_LMB_MASK              0x10000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_CPU_LMB_SHIFT             28
 
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved0 [27:26] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved0_MASK            0x0c000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved0_SHIFT           26
+/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved1 [27:25] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved1_MASK            0x0e000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved1_SHIFT           25
 
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: AVD_PFR_1 [25:25] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_AVD_PFR_1_MASK            0x02000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_AVD_PFR_1_SHIFT           25
+/* MC_CORE_ARB :: Type_REQ_MASK_2 :: AVD_PFR [24:24] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_AVD_PFR_MASK              0x01000000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_AVD_PFR_SHIFT             24
 
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: AVD_PFR_0 [24:24] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_AVD_PFR_0_MASK            0x01000000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_AVD_PFR_0_SHIFT           24
-
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved1 [23:23] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved1_MASK            0x00800000
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved1_SHIFT           23
+/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved2 [23:23] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved2_MASK            0x00800000
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved2_SHIFT           23
 
 /* MC_CORE_ARB :: Type_REQ_MASK_2 :: MEMC64_SOFT_MEMC16_SOFT [22:22] */
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_MEMC64_SOFT_MEMC16_SOFT_MASK 0x00400000
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_MEMC64_SOFT_MEMC16_SOFT_SHIFT 22
 
-/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved2 [21:00] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved2_MASK            0x003fffff
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved2_SHIFT           0
+/* MC_CORE_ARB :: Type_REQ_MASK_2 :: reserved3 [21:00] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved3_MASK            0x003fffff
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_2_reserved3_SHIFT           0
 
 /***************************************************************************
  *Type_REQ_MASK_3 - REQ_MASK_95_64
  ***************************************************************************/
-/* MC_CORE_ARB :: Type_REQ_MASK_3 :: reserved0 [31:01] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved0_MASK            0xfffffffe
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved0_SHIFT           1
+/* MC_CORE_ARB :: Type_REQ_MASK_3 :: reserved0 [31:02] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved0_MASK            0xfffffffc
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved0_SHIFT           2
 
-/* MC_CORE_ARB :: Type_REQ_MASK_3 :: TPCAP [00:00] */
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_TPCAP_MASK                0x00000001
-#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_TPCAP_SHIFT               0
+/* MC_CORE_ARB :: Type_REQ_MASK_3 :: TPCAP [01:01] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_TPCAP_MASK                0x00000002
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_TPCAP_SHIFT               1
+
+/* MC_CORE_ARB :: Type_REQ_MASK_3 :: reserved1 [00:00] */
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved1_MASK            0x00000001
+#define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_reserved1_SHIFT           0
 
 /***************************************************************************
  *MEM_DMA

@@ -15,6 +15,9 @@
 SYSCTL=do_sysctl
 OPDIR=/bin
 
+# workaround for missing busybox "id"
+id() { echo 0; }
+
 # A replacement function for the sysctl (procps package) utility which is
 # missing on some distribution (e.g. slack 7.0).
 # Handles only the -w option of sysctl.

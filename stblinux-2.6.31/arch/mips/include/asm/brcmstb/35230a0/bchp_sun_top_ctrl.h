@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Nov 12 13:32:51 2009
- *                 MD5 Checksum         88a71c3a08910d1ca82e4a5acd0134b4
+ * Date:           Generated on         Fri Feb  5 19:32:02 2010
+ *                 MD5 Checksum         aa1aa4a4e2b92b135d510e610a0f4da4
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35230/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/3   11/13/09 7:08p albertl
- * SW35230-11: Updated to match RDB.
+ * Hydra_Software_Devel/4   2/9/10 4:08p albertl
+ * SW35230-70: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -1093,13 +1093,25 @@
 /***************************************************************************
  *GENERAL_CTRL_0 - General control register 0
  ***************************************************************************/
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_reserved [31:25] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_reserved_MASK    0xfe000000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_reserved_SHIFT   25
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_bypass_otp_clk [31:31] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_bypass_otp_clk_MASK 0x80000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_bypass_otp_clk_SHIFT 31
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_burst_stat_sel [24:24] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_stat_sel_MASK 0x01000000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_stat_sel_SHIFT 24
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_read_fout [30:30] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_read_fout_MASK 0x40000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_read_fout_SHIFT 30
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_testcol [29:29] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_testcol_MASK 0x20000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_testcol_SHIFT 29
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_cpu_debug_sel [28:25] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_cpu_debug_sel_MASK 0x1e000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_cpu_debug_sel_SHIFT 25
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_burst_start_sel [24:24] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_start_sel_MASK 0x01000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_start_sel_SHIFT 24
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_access_mode [23:22] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_access_mode_MASK 0x00c00000

@@ -2,7 +2,7 @@
 /*
  * Mini run-parts implementation for busybox
  *
- * Copyright (C) 2007 Bernhard Fischer
+ * Copyright (C) 2007 Bernhard Reutner-Fischer
  *
  * Based on a older version that was in busybox which was 1k big..
  *   Copyright (C) 2001 by Emanuele Aina <emanuele.aina@tiscali.it>
@@ -77,7 +77,7 @@ static int bb_alphasort(const void *p1, const void *p2)
 	return (option_mask32 & OPT_r) ? -r : r;
 }
 
-static int act(const char *file, struct stat *statbuf, void *args ATTRIBUTE_UNUSED, int depth)
+static int FAST_FUNC act(const char *file, struct stat *statbuf, void *args UNUSED_PARAM, int depth)
 {
 	if (depth == 1)
 		return TRUE;
@@ -90,9 +90,9 @@ static int act(const char *file, struct stat *statbuf, void *args ATTRIBUTE_UNUS
 		return SKIP;
 	}
 
-	names = xrealloc(names, (cur + 2) * sizeof(names[0]));
+	names = xrealloc_vector(names, 4, cur);
 	names[cur++] = xstrdup(file);
-	names[cur] = NULL;
+	/*names[cur] = NULL; - xrealloc_vector did it */
 
 	return TRUE;
 }
@@ -111,7 +111,7 @@ static const char runparts_longopts[] ALIGN1 =
 #endif
 
 int run_parts_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
-int run_parts_main(int argc ATTRIBUTE_UNUSED, char **argv)
+int run_parts_main(int argc UNUSED_PARAM, char **argv)
 {
 	const char *umask_p = "22";
 	llist_t *arg_list = NULL;
@@ -124,7 +124,7 @@ int run_parts_main(int argc ATTRIBUTE_UNUSED, char **argv)
 	/* We require exactly one argument: the directory name */
 	/* We require exactly one argument: the directory name */
 	opt_complementary = "=1:a::";
-	getopt32(argv, "ra:u:t"USE_FEATURE_RUN_PARTS_FANCY("l"), &arg_list, &umask_p);
+	getopt32(argv, "ra:u:t"IF_FEATURE_RUN_PARTS_FANCY("l"), &arg_list, &umask_p);
 
 	umask(xstrtou_range(umask_p, 8, 0, 07777));
 
@@ -164,7 +164,7 @@ int run_parts_main(int argc ATTRIBUTE_UNUSED, char **argv)
 			continue;
 		n = 1;
 		if (ret < 0)
-			bb_perror_msg("can't exec %s", name);
+			bb_perror_msg("can't execute '%s'", name);
 		else /* ret > 0 */
 			bb_error_msg("%s exited with code %d", name, ret);
 	}
