@@ -58,6 +58,7 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 
 #include <linux/types.h>
 #include <linux/sockios.h>
@@ -81,6 +82,7 @@ struct brcm_pm_priv
 #define SYS_MOCA_STAT	"/sys/devices/platform/brcmstb/moca_power"
 #define SYS_SATA_STAT	"/sys/devices/platform/brcmstb/sata_power"
 #define SYS_DDR_STAT	"/sys/devices/platform/brcmstb/ddr_timeout"
+#define SYS_STANDBY_FLAGS "/sys/devices/platform/brcmstb/standby_flags"
 #define SYS_TP1_STAT	"/sys/devices/system/cpu/cpu1/online"
 #define SYS_CPU_KHZ	"/sys/devices/platform/brcmstb/cpu_khz"
 #define SYS_CPU_PLL	"/sys/devices/platform/brcmstb/cpu_pll"
@@ -92,7 +94,6 @@ struct brcm_pm_priv
 #define DHCPCD_PID1_B	"/var/run/dhcpcd-eth1.pid.bak"
 #define DHCPCD_PATH	"/bin/dhcpcd"
 #define IFCONFIG_PATH	"/bin/ifconfig"
-#define HDPARM_PATH	"/sbin/hdparm"
 #define HALT_PATH	"/sbin/halt"
 #define SATA_RESCAN_GLOB "/sys/class/scsi_host/host*/scan"
 #define SATA_DEVICE_GLOB "/sys/class/scsi_device/*/device/block:*"
@@ -125,7 +126,7 @@ static int sysfs_set(char *path, int in)
 	if(! f)
 		return(-1);
 	sprintf(buf, "%u", in);
-	if(! fputs(buf, f) < 0)
+	if((fputs(buf, f) < 0) || (fflush(f) < 0))
 	{
 		fclose(f);
 		return(-1);
@@ -141,7 +142,7 @@ static int sysfs_set_string(char *path, const char *in)
 	f = fopen(path, "w");
 	if(! f)
 		return(-1);
-	if(! fputs(in, f) < 0)
+	if((fputs(in, f) < 0) || (fflush(f) < 0))
 	{
 		fclose(f);
 		return(-1);
@@ -299,9 +300,6 @@ int brcm_pm_get_status(void *vctx, struct brcm_pm_state *st)
 		st->cpu_pll = BRCM_PM_UNDEF;
 	}
 
-	st->standby = 0;
-	st->irw_halt = 0;
-
 	if(st != &ctx->last_state)
 		memcpy(&ctx->last_state, st, sizeof(*st));
 
@@ -323,32 +321,6 @@ static int sata_rescan_hosts(void)
 	return(ret);
 }
 
-static int sata_spindown_devices(void)
-{
-	glob_t g;
-	int i, ret = 0;
-
-	/* NOTE: if there are no devices present, it is not an error */
-	if(glob(SATA_DEVICE_GLOB, GLOB_NOSORT, NULL, &g) != 0)
-		return(0);
-
-	for(i = 0; i < (int)g.gl_pathc; i++)
-	{
-		char *devname = rindex(g.gl_pathv[i], ':');
-		char buf[BUF_SIZE];
-		
-		if(! devname)
-			return(-1);
-		snprintf(buf, BUF_SIZE, "/dev/%s", devname + 1);
-
-		/* ignore return value as some devices will fail */
-		run(HDPARM_PATH, "-y", buf, NULL);
-	}
-	globfree(&g);
-
-	return(ret);
-}
-
 static int sata_delete_devices(void)
 {
 	glob_t g;
@@ -359,9 +331,24 @@ static int sata_delete_devices(void)
 
 	for(i = 0; i < (int)g.gl_pathc; i++)
 		ret |= sysfs_set(g.gl_pathv[i], 1);
+
 	globfree(&g);
 
 	return(ret);
+}
+
+static int sata_power_updown(int updown)
+{
+	int i;
+
+	/* give the OS some time to remove the device */
+	for(i = 0; i < 200; i++)
+	{
+		if(sysfs_set(SYS_SATA_STAT, updown) == 0)
+			return 0;
+		usleep(50000);
+	}
+	return -1;
 }
 
 int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
@@ -429,11 +416,11 @@ int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
 	{
 		if(st->sata_status)
 		{
+			ret |= sata_power_updown(1);
 			ret |= sata_rescan_hosts();
 		} else {
-			ret |= sata_spindown_devices();
 			ret |= sata_delete_devices();
-			ret |= sysfs_set(SYS_SATA_STAT, 0);
+			ret |= sata_power_updown(0);
 		}
 		ctx->last_state.sata_status = st->sata_status;
 	}
@@ -458,19 +445,20 @@ int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
 		ret |= sysfs_set(SYS_DDR_STAT, st->ddr_timeout);
 	}
 
-	if(CHANGED(standby))
-	{
-		if (st->standby == 1)
-			ret |= sysfs_set_string(SYS_STANDBY, "standby");
-	}
-
-	if(CHANGED(irw_halt))
-	{
-		if (st->irw_halt == 1)
-			ret |= run(HALT_PATH, NULL);
-	}
-
 #undef CHANGED
 
 	return(ret);
+}
+
+int brcm_pm_suspend(void *vctx, int suspend_mode)
+{
+	if(suspend_mode == BRCM_PM_STANDBY)
+		return sysfs_set_string(SYS_STANDBY, "standby");
+	if(suspend_mode == BRCM_PM_SUSPEND)
+		return sysfs_set_string(SYS_STANDBY, "mem");
+	if(suspend_mode == BRCM_PM_HIBERNATE)
+		return sysfs_set_string(SYS_STANDBY, "disk");
+	if(suspend_mode == BRCM_PM_IRW_HALT)
+		return run(HALT_PATH, NULL);
+	return -1;
 }

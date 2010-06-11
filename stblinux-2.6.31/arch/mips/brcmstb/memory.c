@@ -154,6 +154,55 @@ int bmem_region_info(int idx, unsigned long *addr, unsigned long *size)
 }
 EXPORT_SYMBOL(bmem_region_info);
 
+/*
+ * Special handling for __get_user_pages() on BMEM reserved memory:
+ *
+ * 1) Override the VM_IO | VM_PFNMAP sanity checks
+ * 2) No cache flushes (this is explicitly under application control)
+ * 3) vm_normal_page() does not work on these regions
+ * 4) Don't need to worry about any kinds of faults; pages are always present
+ *
+ * The vanilla kernel behavior was to prohibit O_DIRECT operations on our
+ * BMEM regions, but direct I/O is absolutely required for PVR and video
+ * playback from SATA/USB.
+ */
+int bmem_get_page(struct mm_struct *mm, struct vm_area_struct *vma,
+	unsigned long start, struct page **page)
+{
+	unsigned long pg = start & PAGE_MASK, pfn;
+	int ret = -EFAULT;
+	pgd_t *pgd;
+	pud_t *pud;
+	pmd_t *pmd;
+	pte_t *pte;
+
+	pgd = pgd_offset(mm, pg);
+	BUG_ON(pgd_none(*pgd));
+	pud = pud_offset(pgd, pg);
+	BUG_ON(pud_none(*pud));
+	pmd = pmd_offset(pud, pg);
+	if (pmd_none(*pmd))
+		return ret;
+
+	pte = pte_offset_map(pmd, pg);
+	if (pte_none(*pte))
+		goto out;
+
+	pfn = pte_pfn(*pte);
+	if (likely(bmem_find_region(pfn << PAGE_SHIFT, PAGE_SIZE) < 0))
+		goto out;
+
+	if (page) {
+		*page = pfn_to_page(pfn);
+		get_page(*page);
+	}
+	ret = 0;
+
+out:
+	pte_unmap(pte);
+	return ret;
+}
+
 static int __initdata bmem_defaults_set;
 
 static void __init brcm_set_default_bmem(void)
@@ -295,15 +344,10 @@ arch_initcall(bmem_region_setup);
  ***********************************************************************/
 
 #define UNIQUE_ENTRYHI(idx) (CKSEG0 + ((idx) << (PAGE_SHIFT + 1)))
-#define ENTRYLO_CACHED(paddr) \
-	((((paddr) & PAGE_MASK) | \
-	       (_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
-		_CACHE_CACHABLE_NONCOHERENT)) >> 6)
 
-#define ENTRYLO_UNCACHED(paddr) \
-	((((paddr) & PAGE_MASK) | \
-	       (_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
-		_CACHE_UNCACHED)) >> 6)
+/* (PFN << 6) | GLOBAL | VALID | DIRTY | cacheability */
+#define ENTRYLO_CACHED(paddr)	(((paddr) >> 6) | (0x07) | (0x03 << 3))
+#define ENTRYLO_UNCACHED(paddr)	(((paddr) >> 6) | (0x07) | (0x02 << 3))
 
 struct tlb_entry {
 	unsigned long entrylo0;

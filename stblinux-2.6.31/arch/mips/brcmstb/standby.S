@@ -51,7 +51,7 @@
 
 # s1 is saved SCB refresh client setting
 
-	LEAF(brcm_pm_standby)
+	LEAF(brcm_pm_standby_asm)
 	subu	sp, 32
 	sw	ra, 0(sp)
 	sw	s0, 4(sp)
@@ -62,7 +62,7 @@
 	addiu	t1, s0, -1
 	not	t1
 
-	la	t0, brcm_pm_standby
+	la	t0, brcm_pm_standby_asm
 	and	t0, t1
 
 	la	t2, passiveIRQ_end
@@ -143,7 +143,7 @@ rtn_from_wait:
 	addiu	t1, s0, -1
 	not	t1
 
-	la	t0, brcm_pm_standby
+	la	t0, brcm_pm_standby_asm
 	and	t0, t1
 
 	la	t2, passiveIRQ_end
@@ -161,7 +161,7 @@ rtn_from_wait:
 
 	jr	ra
 	nop
-	END(brcm_pm_standby)
+	END(brcm_pm_standby_asm)
 
 # debug character output
 

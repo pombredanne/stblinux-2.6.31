@@ -2,11 +2,25 @@ menu "BCMGENET options"
 
 config BCMGENET_0_GPHY
 	bool "GENET0 is connected to GPHY via RGMII"
-	depends on BCMGENET
+	depends on BCMGENET && BRCM_HAS_GENET_0
 	default n
 	help
-	   Say Y if the platform has external GPHY, it will enable RGMII through pinmux and 
-	   disable internal EPHY.
+	  Say Y to use an external GPHY for GENET_0.  By default this will
+	  use RGMII mode and disable the internal 10/100 PHY (if present);
+	  the pinmux must be set up properly in arch/mips/brcmstb/board.c .
+
+	  If unsure, say N.
+
+config BCMGENET_1_GPHY
+	bool "GENET1 is connected to GPHY via RGMII"
+	depends on BCMGENET && BRCM_HAS_GENET_1
+	default n
+	help
+	  Say Y to use an external GPHY for GENET_1.  By default this will
+	  use RGMII mode and disable the internal 10/100 PHY (if present);
+	  the pinmux must be set up properly in arch/mips/brcmstb/board.c .
+
+	  If unsure, say N.
 
 config BCMGENET_RX_DESC_THROTTLE 
 	bool "use hardware rx descriptor throttling"

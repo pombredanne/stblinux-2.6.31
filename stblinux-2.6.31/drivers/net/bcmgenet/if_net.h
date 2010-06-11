@@ -29,7 +29,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <linux/autoconf.h>
 /*
  * Ioctl definitions.
  */

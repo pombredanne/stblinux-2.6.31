@@ -7753,6 +7753,9 @@ get_rom_size(unsigned long* outp_cs0Base)
 #elif !defined(CONFIG_BRCM_HAS_NOR)
 	printk("FIXME: no strap option for rom size on 3548/7408\n");
 	BUG();
+#elif defined(BCHP_AON_CTRL_STRAP_VALUE_0)
+	/* all new 40nm chips */
+	return 64 << 20;
 #else
 #error "Don't know how to find the ROM size"
 #endif

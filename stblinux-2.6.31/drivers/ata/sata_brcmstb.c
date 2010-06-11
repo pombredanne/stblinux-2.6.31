@@ -49,6 +49,7 @@
 #include <scsi/scsi_host.h>
 #include <linux/spinlock.h>
 #include <linux/libata.h>
+#include <linux/clk.h>
 
 #ifdef CONFIG_PPC_OF
 #include <asm/prom.h>
@@ -68,11 +69,23 @@ static int s2 = 0;	/* aka: bcmsata2, gSata2_3Gbps */
 module_param(ssc, int, 0444);
 module_param(s2, int, 0444);
 
-#if defined(CONFIG_BRCM_PM)
+struct k2_host_priv {
+	spinlock_t		lock;
+	int			sleep_flag;
+	struct clk		*clk;
+	void __iomem		*mmio_base;
+};
 
-#define SLEEP_FLAG(host) (long)(host->private_data)
+#define SLEEP_FLAG(host) ({ \
+	struct ata_host *h = (host); \
+	struct k2_host_priv *hp = h->private_data; \
+	hp->sleep_flag; \
+	})
+
 #define SET_SLEEP_FLAG(host, val) do { \
-	host->private_data = (void *)(val); \
+	struct ata_host *h = (host); \
+	struct k2_host_priv *hp = h->private_data; \
+	hp->sleep_flag = (val); \
 	} while(0)
 
 #define K2_AWAKE	0
@@ -85,13 +98,6 @@ static int k2_power_on(void *arg);
 		k2_power_on(host); \
 	} while(0)
 
-static DEFINE_SPINLOCK(sleep_lock);
-
-#else
-
-#define K2_POWER_ON(host) do { } while(0)
-
-#endif
 // jipeng - if bcmsata2=1, but device only support SATA I, then downgrade to SATA I and reset SATA core
 #define	AUTO_NEG_SPEED			
 
@@ -260,7 +266,7 @@ enum {
 
 #define PORT_BASE(x, y)		((x) + (K2_SATA_PORT_OFFSET * (unsigned)(y)))
 #define PORT_MMIO(x)		PORT_BASE((void __iomem *) \
-					((x)->host->iomap), \
+					((x)->host->iomap[5]), \
 					(x)->port_no)
 
 #ifdef CONFIG_BRCMSTB
@@ -1726,8 +1732,6 @@ static unsigned int k2_qdma_qc_issue(struct ata_queued_cmd *qc)
 
 #endif /* ! defined(USE_QDMA) */
 
-#if defined(CONFIG_BRCM_PM)
-
 /*
  * Power management
  */
@@ -1735,16 +1739,18 @@ static unsigned int k2_qdma_qc_issue(struct ata_queued_cmd *qc)
 static int k2_power_off(void *arg)
 {
 	struct ata_host *host = arg;
+	struct pci_dev *pdev = to_pci_dev(host->dev);
+	struct k2_host_priv *hp = host->private_data;
 	int i, active = 0;
-	long flags;
+	unsigned long flags;
 
-	spin_lock_irqsave(&sleep_lock, flags);
-	if(SLEEP_FLAG(host) == K2_SLEEPING) {
-		spin_unlock_irqrestore(&sleep_lock, flags);
-		return(-1);
+	spin_lock_irqsave(&hp->lock, flags);
+	if (SLEEP_FLAG(host) == K2_SLEEPING) {
+		spin_unlock_irqrestore(&hp->lock, flags);
+		return 0;
 	}
 
-	for(i = 0; i < host->n_ports; i++) {
+	for (i = 0; i < host->n_ports; i++) {
 		struct ata_port *ap;
 		struct ata_link *link;
 		struct ata_device *dev;
@@ -1757,26 +1763,24 @@ static int k2_power_off(void *arg)
 		 * is still enabled and it is unsafe to power off the core.
 		 */
 		ata_for_each_link(link, ap, EDGE) {
-			ata_link_for_each_dev(dev, link) {
-				if(dev->sdev)
+			ata_for_each_dev(dev, link, ALL) {
+				if (dev->sdev)
 					active++;
 			}
 		}
 	}
 
-	if(active) {
-		spin_unlock_irqrestore(&sleep_lock, flags);
-		printk(KERN_INFO DRV_NAME
-			": can't sleep with %d device(s) active\n", active);
-		return(-1);
+	if (active) {
+		spin_unlock_irqrestore(&hp->lock, flags);
+		return -EBUSY;
 	} else {
 		void __iomem *port_base;
 
 		SET_SLEEP_FLAG(host, K2_SLEEPING);
 
 		/* put all ports in Slumber mode */
-		for(i = 0; i < host->n_ports; i++) {
-			port_base = PORT_BASE(host->mmio_base, i);
+		for (i = 0; i < host->n_ports; i++) {
+			port_base = PORT_BASE(hp->mmio_base, i);
 			writel(readl(port_base + K2_SATA_SICR1_OFFSET) |
 				(1 << 25), port_base + K2_SATA_SICR1_OFFSET);
 			udelay(10);
@@ -1789,34 +1793,36 @@ static int k2_power_off(void *arg)
 				port_base + K2_SATA_SICR2_OFFSET);
 		}
 
-		disable_irq(host->irq);
-		brcm_pm_sata_remove();
-		spin_unlock_irqrestore(&sleep_lock, flags);
+		disable_irq(pdev->irq);
+		clk_disable(hp->clk);
+		spin_unlock_irqrestore(&hp->lock, flags);
 
-		return(0);
+		return 0;
 	}
 }
 
 static int k2_power_on(void *arg)
 {
 	struct ata_host *host = arg;
+	struct pci_dev *pdev = to_pci_dev(host->dev);
+	struct k2_host_priv *hp = host->private_data;
 	void __iomem *port_base;
 	int i;
-	long flags;
+	unsigned long flags;
 
-	spin_lock_irqsave(&sleep_lock, flags);
-	if(SLEEP_FLAG(host) == K2_AWAKE) {
-		spin_unlock_irqrestore(&sleep_lock, flags);
-		return(-1);
+	spin_lock_irqsave(&hp->lock, flags);
+	if (SLEEP_FLAG(host) == K2_AWAKE) {
+		spin_unlock_irqrestore(&hp->lock, flags);
+		return 0;
 	}
-	
-	brcm_pm_sata_add();
-	brcm_initsata2(host->mmio_base, host->n_ports);
-	enable_irq(host->irq);
+
+	clk_enable(hp->clk);
+	brcm_initsata2(hp->mmio_base, host->n_ports);
+	enable_irq(pdev->irq);
 
 	/* wake up all ports */
-	for(i = 0; i < host->n_ports; i++) {
-		port_base = PORT_BASE(host->mmio_base, i);
+	for (i = 0; i < host->n_ports; i++) {
+		port_base = PORT_BASE(hp->mmio_base, i);
 		writel(readl(port_base + K2_SATA_SICR1_OFFSET) &
 			~(1 << 25), port_base + K2_SATA_SICR1_OFFSET);
 		udelay(10);
@@ -1830,23 +1836,36 @@ static int k2_power_on(void *arg)
 	}
 
 	SET_SLEEP_FLAG(host, K2_AWAKE);
-	spin_unlock_irqrestore(&sleep_lock, flags);
+	spin_unlock_irqrestore(&hp->lock, flags);
 
-	return(0);
+	return 0;
+}
+
+static int k2_sata_pm_cb(int event, void *arg)
+{
+	if (event == PM_EVENT_SUSPEND)
+		return k2_power_off(arg);
+	else if (event == PM_EVENT_RESUME)
+		return k2_power_on(arg);
+	else
+		return -EINVAL;
 }
 
 static void k2_sata_remove_one(struct pci_dev *pdev)
 {
-	struct device *dev = pci_dev_to_dev(pdev);
+	struct device *dev = &pdev->dev;
 	struct ata_host *host = dev_get_drvdata(dev);
+	struct k2_host_priv *hp = host->private_data;
+
+	brcm_pm_unregister_cb("sata");
 
 	K2_POWER_ON(host);
 	ata_pci_remove_one(pdev);
 
-	brcm_pm_unregister_sata();
+	clk_disable(hp->clk);
+	clk_put(hp->clk);
+	kfree(hp);
 }
-
-#endif /* CONFIG_BRCM_PM */
 
 #ifdef	CONFIG_SATA_SVW_PMP_HOTPLUG
 static int k2_pmp_hp_poll(struct ata_port *ap)
@@ -1858,13 +1877,11 @@ static int k2_pmp_hp_poll(struct ata_port *ap)
 	struct ata_device *dev = ap->link.device;
 	u32 link_stat = 0;
 
-#ifdef	CONFIG_BRCM_PM
 	/* don't check for hotplug events while the HW is sleeping */
-	if(SLEEP_FLAG(ap->host) == K2_SLEEPING)
-		return(0);
-#endif /* CONFIG_BRCM_PM */
+	if (SLEEP_FLAG(ap->host) == K2_SLEEPING)
+		return 0;
 
-	if(ap->nr_pmp_links && ap->ops->pmp_read)
+	if (ap->nr_pmp_links && ap->ops->pmp_read)
 	{
 		u32 perror = 0;
 		rc = ap->ops->pmp_write(dev, SATA_PMP_CTRL_PORT, SATA_PMP_GSCR_ERROR_EN, SERR_PHYRDY_CHG);
@@ -1942,11 +1959,9 @@ static int k2_pmp_hp_poll(struct ata_port *ap)
 #if 0
 static int k2_pmp_hp_poll(struct ata_port *ap)
 {
-#ifdef	CONFIG_BRCM_PM
 	/* don't check for hotplug events while the HW is sleeping */
 	if(SLEEP_FLAG(ap->host) == K2_SLEEPING)
 		return(0);
-#endif /* CONFIG_BRCM_PM */
 
 	return(sata_std_hp_poll(ap));
 }
@@ -2070,6 +2085,7 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	struct ata_host *host;
 	void __iomem *mmio_base;
 	int n_ports, i, rc, bar_pos;
+	struct k2_host_priv *hp;
 
 	if (!printed_version++)
 		dev_printk(KERN_DEBUG, &pdev->dev, "version " DRV_VERSION "\n");
@@ -2083,6 +2099,15 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
 	if (!host)
 		return -ENOMEM;
+
+	host->private_data = hp = kzalloc(sizeof(*hp), GFP_KERNEL);
+	if (!hp)
+		return -ENOMEM;
+
+	spin_lock_init(&hp->lock);
+	hp->clk = clk_get(&pdev->dev, "sata");
+	clk_enable(hp->clk);
+	hp->sleep_flag = K2_AWAKE;
 
 	bar_pos = 5;
 	if (ppi[0]->flags & K2_FLAG_BAR_POS_3)
@@ -2115,7 +2140,7 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	if (rc)
 		return rc;
 	host->iomap = pcim_iomap_table(pdev);
-	mmio_base = host->iomap[bar_pos];
+	hp->mmio_base = mmio_base = host->iomap[bar_pos];
 
 	/* different controllers have different number of ports - currently 4 or 8 */
 	/* All ports are on the same function. Multi-function device is no
@@ -2154,8 +2179,13 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
         bcm97xxx_sata_init(pdev, mmio_base, n_ports, ppi[0]->flags & K2_FLAG_BRCM_SATA2);
 #endif
 
-	return ata_host_activate(host, pdev->irq, k2_sata_interrupt,
+	rc = ata_host_activate(host, pdev->irq, k2_sata_interrupt,
 		IRQF_SHARED, &k2_sata_sht);
+	if (rc)
+		return rc;
+
+	brcm_pm_register_cb("sata", k2_sata_pm_cb, host);
+	return 0;
 }
 
 static const struct pci_device_id k2_sata_pci_tbl[] = {
@@ -2168,11 +2198,7 @@ static struct pci_driver k2_sata_pci_driver = {
 	.name			= DRV_NAME,
 	.id_table		= k2_sata_pci_tbl,
 	.probe			= k2_sata_init_one,
-#ifdef CONFIG_BRCM_PM
 	.remove			= k2_sata_remove_one,
-#else
-	.remove			= ata_pci_remove_one,
-#endif
 };
 
 static int __init k2_sata_init(void)

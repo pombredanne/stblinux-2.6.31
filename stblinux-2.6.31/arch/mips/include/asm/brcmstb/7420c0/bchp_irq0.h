@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Tue Nov 17 17:09:17 2009
- *                 MD5 Checksum         c5a869a181cd53ce96d34b0e7ab357f3
+ * Date:           Generated on         Tue Mar 16 17:03:13 2010
+ *                 MD5 Checksum         c30630b195d84fb20990b7bbcf4d8920
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7420/rdb/c0/bchp_irq0.h $
  * 
- * Hydra_Software_Devel/1   11/17/09 9:16p albertl
- * SW7420-455: Initial revision.
+ * Hydra_Software_Devel/2   3/16/10 11:07p tdo
+ * SW7420-455: Update RDB header files
  *
  ***************************************************************************/
 
@@ -99,9 +99,13 @@
 #define BCHP_IRQ0_IRQEN_uarta_irqen_MASK                           0x00010000
 #define BCHP_IRQ0_IRQEN_uarta_irqen_SHIFT                          16
 
-/* IRQ0 :: IRQEN :: reserved3 [15:10] */
-#define BCHP_IRQ0_IRQEN_reserved3_MASK                             0x0000fc00
-#define BCHP_IRQ0_IRQEN_reserved3_SHIFT                            10
+/* IRQ0 :: IRQEN :: reserved3 [15:11] */
+#define BCHP_IRQ0_IRQEN_reserved3_MASK                             0x0000f800
+#define BCHP_IRQ0_IRQEN_reserved3_SHIFT                            11
+
+/* IRQ0 :: IRQEN :: kbd4_irqen [10:10] */
+#define BCHP_IRQ0_IRQEN_kbd4_irqen_MASK                            0x00000400
+#define BCHP_IRQ0_IRQEN_kbd4_irqen_SHIFT                           10
 
 /* IRQ0 :: IRQEN :: uc_irqen [09:09] */
 #define BCHP_IRQ0_IRQEN_uc_irqen_MASK                              0x00000200
@@ -194,9 +198,13 @@
 #define BCHP_IRQ0_IRQSTAT_uarta_irq_MASK                           0x00010000
 #define BCHP_IRQ0_IRQSTAT_uarta_irq_SHIFT                          16
 
-/* IRQ0 :: IRQSTAT :: reserved3 [15:10] */
-#define BCHP_IRQ0_IRQSTAT_reserved3_MASK                           0x0000fc00
-#define BCHP_IRQ0_IRQSTAT_reserved3_SHIFT                          10
+/* IRQ0 :: IRQSTAT :: reserved3 [15:11] */
+#define BCHP_IRQ0_IRQSTAT_reserved3_MASK                           0x0000f800
+#define BCHP_IRQ0_IRQSTAT_reserved3_SHIFT                          11
+
+/* IRQ0 :: IRQSTAT :: kbd4irq [10:10] */
+#define BCHP_IRQ0_IRQSTAT_kbd4irq_MASK                             0x00000400
+#define BCHP_IRQ0_IRQSTAT_kbd4irq_SHIFT                            10
 
 /* IRQ0 :: IRQSTAT :: ucirq [09:09] */
 #define BCHP_IRQ0_IRQSTAT_ucirq_MASK                               0x00000200

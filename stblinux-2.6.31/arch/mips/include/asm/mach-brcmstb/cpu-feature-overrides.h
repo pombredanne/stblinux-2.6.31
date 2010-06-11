@@ -9,8 +9,6 @@
 #ifndef __ASM_MACH_BRCMSTB_CPU_FEATURE_OVERRIDES_H
 #define __ASM_MACH_BRCMSTB_CPU_FEATURE_OVERRIDES_H
 
-#include <linux/autoconf.h>
-
 #if defined(CONFIG_BMIPS4380)
 
 #define cpu_has_dc_aliases		1

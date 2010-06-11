@@ -26,6 +26,9 @@
 #include <linux/platform_device.h>
 #include <linux/suspend.h>
 #include <linux/mii.h>
+#include <linux/spinlock.h>
+#include <linux/clk.h>
+#include <linux/err.h>
 
 #include <asm/cpu-info.h>
 #include <asm/r4kcache.h>
@@ -280,7 +283,7 @@ ssize_t brcm_pm_store_cpu_pll(struct device *dev,
 
 	if (sscanf(buf, "%d", &val) != 1)
 		return -EINVAL;
-	
+
 	if (cpu_pll_mode == val)
 		return count;
 
@@ -307,336 +310,289 @@ ssize_t brcm_pm_store_cpu_pll(struct device *dev,
 #endif /* CONFIG_BRCM_CPU_PLL */
 
 /***********************************************************************
- * USB / ENET / GENET / MoCA / SATA power management
+ * USB / ENET / GENET / MoCA / SATA PM common internal functions
  ***********************************************************************/
 
-#ifdef CONFIG_BRCM_PM
+struct clk {
+	char			name[16];
+	spinlock_t		lock;
+	int			refcnt;
+	int			(*cb)(int, void *);
+	void			*cb_arg;
+	void			(*disable)(void);
+	void			(*enable)(void);
+};
 
-static atomic_t enet_count = ATOMIC_INIT(1);
-static atomic_t moca_count = ATOMIC_INIT(1);
-static atomic_t usb_count = ATOMIC_INIT(1);
-static atomic_t sata_count = ATOMIC_INIT(1);
+static void brcm_pm_sata_disable(void);
+static void brcm_pm_sata_enable(void);
+static void brcm_pm_enet_disable(void);
+static void brcm_pm_enet_enable(void);
+static void brcm_pm_moca_disable(void);
+static void brcm_pm_moca_enable(void);
+static void brcm_pm_usb_disable(void);
+static void brcm_pm_usb_enable(void);
+static void brcm_pm_set_ddr_timeout(int);
 
-#define MII_S_C		(BCHP_EMAC_0_REG_START + 0x10)
-#define MII_DATA	(BCHP_EMAC_0_REG_START + 0x14)
-#define EMAC_INT	(BCHP_EMAC_0_REG_START + 0x1c)
-#define CONTROL		(BCHP_EMAC_0_REG_START + 0x2c)
+static int brcm_pm_ddr_timeout;
+static unsigned long brcm_pm_standby_flags;
 
-#define MDIO_WR		0x50020000
-#define MDIO_PMD_SHIFT	23
-#define MDIO_REG_SHIFT	18
-#define EMAC_MDIO_INT	0x01
+static struct clk brcm_clk_table[] = {
+	{
+		.name		= "sata",
+		.lock		= SPIN_LOCK_UNLOCKED,
+		.refcnt		= 1,
+		.disable	= &brcm_pm_sata_disable,
+		.enable		= &brcm_pm_sata_enable,
+	},
+	{
+		.name		= "enet",
+		.lock		= SPIN_LOCK_UNLOCKED,
+		.refcnt		= 1,
+		.disable	= &brcm_pm_enet_disable,
+		.enable		= &brcm_pm_enet_enable,
+	},
+	{
+		.name		= "moca",
+		.lock		= SPIN_LOCK_UNLOCKED,
+		.refcnt		= 1,
+		.disable	= &brcm_pm_moca_disable,
+		.enable		= &brcm_pm_moca_enable,
+	},
+	{
+		.name		= "usb",
+		.lock		= SPIN_LOCK_UNLOCKED,
+		.refcnt		= 1,
+		.disable	= &brcm_pm_usb_disable,
+		.enable		= &brcm_pm_usb_enable,
+	},
+};
 
-/* write to the internal PHY's registers */
-static void brcm_mii_write(int addr, u16 data)
+struct clk *brcm_pm_clk_find(const char *name)
 {
 	int i;
-
-	BDEV_WR_RB(EMAC_INT, EMAC_MDIO_INT);
-
-	BDEV_WR(MII_DATA, MDIO_WR | (1 << MDIO_PMD_SHIFT) |
-		(addr << MDIO_REG_SHIFT) | data);
-	for(i = 0; i < 1000; i++) {
-		if(BDEV_RD(EMAC_INT) & EMAC_MDIO_INT)
-			return;
-		udelay(1);
-	}
-	printk(KERN_WARNING "brcm-pm: MII write timed out\n");
+	struct clk *clk = brcm_clk_table;
+	for (i = 0; i < ARRAY_SIZE(brcm_clk_table); i++, clk++)
+		if (!strcmp(name, clk->name))
+			return clk;
+	return NULL;
 }
-
-static void enet_enable(int dev_id, resource_size_t base_addr)
-{
-	unsigned long flags;
-
-	printk(KERN_INFO "brcm-pm: enabling power to ENET block\n");
-
-	spin_lock_irqsave(&brcm_magnum_spinlock, flags);
-
-#if defined(BCHP_VCXO_CTL_MISC_EREF_CTRL_POWERDOWN_MASK)
-	BDEV_WR_F_RB(VCXO_CTL_MISC_EREF_CTRL, POWERDOWN, 0);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_2_DIS_ENET_216M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL_2, DIS_ENET_216M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_0_PWRDN_CLOCK_216_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_0, PWRDN_CLOCK_216_CG_ENET, 0);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_DIS_ENET_108M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL, DIS_ENET_108M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_1_PWRDN_CLOCK_108_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_1, PWRDN_CLOCK_108_CG_ENET, 0);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL_1, DIS_ENET_25M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_2_PWRDN_CLOCK_25_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_2, PWRDN_CLOCK_25_CG_ENET, 0);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_3_PWRDN_CLOCK_25_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_3, PWRDN_CLOCK_25_CG_ENET, 0);
-#endif
-	spin_unlock_irqrestore(&brcm_magnum_spinlock, flags);
-
-	/* exit PHY IDDQ mode */
-	if (!(BDEV_RD(CONTROL) & 0x08)) {
-		brcm_mii_write(0x1f, 0x008b);
-		brcm_mii_write(0x10, 0x0000);
-		brcm_mii_write(0x14, 0x0000);
-		brcm_mii_write(0x1f, 0x000f);
-		brcm_mii_write(0x10, 0x00d0);
-		brcm_mii_write(0x1f, 0x000b);
-	}
-}
-
-static void enet_disable(int dev_id, resource_size_t base_addr)
-{
-	unsigned long flags;
-
-	printk(KERN_INFO "brcm-pm: disabling power to ENET block\n");
-
-	/* enter PHY IDDQ mode */
-	if(! (BDEV_RD(CONTROL) & 0x08)) {
-		if((BDEV_RD(MII_S_C) & 0x3f) == 0)
-			BDEV_WR(MII_S_C, 0x9f);
-		brcm_mii_write(MII_BMCR, BMCR_RESET);
-		brcm_mii_write(0x1f, 0x008b);
-		brcm_mii_write(0x10, 0x01c0);
-		brcm_mii_write(0x14, 0x7000);
-		brcm_mii_write(0x1f, 0x000f);
-		brcm_mii_write(0x10, 0x20d0);
-		brcm_mii_write(0x1f, 0x000b);
-	}
-
-	spin_lock_irqsave(&brcm_magnum_spinlock, flags);
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_3_PWRDN_CLOCK_25_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_3, PWRDN_CLOCK_25_CG_ENET, 1);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_2_PWRDN_CLOCK_25_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_2, PWRDN_CLOCK_25_CG_ENET, 1);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_1, DIS_ENET_25M_CLK, 1);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_1_PWRDN_CLOCK_108_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_1, PWRDN_CLOCK_108_CG_ENET, 1);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_DIS_ENET_108M_CLK_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL, DIS_ENET_108M_CLK, 1);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_0_PWRDN_CLOCK_216_CG_ENET_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_0, PWRDN_CLOCK_216_CG_ENET, 1);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_2_DIS_ENET_216M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL_2, DIS_ENET_216M_CLK, 1);
-#endif
-
-#if defined(BCHP_VCXO_CTL_MISC_EREF_CTRL_POWERDOWN_MASK)
-	BDEV_WR_F_RB(VCXO_CTL_MISC_EREF_CTRL, POWERDOWN, 1);
-#endif
-	spin_unlock_irqrestore(&brcm_magnum_spinlock, flags);
-}
-
-static void usb_enable(void)
-{
-	unsigned long flags;
-
-	printk(KERN_INFO "brcm-pm: enabling power to USB block\n");
-
-	spin_lock_irqsave(&brcm_magnum_spinlock, flags);
-
-#if defined(BCHP_CLK_SYS_PLL_0_PLL_4_DIS_CH_MASK)
-	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_4, DIS_CH, 0);
-#endif
-
-#if defined(BCHP_CLK_USB_PM_CTRL_DIS_216M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_USB_PM_CTRL, DIS_216M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_2_DIS_USB_216M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL_2, DIS_USB_216M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_0_PWRDN_CLOCK_216_CG_USB_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_0, PWRDN_CLOCK_216_CG_USB, 0);
-#endif
-
-#if defined(BCHP_CLK_USB_PM_CTRL_DIS_108M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_USB_PM_CTRL, DIS_108M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_DIS_USB_108M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL, DIS_USB_108M_CLK, 0);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_1_PWRDN_CLOCK_108_CG_USB_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_1, PWRDN_CLOCK_108_CG_USB, 0);
-#endif
-
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY1_PWDNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_PWDNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI1_PWDNB, 1);
-
-	spin_unlock_irqrestore(&brcm_magnum_spinlock, flags);
-}
-
-static void usb_disable(void)
-{
-	unsigned long flags;
-
-	printk(KERN_INFO "brcm-pm: disabling power to USB block\n");
-
-	spin_lock_irqsave(&brcm_magnum_spinlock, flags);
-
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI1_PWDNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_PWDNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY1_PWDNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0);
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_1_PWRDN_CLOCK_108_CG_USB_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_1, PWRDN_CLOCK_108_CG_USB, 1);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_DIS_USB_108M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL, DIS_USB_108M_CLK, 1);
-#endif
-
-#if defined(BCHP_CLK_USB_PM_CTRL_DIS_108M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_USB_PM_CTRL, DIS_108M_CLK, 1);
-#endif
-
-#if defined(BCHP_CLKGEN_PWRDN_CTRL_0_PWRDN_CLOCK_216_CG_USB_MASK)
-	BDEV_WR_F_RB(CLKGEN_PWRDN_CTRL_0, PWRDN_CLOCK_216_CG_USB, 1);
-#endif
-
-#if defined(BCHP_CLK_PM_CTRL_2_DIS_USB_216M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_PM_CTRL_2, DIS_USB_216M_CLK, 1);
-#endif
-
-#if defined(BCHP_CLK_USB_PM_CTRL_DIS_216M_CLK_MASK)
-	BDEV_WR_F_RB(CLK_USB_PM_CTRL, DIS_216M_CLK, 1);
-#endif
-
-#if defined(BCHP_CLK_SYS_PLL_0_PLL_4_DIS_CH_MASK)
-	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_4, DIS_CH, 1);
-#endif
-
-	spin_unlock_irqrestore(&brcm_magnum_spinlock, flags);
-}
-
-void brcm_pm_enet_add(int dev_id, resource_size_t base_addr)
-{
-	if (atomic_inc_return(&enet_count) == 1)
-		enet_enable(dev_id, base_addr);
-}
-EXPORT_SYMBOL(brcm_pm_enet_add);
-
-void brcm_pm_enet_remove(int dev_id, resource_size_t base_addr)
-{
-	if (atomic_inc_return(&enet_count) == 0)
-		enet_disable(dev_id, base_addr);
-}
-EXPORT_SYMBOL(brcm_pm_enet_remove);
-
-void brcm_pm_moca_add(void)
-{
-}
-EXPORT_SYMBOL(brcm_pm_moca_add);
-
-void brcm_pm_moca_remove(void)
-{
-}
-EXPORT_SYMBOL(brcm_pm_moca_remove);
-
-void brcm_pm_usb_add(void)
-{
-	if (atomic_inc_return(&usb_count) == 1)
-		usb_enable();
-}
-EXPORT_SYMBOL(brcm_pm_usb_add);
-
-void brcm_pm_usb_remove(void)
-{
-	if (atomic_dec_return(&usb_count) == 0)
-		usb_disable();
-}
-EXPORT_SYMBOL(brcm_pm_usb_remove);
-
-void brcm_pm_sata_add(void)
-{
-}
-EXPORT_SYMBOL(brcm_pm_sata_add);
-
-void brcm_pm_sata_remove(void)
-{
-}
-EXPORT_SYMBOL(brcm_pm_sata_remove);
 
 /* sysfs attributes */
-
-ssize_t brcm_pm_show_enet_power(struct device *dev,
-	struct device_attribute *attr, char *buf)
-{
-	return snprintf(buf, PAGE_SIZE, "%d\n", !!atomic_read(&enet_count));
-}
-
-ssize_t brcm_pm_show_moca_power(struct device *dev,
-	struct device_attribute *attr, char *buf)
-{
-	return snprintf(buf, PAGE_SIZE, "%d\n", !!atomic_read(&moca_count));
-}
 
 ssize_t brcm_pm_show_usb_power(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "%d\n", !!atomic_read(&usb_count));
+	struct clk *clk = brcm_pm_clk_find("usb");
+	return snprintf(buf, PAGE_SIZE, "%d\n", !!clk->refcnt);
 }
 
 ssize_t brcm_pm_store_usb_power(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
 {
-	return -ENODEV;
+	struct clk *clk = brcm_pm_clk_find("usb");
+	int val;
+
+	if (!clk || !clk->cb || sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+
+	return clk->cb(val ? PM_EVENT_RESUME : PM_EVENT_SUSPEND,
+		clk->cb_arg) ? : count;
 }
 
 ssize_t brcm_pm_show_sata_power(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "%d\n", !!atomic_read(&sata_count));
+	struct clk *clk = brcm_pm_clk_find("sata");
+	return snprintf(buf, PAGE_SIZE, "%d\n", !!clk->refcnt);
 }
 
 ssize_t brcm_pm_store_sata_power(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
 {
-	return -ENODEV;
+	struct clk *clk = brcm_pm_clk_find("sata");
+	int val;
+
+	if (!clk || !clk->cb || sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+
+	return clk->cb(val ? PM_EVENT_RESUME : PM_EVENT_SUSPEND,
+		clk->cb_arg) ? : count;
 }
 
-static int __init brcm_pm_init(void)
+ssize_t brcm_pm_show_ddr_timeout(struct device *dev,
+	struct device_attribute *attr, char *buf)
 {
-	brcm_pm_enet_remove(0, BCHP_EMAC_0_REG_START);
-	usb_disable();
+	return snprintf(buf, PAGE_SIZE, "%d\n", brcm_pm_ddr_timeout);
+}
+
+ssize_t brcm_pm_store_ddr_timeout(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	int val;
+	if (sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+
+	brcm_pm_ddr_timeout = val;
+	if (brcm_pm_enabled)
+		brcm_pm_set_ddr_timeout(val);
+	return count;
+}
+
+ssize_t brcm_pm_show_standby_flags(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "0x%lx\n", brcm_pm_standby_flags);
+}
+
+ssize_t brcm_pm_store_standby_flags(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	unsigned long val;
+	if (sscanf(buf, "%lx", &val) != 1)
+		return -EINVAL;
+
+	brcm_pm_standby_flags = val;
+	return count;
+}
+
+/* Boot time functions */
+
+static int __init brcm_clk_init(void)
+{
+	int i;
+	struct clk *clk = brcm_clk_table;
+
+	for (i = 0; i < ARRAY_SIZE(brcm_clk_table); i++, clk++) {
+		if (brcm_pm_enabled)
+			clk->disable();
+		clk->refcnt--;
+	}
 	return 0;
 }
 
-early_initcall(brcm_pm_init);
+early_initcall(brcm_clk_init);
 
-#endif
+static int nopm_setup(char *str)
+{
+	brcm_pm_enabled = 0;
+	return 0;
+}
+
+__setup("nopm", nopm_setup);
+
+/***********************************************************************
+ * USB / ENET / GENET / MoCA / SATA PM external API
+ ***********************************************************************/
+
+struct clk *clk_get(struct device *dev, const char *id)
+{
+	return brcm_pm_clk_find(id) ? : ERR_PTR(-ENOENT);
+}
+EXPORT_SYMBOL(clk_get);
+
+int clk_enable(struct clk *clk)
+{
+	unsigned long flags;
+	if (clk && !IS_ERR(clk)) {
+		spin_lock_irqsave(&clk->lock, flags);
+		if (++(clk->refcnt) == 1 && brcm_pm_enabled)
+			clk->enable();
+		spin_unlock_irqrestore(&clk->lock, flags);
+		return 0;
+	} else {
+		return -EINVAL;
+	}
+}
+EXPORT_SYMBOL(clk_enable);
+
+void clk_disable(struct clk *clk)
+{
+	unsigned long flags;
+	if (clk && !IS_ERR(clk)) {
+		spin_lock_irqsave(&clk->lock, flags);
+		if (--(clk->refcnt) == 0 && brcm_pm_enabled)
+			clk->disable();
+		spin_unlock_irqrestore(&clk->lock, flags);
+	}
+}
+EXPORT_SYMBOL(clk_disable);
+
+void clk_put(struct clk *clk)
+{
+}
+EXPORT_SYMBOL(clk_put);
+
+int brcm_pm_register_cb(char *name, int (*fn)(int, void *), void *arg)
+{
+	struct clk *clk = brcm_pm_clk_find(name);
+	unsigned long flags;
+
+	if (!clk)
+		return -ENOENT;
+
+	spin_lock_irqsave(&clk->lock, flags);
+	BUG_ON(fn && clk->cb);
+	clk->cb = fn;
+	clk->cb_arg = arg;
+	spin_unlock_irqrestore(&clk->lock, flags);
+
+	return 0;
+}
+EXPORT_SYMBOL(brcm_pm_register_cb);
+
+int brcm_pm_unregister_cb(char *name)
+{
+	return brcm_pm_register_cb(name, NULL, NULL);
+}
+EXPORT_SYMBOL(brcm_pm_unregister_cb);
+
+/***********************************************************************
+ * USB / ENET / GENET / MoCA / SATA PM implementations (per-chip)
+ ***********************************************************************/
+
+static void brcm_pm_sata_disable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: disabling sata clocks\n");
+}
+
+static void brcm_pm_sata_enable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: enabling sata clocks\n");
+}
+
+static void brcm_pm_enet_disable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: disabling enet clocks\n");
+}
+
+static void brcm_pm_enet_enable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: enabling enet clocks\n");
+}
+
+static void brcm_pm_moca_disable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: disabling moca clocks\n");
+}
+
+static void brcm_pm_moca_enable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: enabling moca clocks\n");
+}
+
+static void brcm_pm_usb_disable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: disabling usb clocks\n");
+}
+
+static void brcm_pm_usb_enable(void)
+{
+	printk(KERN_DEBUG "brcm-pm: enabling usb clocks\n");
+}
+
+static void brcm_pm_set_ddr_timeout(int val)
+{
+}
 
 /***********************************************************************
  * Passive standby
@@ -652,7 +608,7 @@ static int brcm_pm_prepare(void)
 	return 0;
 }
 
-static int brcm_pm_suspend(void)
+static int brcm_pm_standby(void)
 {
 	u32 entry, vec = ebase;
 	u32 oldvec[4];
@@ -688,7 +644,7 @@ static int brcm_pm_suspend(void)
 
 	flush_icache_range(vec, vec + 16);
 
-	brcm_pm_standby(current_cpu_data.icache.linesz, ebase);
+	brcm_pm_standby_asm(current_cpu_data.icache.linesz, ebase);
 
 	DEV_WR(vec + 0, oldvec[0]);
 	DEV_WR(vec + 4, oldvec[1]);
@@ -708,7 +664,7 @@ static int brcm_pm_enter(suspend_state_t unused)
 	switch (suspend_state) {
 	case PM_SUSPEND_STANDBY:
 	//case PM_SUSPEND_MEM:
-		ret = brcm_pm_suspend();
+		ret = brcm_pm_standby();
 		break;
 	default:
 		ret = -EINVAL;
@@ -758,4 +714,5 @@ static int brcm_suspend_init(void)
 	return 0;
 }
 late_initcall(brcm_suspend_init);
+
 #endif /* CONFIG_BRCM_HAS_STANDBY */

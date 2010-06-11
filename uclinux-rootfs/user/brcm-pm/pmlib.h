@@ -72,8 +72,7 @@ struct brcm_pm_state
 
 	int ddr_timeout;	/* 0=no PM, >0 = timeout for self-refresh */
 
-	int standby;		/* write 1 to enter passive standby */
-	int irw_halt;		/* write 1 to shut down using IRW mode */
+	unsigned long standby_flags;
 };
 
 struct brcm_pm_cfg
@@ -89,5 +88,12 @@ int brcm_pm_set_cfg(void *ctx, struct brcm_pm_cfg *);
 
 int brcm_pm_get_status(void *ctx, struct brcm_pm_state *);
 int brcm_pm_set_status(void *ctx, struct brcm_pm_state *);
+
+#define BRCM_PM_STANDBY		1
+#define BRCM_PM_SUSPEND		3
+#define BRCM_PM_HIBERNATE	4
+#define BRCM_PM_IRW_HALT	5
+
+int brcm_pm_suspend(void *ctx, int suspend_mode);
 
 #endif /* _H_PMLIB_ */

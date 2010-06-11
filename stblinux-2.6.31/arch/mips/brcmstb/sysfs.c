@@ -284,20 +284,14 @@ static struct device_attribute brcmstb_attr_list[] = {
 #if defined(CONFIG_BRCM_CPU_PLL)
 	__ATTR(cpu_pll, 0644, brcm_pm_show_cpu_pll, brcm_pm_store_cpu_pll),
 #endif
-#if defined(CONFIG_BRCM_PM)
-#if defined(CONFIG_BRCM_HAS_EMAC_0) || defined(CONFIG_BRCM_HAS_GENET)
-	__ATTR(enet_power, 0444, brcm_pm_show_enet_power, NULL),
-#endif
-#if defined(CONFIG_BRCM_HAS_MOCA)
-	__ATTR(moca_power, 0444, brcm_pm_show_moca_power, NULL),
-#endif
-#if defined(CONFIG_BRCM_HAS_SATA)
 	__ATTR(sata_power, 0644, brcm_pm_show_sata_power,
 		brcm_pm_store_sata_power),
-#endif
 	__ATTR(usb_power, 0644, brcm_pm_show_usb_power,
 		brcm_pm_store_usb_power),
-#endif /* defined(CONFIG_BRCM_PM) */
+	__ATTR(ddr_timeout, 0644, brcm_pm_show_ddr_timeout,
+		brcm_pm_store_ddr_timeout),
+	__ATTR(standby_flags, 0644, brcm_pm_show_standby_flags,
+		brcm_pm_store_standby_flags),
 	__ATTR_NULL,
 };
 

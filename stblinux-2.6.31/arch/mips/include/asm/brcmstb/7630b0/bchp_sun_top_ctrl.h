@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed May 13 17:40:28 2009
- *                 MD5 Checksum         397c7e3e68fca5836958d6d3dcfe31f9
+ * Date:           Generated on         Tue Apr 20 15:23:26 2010
+ *                 MD5 Checksum         8e65b5dadc708040d625b4e632bede8d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7630/rdb/b0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/1   5/14/09 2:00a tdo
- * PR55087: Initial check in
+ * Hydra_Software_Devel/2   4/20/10 7:46p albertl
+ * SW7630-10: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -340,9 +340,9 @@
 #define BCHP_SUN_TOP_CTRL_SW_RESET_reserved4_MASK                  0x00000100
 #define BCHP_SUN_TOP_CTRL_SW_RESET_reserved4_SHIFT                 8
 
-/* SUN_TOP_CTRL :: SW_RESET :: ofe_analog_sw_reset [07:07] */
-#define BCHP_SUN_TOP_CTRL_SW_RESET_ofe_analog_sw_reset_MASK        0x00000080
-#define BCHP_SUN_TOP_CTRL_SW_RESET_ofe_analog_sw_reset_SHIFT       7
+/* SUN_TOP_CTRL :: SW_RESET :: spare_sw_reset [07:07] */
+#define BCHP_SUN_TOP_CTRL_SW_RESET_spare_sw_reset_MASK             0x00000080
+#define BCHP_SUN_TOP_CTRL_SW_RESET_spare_sw_reset_SHIFT            7
 
 /* SUN_TOP_CTRL :: SW_RESET :: ofe_dig_sw_reset [06:06] */
 #define BCHP_SUN_TOP_CTRL_SW_RESET_ofe_dig_sw_reset_MASK           0x00000040

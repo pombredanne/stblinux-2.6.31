@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed Sep 16 18:00:42 2009
- *                 MD5 Checksum         c46d38b4e7b0aebd063d72084c168161
+ * Date:           Generated on         Fri Mar 26 19:35:45 2010
+ *                 MD5 Checksum         a1c660fe01ce2e59c9c8d5217f5a1273
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,9 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7468/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/2   9/16/09 7:48p albertl
- * SW7468-3: Fixed 4 byte offset due to change in script, updated to match
- * RDB.
+ * Hydra_Software_Devel/3   3/30/10 7:48p albertl
+ * SW7550-351: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -272,8 +271,8 @@
 #define BCHP_WKTMR_REG_END                                 0x00307390
 #define BCHP_SUN_GISB_ARB_SEC_REG_START                    0x0030e000
 #define BCHP_SUN_GISB_ARB_SEC_REG_END                      0x0030e064
-#define BCHP_SDIO_CORE_REG_START                           0x00310000
-#define BCHP_SDIO_CORE_REG_END                             0x003100fc
+#define BCHP_SDIO_REG_START                                0x00310000
+#define BCHP_SDIO_REG_END                                  0x003100fc
 #define BCHP_MISB_BRIDGE_REG_START                         0x00310400
 #define BCHP_MISB_BRIDGE_REG_END                           0x00310410
 #define BCHP_EBI_REG_START                                 0x00310800

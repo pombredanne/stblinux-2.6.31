@@ -53,6 +53,9 @@
 #include <linux/mtd/physmap.h>
 #include <linux/mtd/map.h>
 
+/* Extra SPI flash chip selects to scan at boot time (configurable) */
+#define EXTRA_SPI_CS		0x00
+
 /***********************************************************************
  * Platform device setup
  ***********************************************************************/
@@ -129,50 +132,6 @@ BRCM_3250_PLAT_DEVICE(UARTB, 1)
 BRCM_3250_PLAT_DEVICE(UARTC, 2)
 #endif
 
-#endif
-
-static u64 brcm_usb_dmamask = ~(u32)0;
-
-#define BRCM_USB_PLAT_DEVICE(driver, hci, num, reg, irq) \
-	static struct resource brcm_##hci##_resources[] = { \
-		{ \
-			.start = BPHYSADDR(BCHP_USB_##reg##_REG_START), \
-			.end = BPHYSADDR(BCHP_USB_##reg##_REG_END) + 3, \
-			.flags = IORESOURCE_MEM, \
-		}, { \
-			.start = BRCM_IRQ_##irq, \
-			.end = BRCM_IRQ_##irq, \
-			.flags = IORESOURCE_IRQ, \
-		} \
-	}; \
-	static struct platform_device brcm_##hci##_device = { \
-		.name = driver, \
-		.id = num, \
-		.dev = { \
-			.dma_mask = &brcm_usb_dmamask, \
-			.coherent_dma_mask = 0xffffffff, \
-		}, \
-		.num_resources = ARRAY_SIZE(brcm_##hci##_resources), \
-		.resource = brcm_##hci##_resources, \
-	};
-
-#if defined(BCHP_USB_EHCI_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB0)
-BRCM_USB_PLAT_DEVICE("ehci-brcm", ehci0, 0, EHCI, EHCI_0)
-#endif
-#if defined(BCHP_USB_EHCI1_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB1)
-BRCM_USB_PLAT_DEVICE("ehci-brcm", ehci1, 1, EHCI1, EHCI_1)
-#endif
-#if defined(BCHP_USB_EHCI2_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB2)
-BRCM_USB_PLAT_DEVICE("ehci-brcm", ehci2, 2, EHCI2, EHCI_2)
-#endif
-#if defined(BCHP_USB_OHCI_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB0)
-BRCM_USB_PLAT_DEVICE("ohci-brcm", ohci0, 0, OHCI, OHCI_0)
-#endif
-#if defined(BCHP_USB_OHCI1_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB1)
-BRCM_USB_PLAT_DEVICE("ohci-brcm", ohci1, 1, OHCI1, OHCI_1)
-#endif
-#if defined(BCHP_USB_OHCI2_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB2)
-BRCM_USB_PLAT_DEVICE("ohci-brcm", ohci2, 2, OHCI2, OHCI_2)
 #endif
 
 static inline void brcm_bogus_release(struct device *dev)
@@ -253,130 +212,7 @@ static struct platform_device bcmemac_1_plat_dev = {
 };
 #endif /* defined(CONFIG_BRCM_HAS_EMAC_1) */
 
-#if defined(CONFIG_BRCM_HAS_GENET)
-static struct bcmemac_platform_data genet_plat_data = {
-#if defined(CONFIG_BCMGENET_0_GPHY)
-	.phy_type 		= BRCM_PHY_TYPE_EXT_GMII,
-	.phy_id			= BRCM_PHY_ID_AUTO,
-#else
-	.phy_type		= BRCM_PHY_TYPE_INT,
-	.phy_id			= 1,
-#endif
-};
-
-static struct resource genet_resources[] = {
-	[0] = {
-		.start		= BPHYSADDR(BCHP_GENET_SYS_REG_START),
-		.end		= BPHYSADDR(BCHP_GENET_TDMA_REG_END) + 3,
-		.flags		= IORESOURCE_MEM,
-	},
-	[1] = {
-		.start		= BRCM_IRQ_GENET_0_A,
-		.end		= BRCM_IRQ_GENET_0_A,
-		.flags		= IORESOURCE_IRQ,
-	},
-	[2] = {
-		.start		= BRCM_IRQ_GENET_0_B,
-		.end		= BRCM_IRQ_GENET_0_B,
-		.flags		= IORESOURCE_IRQ,
-	}
-};
-
-static struct platform_device genet_plat_dev = {
-	.name			= "bcmgenet",
-	.id			= 0,
-	.num_resources		= ARRAY_SIZE(genet_resources),
-	.resource		= genet_resources,
-	.dev			= {
-		.platform_data	= &genet_plat_data,
-		.release	= brcm_bogus_release,
-	},
-};
-
-#endif /* defined(CONFIG_BRCM_HAS_GENET) */
-
-#if defined(CONFIG_BRCM_HAS_MOCA)
-
-#if defined(CONFIG_BRCM_HAS_GENET)
-/* "main" GENET is first device, MoCA is second */
-#define MOCA_GENET_ID		1
-#else
-/* MoCA is the only GENET device */
-#define MOCA_GENET_ID		0
-#endif
-
-static struct bcmemac_platform_data moca_genet_plat_data = {
-	.phy_type 		= BRCM_PHY_TYPE_MOCA,
-	.phy_id			= BRCM_PHY_ID_NONE,
-};
-
-static struct resource moca_genet_resources[] = {
-	[0] = {
-		.start		= BPHYSADDR(BCHP_MOCA_GENET_SYS_REG_START),
-		.end		= BPHYSADDR(BCHP_MOCA_GENET_TDMA_REG_END) + 3,
-		.flags		= IORESOURCE_MEM,
-	},
-	[1] = {
-		.start		= BRCM_IRQ_GENET_1_A,
-		.end		= BRCM_IRQ_GENET_1_A,
-		.flags		= IORESOURCE_IRQ,
-	},
-	[2] = {
-		.start		= BRCM_IRQ_GENET_1_B,
-		.end		= BRCM_IRQ_GENET_1_B,
-		.flags		= IORESOURCE_IRQ,
-	}
-};
-
-static struct platform_device moca_genet_plat_dev = {
-	.name			= "bcmgenet",
-	.id			= MOCA_GENET_ID,
-	.num_resources		= ARRAY_SIZE(moca_genet_resources),
-	.resource		= moca_genet_resources,
-	.dev			= {
-		.platform_data	= &moca_genet_plat_data,
-		.release	= brcm_bogus_release,
-	},
-};
-
-static struct moca_platform_data moca_data = {
-	.enet_name =		"bcmgenet",
-	.enet_id =		MOCA_GENET_ID,
-	.bcm3450_i2c_addr =	0x70,
-};
-
-static struct resource moca_resources[] = {
-	[0] = {
-		.start		= BPHYSADDR(BCHP_DATA_MEM_REG_START),
-		.end		= BPHYSADDR(BCHP_MOCA_HOSTMISC_MMP_REG_END) + 3,
-		.flags		= IORESOURCE_MEM,
-	},
-	[1] = {
-		.start		= BRCM_IRQ_MOCA,
-		.end		= BRCM_IRQ_MOCA,
-		.flags		= IORESOURCE_IRQ,
-	},
-};
-
-static struct platform_device moca_plat_dev = {
-	.name			= "bmoca",
-	.id			= 0,
-	.num_resources		= ARRAY_SIZE(moca_resources),
-	.resource		= moca_resources,
-	.dev = {
-		.platform_data	= &moca_data,
-		.release	= brcm_bogus_release,
-	},
-};
-
-#endif /* defined(CONFIG_BRCM_HAS_MOCA) */
-
-#if defined(CONFIG_BRCM_HAS_SDIO)
-
-#ifdef BCHP_SDIO_CORE_REG_START
-#define BCHP_SDIO_REG_START	BCHP_SDIO_CORE_REG_START
-#define BCHP_SDIO_REG_END	BCHP_SDIO_CORE_REG_END
-#endif
+#if defined(CONFIG_BRCM_HAS_SDIO_V0)
 
 static struct resource sdio_resources[] = {
 	[0] = {
@@ -398,7 +234,122 @@ static struct platform_device sdio_plat_dev = {
 	.resource		= sdio_resources,
 };
 
-#endif /* defined(CONFIG_BRCM_HAS_SDIO) */
+#endif /* defined(CONFIG_BRCM_HAS_SDIO_V0) */
+
+static struct platform_device *brcm_new_usb_host(char *name, int id,
+	uintptr_t base, int irq)
+{
+	struct resource res[2];
+	struct platform_device *pdev;
+	static const u64 usb_dmamask = ~(u32)0;
+
+	memset(&res, 0, sizeof(res));
+	res[0].start = BPHYSADDR(base);
+	res[0].end = BPHYSADDR(base + 0xff);
+	res[0].flags = IORESOURCE_MEM;
+
+	res[1].start = res[1].end = irq;
+	res[1].flags = IORESOURCE_IRQ;
+
+	pdev = platform_device_alloc(name, id);
+	platform_device_add_resources(pdev, res, 2);
+
+	pdev->dev.dma_mask = (u64 *)&usb_dmamask;
+	pdev->dev.coherent_dma_mask = 0xffffffff;
+
+	return pdev;
+}
+
+#if defined(CONFIG_BRCM_HAS_GENET)
+
+/* legacy names */
+#if !defined(BCHP_GENET_0_SYS_REG_START)
+#define BCHP_GENET_0_SYS_REG_START	BCHP_GENET_SYS_REG_START
+#endif
+#if !defined(BCHP_GENET_1_SYS_REG_START)
+#define BCHP_GENET_1_SYS_REG_START	BCHP_MOCA_GENET_SYS_REG_START
+#endif
+
+static void brcm_register_genet(int id, uintptr_t base, int irq0, int irq1,
+	int phy_type)
+{
+	struct resource res[3];
+	struct platform_device *pdev;
+	struct bcmemac_platform_data pdata;
+
+	memset(&res, 0, sizeof(res));
+	res[0].start = BPHYSADDR(base);
+	res[0].end = BPHYSADDR(base + 0x4fff);
+	res[0].flags = IORESOURCE_MEM;
+
+	res[1].start = res[1].end = irq0;
+	res[1].flags = IORESOURCE_IRQ;
+
+	res[2].start = res[2].end = irq1;
+	res[2].flags = IORESOURCE_IRQ;
+
+	pdata.phy_type = phy_type;
+
+	switch (phy_type) {
+	case BRCM_PHY_TYPE_INT:
+		pdata.phy_id = 1;
+		break;
+	case BRCM_PHY_TYPE_EXT_GMII:
+		pdata.phy_id = BRCM_PHY_ID_AUTO;
+		break;
+	case BRCM_PHY_TYPE_MOCA:
+		pdata.phy_id = BRCM_PHY_ID_NONE;
+		break;
+	}
+	brcm_alloc_macaddr(pdata.macaddr);
+
+	pdev = platform_device_alloc("bcmgenet", id);
+	platform_device_add_resources(pdev, res, 3);
+	platform_device_add_data(pdev, &pdata, sizeof(pdata));
+	platform_device_add(pdev);
+}
+#endif /* defined(CONFIG_BRCM_HAS_GENET) */
+
+#if defined(CONFIG_BRCM_HAS_MOCA)
+static void brcm_register_moca(int enet_id)
+{
+	struct resource res[2];
+	struct platform_device *pdev;
+	struct moca_platform_data pdata;
+	u8 macaddr[ETH_ALEN];
+
+	bchip_moca_init();
+
+	memset(&res, 0, sizeof(res));
+	res[0].start = BPHYSADDR(BCHP_DATA_MEM_REG_START);
+	res[0].end = BPHYSADDR(BCHP_MOCA_HOSTMISC_MMP_REG_END) + 3;
+	res[0].flags = IORESOURCE_MEM;
+
+	res[1].start = BRCM_IRQ_MOCA;
+	res[1].flags = IORESOURCE_IRQ;
+
+	brcm_alloc_macaddr(macaddr);
+	mac_to_u32(&pdata.macaddr_hi, &pdata.macaddr_lo, macaddr);
+
+	strcpy(pdata.enet_name, "bcmgenet");
+	pdata.enet_id = enet_id;
+	pdata.bcm3450_i2c_addr = 0x70;
+	pdata.bcm3450_i2c_base = brcm_moca_i2c_base;
+	pdata.hw_rev = (BRCM_CHIP_ID() << 16) | (BRCM_CHIP_REV() + 0xa0);
+	pdata.rf_band = brcm_moca_rf_band;
+
+	if (brcm_moca_i2c_base == 0) {
+		printk(KERN_WARNING
+			"error: bmoca I2C base addr is not set\n");
+		return;
+	}
+
+	pdev = platform_device_alloc("bmoca", 0);
+	platform_device_add_resources(pdev, res, 2);
+	platform_device_add_data(pdev, &pdata, sizeof(pdata));
+	platform_device_add(pdev);
+}
+#endif /* defined(CONFIG_BRCM_HAS_MOCA) */
 
 static int __init platform_devices_setup(void)
 {
@@ -424,26 +375,56 @@ static int __init platform_devices_setup(void)
 
 	/* USB controllers */
 
+#define ADD_USB(type, reg, irq) do { \
+	if (!(usb_disable_mask & (1 << type##_id))) \
+		pdevs[devno++] = brcm_new_usb_host(#type "-brcm", type##_id++, \
+			BCHP_##reg##_REG_START, BRCM_IRQ_##irq); \
+	} while (0)
+
 	if (brcm_usb_enabled) {
+#ifdef CONFIG_BRCM_USB_DISABLE_MASK
+		unsigned long usb_disable_mask = CONFIG_BRCM_USB_DISABLE_MASK;
+#else
+		unsigned long usb_disable_mask = 0x00;
+#endif
+		struct platform_device *pdevs[16];
+		int ehci_id = 0, ohci_id = 0, devno = 0, i;
+
 		bchip_usb_init();
-#if defined(BCHP_USB_EHCI_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB0)
-		platform_device_register(&brcm_ehci0_device);
+
+#if defined(BCHP_USB_EHCI_REG_START)
+		ADD_USB(ehci, USB_EHCI, EHCI0_0);
 #endif
-#if defined(BCHP_USB_EHCI1_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB1)
-		platform_device_register(&brcm_ehci1_device);
+#if defined(BCHP_USB_EHCI1_REG_START)
+		ADD_USB(ehci, USB_EHCI1, EHCI0_1);
 #endif
-#if defined(BCHP_USB_EHCI2_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB2)
-		platform_device_register(&brcm_ehci2_device);
+#if defined(BCHP_USB_EHCI2_REG_START)
+		ADD_USB(ehci, USB_EHCI2, EHCI0_2);
 #endif
-#if defined(BCHP_USB_OHCI_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB0)
-		platform_device_register(&brcm_ohci0_device);
+#if defined(BCHP_USB_OHCI_REG_START)
+		ADD_USB(ohci, USB_OHCI, OHCI0_0);
 #endif
-#if defined(BCHP_USB_OHCI1_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB1)
-		platform_device_register(&brcm_ohci1_device);
+#if defined(BCHP_USB_OHCI1_REG_START)
+		ADD_USB(ohci, USB_OHCI1, OHCI0_1);
 #endif
-#if defined(BCHP_USB_OHCI2_REG_START) && !defined(CONFIG_BRCM_DISABLE_USB2)
-		platform_device_register(&brcm_ohci2_device);
+#if defined(BCHP_USB_OHCI2_REG_START)
+		ADD_USB(ohci, USB_OHCI2, OHCI0_2);
 #endif
+#if defined(BCHP_USB1_EHCI_REG_START)
+		ADD_USB(ehci, USB1_EHCI, EHCI1_0);
+#endif
+#if defined(BCHP_USB1_EHCI1_REG_START)
+		ADD_USB(ehci, USB1_EHCI1, EHCI1_1);
+#endif
+#if defined(BCHP_USB1_OHCI_REG_START)
+		ADD_USB(ohci, USB1_OHCI, OHCI1_0);
+#endif
+#if defined(BCHP_USB1_OHCI1_REG_START)
+		ADD_USB(ohci, USB1_OHCI1, OHCI1_1);
+#endif
+
+		for (i = 0; i < devno; i++)
+			platform_device_add(pdevs[i]);
 	}
 
 	/* Network interfaces */
@@ -463,39 +444,61 @@ static int __init platform_devices_setup(void)
 #endif
 
 #if defined(CONFIG_BRCM_HAS_GENET)
-	brcm_alloc_macaddr(genet_plat_data.macaddr);
-	platform_device_register(&genet_plat_dev);
+	/*
+	 * Supported GENET configurations:
+	 *
+	 * GENET_0 INT (7468)
+	 * GENET_0 EXT (7468 alt)
+	 * GENET_0 INT, GENET_1 MOCA (7420)
+	 * GENET_0 EXT, GENET_1 MOCA (7420 alt)
+	 * GENET_0 MOCA (7135)
+	 * GENET_1 MOCA (7125) (deprecated)
+	 * GENET_1 EXT (7019) (deprecated)
+	 *
+	 * 65nm chips use GENET (0) / MOCA_GENET (1) (deprecated)
+	 * 40nm chips use GENET_0 / GENET_1
+	 */
+	if (brcm_enet_enabled) {
+		int phy_type = BRCM_PHY_TYPE_INT;
+		int id = 0;
+
+#if defined(CONFIG_BRCM_HAS_GENET_0)
+
+#if defined(CONFIG_BRCM_MOCA_ON_GENET_0)
+		if (!brcm_moca_enabled)
+			phy_type = BRCM_PHY_TYPE_EXT_GMII;
+		else {
+			phy_type = BRCM_PHY_TYPE_MOCA;
+			brcm_register_moca(0);
+		}
 #endif
+#if defined(CONFIG_BCMGENET_0_GPHY)
+		phy_type = BRCM_PHY_TYPE_EXT_GMII;
+#endif
+		brcm_register_genet(id++, BCHP_GENET_0_SYS_REG_START,
+			BRCM_IRQ_GENET_0_A, BRCM_IRQ_GENET_0_B, phy_type);
+#endif /* defined(CONFIG_BRCM_HAS_GENET_0) */
 
-#if defined(CONFIG_BRCM_HAS_MOCA)
-	if (brcm_moca_enabled) {
-		u8 macaddr[ETH_ALEN];
+#if defined(CONFIG_BRCM_HAS_GENET_1)
 
-		bchip_moca_init();
-
-		/* MOCA_GENET datapath */
-		brcm_alloc_macaddr(macaddr);
-		memcpy(moca_genet_plat_data.macaddr, macaddr, ETH_ALEN);
-		platform_device_register(&moca_genet_plat_dev);
-
-		/* MOCA control path */
-		brcm_alloc_macaddr(macaddr);
-		mac_to_u32(&moca_data.macaddr_hi, &moca_data.macaddr_lo,
-			macaddr);
-		moca_data.bcm3450_i2c_base = brcm_moca_i2c_base;
-		moca_data.hw_rev =
-			BDEV_RD(BCHP_SUN_TOP_CTRL_PROD_REVISION) + 0xa0;
-		moca_data.rf_band = brcm_moca_rf_band;
-
-		if (brcm_moca_i2c_base == 0)
-			printk(KERN_WARNING
-				"error: bmoca I2C base addr is not set\n");
-		else
-			platform_device_register(&moca_plat_dev);
+#if defined(CONFIG_BRCM_MOCA_ON_GENET_1)
+		if (!brcm_moca_enabled)
+			phy_type = BRCM_PHY_TYPE_EXT_GMII;
+		else {
+			phy_type = BRCM_PHY_TYPE_MOCA;
+			brcm_register_moca(1);
+		}
+#endif
+#if defined(CONFIG_BCMGENET_1_GPHY)
+		phy_type = BRCM_PHY_TYPE_EXT_GMII;
+#endif
+		brcm_register_genet(id++, BCHP_GENET_1_SYS_REG_START,
+			BRCM_IRQ_GENET_1_A, BRCM_IRQ_GENET_1_B, phy_type);
+#endif /* defined(CONFIG_BRCM_HAS_GENET_1) */
 	}
-#endif
+#endif /* defined(CONFIG_BRCM_HAS_GENET) */
 
-#if defined(CONFIG_BRCM_HAS_SDIO)
+#if defined(CONFIG_BRCM_HAS_SDIO_V0)
 	bchip_sdio_init();
 	platform_device_register(&sdio_plat_dev);
 #endif
@@ -539,6 +542,14 @@ static int __init brcm_setup_spi_flash(int cs, int bus_num, int nr_parts,
 {
 	struct spi_board_info board_info;
 	struct flash_platform_data *pdata;
+	struct spi_master *master;
+
+	master = spi_busnum_to_master(bus_num);
+	if (!master) {
+		printk(KERN_WARNING "%s: can't locate SPI master\n",
+			__func__);
+		return -ENODEV;
+	}
 
 	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
@@ -551,11 +562,13 @@ static int __init brcm_setup_spi_flash(int cs, int bus_num, int nr_parts,
 
 	strcpy(board_info.modalias, "m25p80");
 	board_info.bus_num = bus_num;
-	board_info.chip_select = 0;
+	board_info.chip_select = cs;
 	board_info.mode = SPI_MODE_3;
 	board_info.platform_data = pdata;
 
-	if (spi_register_board_info(&board_info, 1) != 0) {
+	if (spi_new_device(master, &board_info) == NULL) {
+		printk(KERN_WARNING "%s: can't add SPI device\n",
+			__func__);
 		kfree(pdata);
 		return -ENODEV;
 	}
@@ -574,7 +587,6 @@ static int __init brcm_setup_spi_master(int cs, int bus_id)
 	pdata.flash_cs = cs;
 
 	memset(&res, 0, sizeof(res));
-
 	res[0].start = BPHYSADDR(BCHP_HIF_MSPI_REG_START);
 	res[0].end = BPHYSADDR(BCHP_HIF_MSPI_REG_START) + 3;
 	res[0].flags = IORESOURCE_MEM;
@@ -603,7 +615,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 	case TYPE_NOR: {
 		struct physmap_flash_data pdata;
 		struct resource res;
-		static int nor_id = 0;
+		static int nor_id;
 
 		memset(&res, 0, sizeof(res));
 		memset(&pdata, 0, sizeof(pdata));
@@ -626,12 +638,13 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 	}
 	case TYPE_NAND: {
 		struct brcmnand_platform_data pdata;
+		static int nand_id;
 
 		pdata.chip_select = cs;
 		pdata.nr_parts = nr_parts;
 		pdata.parts = parts;
 
-		pdev = platform_device_alloc("brcmnand", 0);
+		pdev = platform_device_alloc("brcmnand", nand_id++);
 		if (!pdev ||
 		    platform_device_add_data(pdev, &pdata, sizeof(pdata)) ||
 		    platform_device_add(pdev))
@@ -641,20 +654,25 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 	case TYPE_SPI: {
 #ifdef CONFIG_BRCM_HAS_SPI
 		const int bus_num = 0;
+		static int spi_master_registered;
 		int ret;
+
+		if (!spi_master_registered) {
+			ret = brcm_setup_spi_master(cs, bus_num);
+			if (ret) {
+				printk(KERN_WARNING
+					"%s: can't register SPI master "
+					"(error %d)\n", __func__, ret);
+				break;
+			}
+			spi_master_registered = 1;
+		}
 
 		ret = brcm_setup_spi_flash(cs, bus_num, nr_parts, parts);
 		if (ret < 0) {
 			printk(KERN_WARNING
 				"%s: can't register SPI flash (error %d)\n",
-				__FUNCTION__, ret);
-			break;
-		}
-		ret = brcm_setup_spi_master(cs, bus_num);
-		if (ret) {
-			printk(KERN_WARNING
-				"%s: can't register SPI master (error %d)\n",
-				__FUNCTION__, ret);
+				__func__, ret);
 			break;
 		}
 #endif
@@ -725,7 +743,16 @@ static int __init brcmstb_mtd_setup(void)
 			cs_info[i].type = TYPE_NOR;
 #endif
 #ifdef BCHP_EBI_CS_SPI_SELECT
-		if (BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & (1 << i))
+		/*
+		 * bits 7:0 - owned by HW (at most one bit active)
+		 * bits 23:16 - owned by SW (any number of '1' bits OK)
+		 * A '1' in either position means there is a SPI chip there.
+		 *
+		 * 65nm chips don't have SW bits 23:16 so EXTRA_SPI_CS
+		 * should be set at compile time for multiple SPI flashes.
+		 */
+		if ((BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & (0x10001 << i)) ||
+				(EXTRA_SPI_CS & (0x01 << i)))
 			cs_info[i].type = TYPE_SPI;
 #endif
 #ifdef BCHP_NAND_CS_NAND_SELECT
@@ -824,10 +851,16 @@ static void brcm_machine_restart(char *command)
 	udelay(10);
 #endif
 
+#ifdef BCHP_SUN_TOP_CTRL_SW_RESET
 	BDEV_WR_F_RB(SUN_TOP_CTRL_RESET_CTRL, master_reset_en, 1);
 	BDEV_WR_F_RB(SUN_TOP_CTRL_SW_RESET, chip_master_reset, 1);
+#else
+	BDEV_WR_F_RB(SUN_TOP_CTRL_RESET_SOURCE_ENABLE,
+		sw_master_reset_enable, 1);
+	BDEV_WR_F_RB(SUN_TOP_CTRL_SW_MASTER_RESET, chip_master_reset, 1);
+#endif
 
-	while(1) { }
+	while (1) { }
 }
 
 static void brcm_machine_halt(void)

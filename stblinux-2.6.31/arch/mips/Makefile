@@ -566,7 +566,6 @@ load-$(CONFIG_BCM47XX)		:= 0xffffffff80001000
 cflags-$(CONFIG_BRCMSTB)	+= -I$(srctree)/arch/mips/include/asm/mach-brcmstb
 load-$(CONFIG_BRCMSTB)		+= 0x80001000
 core-$(CONFIG_BRCMSTB)		+= arch/mips/brcmstb/
-load-$(CONFIG_BCM7550A0)	:= 0x8027c000
 
 cflags-$(CONFIG_NO_INLINE)	+= -fno-inline
 

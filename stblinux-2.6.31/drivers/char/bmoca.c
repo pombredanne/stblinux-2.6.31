@@ -25,7 +25,6 @@
  ------------------------------------------------------------------------- */
 
 #include <linux/module.h>
-#include <linux/autoconf.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/sched.h>
@@ -42,6 +41,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/version.h>
 #include <linux/scatterlist.h>
+#include <linux/clk.h>
 
 #include <asm/io.h>
 
@@ -196,6 +196,7 @@ struct moca_priv_data {
 
 	int			enabled;
 	int			running;
+	struct clk		*clk;
 
 	int			refcount;
 	unsigned long		start_time;
@@ -345,12 +346,10 @@ static void moca_hw_reset(struct moca_priv_data *priv)
 /* called any time we start/restart/stop MoCA */
 static void moca_hw_init(struct moca_priv_data *priv, int action)
 {
-#ifdef CONFIG_BRCM_PM
-	if((action == MOCA_ENABLE) && ! priv->enabled) {
-		brcm_pm_moca_enable(priv->minor);
+	if (action == MOCA_ENABLE && !priv->enabled) {
+		clk_enable(priv->clk);
 		priv->enabled = 1;
 	}
-#endif
 
 	moca_hw_reset(priv);
 	udelay(1);
@@ -374,12 +373,10 @@ static void moca_hw_init(struct moca_priv_data *priv, int action)
 	/* set up activity LED for 50% duty cycle */
 	MOCA_WR(priv->base + OFF_LED_CTRL, 0x40004000);
 
-#ifdef CONFIG_BRCM_PM
-	if((action == MOCA_DISABLE) && priv->enabled) {
-		brcm_pm_moca_disable(priv->minor);
+	if (action == MOCA_DISABLE && priv->enabled) {
 		priv->enabled = 0;
+		clk_disable(priv->clk);
 	}
-#endif
 }
 
 static void moca_ringbell(struct moca_priv_data *priv, u32 mask)
@@ -1487,6 +1484,8 @@ static int moca_probe(struct platform_device *pdev)
 	priv->pdev = pdev;
 	priv->start_time = jiffies;
 
+	priv->clk = clk_get(&pdev->dev, "moca");
+
 	init_waitqueue_head(&priv->host_msg_wq);
 	init_waitqueue_head(&priv->core_msg_wq);
 	init_completion(&priv->copy_complete);
@@ -1580,6 +1579,7 @@ bad:
 static int moca_remove(struct platform_device *pdev)
 {
 	struct moca_priv_data *priv = dev_get_drvdata(&pdev->dev);
+	struct clk *clk = priv->clk;
 
 	if(priv->dev)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 26)
@@ -1594,6 +1594,8 @@ static int moca_remove(struct platform_device *pdev)
 	iounmap(priv->i2c_base);
 	iounmap(priv->base);
 	kfree(priv);
+
+	clk_put(clk);
 
 	return(0);
 }

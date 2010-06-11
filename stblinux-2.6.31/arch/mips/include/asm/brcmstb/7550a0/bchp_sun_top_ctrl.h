@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Jul 23 05:18:19 2009
- *                 MD5 Checksum         a8d3dda5e1ef15dc0f3282d30e99ced5
+ * Date:           Generated on         Tue Mar 30 14:45:11 2010
+ *                 MD5 Checksum         fcc80e937f0852e5e867bbe2ad915642
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7550/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/7   7/23/09 6:25p nitinb
- * PR54730: Updated headers for CRDB updates on 16 July 2009
+ * Hydra_Software_Devel/8   3/30/10 7:49p albertl
+ * SW7550-351: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -567,9 +567,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_macrovision_enable_MASK 0x00000010
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_macrovision_enable_SHIFT 4
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_revision_id [03:00] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_revision_id_MASK 0x0000000f
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_revision_id_SHIFT 0
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_product_id [03:00] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_product_id_MASK 0x0000000f
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_product_id_SHIFT 0
 
 /***************************************************************************
  *OTP_OPTION_TEST_1 - OTP option test register
@@ -610,9 +610,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_reserved0_MASK         0x00f00000
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_reserved0_SHIFT        20
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_1 :: otp_option_linreg_1p8 [19:15] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_otp_option_linreg_1p8_MASK 0x000f8000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_otp_option_linreg_1p8_SHIFT 15
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_1 :: otp_option_linreg_1p5 [19:15] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_otp_option_linreg_1p5_MASK 0x000f8000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_otp_option_linreg_1p5_SHIFT 15
 
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_1 :: otp_option_linreg_2p5 [14:10] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_1_otp_option_linreg_2p5_MASK 0x00007c00
@@ -701,9 +701,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_macrovision_enable_MASK 0x00000010
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_macrovision_enable_SHIFT 4
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_revision_id [03:00] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_revision_id_MASK 0x0000000f
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_revision_id_SHIFT 0
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_product_id [03:00] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_product_id_MASK 0x0000000f
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_product_id_SHIFT 0
 
 /***************************************************************************
  *OTP_OPTION_STATUS_1 - OTP option status register
@@ -744,9 +744,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_reserved0_MASK       0x00f00000
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_reserved0_SHIFT      20
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_1 :: otp_option_linreg_1p8 [19:15] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_otp_option_linreg_1p8_MASK 0x000f8000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_otp_option_linreg_1p8_SHIFT 15
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_1 :: otp_option_linreg_1p5 [19:15] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_otp_option_linreg_1p5_MASK 0x000f8000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_otp_option_linreg_1p5_SHIFT 15
 
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_1 :: otp_option_linreg_2p5 [14:10] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_1_otp_option_linreg_2p5_MASK 0x00007c00
@@ -1098,9 +1098,9 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn1p2linreg_MASK   0x02000000
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn1p2linreg_SHIFT  25
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: vrc_pwrdn1p8 [24:24] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn1p8_MASK         0x01000000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn1p8_SHIFT        24
+/* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: vrc_pwrdn1p5 [24:24] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn1p5_MASK         0x01000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn1p5_SHIFT        24
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: vrc_pwrdn2p5 [23:23] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_pwrdn2p5_MASK         0x00800000
@@ -1114,9 +1114,9 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel1p2_MASK           0x000f8000
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel1p2_SHIFT          15
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: vrc_sel1p8 [14:10] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel1p8_MASK           0x00007c00
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel1p8_SHIFT          10
+/* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: vrc_sel1p5 [14:10] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel1p5_MASK           0x00007c00
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel1p5_SHIFT          10
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_3 :: vrc_sel2p5 [09:05] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_3_vrc_sel2p5_MASK           0x000003e0
@@ -1137,9 +1137,9 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_1p2_sel_reg_MASK 0x00008000
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_1p2_sel_reg_SHIFT 15
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_4 :: vreg_linreg_1p8_sel_reg [14:14] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_1p8_sel_reg_MASK 0x00004000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_1p8_sel_reg_SHIFT 14
+/* SUN_TOP_CTRL :: GENERAL_CTRL_4 :: vreg_linreg_1p5_sel_reg [14:14] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_1p5_sel_reg_MASK 0x00004000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_1p5_sel_reg_SHIFT 14
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_4 :: vreg_linreg_2p5_sel_reg [13:13] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_4_vreg_linreg_2p5_sel_reg_MASK 0x00002000

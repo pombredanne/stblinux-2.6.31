@@ -42,6 +42,7 @@ int brcm_smp_enabled = 0;
 int brcm_emac_1_enabled = 0;
 int brcm_moca_enabled = 0;
 int brcm_usb_enabled = 0;
+int brcm_pm_enabled = 0;
 
 /* synchronize writes to shared registers */
 DEFINE_SPINLOCK(brcm_magnum_spinlock);
@@ -139,26 +140,28 @@ void __init bchip_check_compat(void)
 	ALT_CHIP_ID(7019, a0);
 	ALT_CHIP_ID(7025, a0);
 	ALT_CHIP_ID(7116, a0);
+	ALT_CHIP_ID(7117, a0);
 	ALT_CHIP_ID(7119, a0);
+	ALT_CHIP_ID(7120, a0);
 	MAIN_CHIP_ID(7125, a0);
+#elif defined(CONFIG_BCM7231)
+	MAIN_CHIP_ID(7231, a0);
 #elif defined(CONFIG_BCM7325)
 	ALT_CHIP_ID(7324, b0);
 	MAIN_CHIP_ID(7325, b0);
 #elif defined(CONFIG_BCM7335)
 	ALT_CHIP_ID(7336, a0);
 	MAIN_CHIP_ID(7335, b0);
-#elif defined(CONFIG_BCM7340A0)
-	ALT_CHIP_ID(7350, a0);
-	MAIN_CHIP_ID(7340, a0);
 #elif defined(CONFIG_BCM7340B0)
 	ALT_CHIP_ID(7350, b0);
 	MAIN_CHIP_ID(7340, b0);
-#elif defined(CONFIG_BCM7342A0)
-	ALT_CHIP_ID(7352, a0);
-	MAIN_CHIP_ID(7342, a0);
 #elif defined(CONFIG_BCM7342B0)
 	ALT_CHIP_ID(7352, b0);
 	MAIN_CHIP_ID(7342, b0);
+#elif defined(CONFIG_BCM7344)
+	MAIN_CHIP_ID(7344, a0);
+#elif defined(CONFIG_BCM7346)
+	MAIN_CHIP_ID(7346, a0);
 #elif defined(CONFIG_BCM7400)
 	MAIN_CHIP_ID(7400, d0);
 #elif defined(CONFIG_BCM7401)
@@ -175,16 +178,26 @@ void __init bchip_check_compat(void)
 	ALT_CHIP_ID(7220, c0);
 	ALT_CHIP_ID(7410, c0);
 	MAIN_CHIP_ID(7420, c0);
-#elif defined(CONFIG_BCM7468)
+#elif defined(CONFIG_BCM7422)
+	MAIN_CHIP_ID(7422, a0);
+#elif defined(CONFIG_BCM7425)
+	MAIN_CHIP_ID(7425, a0);
+#elif defined(CONFIG_BCM7468A0)
 	MAIN_CHIP_ID(7468, a0);
+#elif defined(CONFIG_BCM7468B0)
+	MAIN_CHIP_ID(7468, b0);
 #elif defined(CONFIG_BCM7550)
 	MAIN_CHIP_ID(7550, a0);
 #elif defined(CONFIG_BCM7601)
 	MAIN_CHIP_ID(7443, b0);
 #elif defined(CONFIG_BCM7630)
 	MAIN_CHIP_ID(7630, b0);
+#elif defined(CONFIG_BCM7631)
+	MAIN_CHIP_ID(7631, b0);
 #elif defined(CONFIG_BCM7635)
 	MAIN_CHIP_ID(7635, a0);
+#elif defined(CONFIG_BCM7640)
+	MAIN_CHIP_ID(7640, a0);
 #endif
 	if (!kernel_chip_id)
 		return;
@@ -260,53 +273,73 @@ void __init bchip_mips_setup(void)
  * Common operations for all chips
  ***********************************************************************/
 
-void __init bchip_usb_init(void)
+#ifdef CONFIG_CPU_LITTLE_ENDIAN
+#define USB_ENDIAN		0x03 /* !WABO !FNBO FNHW BABO */
+#else
+#define USB_ENDIAN		0x0e /* WABO FNBO FNHW !BABO */
+#endif
+
+#define USB_ENDIAN_MASK		0x0f
+#define USB_IOC			0x10
+#define USB_IPP			0x20
+
+#define USB_OBR_SEQ_EN		0x01
+
+#define USB_REG(x, y)		(x + BCHP_USB_CTRL_##y - \
+				 BCHP_USB_CTRL_REG_START)
+
+static void bchip_usb_init_one(uintptr_t base)
 {
 	/* endianness setup */
-#ifdef CONFIG_CPU_LITTLE_ENDIAN
-	BDEV_WR_F(USB_CTRL_SETUP, WABO, 0);
-	BDEV_WR_F(USB_CTRL_SETUP, FNBO, 0);
-	BDEV_WR_F(USB_CTRL_SETUP, FNHW, 1);
-	BDEV_WR_F(USB_CTRL_SETUP, BABO, 1);
-#else
-	BDEV_WR_F(USB_CTRL_SETUP, WABO, 1);
-	BDEV_WR_F(USB_CTRL_SETUP, FNBO, 1);
-	BDEV_WR_F(USB_CTRL_SETUP, FNHW, 1);
-	BDEV_WR_F(USB_CTRL_SETUP, BABO, 0);
-#endif
+	BDEV_UNSET_RB(USB_REG(base, SETUP), USB_ENDIAN_MASK);
+	BDEV_SET_RB(USB_REG(base, SETUP), USB_ENDIAN);
 
 	/* power control setup */
 #ifdef CONFIG_BRCM_OVERRIDE_USB_PWR
 #ifdef CONFIG_BRCM_FORCE_USB_PWR_LO
-	BDEV_WR_F(USB_CTRL_SETUP, IPP, 0);
+	BDEV_UNSET(USB_REG(base, SETUP), USB_IPP);
 	printk(KERN_INFO "USB: forcing active low VBUS input\n");
 #else
-	BDEV_WR_F(USB_CTRL_SETUP, IPP, 1);
+	BDEV_SET(USB_REG(base, SETUP), USB_IPP);
 	printk(KERN_INFO "USB: forcing active high VBUS input\n");
 #endif
 #else /* CONFIG_BRCM_OVERRIDE_USB_PWR */
-	if(BDEV_RD_F(USB_CTRL_SETUP, IOC) != 1) {
-		printk("warning: USB IOC not initialized by bootloader, "
-			"assuming active low\n");
-		BDEV_WR_F(USB_CTRL_SETUP, IOC, 1);
-		BDEV_WR_F(USB_CTRL_SETUP, IPP, 0);
+	if (!(BDEV_RD(USB_REG(base, SETUP)) & USB_IOC)) {
+		printk(KERN_WARNING "warning: USB IOC not initialized by "
+			"bootloader, assuming active low\n");
+		BDEV_SET(USB_REG(base, SETUP), USB_IOC);
+		BDEV_UNSET(USB_REG(base, SETUP), USB_IPP);
 	}
 #endif /* CONFIG_BRCM_OVERRIDE_USB_PWR */
 
 	/* PR45703 - for OHCI->SCB bridge lockup */
-	BDEV_WR_F(USB_CTRL_OBRIDGE, OBR_SEQ_EN, 0);
+	BDEV_UNSET(USB_REG(base, OBRIDGE), USB_OBR_SEQ_EN);
+}
+
+void __init bchip_usb_init(void)
+{
+	bchip_usb_init_one(BCHP_USB_CTRL_REG_START);
+#ifdef BCHP_USB1_CTRL_REG_START
+	bchip_usb_init_one(BCHP_USB1_CTRL_REG_START);
+#endif
 }
 
 #if defined(CONFIG_BRCM_HAS_MOCA)
 void __init bchip_moca_init(void)
 {
+#ifdef BCHP_SUN_TOP_CTRL_SW_RESET
 	BDEV_WR_F_RB(SUN_TOP_CTRL_SW_RESET, moca_sw_reset, 0);
+#else
+	BDEV_WR_F_RB(SUN_TOP_CTRL_SW_INIT_0_CLEAR, moca_sw_init, 1);
+#endif
+
+#ifdef BCHP_MOCA_HOSTMISC_SW_RESET_moca_enet_reset_MASK
 	BDEV_WR_F_RB(MOCA_HOSTMISC_SW_RESET, moca_enet_reset, 0);
+#endif
+
 #if   defined(CONFIG_BCM7420)
 	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, M4DIV, 11);
-#elif defined(CONFIG_BCM7340A0)
-	BDEV_WR_F_RB(CLKGEN_PLLMOCA_MISC1_CTRL, M2DIV_PLLMOCA, 11);
-#elif defined(CONFIG_BCM7340B0)
+#elif defined(CONFIG_BCM7340)
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH2_PM_CTRL, M2DIV, 11);
 #elif defined(CONFIG_BCM7342)
 	BDEV_WR_F_RB(VCXO_CTL_MISC_MOCA_DIV, M3DIV, 11);
@@ -337,6 +370,9 @@ void __init bchip_sdio_init(void)
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, FRAME_NHW, 1);
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, BUFFER_ABO, 0);
 #endif
+#if !defined(CONFIG_BCM7468A0)
+	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, SCB_SEQ_EN, 0);
+#endif
 #endif
 }
 #endif
@@ -363,6 +399,9 @@ void __init bchip_set_features(void)
 #endif
 #if defined(CONFIG_BRCM_HAS_MOCA)
 	brcm_moca_enabled = 1;
+#endif
+#if defined(CONFIG_BRCM_PM)
+	brcm_pm_enabled = 1;
 #endif
 	brcm_usb_enabled = 1;
 
@@ -423,6 +462,32 @@ void __init bchip_set_features(void)
 	if (BDEV_RD_F(SUN_TOP_CTRL_OTP_OPTION_STATUS_0,
 			otp_option_moca_disable) == 1)
 		brcm_moca_enabled = 0;
+#endif
+
+#if defined(CONFIG_BCM7125) || defined(CONFIG_BCM7340) || \
+	defined(CONFIG_BCM7342) || defined(CONFIG_BCM7420)
+	/*
+	 * otp_option_moca_disable=1 has unwanted side effects on GENET.
+	 * So it is illegal to set that bit on these four products.
+	 * This is fixed on all subsequent MoCA chips.
+	 */
+	if (!brcm_moca_enabled)
+		cfe_die("PANIC: Invalid OTP setting: 0x%08lx\n",
+			BDEV_RD(BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0));
+	mb();
+
+	/* use the PROD_REVISION value to see if MoCA is supported */
+	switch (BRCM_CHIP_ID()) {
+	case 0x7019:
+	case 0x7117:
+	case 0x7119:
+	case 0x7350:
+	case 0x7352:
+		brcm_moca_enabled = 0;
+		BDEV_WR_F_RB(SUN_TOP_CTRL_SW_RESET, moca_sw_reset, 0);
+		BDEV_WR_F_RB(MOCA_HOSTMISC_SW_RESET, moca_enet_reset, 0);
+		break;
+	}
 #endif
 
 #ifdef BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_pcie_disable_MASK

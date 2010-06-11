@@ -21,7 +21,6 @@
 #define writel_be(x, y)				__raw_writel(x, y)
 
 #include <linux/platform_device.h>
-#include <linux/autoconf.h>
 #include <linux/mmdebug.h>
 #include <asm/irq.h>
 #include <asm/brcmstb/brcmstb.h>
@@ -127,10 +126,6 @@ static int ehci_hcd_brcm_probe(struct platform_device *pdev)
 
 	if (usb_disabled())
 		return -ENODEV;
-
-#ifdef CONFIG_BRCM_PM
-	brcm_pm_usb_add();
-#endif
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {

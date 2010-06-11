@@ -71,7 +71,7 @@
 
 #ifdef CONFIG_NET_SCH_MULTIQ
 
-#ifndef CONFIG_BRCM_HAS_GENET2
+#ifndef CONFIG_BRCM_GENET_V2
 #error "This version of GENET doesn't support tx multi queue"
 #endif
 
@@ -758,7 +758,7 @@ struct sk_buff * bcmgenet_alloc_txring_skb(struct net_device * dev, int index)
 
 	return skb;
 }
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 /* --------------------------------------------------------------------------
  Name: netif_any_subqueue_stopped
  Purpose: return 1 if any subqueue is stopped
@@ -782,7 +782,7 @@ static Enet_CB * bcmgenet_get_txcb(struct net_device *dev, int * write_ptr, int 
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	Enet_CB * txCBPtr = NULL;
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(index == DMA_RING_DESC_INDEX)
 	{
 		txCBPtr = pDevCtrl->txCbs + (*write_ptr - GENET_TX_MULTIQ_COUNT*GENET_TX_MULTIQ_BD_COUNT);
@@ -821,7 +821,7 @@ static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 	read_ptr =  (DMA_RW_POINTER_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer) >> 1;
 	write_ptr = (DMA_RW_POINTER_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer) >> 1;
 
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(index == DMA_RING_DESC_INDEX) {
 		lastCIndex = pDevCtrl->txLastCIndex;
 		nrTxBds = GENET_TX_DEFAULT_BD_COUNT;
@@ -875,7 +875,7 @@ static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 		if( lastCIndex == (nrTxBds - 1 )) lastCIndex = 0;
 		else lastCIndex++;
 	}
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(index == DMA_RING_DESC_INDEX)
 	{
 		if (pDevCtrl->txFreeBds > (MAX_SKB_FRAGS + 1)
@@ -922,7 +922,7 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 
 	spin_lock_irqsave(&pDevCtrl->lock, flags);
 
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(skb) {
 		index = skb_get_queue_mapping(skb);
 		/* 
@@ -1039,7 +1039,7 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 		dumpHexData(skb->data, skb->len);
 #endif
     	/* Decrement total BD count and advance our write pointer */
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 		if(index == DMA_RING_DESC_INDEX)
 			pDevCtrl->txFreeBds -= 1;
 		else
@@ -1074,7 +1074,7 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 		dumpHexData(skb->data, skb_headlen(skb));
 #endif
     	/* Decrement total BD count and advance our write pointer */
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 		if(index == DMA_RING_DESC_INDEX)
 			pDevCtrl->txFreeBds -= 1;
 		else
@@ -1117,7 +1117,7 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 			if(i == skb_shinfo(skb)->nr_frags - 1)
 				txCBPtr->BdAddr->length_status |= DMA_EOP;
     		
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 			if(index == DMA_RING_DESC_INDEX)
 				pDevCtrl->txFreeBds -= 1;
 			else
@@ -1134,7 +1134,7 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
     	dev->stats.tx_packets++;
 	}
 
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(index == DMA_RING_DESC_INDEX)
 	{
 		if(pDevCtrl->txFreeBds <= (MAX_SKB_FRAGS + 1))
@@ -2040,7 +2040,7 @@ static void init_edma(BcmEnet_devctrl *pDevCtrl)
 	pDevCtrl->txDma->tDmaRings[DMA_RING_DESC_INDEX].tdma_mbuf_done_threshold = 0;
 	/* Disable rate control for now */
 	pDevCtrl->txDma->tDmaRings[DMA_RING_DESC_INDEX].tdma_flow_period = 0;
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	/* Unclassified traffic goes to ring 16 */
 	pDevCtrl->txDma->tDmaRings[DMA_RING_DESC_INDEX].tdma_ring_buf_size = 
 		((TOTAL_DESC - GENET_TX_MULTIQ_COUNT*GENET_TX_MULTIQ_BD_COUNT) << DMA_RING_SIZE_SHIFT) | RX_BUF_LENGTH;
@@ -2254,7 +2254,7 @@ int bcmgenet_uninit_ringbuf(struct net_device * dev, int direction, unsigned int
 	spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 	return 0;
 }
-#if defined(CONFIG_BRCM_HAS_GENET2) && defined(CONFIG_NET_SCH_MULTIQ)
+#if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 /* 
  * init multi xmit queues, only available for GENET2
  * the queue is partitioned as follows:
@@ -2326,7 +2326,7 @@ static int bcmgenet_init_dev(BcmEnet_devctrl *pDevCtrl)
 	pDevCtrl->hfb = (unsigned long*)(pDevCtrl->dev->base_addr + UMAC_HFB_OFFSET);
 	pDevCtrl->txDma = (tDmaRegs *)(pDevCtrl->dev->base_addr + UMAC_TDMA_REG_OFFSET + 2*TOTAL_DESC*sizeof(unsigned long));
 	pDevCtrl->rxDma = (rDmaRegs *)(pDevCtrl->dev->base_addr + UMAC_RDMA_REG_OFFSET + 2*TOTAL_DESC*sizeof(unsigned long));
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	pDevCtrl->tbuf = (tbufRegs *)(pDevCtrl->dev->base_addr + UMAC_TBUF_REG_OFFSET);
 	pDevCtrl->hfbReg = (hfbRegs *)(pDevCtrl->dev->base_addr + UMAC_HFB_REG_OFFSET);
 #endif

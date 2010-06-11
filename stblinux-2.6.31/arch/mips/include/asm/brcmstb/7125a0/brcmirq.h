@@ -21,13 +21,13 @@
 #ifndef _BRCMIRQ_H_
 #define _BRCMIRQ_H_
 
-#define BRCM_IRQ_EHCI_0		61
+#define BRCM_IRQ_EHCI0_0	61
 #define BRCM_IRQ_GENET_1_A	69
 #define BRCM_IRQ_GENET_1_B	81
 #define BRCM_IRQ_HIF		1
 #define BRCM_IRQ_HIF_SPI	16
 #define BRCM_IRQ_MOCA		68
-#define BRCM_IRQ_OHCI_0		62
+#define BRCM_IRQ_OHCI0_0	62
 #define BRCM_IRQ_PCI_A0		33
 #define BRCM_IRQ_PCI_A1		34
 #define BRCM_IRQ_PCI_A2		35

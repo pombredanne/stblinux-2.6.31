@@ -409,8 +409,7 @@ static void write_to_hw(struct bcmspi_priv *priv)
 				(buf[p.byte] & 0xff) : 0xff;
 		}
 		priv->mspi_hw->cdram[slot] =
-			((p.trans->bits_per_word <= 8) ? 0x8f : 0xcf) ^
-			(1 << msg->spi->chip_select);
+			((p.trans->bits_per_word <= 8) ? 0x8e : 0xce);
 		slot++;
 
 		fnb = find_next_byte(priv, &p, NULL, FNB_BREAK_TX);
@@ -430,7 +429,11 @@ static void write_to_hw(struct bcmspi_priv *priv)
 		/* deassert CS on the final byte */
 		if (fnb & FNB_BREAK_DESELECT)
 			priv->mspi_hw->cdram[slot - 1] &= ~0x80;
-		mb();
+
+		/* tell HIF_MSPI which CS to use */
+		BDEV_WR_RB(BCHP_EBI_CS_SPI_SELECT,
+			(BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & ~0xff) |
+			(1 << msg->spi->chip_select));
 
 		BDEV_WR_F_RB(HIF_MSPI_WRITE_LOCK, WriteLock, 1);
 		priv->mspi_hw->spcr2 = 0xe0;	// cont | spe | spifie

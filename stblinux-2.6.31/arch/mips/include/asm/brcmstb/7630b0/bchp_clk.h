@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Jun 15 14:11:10 2009
- *                 MD5 Checksum         55333a1a27d70c4dd9d81da9a2d53f25
+ * Date:           Generated on         Tue Apr 20 15:22:37 2010
+ *                 MD5 Checksum         8e65b5dadc708040d625b4e632bede8d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7630/rdb/b0/bchp_clk.h $
  * 
- * Hydra_Software_Devel/2   6/15/09 2:37p tdo
- * PR55087: Sync up RDB
+ * Hydra_Software_Devel/3   4/20/10 7:46p albertl
+ * SW7630-10: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -733,21 +733,15 @@
 #define BCHP_CLK_TEMP_MON_CTRL_Combined_CTRL_SHIFT                 0
 
 /* union - case Separate [07:00] */
-/* CLK :: TEMP_MON_CTRL :: Separate :: BIAS_ADJUST [07:02] */
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_BIAS_ADJUST_MASK           0x000000fc
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_BIAS_ADJUST_SHIFT          2
+/* CLK :: TEMP_MON_CTRL :: Separate :: BIAS_ADJUST [07:01] */
+#define BCHP_CLK_TEMP_MON_CTRL_Separate_BIAS_ADJUST_MASK           0x000000fe
+#define BCHP_CLK_TEMP_MON_CTRL_Separate_BIAS_ADJUST_SHIFT          1
 
-/* CLK :: TEMP_MON_CTRL :: Separate :: REF_PWRDN [01:01] */
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_REF_PWRDN_MASK             0x00000002
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_REF_PWRDN_SHIFT            1
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_REF_PWRDN_Powered_Up       0
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_REF_PWRDN_Powered_Down     1
-
-/* CLK :: TEMP_MON_CTRL :: Separate :: BGAP_PWRDN [00:00] */
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_BGAP_PWRDN_MASK            0x00000001
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_BGAP_PWRDN_SHIFT           0
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_BGAP_PWRDN_Powered_Up      0
-#define BCHP_CLK_TEMP_MON_CTRL_Separate_BGAP_PWRDN_Powered_Down    1
+/* CLK :: TEMP_MON_CTRL :: Separate :: ADC_TEST_EN [00:00] */
+#define BCHP_CLK_TEMP_MON_CTRL_Separate_ADC_TEST_EN_MASK           0x00000001
+#define BCHP_CLK_TEMP_MON_CTRL_Separate_ADC_TEST_EN_SHIFT          0
+#define BCHP_CLK_TEMP_MON_CTRL_Separate_ADC_TEST_EN_Normal_Mode    1
+#define BCHP_CLK_TEMP_MON_CTRL_Separate_ADC_TEST_EN_ADC_Test_Mode  0
 
 /***************************************************************************
  *TEMP_MON_STATUS - Temperature monitor status.

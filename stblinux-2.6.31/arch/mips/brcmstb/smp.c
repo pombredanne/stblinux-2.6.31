@@ -15,6 +15,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <linux/version.h>
 #include <linux/init.h>
 #include <linux/sched.h>
 #include <linux/mm.h>
@@ -261,6 +262,16 @@ static void brcmstb_ack_ipi(unsigned int irq)
 
 #endif
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+static void brcmstb_send_ipi_mask(const struct cpumask *mask,
+	unsigned int action)
+{
+	unsigned int i;
+
+	for_each_cpu(i, mask)
+		brcmstb_send_ipi_single(i, action);
+}
+#else
 static void brcmstb_send_ipi_mask(cpumask_t mask, unsigned int action)
 {
 	unsigned int i;
@@ -268,6 +279,7 @@ static void brcmstb_send_ipi_mask(cpumask_t mask, unsigned int action)
 	for_each_cpu_mask(i, mask)
 		brcmstb_send_ipi_single(i, action);
 }
+#endif
 
 static irqreturn_t brcmstb_ipi_interrupt(int irq, void *dev_id)
 {

@@ -80,7 +80,7 @@ typedef struct BcmEnet_devctrl {
 	volatile GrBridgeRegs *grb;			/* Grb */
 	volatile ExtRegs    *ext;			/* Extention register */
 	volatile unsigned long *hfb;		/* HFB registers */
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	volatile tbufRegs *tbuf;			/* New register group for GENET2 */
 	volatile hfbRegs  *hfbReg;			/* New register group for GENET2 */
 #endif
@@ -137,7 +137,7 @@ typedef struct BcmEnet_devctrl {
  * Only those currently being used by driver are defined. 
  * and I absolutely HATE it !!!!
  */
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 
 #define GENET_TBUF_CTRL(pdev)			(pdev->tbuf->tbuf_ctrl)
 #define GENET_TBUF_ENDIAN_CTRL(pdev)	(pdev->tbuf->tbuf_endian_ctrl)
@@ -161,6 +161,6 @@ typedef struct BcmEnet_devctrl {
 #define GENET_HFB_CTRL(pdev)			(pdev->rbuf->rbuf_hfb_ctrl)
 #define GENET_HFB_FLTR_LEN(pdev, i)		(pdev->rbuf->rbuf_fltr_len[i])
 
-#endif	/* CONFIG_BRCM_HAS_GENET2 */
+#endif	/* CONFIG_BRCM_GENET_V2 */
 
 #endif /* __BCMGENET_H__ */

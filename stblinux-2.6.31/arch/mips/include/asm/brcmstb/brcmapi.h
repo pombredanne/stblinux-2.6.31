@@ -27,6 +27,7 @@
 #include <linux/types.h>
 #include <linux/cache.h>
 #include <linux/slab_def.h>
+#include <linux/mm_types.h>
 #include <net/sock.h>
 #include <asm/ptrace.h>
 #include <asm/inst.h>
@@ -75,6 +76,8 @@ struct brcm_ocap_info {
 
 int bmem_find_region(unsigned long addr, unsigned long size);
 int bmem_region_info(int idx, unsigned long *addr, unsigned long *size);
+int bmem_get_page(struct mm_struct *mm, struct vm_area_struct *vma,
+	unsigned long start, struct page **page);
 
 void brcm_inv_prefetch(unsigned long addr, unsigned long size);
 void brcm_get_cache_info(struct brcm_cache_info *info);
@@ -113,14 +116,8 @@ extern struct kmem_cache *skbuff_head_cache __read_mostly;
  * Driver->BSP callbacks
  ***********************************************************************/
 
-void brcm_pm_enet_add(int dev_id, resource_size_t base_addr);
-void brcm_pm_enet_remove(int dev_id, resource_size_t base_addr);
-void brcm_pm_moca_add(void);
-void brcm_pm_moca_remove(void);
-void brcm_pm_usb_add(void);
-void brcm_pm_usb_remove(void);
-void brcm_pm_sata_add(void);
-void brcm_pm_sata_remove(void);
+int brcm_pm_register_cb(char *name, int (*fn)(int, void *), void *arg);
+int brcm_pm_unregister_cb(char *name);
 
 #endif /* __KERNEL__ */
 

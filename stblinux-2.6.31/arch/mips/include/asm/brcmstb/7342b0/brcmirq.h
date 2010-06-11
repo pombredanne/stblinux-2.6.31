@@ -21,9 +21,9 @@
 #ifndef _BRCMIRQ_H_
 #define _BRCMIRQ_H_
 
-#define BRCM_IRQ_EHCI_0		63
-#define BRCM_IRQ_EHCI_1		58
-#define BRCM_IRQ_EHCI_2		78
+#define BRCM_IRQ_EHCI0_0	63
+#define BRCM_IRQ_EHCI0_1	58
+#define BRCM_IRQ_EHCI0_2	78
 #define BRCM_IRQ_GENET_0_A	16
 #define BRCM_IRQ_GENET_0_B	75
 #define BRCM_IRQ_GENET_1_A	73
@@ -31,9 +31,9 @@
 #define BRCM_IRQ_HIF		1
 #define BRCM_IRQ_HIF_SPI	82
 #define BRCM_IRQ_MOCA		72
-#define BRCM_IRQ_OHCI_0		64
-#define BRCM_IRQ_OHCI_1		59
-#define BRCM_IRQ_OHCI_2		79
+#define BRCM_IRQ_OHCI0_0	64
+#define BRCM_IRQ_OHCI0_1	59
+#define BRCM_IRQ_OHCI0_2	79
 #define BRCM_IRQ_PCI_A0		33
 #define BRCM_IRQ_PCI_A1		34
 #define BRCM_IRQ_PCI_A2		35

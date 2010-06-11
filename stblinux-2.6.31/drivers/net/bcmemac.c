@@ -1567,10 +1567,6 @@ static int __devinit bcmemac_drv_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
-#ifdef CONFIG_BRCM_PM
-	brcm_pm_enet_add(pdev->id, res->start);
-#endif
-
 	dev = alloc_etherdev(sizeof(*pDevCtrl));
 	if (!dev) {
 		printk(KERN_WARNING DRV_NAME ": can't alloc etherdev\n");

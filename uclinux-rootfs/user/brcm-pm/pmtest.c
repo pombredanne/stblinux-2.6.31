@@ -68,8 +68,8 @@ void usage(void)
 	printf("  pll 1        set alternate CPU PLL mode #1\n");
 	printf("  ddr 64       enable DDR self-refresh after 64 idle cycles\n");
 	printf("  ddr 0        disable DDR self-refresh\n");
-	printf("  standby 1    enter passive standby\n");
-	printf("  irw_halt 1   enter irw_halt mode\n");
+	printf("  standby 0x1  enter passive standby (flags = 0x1)\n");
+	printf("  irw_halt     enter irw_halt mode\n");
 	printf("\n");
 	printf("options:\n");
 	printf("  -d <0|1>     disable/enable DHCP on ENET\n");
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	struct brcm_pm_state state;
 	struct brcm_pm_cfg cfg;
 	void *brcm_pm_ctx;
-	int val, use_dhcp = 1, ret;
+	int val, has_val = 0, use_dhcp = 1, ret;
 	char *cmd, *arg;
 
 	while((ret = getopt(argc, argv, "d:h")) != -1) {
@@ -135,11 +135,41 @@ int main(int argc, char **argv)
 		return(0);
 	}
 
-	if(optind >= argc)
+	if(optind < argc)
+	{
+		char *endptr;
+		arg = argv[optind];
+		optind++;
+		val = strtol(arg, &endptr, 0);
+		has_val = 1;
+	}
+
+	/* second parameter is optional */
+
+	if(! strcmp(cmd, "standby"))
+	{
+		if(has_val)
+		{
+			state.standby_flags = val;
+			if(brcm_pm_set_status(brcm_pm_ctx, &state) != 0)
+				fatal("can't set PM state");
+		}
+		if(brcm_pm_suspend(brcm_pm_ctx, BRCM_PM_STANDBY) != 0)
+			fatal("can't suspend");
+		return(0);
+	}
+
+	if(! strcmp(cmd, "irw_halt"))
+	{
+		if(brcm_pm_suspend(brcm_pm_ctx, BRCM_PM_IRW_HALT) != 0)
+			fatal("can't suspend");
+		return(0);
+	}
+
+	/* second parameter is mandatory */
+
+	if(!has_val)
 		usage();
-	arg = argv[optind];
-	optind++;
-	val = atoi(arg);
 
 	if(! strcmp(cmd, "usb"))
 	{
@@ -200,22 +230,6 @@ int main(int argc, char **argv)
 	if(! strcmp(cmd, "pll"))
 	{
 		state.cpu_pll = val;
-		if(brcm_pm_set_status(brcm_pm_ctx, &state) != 0)
-			fatal("can't set PM state");
-		return(0);
-	}
-
-	if(! strcmp(cmd, "standby"))
-	{
-		state.standby = val;
-		if(brcm_pm_set_status(brcm_pm_ctx, &state) != 0)
-			fatal("can't set PM state");
-		return(0);
-	}
-
-	if(! strcmp(cmd, "irw_halt"))
-	{
-		state.irw_halt = val;
 		if(brcm_pm_set_status(brcm_pm_ctx, &state) != 0)
 			fatal("can't set PM state");
 		return(0);

@@ -1279,42 +1279,8 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 		}
 
 #ifdef CONFIG_BRCMSTB
-		/*
-		 * Special handling for BMEM reserved memory:
-		 *
-		 * 1) Override the VM_IO | VM_PFNMAP sanity checks
-		 * 2) No cache flushes (this is explicitly under application
-		 *    control)
-		 * 3) vm_normal_page() does not work on these regions
-		 * 4) Don't need to worry about any kinds of faults; pages
-		 *    are always present
-		 */
-		if (vma && vma->vm_flags & VM_BRCMRSVD) {
-			unsigned long pg = start & PAGE_MASK;
-			pgd_t *pgd;
-			pud_t *pud;
-			pmd_t *pmd;
-			pte_t *pte;
-
-			pgd = pgd_offset(mm, pg);
-			BUG_ON(pgd_none(*pgd));
-			pud = pud_offset(pgd, pg);
-			BUG_ON(pud_none(*pud));
-			pmd = pmd_offset(pud, pg);
-			if (pmd_none(*pmd))
-				return i ? : -EFAULT;
-			pte = pte_offset_map(pmd, pg);
-			if (pte_none(*pte)) {
-				pte_unmap(pte);
-				return i ? : -EFAULT;
-			}
-			if (pages) {
-				struct page *page = pfn_to_page(pte_pfn(*pte));
-				pages[i] = page;
-				if (page)
-					get_page(page);
-			}
-			pte_unmap(pte);
+		/* handle direct I/O on BMEM regions */
+		if (!bmem_get_page(mm, vma, start, pages ? &pages[i] : NULL)) {
 			if (vmas)
 				vmas[i] = vma;
 			i++;
@@ -1779,10 +1745,6 @@ int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
 		return -EINVAL;
 
 	vma->vm_flags |= VM_IO | VM_RESERVED | VM_PFNMAP;
-#ifdef CONFIG_BRCMSTB
-	if (bmem_find_region(pfn << PAGE_SHIFT, size) >= 0)
-		vma->vm_flags |= VM_BRCMRSVD;
-#endif
 
 	err = track_pfn_vma_new(vma, &prot, pfn, PAGE_ALIGN(size));
 	if (err) {

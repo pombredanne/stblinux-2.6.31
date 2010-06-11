@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2009, Broadcom Corporation
+ *     Copyright (c) 1999-2010, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Dec  5 04:09:08 2009
- *                 MD5 Checksum         9437f18f3328c688f4d21c20465093b8
+ * Date:           Generated on         Mon Mar  1 19:43:31 2010
+ *                 MD5 Checksum         7f7bca3127a640054b5172eb12de7933
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35230/rdb/a0/bchp_usb_ehci.h $
  * 
- * Hydra_Software_Devel/2   12/7/09 8:16p albertl
- * SW35230-30: Updated to match RDB.
+ * Hydra_Software_Devel/3   3/2/10 4:10p albertl
+ * SW35230-107: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -490,9 +490,17 @@
 #define BCHP_USB_EHCI_INSNREG05_reserved0_MASK                     0xfffc0000
 #define BCHP_USB_EHCI_INSNREG05_reserved0_SHIFT                    18
 
-/* USB_EHCI :: INSNREG05 :: INSNREG05 [17:00] */
-#define BCHP_USB_EHCI_INSNREG05_INSNREG05_MASK                     0x0003ffff
-#define BCHP_USB_EHCI_INSNREG05_INSNREG05_SHIFT                    0
+/* USB_EHCI :: INSNREG05 :: VBUSY [17:17] */
+#define BCHP_USB_EHCI_INSNREG05_VBUSY_MASK                         0x00020000
+#define BCHP_USB_EHCI_INSNREG05_VBUSY_SHIFT                        17
+
+/* USB_EHCI :: INSNREG05 :: VCONTROL [16:08] */
+#define BCHP_USB_EHCI_INSNREG05_VCONTROL_MASK                      0x0001ff00
+#define BCHP_USB_EHCI_INSNREG05_VCONTROL_SHIFT                     8
+
+/* USB_EHCI :: INSNREG05 :: VSTATUS [07:00] */
+#define BCHP_USB_EHCI_INSNREG05_VSTATUS_MASK                       0x000000ff
+#define BCHP_USB_EHCI_INSNREG05_VSTATUS_SHIFT                      0
 
 #endif /* #ifndef BCHP_USB_EHCI_H__ */
 

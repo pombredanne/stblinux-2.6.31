@@ -173,7 +173,7 @@ typedef struct uniMacRegs {
 	unsigned long unused7[2];
 	unsigned long mdio_cmd;				/* (0x614  RO mdio command register.*/
 	unsigned long mdio_cfg;				/* (0x618) RW mdio configuration register */
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	unsigned long unused9;
 #else
 	unsigned long rbuf_ovfl_pkt_cnt;	/* (0x61c) RO rbuf overflow count. */
@@ -187,7 +187,7 @@ typedef struct uniMacRegs {
 
 }uniMacRegs;
 
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 typedef struct tbufRegs
 {
 	unsigned long tbuf_ctrl;			/* (00) tx buffer control */
@@ -229,7 +229,7 @@ typedef struct hfbRegs
 	unsigned long hfb_fltr_len[4];
 }hfbRegs;
 
-#else	/*! CONFIG_BRCM_HAS_GENET2 */
+#else	/*! CONFIG_BRCM_GENET_V2 */
 typedef struct rbufRegs
 {
 	unsigned long rbuf_ctrl;			/* (00) rx buffer control register*/
@@ -284,7 +284,7 @@ typedef struct intrl2Regs
 #define UMAC_UMAC_REG_OFFSET		0x0800
 #define UMAC_HFB_OFFSET				0x1000
 
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 #define UMAC_TBUF_REG_OFFSET		0x0600	
 #define UMAC_RDMA_REG_OFFSET		0x3000
 #define UMAC_TDMA_REG_OFFSET		0x4000
@@ -298,7 +298,7 @@ typedef struct SysRegs
 {
 	unsigned long sys_rev_ctrl;
 	unsigned long sys_port_ctrl;
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	unsigned long rbuf_flush_ctrl;
 	unsigned long tbuf_flush_ctrl;
 #endif
@@ -317,7 +317,7 @@ typedef struct ExtRegs
 	unsigned long ext_pwr_mgmt;
 	unsigned long ext_emcg_ctrl;
 	unsigned long ext_test_ctrl;
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	unsigned long rgmii_oob_ctrl;
 	unsigned long rgmii_ib_status;
 	unsigned long rgmii_led_ctrl;
@@ -362,7 +362,7 @@ typedef struct tDmaRingRegs
 typedef struct rDmaRegs
 {
 	rDmaRingRegs rDmaRings[17];
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	unsigned long rdma_ring_cfg;
 #endif
 	unsigned long rdma_ctrl;
@@ -382,12 +382,12 @@ typedef struct rDmaRegs
 typedef struct tDmaRegs
 {
 	tDmaRingRegs tDmaRings[17];
-#ifdef CONFIG_BRCM_HAS_GENET2
+#ifdef CONFIG_BRCM_GENET_V2
 	unsigned long tdma_ring_cfg;
 #endif
 	unsigned long tdma_ctrl;
 	unsigned long tdma_status;
-#ifndef CONFIG_BRCM_HAS_GENET2
+#ifndef CONFIG_BRCM_GENET_V2
 	unsigned long unused;
 #endif
 	unsigned long tdma_scb_burst_size;

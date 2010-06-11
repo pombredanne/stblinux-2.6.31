@@ -21,10 +21,10 @@
 #ifndef _BRCMIRQ_H_
 #define _BRCMIRQ_H_
 
-#define BRCM_IRQ_EHCI_0		34
+#define BRCM_IRQ_EHCI0_0	34
 #define BRCM_IRQ_EMAC_0		52
 #define BRCM_IRQ_HIF		1
-#define BRCM_IRQ_OHCI_0		35
+#define BRCM_IRQ_OHCI0_0	35
 #define BRCM_IRQ_PM		50
 #define BRCM_IRQ_UARTA		24
 #define BRCM_IRQ_UARTB		17

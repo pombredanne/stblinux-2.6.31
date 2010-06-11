@@ -71,6 +71,18 @@
 #define BRCM_BUSNO_SATA		0x01
 #define BRCM_BUSNO_PCIE		0x02
 
+#if defined(CONFIG_BCM7420)
+#define SET_BRIDGE_RESET(x)	\
+	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_BRIDGE_SW_RESET, (x))
+#define SET_PERST(x)		\
+	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_SW_PERST, (x))
+#else
+#define SET_BRIDGE_RESET(x)	\
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_BRIDGE_SW_INIT, (x))
+#define SET_PERST(x)		\
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_SW_PERST, (x))
+#endif
+
 static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 *data);
 static int brcm_pci_write_config(struct pci_bus *bus, unsigned int devfn,
@@ -334,18 +346,18 @@ void brcm_early_pcie_setup(void)
 	struct wktmr_time tmp;
 
 	/* reset the bridge and the endpoint device */
-	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_BRIDGE_SW_RESET, 1);
-	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_SW_PERST, 1);
+	SET_BRIDGE_RESET(1);
+	SET_PERST(1);
 
 	/* delay 100us */
 	wktmr_read(&tmp);
 	while (wktmr_elapsed(&tmp) < (100 * WKTMR_1US)) { }
 
 	/* take the bridge out of reset */
-	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_BRIDGE_SW_RESET, 0);
+	SET_BRIDGE_RESET(0);
 
-	/* enable CSR_READ_UR_MODE and SCB_ACCESS_EN */
-	BDEV_WR(BCHP_PCIE_MISC_MISC_CTRL, 0x3000);
+	/* enable SCB_MAX_BURST_SIZE | CSR_READ_UR_MODE | SCB_ACCESS_EN */
+	BDEV_WR(BCHP_PCIE_MISC_MISC_CTRL, 0x00103000);
 
 	/* set up MIPS->PCIE memory windows (4x 128MB) */
 	BDEV_WR(BCHP_PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LO,
@@ -382,7 +394,7 @@ void brcm_early_pcie_setup(void)
 	BDEV_WR_RB(BCHP_PCIE_INTR2_CPU_MASK_SET, 0xffffffff);
 
 	/* take the EP device out of reset */
-	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_SW_PERST, 0);
+	SET_PERST(0);
 
 	/* record the current time */
 	wktmr_read(&pcie_reset_started);
