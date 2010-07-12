@@ -137,13 +137,13 @@ void __init bchip_check_compat(void)
 	ALT_CHIP_ID(7018, c0);
 	MAIN_CHIP_ID(7118, c0);
 #elif defined(CONFIG_BCM7125)
-	ALT_CHIP_ID(7019, a0);
-	ALT_CHIP_ID(7025, a0);
-	ALT_CHIP_ID(7116, a0);
-	ALT_CHIP_ID(7117, a0);
-	ALT_CHIP_ID(7119, a0);
-	ALT_CHIP_ID(7120, a0);
-	MAIN_CHIP_ID(7125, a0);
+	ALT_CHIP_ID(7019, c0);
+	ALT_CHIP_ID(7025, c0);
+	ALT_CHIP_ID(7116, c0);
+	ALT_CHIP_ID(7117, c0);
+	ALT_CHIP_ID(7119, c0);
+	ALT_CHIP_ID(7120, c0);
+	MAIN_CHIP_ID(7125, c0);
 #elif defined(CONFIG_BCM7231)
 	MAIN_CHIP_ID(7231, a0);
 #elif defined(CONFIG_BCM7325)
@@ -152,10 +152,10 @@ void __init bchip_check_compat(void)
 #elif defined(CONFIG_BCM7335)
 	ALT_CHIP_ID(7336, a0);
 	MAIN_CHIP_ID(7335, b0);
-#elif defined(CONFIG_BCM7340B0)
+#elif defined(CONFIG_BCM7340)
 	ALT_CHIP_ID(7350, b0);
 	MAIN_CHIP_ID(7340, b0);
-#elif defined(CONFIG_BCM7342B0)
+#elif defined(CONFIG_BCM7342)
 	ALT_CHIP_ID(7352, b0);
 	MAIN_CHIP_ID(7342, b0);
 #elif defined(CONFIG_BCM7344)
@@ -176,6 +176,7 @@ void __init bchip_check_compat(void)
 #elif defined(CONFIG_BCM7420)
 	ALT_CHIP_ID(3320, c0);
 	ALT_CHIP_ID(7220, c0);
+	ALT_CHIP_ID(7409, c0);
 	ALT_CHIP_ID(7410, c0);
 	MAIN_CHIP_ID(7420, c0);
 #elif defined(CONFIG_BCM7422)
@@ -343,9 +344,7 @@ void __init bchip_moca_init(void)
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH2_PM_CTRL, M2DIV, 11);
 #elif defined(CONFIG_BCM7342)
 	BDEV_WR_F_RB(VCXO_CTL_MISC_MOCA_DIV, M3DIV, 11);
-#elif defined(CONFIG_BCM7125A0)
-	BDEV_WR_F_RB(CLKGEN_MOCA_CTRL, M3DIV, 11);
-#elif defined(CONFIG_BCM7125C0)
+#elif defined(CONFIG_BCM7125)
 	BDEV_WR_F_RB(CLKGEN_PLL_MOCA_CTRL, M3DIV, 11);
 #elif defined(CONFIG_BCM7408)
 	BDEV_WR_F_RB(CLK_MOCA_PHY_DIV, M3DIV, 11);
@@ -394,7 +393,7 @@ void __init bchip_set_features(void)
 #if defined(CONFIG_SMP)
 	brcm_smp_enabled = 1;
 #endif
-#if defined(CONFIG_BRCM_HAS_EMAC_1)
+#if defined(CONFIG_BRCM_HAS_EMAC_1) || defined(CONFIG_BRCM_HAS_GENET_1)
 	brcm_emac_1_enabled = 1;
 #endif
 #if defined(CONFIG_BRCM_HAS_MOCA)
@@ -466,26 +465,32 @@ void __init bchip_set_features(void)
 
 #if defined(CONFIG_BCM7125) || defined(CONFIG_BCM7340) || \
 	defined(CONFIG_BCM7342) || defined(CONFIG_BCM7420)
-	/*
-	 * otp_option_moca_disable=1 has unwanted side effects on GENET.
-	 * So it is illegal to set that bit on these four products.
-	 * This is fixed on all subsequent MoCA chips.
-	 */
-	if (!brcm_moca_enabled)
-		cfe_die("PANIC: Invalid OTP setting: 0x%08lx\n",
-			BDEV_RD(BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0));
-	mb();
 
-	/* use the PROD_REVISION value to see if MoCA is supported */
 	switch (BRCM_CHIP_ID()) {
+	case 0x7340:
+	case 0x7342:
+		if (BDEV_RD_F(SUN_TOP_CTRL_OTP_OPTION_STATUS_0,
+				otp_option_product_id) != 1)
+			break;
+		/* 7350, 7352 (alt): fall through */
 	case 0x7019:
 	case 0x7117:
 	case 0x7119:
 	case 0x7350:
 	case 0x7352:
+	case 0x7409:
+		if (brcm_moca_enabled) {
+			/* MOCA_GENET is usable - enable and scan it */
+			BDEV_WR_F_RB(SUN_TOP_CTRL_SW_RESET, moca_sw_reset, 0);
+			BDEV_WR_F_RB(MOCA_HOSTMISC_SW_RESET, moca_enet_reset,
+				0);
+		} else {
+			/* MOCA_GENET regs are inaccessible - don't touch it */
+			brcm_emac_1_enabled = 0;
+		}
+
+		/* MoCA PHY is always disabled on these bondouts */
 		brcm_moca_enabled = 0;
-		BDEV_WR_F_RB(SUN_TOP_CTRL_SW_RESET, moca_sw_reset, 0);
-		BDEV_WR_F_RB(MOCA_HOSTMISC_SW_RESET, moca_enet_reset, 0);
 		break;
 	}
 #endif

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 02:03:10 2010
- *                 MD5 Checksum         a4ae86dca58fbde79c2e9efa9a2a5291
+ * Date:           Generated on         Fri May 21 03:00:11 2010
+ *                 MD5 Checksum         59b596dd0d937e0f0f5480c9ab8678c4
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -146,28 +146,28 @@
 #define BCHP_ADCMUX_REG_END                                0x000628d4
 #define BCHP_VAFE_REG_START                                0x00062900
 #define BCHP_VAFE_REG_END                                  0x000629f4
-#define BCHP_GENET_SYS_REG_START                           0x00080000
-#define BCHP_GENET_SYS_REG_END                             0x0008000c
-#define BCHP_GENET_GR_BRIDGE_REG_START                     0x00080040
-#define BCHP_GENET_GR_BRIDGE_REG_END                       0x0008004c
-#define BCHP_GENET_EXT_REG_START                           0x00080080
-#define BCHP_GENET_EXT_REG_END                             0x00080098
-#define BCHP_GENET_INTRL2_0_REG_START                      0x00080200
-#define BCHP_GENET_INTRL2_0_REG_END                        0x0008022c
-#define BCHP_GENET_INTRL2_1_REG_START                      0x00080240
-#define BCHP_GENET_INTRL2_1_REG_END                        0x0008026c
-#define BCHP_GENET_RBUF_REG_START                          0x00080300
-#define BCHP_GENET_RBUF_REG_END                            0x000803ec
-#define BCHP_GENET_TBUF_REG_START                          0x00080600
-#define BCHP_GENET_TBUF_REG_END                            0x00080628
-#define BCHP_GENET_UMAC_REG_START                          0x00080800
-#define BCHP_GENET_UMAC_REG_END                            0x00080ed8
-#define BCHP_GENET_HFB_REG_START                           0x00081000
-#define BCHP_GENET_HFB_REG_END                             0x00082010
-#define BCHP_GENET_RDMA_REG_START                          0x00083000
-#define BCHP_GENET_RDMA_REG_END                            0x00083cb4
-#define BCHP_GENET_TDMA_REG_START                          0x00084000
-#define BCHP_GENET_TDMA_REG_END                            0x00084c88
+#define BCHP_GENET_0_SYS_REG_START                         0x00080000
+#define BCHP_GENET_0_SYS_REG_END                           0x0008000c
+#define BCHP_GENET_0_GR_BRIDGE_REG_START                   0x00080040
+#define BCHP_GENET_0_GR_BRIDGE_REG_END                     0x0008004c
+#define BCHP_GENET_0_EXT_REG_START                         0x00080080
+#define BCHP_GENET_0_EXT_REG_END                           0x00080098
+#define BCHP_GENET_0_INTRL2_0_REG_START                    0x00080200
+#define BCHP_GENET_0_INTRL2_0_REG_END                      0x0008022c
+#define BCHP_GENET_0_INTRL2_1_REG_START                    0x00080240
+#define BCHP_GENET_0_INTRL2_1_REG_END                      0x0008026c
+#define BCHP_GENET_0_RBUF_REG_START                        0x00080300
+#define BCHP_GENET_0_RBUF_REG_END                          0x000803ec
+#define BCHP_GENET_0_TBUF_REG_START                        0x00080600
+#define BCHP_GENET_0_TBUF_REG_END                          0x00080628
+#define BCHP_GENET_0_UMAC_REG_START                        0x00080800
+#define BCHP_GENET_0_UMAC_REG_END                          0x00080ed8
+#define BCHP_GENET_0_HFB_REG_START                         0x00081000
+#define BCHP_GENET_0_HFB_REG_END                           0x00082010
+#define BCHP_GENET_0_RDMA_REG_START                        0x00083000
+#define BCHP_GENET_0_RDMA_REG_END                          0x00083cb4
+#define BCHP_GENET_0_TDMA_REG_START                        0x00084000
+#define BCHP_GENET_0_TDMA_REG_END                          0x00084c88
 #define BCHP_DFE_MISCDEC_REG_START                         0x0013c000
 #define BCHP_DFE_MISCDEC_REG_END                           0x0013c18c
 #define BCHP_DFE_UCDEC_REG_START                           0x0013c200
@@ -185,7 +185,7 @@
 #define BCHP_DFE_BERTDEC_REG_START                         0x0013d300
 #define BCHP_DFE_BERTDEC_REG_END                           0x0013d32c
 #define BCHP_DFE_NTSCDEC_REG_START                         0x0013d400
-#define BCHP_DFE_NTSCDEC_REG_END                           0x0013d774
+#define BCHP_DFE_NTSCDEC_REG_END                           0x0013d77c
 #define BCHP_DFE_DVBTDEC_REG_START                         0x0013dc00
 #define BCHP_DFE_DVBTDEC_REG_END                           0x0013dfec
 #define BCHP_DFE_MFDEC_REG_START                           0x0013e000
@@ -315,7 +315,7 @@
 #define BCHP_MEMC_MISC_0_REG_START                         0x003b5000
 #define BCHP_MEMC_MISC_0_REG_END                           0x003b5010
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_START            0x003b6000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_END              0x003b60a4
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_END              0x003b60c0
 #define BCHP_DDR40_PHY_WORD_LANE_0_REG_START               0x003b6200
 #define BCHP_DDR40_PHY_WORD_LANE_0_REG_END                 0x003b63ac
 #define BCHP_DDR40_PHY_WORD_LANE_1_REG_START               0x003b6400

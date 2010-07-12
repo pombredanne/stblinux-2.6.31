@@ -96,7 +96,11 @@
  */
 #define KUSEG			0x00000000
 #define KSEG0			0x80000000
+#if defined(CONFIG_BRCM_UPPER_768MB)
+#define KSEG1			KSEG0
+#else
 #define KSEG1			0xa0000000
+#endif
 #define KSEG2			0xc0000000
 #define KSEG3			0xe0000000
 

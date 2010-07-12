@@ -136,7 +136,7 @@ static void __init init_port(struct early_serial8250_device *device)
 
 	divisor = port->uartclk / (16 * device->baud);
 	c = serial_in(port, UART_LCR);
-#if !defined(CONFIG_BRCM_IKOS)
+#if !defined(CONFIG_BRCM_IKOS) && !defined(CONFIG_BRCM_HAS_PCU_UARTS)
 	serial_out(port, UART_LCR, c | UART_LCR_DLAB);
 	serial_out(port, UART_DLL, divisor & 0xff);
 	serial_out(port, UART_DLM, (divisor >> 8) & 0xff);

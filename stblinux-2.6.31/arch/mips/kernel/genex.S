@@ -371,49 +371,6 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	.set	pop
 	END(nmi_handler)
 
-#ifdef CONFIG_BRCMSTB
-NESTED(brcm_reset_nmi_vec, PT_SIZE, sp)
-	.set	push
-	.set	noat
-
-#ifdef CONFIG_SMP
-	/* if the NMI bit is clear, jump to the TP1 reset handler instead */
-	li	k1, (1 << 19)
-	mfc0	k0, $12
-	and	k0, k1
-	bnez	k0, 1f
-
-	la	k0, brcmstb_tp1_entry
-	li	k1, UNCAC_BASE
-	or	k0, k1
-	jr	k0
-1:
-#endif /* CONFIG_SMP */
-	SAVE_ALL
- 	move	a0, sp
-
-	/* clear EXL, ERL, BEV so that TLB refills still work */
-	mfc0	k0, $12
-	li	k1, ST0_ERL | ST0_EXL | ST0_BEV | ST0_IE
-	or	k0, k1
-	xor	k0, k1
-	mtc0	k0, $12
-	ssnop
-	ssnop
-	ssnop
-
-	/* call the NMI handler function (probably doesn't return) */
-	la	k0, brcm_nmi_handler
-	lw	k1, 0(k0)
-	jalr	k1
-
-	RESTORE_ALL
-	.set	mips3
-	eret
-	.set	pop
-	END(brcm_reset_nmi_vec)
-#endif
-
 	.macro	__build_clear_none
 	.endm
 

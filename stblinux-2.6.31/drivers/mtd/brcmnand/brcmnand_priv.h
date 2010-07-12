@@ -298,16 +298,17 @@ static inline u_int64_t device_size(struct mtd_info *mtd)
 /**
  * brcmnand_scan - [BrcmNAND Interface] Scan for the BrcmNAND device
  * @param mtd		MTD device structure
- * @param maxchips	Number of chips to scan for
+ * @cs			  	Chip Select number
+ * @param numchips	Number of chips  (from CFE or from nandcs= kernel arg)
+
  *
  * This fills out all the not initialized function pointers
  * with the defaults.
  * The flash ID is read and the mtd/chip structures are
  * filled with the appropriate values.
  *
- * THT: For now, maxchips should always be 1.
  */
-extern int brcmnand_scan(struct mtd_info *mtd , int maxchips );
+extern int brcmnand_scan(struct mtd_info *mtd , int cs, int maxchips);
 
 /**
  * brcmnand_release - [BrcmNAND Interface] Free resources held by the BrcmNAND device
@@ -316,12 +317,15 @@ extern int brcmnand_scan(struct mtd_info *mtd , int maxchips );
 extern void brcmnand_release(struct mtd_info *mtd);
 
 /* BrcmNAND BBT interface */
+/* Read the OOB bytes and tell whether a block is bad without consulting the BBT */
+extern int brcmnand_isbad_raw (struct mtd_info *mtd, loff_t offs);
+
 extern int brcmnand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd);
 extern int brcmnand_default_bbt(struct mtd_info *mtd);
 
 extern int brcmnand_update_bbt (struct mtd_info *mtd, loff_t offs);
 
-extern void* get_brcmnand_handle(void);
+//extern void* get_brcmnand_handle(void);
 
 extern void print_oobbuf(const unsigned char* buf, int len);
 extern void print_databuf(const unsigned char* buf, int len);
@@ -336,12 +340,84 @@ extern int brcmnand_create_cet(struct mtd_info *mtd);
 /*
  * Disable ECC, and return the original ACC register (for restore)
  */
-uint32_t brcmnand_disable_ecc(void);
+uint32_t brcmnand_disable_read_ecc(int cs);
 
-void brcmnand_restore_ecc(uint32_t orig_acc0);
+void brcmnand_restore_ecc(int cs, uint32_t orig_acc0);
 
 void brcmnand_post_mortem_dump(struct mtd_info* mtd, loff_t offset);
 
+static unsigned int __maybe_unused brcmnand_get_bbt_size(struct mtd_info* mtd)
+{
+	return ((device_size(mtd) > (512 << 20)) ? 4<<20 : 1<<20);
+}
+
+	
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
+static  inline uint32_t  bchp_nand_acc_control(int cs)
+{
+	switch (cs) {
+	case 0: return BCHP_NAND_ACC_CONTROL;
+	case 1: return BCHP_NAND_ACC_CONTROL_CS1;
+#ifdef BCHP_NAND_ACC_CONTROL_CS2
+	case 2: return BCHP_NAND_ACC_CONTROL_CS2;
+#endif
+#ifdef BCHP_NAND_ACC_CONTROL_CS3
+	case 3: return BCHP_NAND_ACC_CONTROL_CS3;
+#endif
+	}
+	return 0;
+}
+
+static  inline uint32_t bchp_nand_config(int cs)
+{
+	switch (cs) {
+	case 0: return BCHP_NAND_CONFIG;
+	case 1: return BCHP_NAND_CONFIG_CS1;
+#ifdef BCHP_NAND_CONFIG_CS2
+	case 2: return BCHP_NAND_CONFIG_CS2;
+#endif
+#ifdef BCHP_NAND_CONFIG_CS3
+	case 3: return BCHP_NAND_CONFIG_CS3;
+#endif
+	}
+	return 0;
+}
+
+static  inline uint32_t bchp_nand_timing1(int cs)
+{
+	switch (cs) {
+	case 0: return BCHP_NAND_TIMING_1;
+	case 1: return BCHP_NAND_TIMING_1_CS1;
+#ifdef BCHP_NAND_TIMING_1_CS2
+	case 2: return BCHP_NAND_TIMING_1_CS2;
+#endif
+#ifdef BCHP_NAND_TIMING_1_CS3
+	case 3: return BCHP_NAND_TIMING_1_CS3;
+#endif
+	}
+	return 0;
+}
+static  inline uint32_t bchp_nand_timing2(int cs)
+{
+	switch (cs) {
+	case 0: return BCHP_NAND_TIMING_2;
+	case 1: return BCHP_NAND_TIMING_2_CS1;
+#ifdef BCHP_NAND_TIMING_2_CS2
+	case 2: return BCHP_NAND_TIMING_2_CS2;
+#endif
+#ifdef BCHP_NAND_TIMING_2_CS3
+	case 3: return BCHP_NAND_TIMING_2_CS3;
+#endif
+	}
+	return 0;
+}
+
+#else
+#define bchp_nand_acc_control(cs) BCHP_NAND_ACC_CONTROL
+#define bchp_nand_config(cs) BCHP_NAND_CONFIG
+#define bchp_nand_timing1(cs) BCHP_NAND_TIMING_1
+#define bchp_nand_timing2(cs) BCHP_NAND_TIMING_2
+#endif
 	
 
 #endif

@@ -26,6 +26,8 @@
 	sw	a2, cfe_entry
 	sw	a3, cfe_seal
 
+	jal	brcmstb_enable_xks01
+
 	.endm
 
         .macro  smp_slave_setup

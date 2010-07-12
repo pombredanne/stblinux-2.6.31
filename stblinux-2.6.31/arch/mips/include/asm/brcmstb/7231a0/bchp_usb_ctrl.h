@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:30:51 2010
- *                 MD5 Checksum         48de0819069cffb1a27afe66f66cd920
+ * Date:           Generated on         Wed May 26 03:50:08 2010
+ *                 MD5 Checksum         4825abb6e75a676a7fb55c229058b464
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -202,9 +202,9 @@
 #define BCHP_USB_CTRL_EBRIDGE_ebr_wrgwordcnt_sel_MASK              0x20000000
 #define BCHP_USB_CTRL_EBRIDGE_ebr_wrgwordcnt_sel_SHIFT             29
 
-/* USB_CTRL :: EBRIDGE :: ebr_rdgwordcnt_sel [28:28] */
-#define BCHP_USB_CTRL_EBRIDGE_ebr_rdgwordcnt_sel_MASK              0x10000000
-#define BCHP_USB_CTRL_EBRIDGE_ebr_rdgwordcnt_sel_SHIFT             28
+/* USB_CTRL :: EBRIDGE :: ebr_size_sel [28:28] */
+#define BCHP_USB_CTRL_EBRIDGE_ebr_size_sel_MASK                    0x10000000
+#define BCHP_USB_CTRL_EBRIDGE_ebr_size_sel_SHIFT                   28
 
 /* USB_CTRL :: EBRIDGE :: EBR_SPARE [27:17] */
 #define BCHP_USB_CTRL_EBRIDGE_EBR_SPARE_MASK                       0x0ffe0000
@@ -241,9 +241,9 @@
 #define BCHP_USB_CTRL_OBRIDGE_obr_wrgwordcnt_sel_MASK              0x20000000
 #define BCHP_USB_CTRL_OBRIDGE_obr_wrgwordcnt_sel_SHIFT             29
 
-/* USB_CTRL :: OBRIDGE :: obr_rdgwordcnt_sel [28:28] */
-#define BCHP_USB_CTRL_OBRIDGE_obr_rdgwordcnt_sel_MASK              0x10000000
-#define BCHP_USB_CTRL_OBRIDGE_obr_rdgwordcnt_sel_SHIFT             28
+/* USB_CTRL :: OBRIDGE :: obr_size_sel [28:28] */
+#define BCHP_USB_CTRL_OBRIDGE_obr_size_sel_MASK                    0x10000000
+#define BCHP_USB_CTRL_OBRIDGE_obr_size_sel_SHIFT                   28
 
 /* USB_CTRL :: OBRIDGE :: OBR_SPARE [27:17] */
 #define BCHP_USB_CTRL_OBRIDGE_OBR_SPARE_MASK                       0x0ffe0000
@@ -306,9 +306,13 @@
 #define BCHP_USB_CTRL_TEST_PORT_CTL_TP_EN_MASK                     0x80000000
 #define BCHP_USB_CTRL_TEST_PORT_CTL_TP_EN_SHIFT                    31
 
-/* USB_CTRL :: TEST_PORT_CTL :: TPCTL_SPARE [30:25] */
-#define BCHP_USB_CTRL_TEST_PORT_CTL_TPCTL_SPARE_MASK               0x7e000000
-#define BCHP_USB_CTRL_TEST_PORT_CTL_TPCTL_SPARE_SHIFT              25
+/* USB_CTRL :: TEST_PORT_CTL :: TPCTL_SPARE [30:26] */
+#define BCHP_USB_CTRL_TEST_PORT_CTL_TPCTL_SPARE_MASK               0x7c000000
+#define BCHP_USB_CTRL_TEST_PORT_CTL_TPCTL_SPARE_SHIFT              26
+
+/* USB_CTRL :: TEST_PORT_CTL :: scb0_wr_data_sel [25:25] */
+#define BCHP_USB_CTRL_TEST_PORT_CTL_scb0_wr_data_sel_MASK          0x02000000
+#define BCHP_USB_CTRL_TEST_PORT_CTL_scb0_wr_data_sel_SHIFT         25
 
 /* USB_CTRL :: TEST_PORT_CTL :: pwrflt1_oe [24:24] */
 #define BCHP_USB_CTRL_TEST_PORT_CTL_pwrflt1_oe_MASK                0x01000000
@@ -410,9 +414,9 @@
 /***************************************************************************
  *UTMI_CTL_1 - UTMI Control Register
  ***************************************************************************/
-/* USB_CTRL :: UTMI_CTL_1 :: UTMICTL1_SPARE4 [31:31] */
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE4_MASK              0x80000000
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE4_SHIFT             31
+/* USB_CTRL :: UTMI_CTL_1 :: USB11_TX_OEB_P1 [31:31] */
+#define BCHP_USB_CTRL_UTMI_CTL_1_USB11_TX_OEB_P1_MASK              0x80000000
+#define BCHP_USB_CTRL_UTMI_CTL_1_USB11_TX_OEB_P1_SHIFT             31
 
 /* USB_CTRL :: UTMI_CTL_1 :: SYNC_DET_LENG_P1 [30:28] */
 #define BCHP_USB_CTRL_UTMI_CTL_1_SYNC_DET_LENG_P1_MASK             0x70000000
@@ -458,9 +462,9 @@
 #define BCHP_USB_CTRL_UTMI_CTL_1_AFE_NON_DRIVING_P1_MASK           0x00010000
 #define BCHP_USB_CTRL_UTMI_CTL_1_AFE_NON_DRIVING_P1_SHIFT          16
 
-/* USB_CTRL :: UTMI_CTL_1 :: UTMICTL1_SPARE2 [15:15] */
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE2_MASK              0x00008000
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE2_SHIFT             15
+/* USB_CTRL :: UTMI_CTL_1 :: USB11_TX_OEB [15:15] */
+#define BCHP_USB_CTRL_UTMI_CTL_1_USB11_TX_OEB_MASK                 0x00008000
+#define BCHP_USB_CTRL_UTMI_CTL_1_USB11_TX_OEB_SHIFT                15
 
 /* USB_CTRL :: UTMI_CTL_1 :: SYNC_DET_LENG [14:12] */
 #define BCHP_USB_CTRL_UTMI_CTL_1_SYNC_DET_LENG_MASK                0x00007000

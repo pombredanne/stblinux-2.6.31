@@ -29,6 +29,7 @@
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <linux/ioport.h>
+#include <linux/compiler.h>
 #include <linux/bmoca.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/flash.h>
@@ -72,9 +73,8 @@
 	},
 
 #ifdef CONFIG_BRCM_HAS_PCU_UARTS
-#define BCHP_UARTA_REG_START	BCHP_PCU_UART2_RBR
-#define BCHP_UARTB_REG_START	BCHP_PCU_UART3_RBR
-#define BCHP_UARTC_REG_START	BCHP_PCU_UART4_RBR
+#define BCHP_UARTA_REG_START	BCHP_TVM_UART1_RBR
+#define BCHP_UARTB_REG_START	BCHP_PCU_UART2_RBR
 #endif
 
 static struct plat_serial8250_port brcm_16550_ports[] = {
@@ -294,12 +294,11 @@ static void brcm_register_genet(int id, uintptr_t base, int irq0, int irq1,
 	case BRCM_PHY_TYPE_INT:
 		pdata.phy_id = 1;
 		break;
-	case BRCM_PHY_TYPE_EXT_GMII:
-		pdata.phy_id = BRCM_PHY_ID_AUTO;
-		break;
 	case BRCM_PHY_TYPE_MOCA:
 		pdata.phy_id = BRCM_PHY_ID_NONE;
 		break;
+	default:
+		pdata.phy_id = BRCM_PHY_ID_AUTO;
 	}
 	brcm_alloc_macaddr(pdata.macaddr);
 
@@ -466,14 +465,14 @@ static int __init platform_devices_setup(void)
 
 #if defined(CONFIG_BRCM_MOCA_ON_GENET_0)
 		if (!brcm_moca_enabled)
-			phy_type = BRCM_PHY_TYPE_EXT_GMII;
+			phy_type = brcm_ext_mii_mode;
 		else {
 			phy_type = BRCM_PHY_TYPE_MOCA;
 			brcm_register_moca(0);
 		}
 #endif
 #if defined(CONFIG_BCMGENET_0_GPHY)
-		phy_type = BRCM_PHY_TYPE_EXT_GMII;
+		phy_type = brcm_ext_mii_mode;
 #endif
 		brcm_register_genet(id++, BCHP_GENET_0_SYS_REG_START,
 			BRCM_IRQ_GENET_0_A, BRCM_IRQ_GENET_0_B, phy_type);
@@ -483,17 +482,19 @@ static int __init platform_devices_setup(void)
 
 #if defined(CONFIG_BRCM_MOCA_ON_GENET_1)
 		if (!brcm_moca_enabled)
-			phy_type = BRCM_PHY_TYPE_EXT_GMII;
+			phy_type = brcm_ext_mii_mode;
 		else {
 			phy_type = BRCM_PHY_TYPE_MOCA;
 			brcm_register_moca(1);
 		}
 #endif
 #if defined(CONFIG_BCMGENET_1_GPHY)
-		phy_type = BRCM_PHY_TYPE_EXT_GMII;
+		phy_type = brcm_ext_mii_mode;
 #endif
-		brcm_register_genet(id++, BCHP_GENET_1_SYS_REG_START,
-			BRCM_IRQ_GENET_1_A, BRCM_IRQ_GENET_1_B, phy_type);
+		if (brcm_emac_1_enabled)
+			brcm_register_genet(id++, BCHP_GENET_1_SYS_REG_START,
+				BRCM_IRQ_GENET_1_A, BRCM_IRQ_GENET_1_B,
+				phy_type);
 #endif /* defined(CONFIG_BRCM_HAS_GENET_1) */
 	}
 #endif /* defined(CONFIG_BRCM_HAS_GENET) */
@@ -532,6 +533,7 @@ struct ebi_cs_info {
 	int			type;
 	unsigned long		start;
 	unsigned long		len;
+	int			width;
 };
 
 static struct ebi_cs_info cs_info[NUM_CS];
@@ -613,6 +615,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 
 	switch (cs_info[cs].type) {
 	case TYPE_NOR: {
+#ifdef CONFIG_BRCM_HAS_NOR
 		struct physmap_flash_data pdata;
 		struct resource res;
 		static int nor_id;
@@ -620,7 +623,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 		memset(&res, 0, sizeof(res));
 		memset(&pdata, 0, sizeof(pdata));
 
-		pdata.width = 2;
+		pdata.width = cs_info[cs].width;
 		pdata.nr_parts = nr_parts;
 		pdata.parts = parts;
 
@@ -634,6 +637,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 		    platform_device_add_data(pdev, &pdata, sizeof(pdata)) ||
 		    platform_device_add(pdev))
 			platform_device_put(pdev);
+#endif
 		break;
 	}
 	case TYPE_NAND: {
@@ -728,7 +732,7 @@ static int __init brcmstb_mtd_setup(void)
 
 	/* scan each chip select to see what (if anything) lives there */
 	for (i = 0; i < NUM_CS; i++) {
-		u32 base;
+		u32 base, config __maybe_unused;
 
 		cs_info[i].type = TYPE_NONE;
 
@@ -738,9 +742,14 @@ static int __init brcmstb_mtd_setup(void)
 		cs_info[i].len = 8192UL << (base & 0xf);
 
 #ifdef BCHP_EBI_CS_CONFIG_0
-		if (BDEV_RD(BCHP_EBI_CS_CONFIG_0 + (i * 8)) &
-				BCHP_EBI_CS_CONFIG_0_enable_MASK)
+		config = BDEV_RD(BCHP_EBI_CS_CONFIG_0 + (i * 8));
+		if (config & BCHP_EBI_CS_CONFIG_0_enable_MASK)
 			cs_info[i].type = TYPE_NOR;
+
+		if (config & BCHP_EBI_CS_CONFIG_0_dest_size_MASK)
+			cs_info[i].width = 2;
+		else
+			cs_info[i].width = 1;
 #endif
 #ifdef BCHP_EBI_CS_SPI_SELECT
 		/*
@@ -748,10 +757,10 @@ static int __init brcmstb_mtd_setup(void)
 		 * bits 23:16 - owned by SW (any number of '1' bits OK)
 		 * A '1' in either position means there is a SPI chip there.
 		 *
-		 * 65nm chips don't have SW bits 23:16 so EXTRA_SPI_CS
+		 * 65nm chips don't have SW bits 15:8 so EXTRA_SPI_CS
 		 * should be set at compile time for multiple SPI flashes.
 		 */
-		if ((BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & (0x10001 << i)) ||
+		if ((BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & (0x101 << i)) ||
 				(EXTRA_SPI_CS & (0x01 << i)))
 			cs_info[i].type = TYPE_SPI;
 #endif

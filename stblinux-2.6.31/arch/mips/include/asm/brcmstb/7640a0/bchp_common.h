@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:44:04 2010
- *                 MD5 Checksum         2140f8c1f86e8a5296b6aebfc26dee55
+ * Date:           Generated on         Fri May 21 05:43:18 2010
+ *                 MD5 Checksum         bfa214424b884cfe265e19a04057f29f
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -58,6 +58,8 @@
 #define BCHP_VCXO_0_RM_REG_END                             0x0007182c
 #define BCHP_CLK_GR_REG_START                              0x00072000
 #define BCHP_CLK_GR_REG_END                                0x0007200c
+#define BCHP_CKG_L2_REG_START                              0x00072800
+#define BCHP_CKG_L2_REG_END                                0x0007282c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00073000
 #define BCHP_AVS_HW_MNTR_REG_END                           0x0007306c
 #define BCHP_AVS_PVT_MNTR_CONFIG_REG_START                 0x00073100
@@ -285,7 +287,7 @@
 #define BCHP_HDMI_RAM_REG_START                            0x001a0c00
 #define BCHP_HDMI_RAM_REG_END                              0x001a0dfc
 #define BCHP_DVP_HR_REG_START                              0x001a3000
-#define BCHP_DVP_HR_REG_END                                0x001a30ec
+#define BCHP_DVP_HR_REG_END                                0x001a30c0
 #define BCHP_DVP_HR_INTR2_REG_START                        0x001a31c0
 #define BCHP_DVP_HR_INTR2_REG_END                          0x001a31ec
 #define BCHP_HDMI_RX_FE_0_REG_START                        0x001a3400
@@ -749,7 +751,7 @@
 #define BCHP_AVD_GR_0_REG_START                            0x00900400
 #define BCHP_AVD_GR_0_REG_END                              0x0090040c
 #define BCHP_VICH_0_REG_START                              0x00b00000
-#define BCHP_VICH_0_REG_END                                0x00b0004c
+#define BCHP_VICH_0_REG_END                                0x00b0008b
 #define BCHP_TRB_TOP_REG_START                             0x00e00000
 #define BCHP_TRB_TOP_REG_END                               0x00e00008
 #define BCHP_FGT_TRB_GR_BRIDGE_REG_START                   0x00e10000

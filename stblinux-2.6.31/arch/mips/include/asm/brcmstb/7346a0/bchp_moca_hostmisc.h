@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:05:01 2010
- *                 MD5 Checksum         47fd0602d6c7abb64bf56c6d387b1fe1
+ * Date:           Generated on         Fri May 21 05:03:21 2010
+ *                 MD5 Checksum         526eeb57d157fd21df20644f876b78d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -44,6 +44,7 @@
  ***************************************************************************/
 #define BCHP_MOCA_HOSTMISC_SW_RESET              0x002a2040 /* Moca Software Reset */
 #define BCHP_MOCA_HOSTMISC_SCRATCH               0x002a2044 /* Moca Scratch Register */
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG      0x002a204c /* MoCA version register */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP0             0x002a2050 /* Moca Host Messaging Register 0 */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP1             0x002a2054 /* Moca Host Messaging Register 0 */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP2             0x002a2058 /* Moca Host Messaging Register 0 */
@@ -74,17 +75,9 @@
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_disable_clocks_MASK       0x00000080
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_disable_clocks_SHIFT      7
 
-/* MOCA_HOSTMISC :: SW_RESET :: spare_reset [06:04] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_MASK               0x00000070
-#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_SHIFT              4
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_enet_reset [03:03] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_enet_reset_MASK           0x00000008
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_enet_reset_SHIFT          3
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_standalone_reset [02:02] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_reset_MASK     0x00000004
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_reset_SHIFT    2
+/* MOCA_HOSTMISC :: SW_RESET :: spare_reset [06:02] */
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_MASK               0x0000007c
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_SHIFT              2
 
 /* MOCA_HOSTMISC :: SW_RESET :: moca_sys_reset [01:01] */
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_sys_reset_MASK            0x00000002
@@ -100,6 +93,29 @@
 /* MOCA_HOSTMISC :: SCRATCH :: VALUE [31:00] */
 #define BCHP_MOCA_HOSTMISC_SCRATCH_VALUE_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_SCRATCH_VALUE_SHIFT                     0
+
+/***************************************************************************
+ *MOCA_VERSION_REG - MoCA version register
+ ***************************************************************************/
+/* MOCA_HOSTMISC :: MOCA_VERSION_REG :: moca_id [31:16] */
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_moca_id_MASK           0xffff0000
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_moca_id_SHIFT          16
+
+/* MOCA_HOSTMISC :: MOCA_VERSION_REG :: moca_spec_ver [15:12] */
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_moca_spec_ver_MASK     0x0000f000
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_moca_spec_ver_SHIFT    12
+
+/* MOCA_HOSTMISC :: MOCA_VERSION_REG :: core_version [11:08] */
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_core_version_MASK      0x00000f00
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_core_version_SHIFT     8
+
+/* MOCA_HOSTMISC :: MOCA_VERSION_REG :: core_revision [07:04] */
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_core_revision_MASK     0x000000f0
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_core_revision_SHIFT    4
+
+/* MOCA_HOSTMISC :: MOCA_VERSION_REG :: core_mask [03:00] */
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_core_mask_MASK         0x0000000f
+#define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG_core_mask_SHIFT        0
 
 /***************************************************************************
  *HOST_MMP0 - Moca Host Messaging Register 0

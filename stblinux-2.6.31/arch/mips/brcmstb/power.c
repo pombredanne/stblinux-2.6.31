@@ -340,28 +340,28 @@ static struct clk brcm_clk_table[] = {
 	{
 		.name		= "sata",
 		.lock		= SPIN_LOCK_UNLOCKED,
-		.refcnt		= 1,
+		.refcnt		= 0,
 		.disable	= &brcm_pm_sata_disable,
 		.enable		= &brcm_pm_sata_enable,
 	},
 	{
 		.name		= "enet",
 		.lock		= SPIN_LOCK_UNLOCKED,
-		.refcnt		= 1,
+		.refcnt		= 0,
 		.disable	= &brcm_pm_enet_disable,
 		.enable		= &brcm_pm_enet_enable,
 	},
 	{
 		.name		= "moca",
 		.lock		= SPIN_LOCK_UNLOCKED,
-		.refcnt		= 1,
+		.refcnt		= 0,
 		.disable	= &brcm_pm_moca_disable,
 		.enable		= &brcm_pm_moca_enable,
 	},
 	{
 		.name		= "usb",
 		.lock		= SPIN_LOCK_UNLOCKED,
-		.refcnt		= 1,
+		.refcnt		= 0,
 		.disable	= &brcm_pm_usb_disable,
 		.enable		= &brcm_pm_usb_enable,
 	},
@@ -457,21 +457,6 @@ ssize_t brcm_pm_store_standby_flags(struct device *dev,
 
 /* Boot time functions */
 
-static int __init brcm_clk_init(void)
-{
-	int i;
-	struct clk *clk = brcm_clk_table;
-
-	for (i = 0; i < ARRAY_SIZE(brcm_clk_table); i++, clk++) {
-		if (brcm_pm_enabled)
-			clk->disable();
-		clk->refcnt--;
-	}
-	return 0;
-}
-
-early_initcall(brcm_clk_init);
-
 static int nopm_setup(char *str)
 {
 	brcm_pm_enabled = 0;
@@ -495,8 +480,11 @@ int clk_enable(struct clk *clk)
 	unsigned long flags;
 	if (clk && !IS_ERR(clk)) {
 		spin_lock_irqsave(&clk->lock, flags);
-		if (++(clk->refcnt) == 1 && brcm_pm_enabled)
+		if (++(clk->refcnt) == 1 && brcm_pm_enabled) {
+			printk(KERN_DEBUG "brcm-pm: enabling %s clocks\n",
+				clk->name);
 			clk->enable();
+		}
 		spin_unlock_irqrestore(&clk->lock, flags);
 		return 0;
 	} else {
@@ -510,8 +498,11 @@ void clk_disable(struct clk *clk)
 	unsigned long flags;
 	if (clk && !IS_ERR(clk)) {
 		spin_lock_irqsave(&clk->lock, flags);
-		if (--(clk->refcnt) == 0 && brcm_pm_enabled)
+		if (--(clk->refcnt) == 0 && brcm_pm_enabled) {
+			printk(KERN_DEBUG "brcm-pm: disabling %s clocks\n",
+				clk->name);
 			clk->disable();
+		}
 		spin_unlock_irqrestore(&clk->lock, flags);
 	}
 }
@@ -550,48 +541,99 @@ EXPORT_SYMBOL(brcm_pm_unregister_cb);
  * USB / ENET / GENET / MoCA / SATA PM implementations (per-chip)
  ***********************************************************************/
 
+#define PLL_DIS(x)		BDEV_WR_RB(BCHP_##x, 0x04)
+#define PLL_ENA(x)		BDEV_WR_RB(BCHP_##x, 0x03)
+
 static void brcm_pm_sata_disable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: disabling sata clocks\n");
+#if defined(CONFIG_BCM7125)
+	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 1);
+	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_99P7, 1);
+	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_216, 1);
+	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_108, 1);
+	PLL_DIS(VCXO_CTL_MISC_RAP_AVD_PLL_CHL_4);
+#elif defined(CONFIG_BCM7420)
+	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 1);
+	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 1);
+	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 1);
+	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 1);
+	PLL_DIS(CLK_GENET_NETWORK_PLL_4);
+#endif
 }
 
 static void brcm_pm_sata_enable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: enabling sata clocks\n");
+#if defined(CONFIG_BCM7125)
+	PLL_ENA(VCXO_CTL_MISC_RAP_AVD_PLL_CHL_4);
+	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_108, 0);
+	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_216, 0);
+	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_99P7, 0);
+	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
+#elif defined(CONFIG_BCM7420)
+	PLL_ENA(CLK_GENET_NETWORK_PLL_4);
+	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 0);
+	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 0);
+	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 0);
+	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
+#endif
 }
 
 static void brcm_pm_enet_disable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: disabling enet clocks\n");
 }
 
 static void brcm_pm_enet_enable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: enabling enet clocks\n");
 }
 
 static void brcm_pm_moca_disable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: disabling moca clocks\n");
 }
 
 static void brcm_pm_moca_enable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: enabling moca clocks\n");
 }
 
 static void brcm_pm_usb_disable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: disabling usb clocks\n");
 }
 
 static void brcm_pm_usb_enable(void)
 {
-	printk(KERN_DEBUG "brcm-pm: enabling usb clocks\n");
 }
 
 static void brcm_pm_set_ddr_timeout(int val)
 {
+#if defined(CONFIG_BCM7125) || defined(CONFIG_BCM7420) || \
+		defined(CONFIG_BCM7340) || defined(CONFIG_BCM7342)
+	if (val) {
+		BDEV_WR_F(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+			IDDQ_MODE_ON_SELFREF, 1);
+		BDEV_WR_F(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+			HIZ_ON_SELFREF, 1);
+		BDEV_WR_F(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+			DEVCLK_OFF_ON_SELFREF, 1);
+		BDEV_WR_F(MEMC_DDR23_APHY_AC_0_POWERDOWN,
+			PLLCLKS_OFF_ON_SELFREF, 1);
+		BDEV_WR_F(MEMC_DDR23_APHY_WL0_0_DDR_PAD_CNTRL,
+			IDDQ_MODE_ON_SELFREF, 1);
+		BDEV_WR_F(MEMC_DDR23_APHY_WL1_0_DDR_PAD_CNTRL,
+			IDDQ_MODE_ON_SELFREF, 1);
+
+		BDEV_WR_F_RB(MEMC_DDR_0_SRPD_CONFIG, INACT_COUNT, 0xdff);
+		BDEV_WR_F(MEMC_DDR_0_SRPD_CONFIG, SRPD_EN, 1);
+	} else {
+		unsigned long flags;
+
+		local_irq_save(flags);
+		BDEV_WR_F(MEMC_DDR_0_SRPD_CONFIG, INACT_COUNT, 0xffff);
+		do {
+			DEV_RD(KSEG1);
+		} while (BDEV_RD_F(MEMC_DDR_0_POWER_DOWN_STATUS, SRPD));
+		BDEV_WR_F(MEMC_DDR_0_SRPD_CONFIG, SRPD_EN, 0);
+		local_irq_restore(flags);
+	}
+#endif
 }
 
 /***********************************************************************

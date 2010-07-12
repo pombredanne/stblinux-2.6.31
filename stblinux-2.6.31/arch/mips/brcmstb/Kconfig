@@ -35,9 +35,10 @@ config BCM3548B0
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_BSPI_V2
-	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_STANDBY
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM35125A0
 	bool "35125 Ax"
@@ -49,8 +50,9 @@ config BCM35125A0
 	select BRCM_HAS_PCU_UARTS
 	select BRCM_HAS_GENET_0
 	select BRCM_GENET_V2
-	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM35230A0
 	bool "35230 Ax"
@@ -62,8 +64,9 @@ config BCM35230A0
 	select BRCM_HAS_PCU_UARTS
 	select BRCM_HAS_GENET_0
 	select BRCM_GENET_V2
-	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM35230C0
 	bool "35230 Cx"
@@ -75,9 +78,10 @@ config BCM35230C0
 	select BRCM_HAS_PCU_UARTS
 	select BRCM_HAS_GENET_0
 	select BRCM_GENET_V2
-	select BRCM_HAS_UPPER_MEMORY
-	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM3563C0
 	bool "3563 Cx"
@@ -93,6 +97,7 @@ config BCM3563C0
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_0
 	select BRCM_HAS_NAND_MINOR_1
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7038C0
 	bool "7038 Cx"
@@ -108,6 +113,7 @@ config BCM7038C0
 	select BRCM_EMAC_128_DESC
 	select BRCM_HAS_NOR
 	select BRCM_HAS_SATA1
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7118C0
 	bool "7118 Cx"
@@ -124,26 +130,7 @@ config BCM7118C0
 	select BRCM_HAS_NAND_MAJOR_2
 	select BRCM_HAS_NAND_MINOR_2
 	select BRCM_HAS_SATA1
-
-config BCM7125A0
-	bool "7125 Ax"
-	select BRCM_PLATFORM_DEFAULTS
-	select BCM7125
-	select BMIPS4380
-	select BRCM_UARTA_IS_16550
-	select BRCM_UARTB_IS_16550
-	select BRCM_UARTC_IS_16550
-	select BRCM_HAS_PCI23
-	select BRCM_MOCA_ON_GENET_1
-	select BRCM_GENET_V1
-	select BRCM_HAS_NOR
-	select BRCM_HAS_NAND_MAJOR_3
-	select BRCM_HAS_NAND_MINOR_3
-	select BRCM_HAS_EDU
-	select BRCM_HAS_BSPI_V3
-	select BRCM_HAS_SATA2
-	select BRCM_SATA_75MHZ_PLL
-	select BRCM_HAS_WKTMR
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7125C0
 	bool "7125 Cx"
@@ -165,12 +152,14 @@ config BCM7125C0
 	select BRCM_SATA_75MHZ_PLL
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7135A0
 	bool "7135 Ax"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7135
 	select BMIPS4380
+	select BRCM_HAS_XKS01
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
@@ -184,16 +173,19 @@ config BCM7135A0
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7231A0
 	bool "7231 Ax"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7231
 	select BMIPS4380
+	select BRCM_HAS_XKS01
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_GENET_0
+	select BRCM_HAS_GENET_1
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_5
@@ -202,6 +194,7 @@ config BCM7231A0
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7325B0
 	bool "7325 Bx"
@@ -217,6 +210,7 @@ config BCM7325B0
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_2
 	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7335B0
 	bool "7335 Bx"
@@ -234,6 +228,7 @@ config BCM7335B0
 	select BRCM_HAS_NAND_MINOR_1
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7336A0
 	bool "7336 Ax"
@@ -252,6 +247,7 @@ config BCM7336A0
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7340B0
 	bool "7340 Bx"
@@ -273,6 +269,7 @@ config BCM7340B0
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7342B0
 	bool "7342 Bx"
@@ -294,12 +291,14 @@ config BCM7342B0
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7344A0
 	bool "7344 Ax"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7344
 	select BMIPS4380
+	select BRCM_HAS_XKS01
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
@@ -313,12 +312,14 @@ config BCM7344A0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7346A0
 	bool "7346 Ax"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7346
 	select BMIPS4380
+	select BRCM_HAS_XKS01
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
@@ -333,6 +334,7 @@ config BCM7346A0
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7400E0
 	bool "7400/97456 Dx/Ex"
@@ -351,6 +353,7 @@ config BCM7400E0
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7401C0
 	bool "7401/97455 Cx"
@@ -368,6 +371,7 @@ config BCM7401C0
 	select BRCM_HAS_NAND_MINOR_1
 	select BRCM_HAS_SATA1
 	select BRCM_SATA_SINGLE_PORT
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7403A0
 	bool "7403/97458 Ax"
@@ -386,6 +390,7 @@ config BCM7403A0
 	select BRCM_HAS_NAND_MINOR_1
 	select BRCM_HAS_SATA1
 	select BRCM_SATA_SINGLE_PORT
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7405B0
 	bool "7405/97459 Bx"
@@ -403,6 +408,7 @@ config BCM7405B0
 	select BRCM_HAS_NAND_MINOR_2
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7405D0
 	bool "7405/97459 Dx, 7413 Bx"
@@ -420,6 +426,7 @@ config BCM7405D0
 	select BRCM_HAS_NAND_MINOR_2
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7408A0
 	bool "7408 Ax"
@@ -436,6 +443,7 @@ config BCM7408A0
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7420C0
 	bool "7420 Cx"
@@ -459,12 +467,14 @@ config BCM7420C0
 	select BRCM_SATA_75MHZ_PLL
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7422A0
 	bool "7422 Ax"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7422
 	select BMIPS5000
+	select BRCM_HAS_XKS01
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
@@ -482,12 +492,15 @@ config BCM7422A0
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	select BRCM_HAS_1GB_MEMC1
 
 config BCM7425A0
 	bool "7425 Ax"
 	select BRCM_PLATFORM_DEFAULTS
 	select BCM7425
 	select BMIPS5000
+	select BRCM_HAS_XKS01
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
@@ -505,6 +518,8 @@ config BCM7425A0
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	select BRCM_HAS_1GB_MEMC1
 
 config BCM7440B0
 	bool "7440 Bx/Cx"
@@ -523,6 +538,7 @@ config BCM7440B0
 	select BRCM_HAS_NAND_MAJOR_1
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_DVD
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7468A0
 	bool "7468 Ax"
@@ -539,6 +555,7 @@ config BCM7468A0
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7468B0
 	bool "7468 Bx"
@@ -555,6 +572,7 @@ config BCM7468B0
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7550A0
 	bool "7550 Ax"
@@ -572,6 +590,7 @@ config BCM7550A0
 	select BRCM_HAS_WKTMR
 	select BRCM_IRW_HALT
 	select BRCM_CPU_PLL
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7601B0
 	bool "7601 Bx"
@@ -588,6 +607,7 @@ config BCM7601B0
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_DVD
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7630B0
 	bool "7630 Bx"
@@ -605,6 +625,7 @@ config BCM7630B0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_DVD
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7631B0
 	bool "7631 Bx"
@@ -621,6 +642,7 @@ config BCM7631B0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_DVD
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7635A0
 	bool "7635 Ax"
@@ -638,6 +660,7 @@ config BCM7635A0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_DVD
+	select BRCM_HAS_1GB_MEMC0
 
 config BCM7640A0
 	bool "7640 Ax"
@@ -655,6 +678,7 @@ config BCM7640A0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_DVD
+	select BRCM_HAS_1GB_MEMC0
 
 endchoice
 
@@ -670,15 +694,22 @@ comment "Memory map"
 config BRCM_UPPER_MEMORY
 	bool "Large (>256MB) memory support"
 	depends on BRCM_HAS_UPPER_MEMORY
-	select ARCH_SPARSEMEM_ENABLE
+	select ARCH_SPARSEMEM_ENABLE if !HIGHMEM
+	select BRCM_UPPER_256MB if !BRCM_HAS_XKS01
+	select BRCM_UPPER_768MB if BRCM_HAS_XKS01
 	default y
 	help
 	  Say Y to use a special mapping scheme to access the STB's
 	  upper memory (all RAM above 256MB).  This supports up to 512MB
-	  of system memory.
+	  of ZONE_NORMAL memory on 65nm chips, and 1024MB of ZONE_NORMAL
+	  memory on 40nm chips.
+
+	  On chips where HIGHMEM is available, this option should remain
+	  enabled since it will maximize the amount of memory in ZONE_NORMAL.
 
 	  If this option is disabled, you will only be able to use the
-	  first 256MB of RAM on the system.
+	  first 256MB of RAM on the system (without HIGHMEM).  HIGHMEM is
+	  not available on most STB chips.
 
 	  It is recommended that this option be used in conjuction with
 	  SPARSEMEM (Kernel type -> Memory model -> Sparse memory).
@@ -1151,6 +1182,7 @@ config BMIPS4380
 	select SYS_HAS_CPU_MIPS32_R1
 	select BRCM_CPU_DIV
 	select SYS_SUPPORTS_SMP
+	select SYS_SUPPORTS_HOTPLUG_CPU
 
 config BMIPS5000
 	bool
@@ -1158,6 +1190,9 @@ config BMIPS5000
 	select BRCM_CPU_DIV
 	select BRCM_ZSCM_L2
 	select SYS_SUPPORTS_SMP
+	select SYS_SUPPORTS_HOTPLUG_CPU
+	#select SYS_SUPPORTS_HIGHMEM
+	#select CPU_SUPPORTS_HIGHMEM
 
 config MTI_R5K
 	bool
@@ -1317,7 +1352,7 @@ config BRCM_HAS_SATA2
 config BRCM_HAS_SATA3
 	bool
 	#select BRCM_HAS_SATA
-	select HW_HAS_PCI
+	select HW_HAS_PCI if !BRCM_IKOS
 
 config BRCM_SATA_75MHZ_PLL
 	bool
@@ -1448,7 +1483,29 @@ config BRCM_CPU_PLL
 config BRCM_IRW_HALT
 	bool
 
+# MIPS: extended kseg0/kseg1 feature
+config BRCM_HAS_XKS01
+	bool
+
 config BRCM_HAS_UPPER_MEMORY
+	bool
+
+config BRCM_UPPER_256MB
+	bool
+
+config BRCM_UPPER_768MB
+	bool
+
+# physical address maps supporting 256MB, 512MB, or 1GB on MEMC0
+config BRCM_HAS_1GB_MEMC0
+	bool
+
+# physical address map supporting 2GB on MEMC0
+config BRCM_HAS_2GB_MEMC0
+	bool
+
+# MEMC1 is accessible to the CPU and all Linux peripherals
+config BRCM_HAS_1GB_MEMC1
 	bool
 
 config BRCM_HAS_STANDBY

@@ -53,6 +53,12 @@ unsigned long brcm_moca_rf_band = MOCA_BAND_MIDRF;
 unsigned long brcm_moca_rf_band = MOCA_BAND_HIGHRF;
 #endif
 
+/*
+ * Default mode for external PHY: MII, RGMII, or RGMII + inband signaling
+ * Some boards override this - see below.
+ */
+unsigned long brcm_ext_mii_mode = BRCM_PHY_TYPE_EXT_RGMII;
+
 #ifdef CONFIG_BRCM_HAS_PCI23
 
 /***********************************************************************
@@ -115,7 +121,33 @@ char irq_tab_brcmstb_docsis[NUM_SLOTS][4] __devinitdata = {
 void __init board_pinmux_setup(void)
 {
 #if ! defined(CONFIG_BRCM_IKOS)
-#if   defined(CONFIG_BCM3548B0)
+#if   defined(CONFIG_BCM35230)
+
+#if defined(CONFIG_BCMGENET_0_GPHY)
+	PINMUX(6, i2ssosck_outd, 2);
+	PINMUX(6, i2ssd_outd, 2);
+	PINMUX(6, i2sws_outd, 2);
+	PINMUX(6, i2ssck_outd, 2);
+	PINMUX(6, i2ssosck_outc, 2);
+	PINMUX(6, i2ssd_outc, 2);
+	PINMUX(6, i2sws_outc, 2);
+	PINMUX(6, i2ssck_outc, 2);
+	PINMUX(7, i2ssd_in, 5);
+	PINMUX(7, i2sws_in, 5);
+	PINMUX(7, i2ssck_in, 5);
+	PINMUX(8, gpio_4, 4);
+	PINMUX(9, gpio_74, 3);
+	PINMUX(10, gpio_79, 3);
+	PINMUX(10, gpio_78, 3);
+	PINMUX(10, gpio_77, 3);
+	PINMUX(10, gpio_76, 3);
+	PINMUX(10, gpio_75, 3);
+	PINMUX(11, dint, 2);
+
+	brcm_ext_mii_mode = BRCM_PHY_TYPE_EXT_MII;
+#endif
+
+#elif defined(CONFIG_BCM3548B0)
 
 	PINMUX(6, gpio_30, 2);		// UARTB TX
 	PINMUX(6, gpio_31, 2);		// UARTB RX
@@ -158,6 +190,8 @@ void __init board_pinmux_setup(void)
 	PINMUX(10, sgpio_02, 1);	// MoCA I2C on BSCB
 	PINMUX(10, sgpio_03, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCB_REG_START);
+
+	brcm_ext_mii_mode = BRCM_PHY_TYPE_EXT_MII;
 
 #elif defined(CONFIG_BCM7325B0)
 
@@ -393,6 +427,8 @@ void __init board_pinmux_setup(void)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2, gpio_08_pad_ctrl, 0);
 	BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2, gpio_09_pad_ctrl, 0);
 	BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_2, gpio_10_pad_ctrl, 0);
+
+	brcm_ext_mii_mode = BRCM_PHY_TYPE_EXT_MII;
 
 #elif defined(CONFIG_BCM7550)
 

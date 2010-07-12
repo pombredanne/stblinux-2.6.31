@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:06:05 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Wed May 26 03:20:32 2010
+ *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -43,9 +43,10 @@
  *HIF_TOP_CTRL - HIF Top Control Registers
  ***************************************************************************/
 #define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL          0x00442400 /* External IRQ Active Level Control Register */
-#define BCHP_HIF_TOP_CTRL_SCRATCH                0x00442408 /* HIF Scratch Register */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x00442404 /* SPI test port select register */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL                0x00442410 /* HIF Power Management Control Register */
 #define BCHP_HIF_TOP_CTRL_FLASH_TYPE             0x00442418 /* HIF Decoded Flash Type */
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x0044241c /* SPI test port select register */
+#define BCHP_HIF_TOP_CTRL_SCRATCH                0x0044241c /* HIF Scratch Register */
 
 /***************************************************************************
  *EXT_IRQ_LEVEL - External IRQ Active Level Control Register
@@ -145,11 +146,86 @@
 #define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL_ext_irq_0_level_HIGH       1
 
 /***************************************************************************
- *SCRATCH - HIF Scratch Register
+ *SPI_DBG_SEL - SPI test port select register
  ***************************************************************************/
-/* HIF_TOP_CTRL :: SCRATCH :: SCRATCH_BIT [31:00] */
-#define BCHP_HIF_TOP_CTRL_SCRATCH_SCRATCH_BIT_MASK                 0xffffffff
-#define BCHP_HIF_TOP_CTRL_SCRATCH_SCRATCH_BIT_SHIFT                0
+/* HIF_TOP_CTRL :: SPI_DBG_SEL :: reserved0 [31:03] */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_reserved0_MASK               0xfffffff8
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_reserved0_SHIFT              3
+
+/* HIF_TOP_CTRL :: SPI_DBG_SEL :: DISABLE_MSPI_FLUSH [02:02] */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_DISABLE_MSPI_FLUSH_MASK      0x00000004
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_DISABLE_MSPI_FLUSH_SHIFT     2
+
+/* HIF_TOP_CTRL :: SPI_DBG_SEL :: SPI_RBUS_TIMER_EN [01:01] */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_RBUS_TIMER_EN_MASK       0x00000002
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_RBUS_TIMER_EN_SHIFT      1
+
+/* HIF_TOP_CTRL :: SPI_DBG_SEL :: SPI_TP_SEL [00:00] */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_MASK              0x00000001
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_SHIFT             0
+
+/***************************************************************************
+ *PM_CTRL - HIF Power Management Control Register
+ ***************************************************************************/
+/* HIF_TOP_CTRL :: PM_CTRL :: reserved0 [31:14] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_reserved0_MASK                   0xffffc000
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_reserved0_SHIFT                  14
+
+/* HIF_TOP_CTRL :: PM_CTRL :: EBI_PM_IN_DRIVE_INACTIVE [13:13] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_EBI_PM_IN_DRIVE_INACTIVE_MASK    0x00002000
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_EBI_PM_IN_DRIVE_INACTIVE_SHIFT   13
+
+/* HIF_TOP_CTRL :: PM_CTRL :: NAND_PM_IN_DRIVE_INACTIVE [12:12] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_NAND_PM_IN_DRIVE_INACTIVE_MASK   0x00001000
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_NAND_PM_IN_DRIVE_INACTIVE_SHIFT  12
+
+/* HIF_TOP_CTRL :: PM_CTRL :: SPI_PM_IN_DRIVE_INACTIVE [11:11] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_SPI_PM_IN_DRIVE_INACTIVE_MASK    0x00000800
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_SPI_PM_IN_DRIVE_INACTIVE_SHIFT   11
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS6 [10:10] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS6_MASK         0x00000400
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS6_SHIFT        10
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS5 [09:09] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS5_MASK         0x00000200
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS5_SHIFT        9
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS4 [08:08] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS4_MASK         0x00000100
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS4_SHIFT        8
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS3 [07:07] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS3_MASK         0x00000080
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS3_SHIFT        7
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS2 [06:06] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS2_MASK         0x00000040
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS2_SHIFT        6
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS1 [05:05] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS1_MASK         0x00000020
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS1_SHIFT        5
+
+/* HIF_TOP_CTRL :: PM_CTRL :: PM_OUT_TRISTATE_CS0 [04:04] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS0_MASK         0x00000010
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_PM_OUT_TRISTATE_CS0_SHIFT        4
+
+/* HIF_TOP_CTRL :: PM_CTRL :: reserved1 [03:03] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_reserved1_MASK                   0x00000008
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_reserved1_SHIFT                  3
+
+/* HIF_TOP_CTRL :: PM_CTRL :: EBI_PM_OUT_DRIVE_LOW [02:02] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_EBI_PM_OUT_DRIVE_LOW_MASK        0x00000004
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_EBI_PM_OUT_DRIVE_LOW_SHIFT       2
+
+/* HIF_TOP_CTRL :: PM_CTRL :: NAND_PM_OUT_DRIVE_LOW [01:01] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_NAND_PM_OUT_DRIVE_LOW_MASK       0x00000002
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_NAND_PM_OUT_DRIVE_LOW_SHIFT      1
+
+/* HIF_TOP_CTRL :: PM_CTRL :: SPI_PM_OUT_DRIVE_LOW [00:00] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_SPI_PM_OUT_DRIVE_LOW_MASK        0x00000001
+#define BCHP_HIF_TOP_CTRL_PM_CTRL_SPI_PM_OUT_DRIVE_LOW_SHIFT       0
 
 /***************************************************************************
  *FLASH_TYPE - HIF Decoded Flash Type
@@ -171,23 +247,11 @@
 #define BCHP_HIF_TOP_CTRL_FLASH_TYPE_FLASH_TYPE_SHIFT              0
 
 /***************************************************************************
- *SPI_DBG_SEL - SPI test port select register
+ *SCRATCH - HIF Scratch Register
  ***************************************************************************/
-/* HIF_TOP_CTRL :: SPI_DBG_SEL :: reserved0 [31:03] */
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_reserved0_MASK               0xfffffff8
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_reserved0_SHIFT              3
-
-/* HIF_TOP_CTRL :: SPI_DBG_SEL :: DISABLE_MSPI_FLUSH [02:02] */
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_DISABLE_MSPI_FLUSH_MASK      0x00000004
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_DISABLE_MSPI_FLUSH_SHIFT     2
-
-/* HIF_TOP_CTRL :: SPI_DBG_SEL :: SPI_RBUS_TIMER_EN [01:01] */
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_RBUS_TIMER_EN_MASK       0x00000002
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_RBUS_TIMER_EN_SHIFT      1
-
-/* HIF_TOP_CTRL :: SPI_DBG_SEL :: SPI_TP_SEL [00:00] */
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_MASK              0x00000001
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_SHIFT             0
+/* HIF_TOP_CTRL :: SCRATCH :: SCRATCH_BIT [31:00] */
+#define BCHP_HIF_TOP_CTRL_SCRATCH_SCRATCH_BIT_MASK                 0xffffffff
+#define BCHP_HIF_TOP_CTRL_SCRATCH_SCRATCH_BIT_SHIFT                0
 
 #endif /* #ifndef BCHP_HIF_TOP_CTRL_H__ */
 

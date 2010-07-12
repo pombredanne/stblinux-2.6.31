@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:05:31 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Fri May 21 04:02:51 2010
+ *                 MD5 Checksum         5b8ac1a8b505a254f16e44575bd8728a
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -75,17 +75,9 @@
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_disable_clocks_MASK       0x00000080
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_disable_clocks_SHIFT      7
 
-/* MOCA_HOSTMISC :: SW_RESET :: spare_reset [06:04] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_MASK               0x00000070
-#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_SHIFT              4
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_enet_reset [03:03] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_enet_reset_MASK           0x00000008
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_enet_reset_SHIFT          3
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_standalone_reset [02:02] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_reset_MASK     0x00000004
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_reset_SHIFT    2
+/* MOCA_HOSTMISC :: SW_RESET :: spare_reset [06:02] */
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_MASK               0x0000007c
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_reset_SHIFT              2
 
 /* MOCA_HOSTMISC :: SW_RESET :: moca_sys_reset [01:01] */
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_sys_reset_MASK            0x00000002

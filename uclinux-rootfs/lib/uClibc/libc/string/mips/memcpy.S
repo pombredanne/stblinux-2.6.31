@@ -42,8 +42,8 @@
 #  define SWLO	swl		/* low part is left in little-endian	*/
 #endif
 
-#define CPUTYPE_4380		0x0002a040
-#define CPUMASK_4380		0xffffffe0
+#define CPUTYPE_4380_LO		0x0002a040
+#define CPUTYPE_4380_HI		0x0002a06f
 
 #define CPUTYPE_5000		0x00025a00
 #define CPUMASK_5000		0xffffff00
@@ -189,10 +189,14 @@ detect_cpu:
 	mfc0	t2, $15			# NOTE: requires kernel support
 					# see simulate_rdhwr()
 
-	li	t4, CPUMASK_4380
-	li	t1, CPUTYPE_4380
-	and	t4, t2
-	bne	t4, t1, 1f
+	li	t1, CPUTYPE_4380_LO
+	sltu	t4, t2, t1
+	bnez	t4, 1f
+	nop
+
+	li	t1, CPUTYPE_4380_HI
+	sltu	t4, t1, t2
+	bnez	t4, 1f
 	nop
 	li	t0, 4380
 1:

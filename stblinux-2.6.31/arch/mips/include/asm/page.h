@@ -156,7 +156,7 @@ typedef struct { unsigned long pgprot; } pgprot_t;
     unsigned long __x = (unsigned long)(x);				\
     __x < CKSEG0 ? XPHYSADDR(__x) : CPHYSADDR(__x);			\
 })
-#elif defined(CONFIG_BRCM_UPPER_MEMORY)
+#elif defined(CONFIG_BRCM_UPPER_256MB)
 #define __pa(addr)							\
 ({									\
 	unsigned long __addr = (unsigned long)(addr);			\
@@ -171,7 +171,7 @@ typedef struct { unsigned long pgprot; } pgprot_t;
     ((unsigned long)(x) - PAGE_OFFSET + PHYS_OFFSET)
 #endif
 
-#if defined(CONFIG_BRCM_UPPER_MEMORY)
+#if defined(CONFIG_BRCM_UPPER_256MB)
 #define __va(addr)							\
 ({									\
 	unsigned long __addr = (unsigned long)(addr);			\
@@ -223,7 +223,7 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
-#ifdef CONFIG_BRCM_UPPER_MEMORY
+#if defined(CONFIG_BRCM_UPPER_256MB)
 #define UNCAC_ADDR(addr)						\
 ({									\
 	unsigned long __addr = (unsigned long)(addr);			\
@@ -242,6 +242,10 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 		__addr = __addr - UNCAC_BASE_UPPER + CAC_BASE_UPPER;	\
 	__addr;								\
 })
+#elif defined(CONFIG_BRCM_UPPER_768MB)
+
+/* uncached kseg1 does not exist in this configuration */
+
 #else
 #define UNCAC_ADDR(addr)	((addr) - PAGE_OFFSET + UNCAC_BASE + 	\
 								PHYS_OFFSET)

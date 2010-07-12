@@ -23,6 +23,7 @@
 #include <linux/smp.h>
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
+#include <linux/init.h>
 
 #include <asm/io.h>
 #include <asm/pgtable.h>
@@ -35,126 +36,34 @@
 #include <asm/cpu.h>
 #include <asm/smp.h>
 #include <asm/cacheflush.h>
+#include <asm/tlbflush.h>
 #include <asm/mipsregs.h>
 #include <asm/brcmstb/brcmstb.h>
 
-static unsigned long smp_boot_sp;
-static unsigned long smp_boot_gp;
+/* initial $sp, $gp - used by arch/mips/brcmstb/vector.S */
+unsigned long brcmstb_smp_boot_sp;
+unsigned long brcmstb_smp_boot_gp;
+
+static void brcmstb_send_ipi_single(int cpu, unsigned int action);
+static void brcmstb_ack_ipi(unsigned int irq);
 
 /* Early cpumask setup - runs on TP0 */
 static void brcmstb_smp_setup(void)
 {
-	int i;
+	cpus_clear(cpu_possible_map);
 
-	/* 1:1 mapping between logical and physical CPUs */
-	for (i = 0; i < NR_CPUS; i++) {
-		cpu_clear(i, cpu_possible_map);
-		__cpu_number_map[i] = i;
-		__cpu_logical_map[i] = i;
+	__cpu_number_map[0] = 0;
+	__cpu_logical_map[0] = 0;
+	cpu_set(0, cpu_possible_map);
+
+	if (brcm_smp_enabled) {
+		__cpu_number_map[1] = 1;
+		__cpu_logical_map[1] = 1;
+		cpu_set(1, cpu_possible_map);
 	}
 
-	/* Enable TP0, TP1 */
-	cpu_set(0, cpu_possible_map);
-	if (brcm_smp_enabled)
-		cpu_set(1, cpu_possible_map);
-}
+	cpu_present_map = cpu_possible_map;
 
-static irqreturn_t brcmstb_ipi_interrupt(int irq, void *dev_id);
-
-/* IRQ setup - runs on TP0 */
-static void brcmstb_prepare_cpus(unsigned int max_cpus)
-{
-	if (request_irq(BRCM_IRQ_IPI0, brcmstb_ipi_interrupt, IRQF_DISABLED,
-			"smp_ipi_tp0", NULL))
-		panic("Can't request TP0 IPI interrupt\n");
-	if (request_irq(BRCM_IRQ_IPI1, brcmstb_ipi_interrupt, IRQF_DISABLED,
-			"smp_ipi_tp1", NULL))
-		panic("Can't request TP1 IPI interrupt\n");
-}
-
-#define CLR_FPR(a, b, c, d) \
-	"	mtc1	$0, $" #a "\n" \
-	"	mtc1	$0, $" #b "\n" \
-	"	mtc1	$0, $" #c "\n" \
-	"	mtc1	$0, $" #d "\n"
-
-#define BARRIER() \
-	"	ssnop\n" \
-	"	ssnop\n" \
-	"	ssnop\n"
-	
-
-/* TP1 MIPS init - reset vector jumps here */
-asmlinkage void brcmstb_tp1_entry(void)
-{
-	unsigned long tmp0, tmp1;
-
-	__asm__ __volatile__(
-	"	.set	push\n"
-	"	.set	reorder\n"
-
-	/* set up CP0 STATUS; enable FPU */
-	"	li	%0, 0x30000000\n"
-	"	mtc0	%0, $12\n"
-	BARRIER()
-
-	/* set local CP0 CONFIG to make kseg0 cacheable, write-back */
-	"	mfc0	%0, $16\n"
-	"	ori	%0, 0x7\n"
-	"	xori	%0, 0x4\n"
-	"	mtc0	%0, $16\n"
-	BARRIER()
-
-	/* initialize FPU registers */
-	CLR_FPR(f0,  f1,  f2,  f3)
-	CLR_FPR(f4,  f5,  f6,  f7)
-	CLR_FPR(f8,  f9,  f10, f11)
-	CLR_FPR(f12, f13, f14, f15)
-	CLR_FPR(f16, f17, f18, f19)
-	CLR_FPR(f20, f21, f22, f23)
-	CLR_FPR(f24, f25, f26, f27)
-	CLR_FPR(f28, f29, f30, f31)
-
-#if defined(CONFIG_BMIPS4380)
-	/* initialize TP1's local I-cache */
-	"	li	%0, 0x80000000\n"
-	"	li	%1, 0x80008000\n"
-	"	mtc0	$0, $28\n"
-	"	mtc0	$0, $28, 1\n"
-	BARRIER()
-
-	"1:	cache	0x08, 0(%0)\n"
-	"	addiu	%0, 64\n"
-	"	bne	%0, %1, 1b\n"
-#elif defined(CONFIG_BMIPS5000)
-	/* set exception vector base */
-	"	la	%0, ebase\n"
-	"	lw	%0, 0(%0)\n"
-	"	mtc0	%0, $15, 1\n"
-	BARRIER()
-#endif
-
-	/* use temporary stack to set up upper memory TLB */
-	"	li	$29, 0x80000400\n"
-	"	la	%0, brcm_upper_tlb_setup\n"
-	"	jalr	%0\n"
-
-	/* switch to permanent stack and continue booting */
-	"	la	%0, smp_boot_sp\n"
-	"	lw	$29, 0(%0)\n"
-	"	la	%0, smp_boot_gp\n"
-	"	lw	$28, 0(%0)\n"
-	"	la	%0, start_secondary\n"
-	"	jr	%0\n"
-	"	.set	pop\n"
-	: "=&r" (tmp0), "=&r" (tmp1)
-	:
-	: "memory");
-}
-
-/* Tell the hardware to boot TP1 - runs on TP0 */
-static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
-{
 #if defined(CONFIG_BMIPS4380)
 	/* NBK and weak order flags */
 	set_c0_brcm_config_0(0x30000);
@@ -178,22 +87,51 @@ static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
 	/* send HW interrupt 0 to TP0, HW interrupt 1 to TP1 */
 	change_c0_brcm_mode(0x1f << 27, 0x02 << 27);
 #endif
+}
 
-	smp_boot_sp = __KSTK_TOS(idle);
-	smp_boot_gp = (unsigned long)task_thread_info(idle);
+static irqreturn_t brcmstb_ipi_interrupt(int irq, void *dev_id);
+
+/* IRQ setup - runs on TP0 */
+static void brcmstb_prepare_cpus(unsigned int max_cpus)
+{
+	if (request_irq(BRCM_IRQ_IPI0, brcmstb_ipi_interrupt, IRQF_DISABLED,
+			"smp_ipi_tp0", NULL))
+		panic("Can't request TP0 IPI interrupt\n");
+	if (request_irq(BRCM_IRQ_IPI1, brcmstb_ipi_interrupt, IRQF_DISABLED,
+			"smp_ipi_tp1", NULL))
+		panic("Can't request TP1 IPI interrupt\n");
+}
+
+/* Tell the hardware to boot TP1 - runs on TP0 */
+static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
+{
+	brcmstb_smp_boot_sp = __KSTK_TOS(idle);
+	brcmstb_smp_boot_gp = (unsigned long)task_thread_info(idle);
+	mb();
 
 	/*
-	 * TP1 boot sequence:
-	 *   a000_0000 (relocated reset vector) ->
-	 *   brcm_reset_nmi_vec (uncached jump) ->
-	 *   brcmstb_tp1_entry (uncached jump)
+	 * TP1 initial boot sequence:
+	 *   brcm_reset_nmi_vec @ a000_0000 ->
+	 *   brcmstb_tp1_entry ->
 	 *   brcm_upper_tlb_setup (cached function call) ->
 	 *   start_secondary (cached jump)
+	 *
+	 * TP1 warm restart sequence:
+	 *   play_dead WAIT loop ->
+	 *   brcm_tp1_int_vec @ BRCM_WARM_RESTART_VEC ->
+	 *   eret to play_dead ->
+	 *   brcmstb_tp1_reentry ->
+	 *   start_secondary
 	 * 
 	 * Vector relocation code is in arch/mips/brcmstb/prom.c
+	 * Actual boot vectors are in arch/mips/brcmstb/vector.S
 	 */
 
 	printk(KERN_INFO "SMP: Booting CPU%d...\n", cpu);
+
+	/* warm restart */
+	brcmstb_send_ipi_single(1, 0);
+
 #if defined(CONFIG_BMIPS4380)
 	set_c0_brcm_cmt_ctrl(0x01);
 #elif defined(CONFIG_BMIPS5000)
@@ -204,7 +142,16 @@ static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
 /* Early setup - runs on TP1 after cache probe */
 static void brcmstb_init_secondary(void)
 {
-	printk(KERN_INFO "SMP: CPU%d is running\n", smp_processor_id());
+#if defined(CONFIG_BMIPS4380)
+	unsigned long cbr = BMIPS_GET_CBR();
+	unsigned long old_vec = DEV_RD(cbr + BMIPS_RELO_VECTOR_CONTROL_1);
+
+	/* make sure the NMI vector is in kseg0 now that we've booted */
+	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_1, old_vec & ~0x20000000);
+#elif defined(CONFIG_BMIPS5000)
+	write_c0_brcm_bootvec(read_c0_brcm_bootvec() & ~0x20000000);
+#endif
+	brcmstb_ack_ipi(0);
 
 	write_c0_compare(read_c0_count() + mips_hpt_frequency / HZ);
 	set_c0_status(IE_SW0 | IE_SW1 | IE_IRQ1 | IE_IRQ5 | ST0_IE);
@@ -214,6 +161,7 @@ static void brcmstb_init_secondary(void)
 /* Late setup - runs on TP1 before entering the idle loop */
 static void brcmstb_smp_finish(void)
 {
+	printk(KERN_INFO "SMP: CPU%d is running\n", smp_processor_id());
 }
 
 /* Runs on TP0 after all CPUs have been booted */
@@ -233,7 +181,7 @@ static void brcmstb_send_ipi_single(int cpu, unsigned int action)
 	spin_unlock_irqrestore(&ipi_lock, flags);
 }
 
-static void brcmstb_ack_ipi(unsigned int action)
+static void brcmstb_ack_ipi(unsigned int irq)
 {
 	unsigned long flags;
 	spin_lock_irqsave(&ipi_lock, flags);
@@ -246,7 +194,6 @@ static void brcmstb_ack_ipi(unsigned int action)
 
 static void brcmstb_send_ipi_single(int cpu, unsigned int action)
 {
-	//unsigned int bit = (action == SMP_RESCHEDULE_YOURSELF) ? 0 : 1;
 	unsigned int bit = cpu;
 	write_c0_brcm_action(0x3000 | (bit << 8) | (cpu << 9));
 	irq_enable_hazard();
@@ -254,7 +201,6 @@ static void brcmstb_send_ipi_single(int cpu, unsigned int action)
 
 static void brcmstb_ack_ipi(unsigned int irq)
 {
-	//unsigned int bit = (irq == BRCM_IRQ_IPI0) ? 0 : 1;
 	unsigned int bit = smp_processor_id();
 	write_c0_brcm_action(0x2000 | (bit << 8) | (smp_processor_id() << 9));
 	irq_enable_hazard();
@@ -288,6 +234,56 @@ static irqreturn_t brcmstb_ipi_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+#ifdef CONFIG_HOTPLUG_CPU
+
+static int brcmstb_cpu_disable(void)
+{
+	unsigned int cpu = smp_processor_id();
+
+	if (cpu == 0)
+		return -EBUSY;
+
+	printk(KERN_INFO "SMP: CPU%d is offline\n", cpu);
+
+	cpu_clear(cpu, cpu_online_map);
+	cpu_clear(cpu, cpu_callin_map);
+
+	local_flush_tlb_all();
+	local_flush_icache_range(0, ~0);
+
+	return 0;
+}
+
+static void brcmstb_cpu_die(unsigned int cpu)
+{
+}
+
+void play_dead(void)
+{
+	idle_task_exit();
+
+	/*
+	 * Wakeup is on SW0 or SW1; disable everything else
+	 * Use BEV !IV (BRCM_WARM_RESTART_VEC) to avoid the regular Linux
+	 * IRQ handlers; this clears ST0_IE and returns immediately.
+	 */
+	clear_c0_cause(CAUSEF_IV | C_SW0 | C_SW1);
+	change_c0_status(IE_IRQ5 | IE_IRQ1 | IE_SW0 | IE_SW1 | ST0_IE | ST0_BEV,
+		IE_SW0 | IE_SW1 | ST0_IE | ST0_BEV);
+	irq_disable_hazard();
+
+	/*
+	 * wait for SW interrupt from brcmstb_boot_secondary(), then jump
+	 * back to start_secondary()
+	 */
+	__asm__ __volatile__(
+	"	wait\n"
+	"	j	brcmstb_tp1_reentry\n"
+	: : : "memory");
+}
+
+#endif /* CONFIG_HOTPLUG_CPU */
+
 struct plat_smp_ops brcmstb_smp_ops = {
 	.smp_setup		= brcmstb_smp_setup,
 	.prepare_cpus		= brcmstb_prepare_cpus,
@@ -297,4 +293,8 @@ struct plat_smp_ops brcmstb_smp_ops = {
 	.cpus_done		= brcmstb_cpus_done,
 	.send_ipi_single	= brcmstb_send_ipi_single,
 	.send_ipi_mask		= brcmstb_send_ipi_mask,
+#ifdef CONFIG_HOTPLUG_CPU
+	.cpu_disable		= brcmstb_cpu_disable,
+	.cpu_die		= brcmstb_cpu_die,
+#endif
 };

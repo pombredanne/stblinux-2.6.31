@@ -32,6 +32,7 @@
 #include <asm/ptrace.h>
 #include <asm/inst.h>
 #include <asm/bug.h>
+#include <asm/page.h>
 
 /***********************************************************************
  * Kernel hooks
@@ -54,6 +55,9 @@ void brcm_sync_for_cpu(unsigned long addr, size_t size,
 	enum dma_data_direction dir);
 unsigned long brcm_fixup_ticks(unsigned long delta);
 extern unsigned long brcm_adj_cpu_khz;
+int brcm_map_coherent(dma_addr_t dma_handle, void *cac_va, size_t size,
+	void **uncac_va, gfp_t gfp);
+void *brcm_unmap_coherent(void *vaddr);
 
 /***********************************************************************
  * BSP External API

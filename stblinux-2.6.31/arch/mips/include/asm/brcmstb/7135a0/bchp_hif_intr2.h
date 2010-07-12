@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:06:20 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Wed May 26 03:20:47 2010
+ *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -58,9 +58,17 @@
 /***************************************************************************
  *CPU_STATUS - CPU interrupt Status Register
  ***************************************************************************/
-/* HIF_INTR2 :: CPU_STATUS :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_CPU_STATUS_reserved0_MASK                   0xf0000000
-#define BCHP_HIF_INTR2_CPU_STATUS_reserved0_SHIFT                  28
+/* HIF_INTR2 :: CPU_STATUS :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_CPU_STATUS_reserved0_MASK                   0xc0000000
+#define BCHP_HIF_INTR2_CPU_STATUS_reserved0_SHIFT                  30
+
+/* HIF_INTR2 :: CPU_STATUS :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_CPU_STATUS_EDU_DONE_INTR_MASK               0x20000000
+#define BCHP_HIF_INTR2_CPU_STATUS_EDU_DONE_INTR_SHIFT              29
+
+/* HIF_INTR2 :: CPU_STATUS :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_CPU_STATUS_EDU_ERR_INTR_MASK                0x10000000
+#define BCHP_HIF_INTR2_CPU_STATUS_EDU_ERR_INTR_SHIFT               28
 
 /* HIF_INTR2 :: CPU_STATUS :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_CPU_STATUS_NAND_CORR_INTR_MASK              0x08000000
@@ -94,9 +102,9 @@
 #define BCHP_HIF_INTR2_CPU_STATUS_NAND_NP_READ_INTR_MASK           0x00100000
 #define BCHP_HIF_INTR2_CPU_STATUS_NAND_NP_READ_INTR_SHIFT          20
 
-/* HIF_INTR2 :: CPU_STATUS :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_CPU_STATUS_MICH_INST_RD_INTR_MASK           0x00080000
-#define BCHP_HIF_INTR2_CPU_STATUS_MICH_INST_RD_INTR_SHIFT          19
+/* HIF_INTR2 :: CPU_STATUS :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_CPU_STATUS_MICH_INST1_RD_INTR_MASK          0x00080000
+#define BCHP_HIF_INTR2_CPU_STATUS_MICH_INST1_RD_INTR_SHIFT         19
 
 /* HIF_INTR2 :: CPU_STATUS :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_CPU_STATUS_MICH_WR_INTR_MASK                0x00040000
@@ -110,8 +118,12 @@
 #define BCHP_HIF_INTR2_CPU_STATUS_EBI_TEA_INTR_MASK                0x00010000
 #define BCHP_HIF_INTR2_CPU_STATUS_EBI_TEA_INTR_SHIFT               16
 
-/* HIF_INTR2 :: CPU_STATUS :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_CPU_STATUS_reserved1_MASK                   0x0000fffe
+/* HIF_INTR2 :: CPU_STATUS :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_CPU_STATUS_MICH_INST0_RD_INTR_MASK          0x00008000
+#define BCHP_HIF_INTR2_CPU_STATUS_MICH_INST0_RD_INTR_SHIFT         15
+
+/* HIF_INTR2 :: CPU_STATUS :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_CPU_STATUS_reserved1_MASK                   0x00007ffe
 #define BCHP_HIF_INTR2_CPU_STATUS_reserved1_SHIFT                  1
 
 /* HIF_INTR2 :: CPU_STATUS :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -121,9 +133,17 @@
 /***************************************************************************
  *CPU_SET - CPU interrupt Set Register
  ***************************************************************************/
-/* HIF_INTR2 :: CPU_SET :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_CPU_SET_reserved0_MASK                      0xf0000000
-#define BCHP_HIF_INTR2_CPU_SET_reserved0_SHIFT                     28
+/* HIF_INTR2 :: CPU_SET :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_CPU_SET_reserved0_MASK                      0xc0000000
+#define BCHP_HIF_INTR2_CPU_SET_reserved0_SHIFT                     30
+
+/* HIF_INTR2 :: CPU_SET :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_CPU_SET_EDU_DONE_INTR_MASK                  0x20000000
+#define BCHP_HIF_INTR2_CPU_SET_EDU_DONE_INTR_SHIFT                 29
+
+/* HIF_INTR2 :: CPU_SET :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_CPU_SET_EDU_ERR_INTR_MASK                   0x10000000
+#define BCHP_HIF_INTR2_CPU_SET_EDU_ERR_INTR_SHIFT                  28
 
 /* HIF_INTR2 :: CPU_SET :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_CPU_SET_NAND_CORR_INTR_MASK                 0x08000000
@@ -157,9 +177,9 @@
 #define BCHP_HIF_INTR2_CPU_SET_NAND_NP_READ_INTR_MASK              0x00100000
 #define BCHP_HIF_INTR2_CPU_SET_NAND_NP_READ_INTR_SHIFT             20
 
-/* HIF_INTR2 :: CPU_SET :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_CPU_SET_MICH_INST_RD_INTR_MASK              0x00080000
-#define BCHP_HIF_INTR2_CPU_SET_MICH_INST_RD_INTR_SHIFT             19
+/* HIF_INTR2 :: CPU_SET :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_CPU_SET_MICH_INST1_RD_INTR_MASK             0x00080000
+#define BCHP_HIF_INTR2_CPU_SET_MICH_INST1_RD_INTR_SHIFT            19
 
 /* HIF_INTR2 :: CPU_SET :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_CPU_SET_MICH_WR_INTR_MASK                   0x00040000
@@ -173,8 +193,12 @@
 #define BCHP_HIF_INTR2_CPU_SET_EBI_TEA_INTR_MASK                   0x00010000
 #define BCHP_HIF_INTR2_CPU_SET_EBI_TEA_INTR_SHIFT                  16
 
-/* HIF_INTR2 :: CPU_SET :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_CPU_SET_reserved1_MASK                      0x0000fffe
+/* HIF_INTR2 :: CPU_SET :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_CPU_SET_MICH_INST0_RD_INTR_MASK             0x00008000
+#define BCHP_HIF_INTR2_CPU_SET_MICH_INST0_RD_INTR_SHIFT            15
+
+/* HIF_INTR2 :: CPU_SET :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_CPU_SET_reserved1_MASK                      0x00007ffe
 #define BCHP_HIF_INTR2_CPU_SET_reserved1_SHIFT                     1
 
 /* HIF_INTR2 :: CPU_SET :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -184,9 +208,17 @@
 /***************************************************************************
  *CPU_CLEAR - CPU interrupt Clear Register
  ***************************************************************************/
-/* HIF_INTR2 :: CPU_CLEAR :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_CPU_CLEAR_reserved0_MASK                    0xf0000000
-#define BCHP_HIF_INTR2_CPU_CLEAR_reserved0_SHIFT                   28
+/* HIF_INTR2 :: CPU_CLEAR :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_CPU_CLEAR_reserved0_MASK                    0xc0000000
+#define BCHP_HIF_INTR2_CPU_CLEAR_reserved0_SHIFT                   30
+
+/* HIF_INTR2 :: CPU_CLEAR :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_CPU_CLEAR_EDU_DONE_INTR_MASK                0x20000000
+#define BCHP_HIF_INTR2_CPU_CLEAR_EDU_DONE_INTR_SHIFT               29
+
+/* HIF_INTR2 :: CPU_CLEAR :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_CPU_CLEAR_EDU_ERR_INTR_MASK                 0x10000000
+#define BCHP_HIF_INTR2_CPU_CLEAR_EDU_ERR_INTR_SHIFT                28
 
 /* HIF_INTR2 :: CPU_CLEAR :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_CPU_CLEAR_NAND_CORR_INTR_MASK               0x08000000
@@ -220,9 +252,9 @@
 #define BCHP_HIF_INTR2_CPU_CLEAR_NAND_NP_READ_INTR_MASK            0x00100000
 #define BCHP_HIF_INTR2_CPU_CLEAR_NAND_NP_READ_INTR_SHIFT           20
 
-/* HIF_INTR2 :: CPU_CLEAR :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_CPU_CLEAR_MICH_INST_RD_INTR_MASK            0x00080000
-#define BCHP_HIF_INTR2_CPU_CLEAR_MICH_INST_RD_INTR_SHIFT           19
+/* HIF_INTR2 :: CPU_CLEAR :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_CPU_CLEAR_MICH_INST1_RD_INTR_MASK           0x00080000
+#define BCHP_HIF_INTR2_CPU_CLEAR_MICH_INST1_RD_INTR_SHIFT          19
 
 /* HIF_INTR2 :: CPU_CLEAR :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_CPU_CLEAR_MICH_WR_INTR_MASK                 0x00040000
@@ -236,8 +268,12 @@
 #define BCHP_HIF_INTR2_CPU_CLEAR_EBI_TEA_INTR_MASK                 0x00010000
 #define BCHP_HIF_INTR2_CPU_CLEAR_EBI_TEA_INTR_SHIFT                16
 
-/* HIF_INTR2 :: CPU_CLEAR :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_CPU_CLEAR_reserved1_MASK                    0x0000fffe
+/* HIF_INTR2 :: CPU_CLEAR :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_CPU_CLEAR_MICH_INST0_RD_INTR_MASK           0x00008000
+#define BCHP_HIF_INTR2_CPU_CLEAR_MICH_INST0_RD_INTR_SHIFT          15
+
+/* HIF_INTR2 :: CPU_CLEAR :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_CPU_CLEAR_reserved1_MASK                    0x00007ffe
 #define BCHP_HIF_INTR2_CPU_CLEAR_reserved1_SHIFT                   1
 
 /* HIF_INTR2 :: CPU_CLEAR :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -247,9 +283,17 @@
 /***************************************************************************
  *CPU_MASK_STATUS - CPU interrupt Mask Status Register
  ***************************************************************************/
-/* HIF_INTR2 :: CPU_MASK_STATUS :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved0_MASK              0xf0000000
-#define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved0_SHIFT             28
+/* HIF_INTR2 :: CPU_MASK_STATUS :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved0_MASK              0xc0000000
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved0_SHIFT             30
+
+/* HIF_INTR2 :: CPU_MASK_STATUS :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_EDU_DONE_INTR_MASK          0x20000000
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_EDU_DONE_INTR_SHIFT         29
+
+/* HIF_INTR2 :: CPU_MASK_STATUS :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_EDU_ERR_INTR_MASK           0x10000000
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_EDU_ERR_INTR_SHIFT          28
 
 /* HIF_INTR2 :: CPU_MASK_STATUS :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_NAND_CORR_INTR_MASK         0x08000000
@@ -283,9 +327,9 @@
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_NAND_NP_READ_INTR_MASK      0x00100000
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_NAND_NP_READ_INTR_SHIFT     20
 
-/* HIF_INTR2 :: CPU_MASK_STATUS :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_INST_RD_INTR_MASK      0x00080000
-#define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_INST_RD_INTR_SHIFT     19
+/* HIF_INTR2 :: CPU_MASK_STATUS :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_INST1_RD_INTR_MASK     0x00080000
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_INST1_RD_INTR_SHIFT    19
 
 /* HIF_INTR2 :: CPU_MASK_STATUS :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_WR_INTR_MASK           0x00040000
@@ -299,8 +343,12 @@
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_EBI_TEA_INTR_MASK           0x00010000
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_EBI_TEA_INTR_SHIFT          16
 
-/* HIF_INTR2 :: CPU_MASK_STATUS :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved1_MASK              0x0000fffe
+/* HIF_INTR2 :: CPU_MASK_STATUS :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_INST0_RD_INTR_MASK     0x00008000
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_MICH_INST0_RD_INTR_SHIFT    15
+
+/* HIF_INTR2 :: CPU_MASK_STATUS :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved1_MASK              0x00007ffe
 #define BCHP_HIF_INTR2_CPU_MASK_STATUS_reserved1_SHIFT             1
 
 /* HIF_INTR2 :: CPU_MASK_STATUS :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -310,9 +358,17 @@
 /***************************************************************************
  *CPU_MASK_SET - CPU interrupt Mask Set Register
  ***************************************************************************/
-/* HIF_INTR2 :: CPU_MASK_SET :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_CPU_MASK_SET_reserved0_MASK                 0xf0000000
-#define BCHP_HIF_INTR2_CPU_MASK_SET_reserved0_SHIFT                28
+/* HIF_INTR2 :: CPU_MASK_SET :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_CPU_MASK_SET_reserved0_MASK                 0xc0000000
+#define BCHP_HIF_INTR2_CPU_MASK_SET_reserved0_SHIFT                30
+
+/* HIF_INTR2 :: CPU_MASK_SET :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_CPU_MASK_SET_EDU_DONE_INTR_MASK             0x20000000
+#define BCHP_HIF_INTR2_CPU_MASK_SET_EDU_DONE_INTR_SHIFT            29
+
+/* HIF_INTR2 :: CPU_MASK_SET :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_CPU_MASK_SET_EDU_ERR_INTR_MASK              0x10000000
+#define BCHP_HIF_INTR2_CPU_MASK_SET_EDU_ERR_INTR_SHIFT             28
 
 /* HIF_INTR2 :: CPU_MASK_SET :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_CPU_MASK_SET_NAND_CORR_INTR_MASK            0x08000000
@@ -346,9 +402,9 @@
 #define BCHP_HIF_INTR2_CPU_MASK_SET_NAND_NP_READ_INTR_MASK         0x00100000
 #define BCHP_HIF_INTR2_CPU_MASK_SET_NAND_NP_READ_INTR_SHIFT        20
 
-/* HIF_INTR2 :: CPU_MASK_SET :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_INST_RD_INTR_MASK         0x00080000
-#define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_INST_RD_INTR_SHIFT        19
+/* HIF_INTR2 :: CPU_MASK_SET :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_INST1_RD_INTR_MASK        0x00080000
+#define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_INST1_RD_INTR_SHIFT       19
 
 /* HIF_INTR2 :: CPU_MASK_SET :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_WR_INTR_MASK              0x00040000
@@ -362,8 +418,12 @@
 #define BCHP_HIF_INTR2_CPU_MASK_SET_EBI_TEA_INTR_MASK              0x00010000
 #define BCHP_HIF_INTR2_CPU_MASK_SET_EBI_TEA_INTR_SHIFT             16
 
-/* HIF_INTR2 :: CPU_MASK_SET :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_CPU_MASK_SET_reserved1_MASK                 0x0000fffe
+/* HIF_INTR2 :: CPU_MASK_SET :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_INST0_RD_INTR_MASK        0x00008000
+#define BCHP_HIF_INTR2_CPU_MASK_SET_MICH_INST0_RD_INTR_SHIFT       15
+
+/* HIF_INTR2 :: CPU_MASK_SET :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_CPU_MASK_SET_reserved1_MASK                 0x00007ffe
 #define BCHP_HIF_INTR2_CPU_MASK_SET_reserved1_SHIFT                1
 
 /* HIF_INTR2 :: CPU_MASK_SET :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -373,9 +433,17 @@
 /***************************************************************************
  *CPU_MASK_CLEAR - CPU interrupt Mask Clear Register
  ***************************************************************************/
-/* HIF_INTR2 :: CPU_MASK_CLEAR :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved0_MASK               0xf0000000
-#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved0_SHIFT              28
+/* HIF_INTR2 :: CPU_MASK_CLEAR :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved0_MASK               0xc0000000
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved0_SHIFT              30
+
+/* HIF_INTR2 :: CPU_MASK_CLEAR :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_EDU_DONE_INTR_MASK           0x20000000
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_EDU_DONE_INTR_SHIFT          29
+
+/* HIF_INTR2 :: CPU_MASK_CLEAR :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_EDU_ERR_INTR_MASK            0x10000000
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_EDU_ERR_INTR_SHIFT           28
 
 /* HIF_INTR2 :: CPU_MASK_CLEAR :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_NAND_CORR_INTR_MASK          0x08000000
@@ -409,9 +477,9 @@
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_NAND_NP_READ_INTR_MASK       0x00100000
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_NAND_NP_READ_INTR_SHIFT      20
 
-/* HIF_INTR2 :: CPU_MASK_CLEAR :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_INST_RD_INTR_MASK       0x00080000
-#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_INST_RD_INTR_SHIFT      19
+/* HIF_INTR2 :: CPU_MASK_CLEAR :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_INST1_RD_INTR_MASK      0x00080000
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_INST1_RD_INTR_SHIFT     19
 
 /* HIF_INTR2 :: CPU_MASK_CLEAR :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_WR_INTR_MASK            0x00040000
@@ -425,8 +493,12 @@
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_EBI_TEA_INTR_MASK            0x00010000
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_EBI_TEA_INTR_SHIFT           16
 
-/* HIF_INTR2 :: CPU_MASK_CLEAR :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved1_MASK               0x0000fffe
+/* HIF_INTR2 :: CPU_MASK_CLEAR :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_INST0_RD_INTR_MASK      0x00008000
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_MICH_INST0_RD_INTR_SHIFT     15
+
+/* HIF_INTR2 :: CPU_MASK_CLEAR :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved1_MASK               0x00007ffe
 #define BCHP_HIF_INTR2_CPU_MASK_CLEAR_reserved1_SHIFT              1
 
 /* HIF_INTR2 :: CPU_MASK_CLEAR :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -436,9 +508,17 @@
 /***************************************************************************
  *PCI_STATUS - PCI interrupt Status Register
  ***************************************************************************/
-/* HIF_INTR2 :: PCI_STATUS :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_PCI_STATUS_reserved0_MASK                   0xf0000000
-#define BCHP_HIF_INTR2_PCI_STATUS_reserved0_SHIFT                  28
+/* HIF_INTR2 :: PCI_STATUS :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_PCI_STATUS_reserved0_MASK                   0xc0000000
+#define BCHP_HIF_INTR2_PCI_STATUS_reserved0_SHIFT                  30
+
+/* HIF_INTR2 :: PCI_STATUS :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_PCI_STATUS_EDU_DONE_INTR_MASK               0x20000000
+#define BCHP_HIF_INTR2_PCI_STATUS_EDU_DONE_INTR_SHIFT              29
+
+/* HIF_INTR2 :: PCI_STATUS :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_PCI_STATUS_EDU_ERR_INTR_MASK                0x10000000
+#define BCHP_HIF_INTR2_PCI_STATUS_EDU_ERR_INTR_SHIFT               28
 
 /* HIF_INTR2 :: PCI_STATUS :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_PCI_STATUS_NAND_CORR_INTR_MASK              0x08000000
@@ -472,9 +552,9 @@
 #define BCHP_HIF_INTR2_PCI_STATUS_NAND_NP_READ_INTR_MASK           0x00100000
 #define BCHP_HIF_INTR2_PCI_STATUS_NAND_NP_READ_INTR_SHIFT          20
 
-/* HIF_INTR2 :: PCI_STATUS :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_PCI_STATUS_MICH_INST_RD_INTR_MASK           0x00080000
-#define BCHP_HIF_INTR2_PCI_STATUS_MICH_INST_RD_INTR_SHIFT          19
+/* HIF_INTR2 :: PCI_STATUS :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_PCI_STATUS_MICH_INST1_RD_INTR_MASK          0x00080000
+#define BCHP_HIF_INTR2_PCI_STATUS_MICH_INST1_RD_INTR_SHIFT         19
 
 /* HIF_INTR2 :: PCI_STATUS :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_PCI_STATUS_MICH_WR_INTR_MASK                0x00040000
@@ -488,8 +568,12 @@
 #define BCHP_HIF_INTR2_PCI_STATUS_EBI_TEA_INTR_MASK                0x00010000
 #define BCHP_HIF_INTR2_PCI_STATUS_EBI_TEA_INTR_SHIFT               16
 
-/* HIF_INTR2 :: PCI_STATUS :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_PCI_STATUS_reserved1_MASK                   0x0000fffe
+/* HIF_INTR2 :: PCI_STATUS :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_PCI_STATUS_MICH_INST0_RD_INTR_MASK          0x00008000
+#define BCHP_HIF_INTR2_PCI_STATUS_MICH_INST0_RD_INTR_SHIFT         15
+
+/* HIF_INTR2 :: PCI_STATUS :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_PCI_STATUS_reserved1_MASK                   0x00007ffe
 #define BCHP_HIF_INTR2_PCI_STATUS_reserved1_SHIFT                  1
 
 /* HIF_INTR2 :: PCI_STATUS :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -499,9 +583,17 @@
 /***************************************************************************
  *PCI_SET - PCI interrupt Set Register
  ***************************************************************************/
-/* HIF_INTR2 :: PCI_SET :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_PCI_SET_reserved0_MASK                      0xf0000000
-#define BCHP_HIF_INTR2_PCI_SET_reserved0_SHIFT                     28
+/* HIF_INTR2 :: PCI_SET :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_PCI_SET_reserved0_MASK                      0xc0000000
+#define BCHP_HIF_INTR2_PCI_SET_reserved0_SHIFT                     30
+
+/* HIF_INTR2 :: PCI_SET :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_PCI_SET_EDU_DONE_INTR_MASK                  0x20000000
+#define BCHP_HIF_INTR2_PCI_SET_EDU_DONE_INTR_SHIFT                 29
+
+/* HIF_INTR2 :: PCI_SET :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_PCI_SET_EDU_ERR_INTR_MASK                   0x10000000
+#define BCHP_HIF_INTR2_PCI_SET_EDU_ERR_INTR_SHIFT                  28
 
 /* HIF_INTR2 :: PCI_SET :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_PCI_SET_NAND_CORR_INTR_MASK                 0x08000000
@@ -535,9 +627,9 @@
 #define BCHP_HIF_INTR2_PCI_SET_NAND_NP_READ_INTR_MASK              0x00100000
 #define BCHP_HIF_INTR2_PCI_SET_NAND_NP_READ_INTR_SHIFT             20
 
-/* HIF_INTR2 :: PCI_SET :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_PCI_SET_MICH_INST_RD_INTR_MASK              0x00080000
-#define BCHP_HIF_INTR2_PCI_SET_MICH_INST_RD_INTR_SHIFT             19
+/* HIF_INTR2 :: PCI_SET :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_PCI_SET_MICH_INST1_RD_INTR_MASK             0x00080000
+#define BCHP_HIF_INTR2_PCI_SET_MICH_INST1_RD_INTR_SHIFT            19
 
 /* HIF_INTR2 :: PCI_SET :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_PCI_SET_MICH_WR_INTR_MASK                   0x00040000
@@ -551,8 +643,12 @@
 #define BCHP_HIF_INTR2_PCI_SET_EBI_TEA_INTR_MASK                   0x00010000
 #define BCHP_HIF_INTR2_PCI_SET_EBI_TEA_INTR_SHIFT                  16
 
-/* HIF_INTR2 :: PCI_SET :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_PCI_SET_reserved1_MASK                      0x0000fffe
+/* HIF_INTR2 :: PCI_SET :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_PCI_SET_MICH_INST0_RD_INTR_MASK             0x00008000
+#define BCHP_HIF_INTR2_PCI_SET_MICH_INST0_RD_INTR_SHIFT            15
+
+/* HIF_INTR2 :: PCI_SET :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_PCI_SET_reserved1_MASK                      0x00007ffe
 #define BCHP_HIF_INTR2_PCI_SET_reserved1_SHIFT                     1
 
 /* HIF_INTR2 :: PCI_SET :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -562,9 +658,17 @@
 /***************************************************************************
  *PCI_CLEAR - PCI interrupt Clear Register
  ***************************************************************************/
-/* HIF_INTR2 :: PCI_CLEAR :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_PCI_CLEAR_reserved0_MASK                    0xf0000000
-#define BCHP_HIF_INTR2_PCI_CLEAR_reserved0_SHIFT                   28
+/* HIF_INTR2 :: PCI_CLEAR :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_PCI_CLEAR_reserved0_MASK                    0xc0000000
+#define BCHP_HIF_INTR2_PCI_CLEAR_reserved0_SHIFT                   30
+
+/* HIF_INTR2 :: PCI_CLEAR :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_PCI_CLEAR_EDU_DONE_INTR_MASK                0x20000000
+#define BCHP_HIF_INTR2_PCI_CLEAR_EDU_DONE_INTR_SHIFT               29
+
+/* HIF_INTR2 :: PCI_CLEAR :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_PCI_CLEAR_EDU_ERR_INTR_MASK                 0x10000000
+#define BCHP_HIF_INTR2_PCI_CLEAR_EDU_ERR_INTR_SHIFT                28
 
 /* HIF_INTR2 :: PCI_CLEAR :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_PCI_CLEAR_NAND_CORR_INTR_MASK               0x08000000
@@ -598,9 +702,9 @@
 #define BCHP_HIF_INTR2_PCI_CLEAR_NAND_NP_READ_INTR_MASK            0x00100000
 #define BCHP_HIF_INTR2_PCI_CLEAR_NAND_NP_READ_INTR_SHIFT           20
 
-/* HIF_INTR2 :: PCI_CLEAR :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_PCI_CLEAR_MICH_INST_RD_INTR_MASK            0x00080000
-#define BCHP_HIF_INTR2_PCI_CLEAR_MICH_INST_RD_INTR_SHIFT           19
+/* HIF_INTR2 :: PCI_CLEAR :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_PCI_CLEAR_MICH_INST1_RD_INTR_MASK           0x00080000
+#define BCHP_HIF_INTR2_PCI_CLEAR_MICH_INST1_RD_INTR_SHIFT          19
 
 /* HIF_INTR2 :: PCI_CLEAR :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_PCI_CLEAR_MICH_WR_INTR_MASK                 0x00040000
@@ -614,8 +718,12 @@
 #define BCHP_HIF_INTR2_PCI_CLEAR_EBI_TEA_INTR_MASK                 0x00010000
 #define BCHP_HIF_INTR2_PCI_CLEAR_EBI_TEA_INTR_SHIFT                16
 
-/* HIF_INTR2 :: PCI_CLEAR :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_PCI_CLEAR_reserved1_MASK                    0x0000fffe
+/* HIF_INTR2 :: PCI_CLEAR :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_PCI_CLEAR_MICH_INST0_RD_INTR_MASK           0x00008000
+#define BCHP_HIF_INTR2_PCI_CLEAR_MICH_INST0_RD_INTR_SHIFT          15
+
+/* HIF_INTR2 :: PCI_CLEAR :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_PCI_CLEAR_reserved1_MASK                    0x00007ffe
 #define BCHP_HIF_INTR2_PCI_CLEAR_reserved1_SHIFT                   1
 
 /* HIF_INTR2 :: PCI_CLEAR :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -625,9 +733,17 @@
 /***************************************************************************
  *PCI_MASK_STATUS - PCI interrupt Mask Status Register
  ***************************************************************************/
-/* HIF_INTR2 :: PCI_MASK_STATUS :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved0_MASK              0xf0000000
-#define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved0_SHIFT             28
+/* HIF_INTR2 :: PCI_MASK_STATUS :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved0_MASK              0xc0000000
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved0_SHIFT             30
+
+/* HIF_INTR2 :: PCI_MASK_STATUS :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_EDU_DONE_INTR_MASK          0x20000000
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_EDU_DONE_INTR_SHIFT         29
+
+/* HIF_INTR2 :: PCI_MASK_STATUS :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_EDU_ERR_INTR_MASK           0x10000000
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_EDU_ERR_INTR_SHIFT          28
 
 /* HIF_INTR2 :: PCI_MASK_STATUS :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_NAND_CORR_INTR_MASK         0x08000000
@@ -661,9 +777,9 @@
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_NAND_NP_READ_INTR_MASK      0x00100000
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_NAND_NP_READ_INTR_SHIFT     20
 
-/* HIF_INTR2 :: PCI_MASK_STATUS :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_INST_RD_INTR_MASK      0x00080000
-#define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_INST_RD_INTR_SHIFT     19
+/* HIF_INTR2 :: PCI_MASK_STATUS :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_INST1_RD_INTR_MASK     0x00080000
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_INST1_RD_INTR_SHIFT    19
 
 /* HIF_INTR2 :: PCI_MASK_STATUS :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_WR_INTR_MASK           0x00040000
@@ -677,8 +793,12 @@
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_EBI_TEA_INTR_MASK           0x00010000
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_EBI_TEA_INTR_SHIFT          16
 
-/* HIF_INTR2 :: PCI_MASK_STATUS :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved1_MASK              0x0000fffe
+/* HIF_INTR2 :: PCI_MASK_STATUS :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_INST0_RD_INTR_MASK     0x00008000
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_MICH_INST0_RD_INTR_SHIFT    15
+
+/* HIF_INTR2 :: PCI_MASK_STATUS :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved1_MASK              0x00007ffe
 #define BCHP_HIF_INTR2_PCI_MASK_STATUS_reserved1_SHIFT             1
 
 /* HIF_INTR2 :: PCI_MASK_STATUS :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -688,9 +808,17 @@
 /***************************************************************************
  *PCI_MASK_SET - PCI interrupt Mask Set Register
  ***************************************************************************/
-/* HIF_INTR2 :: PCI_MASK_SET :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_PCI_MASK_SET_reserved0_MASK                 0xf0000000
-#define BCHP_HIF_INTR2_PCI_MASK_SET_reserved0_SHIFT                28
+/* HIF_INTR2 :: PCI_MASK_SET :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_PCI_MASK_SET_reserved0_MASK                 0xc0000000
+#define BCHP_HIF_INTR2_PCI_MASK_SET_reserved0_SHIFT                30
+
+/* HIF_INTR2 :: PCI_MASK_SET :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_PCI_MASK_SET_EDU_DONE_INTR_MASK             0x20000000
+#define BCHP_HIF_INTR2_PCI_MASK_SET_EDU_DONE_INTR_SHIFT            29
+
+/* HIF_INTR2 :: PCI_MASK_SET :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_PCI_MASK_SET_EDU_ERR_INTR_MASK              0x10000000
+#define BCHP_HIF_INTR2_PCI_MASK_SET_EDU_ERR_INTR_SHIFT             28
 
 /* HIF_INTR2 :: PCI_MASK_SET :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_PCI_MASK_SET_NAND_CORR_INTR_MASK            0x08000000
@@ -724,9 +852,9 @@
 #define BCHP_HIF_INTR2_PCI_MASK_SET_NAND_NP_READ_INTR_MASK         0x00100000
 #define BCHP_HIF_INTR2_PCI_MASK_SET_NAND_NP_READ_INTR_SHIFT        20
 
-/* HIF_INTR2 :: PCI_MASK_SET :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_INST_RD_INTR_MASK         0x00080000
-#define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_INST_RD_INTR_SHIFT        19
+/* HIF_INTR2 :: PCI_MASK_SET :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_INST1_RD_INTR_MASK        0x00080000
+#define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_INST1_RD_INTR_SHIFT       19
 
 /* HIF_INTR2 :: PCI_MASK_SET :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_WR_INTR_MASK              0x00040000
@@ -740,8 +868,12 @@
 #define BCHP_HIF_INTR2_PCI_MASK_SET_EBI_TEA_INTR_MASK              0x00010000
 #define BCHP_HIF_INTR2_PCI_MASK_SET_EBI_TEA_INTR_SHIFT             16
 
-/* HIF_INTR2 :: PCI_MASK_SET :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_PCI_MASK_SET_reserved1_MASK                 0x0000fffe
+/* HIF_INTR2 :: PCI_MASK_SET :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_INST0_RD_INTR_MASK        0x00008000
+#define BCHP_HIF_INTR2_PCI_MASK_SET_MICH_INST0_RD_INTR_SHIFT       15
+
+/* HIF_INTR2 :: PCI_MASK_SET :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_PCI_MASK_SET_reserved1_MASK                 0x00007ffe
 #define BCHP_HIF_INTR2_PCI_MASK_SET_reserved1_SHIFT                1
 
 /* HIF_INTR2 :: PCI_MASK_SET :: HIF_RGR_BRIDGE_INTR [00:00] */
@@ -751,9 +883,17 @@
 /***************************************************************************
  *PCI_MASK_CLEAR - PCI interrupt Mask Clear Register
  ***************************************************************************/
-/* HIF_INTR2 :: PCI_MASK_CLEAR :: reserved0 [31:28] */
-#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved0_MASK               0xf0000000
-#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved0_SHIFT              28
+/* HIF_INTR2 :: PCI_MASK_CLEAR :: reserved0 [31:30] */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved0_MASK               0xc0000000
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved0_SHIFT              30
+
+/* HIF_INTR2 :: PCI_MASK_CLEAR :: EDU_DONE_INTR [29:29] */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_EDU_DONE_INTR_MASK           0x20000000
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_EDU_DONE_INTR_SHIFT          29
+
+/* HIF_INTR2 :: PCI_MASK_CLEAR :: EDU_ERR_INTR [28:28] */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_EDU_ERR_INTR_MASK            0x10000000
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_EDU_ERR_INTR_SHIFT           28
 
 /* HIF_INTR2 :: PCI_MASK_CLEAR :: NAND_CORR_INTR [27:27] */
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_NAND_CORR_INTR_MASK          0x08000000
@@ -787,9 +927,9 @@
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_NAND_NP_READ_INTR_MASK       0x00100000
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_NAND_NP_READ_INTR_SHIFT      20
 
-/* HIF_INTR2 :: PCI_MASK_CLEAR :: MICH_INST_RD_INTR [19:19] */
-#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_INST_RD_INTR_MASK       0x00080000
-#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_INST_RD_INTR_SHIFT      19
+/* HIF_INTR2 :: PCI_MASK_CLEAR :: MICH_INST1_RD_INTR [19:19] */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_INST1_RD_INTR_MASK      0x00080000
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_INST1_RD_INTR_SHIFT     19
 
 /* HIF_INTR2 :: PCI_MASK_CLEAR :: MICH_WR_INTR [18:18] */
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_WR_INTR_MASK            0x00040000
@@ -803,8 +943,12 @@
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_EBI_TEA_INTR_MASK            0x00010000
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_EBI_TEA_INTR_SHIFT           16
 
-/* HIF_INTR2 :: PCI_MASK_CLEAR :: reserved1 [15:01] */
-#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved1_MASK               0x0000fffe
+/* HIF_INTR2 :: PCI_MASK_CLEAR :: MICH_INST0_RD_INTR [15:15] */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_INST0_RD_INTR_MASK      0x00008000
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_MICH_INST0_RD_INTR_SHIFT     15
+
+/* HIF_INTR2 :: PCI_MASK_CLEAR :: reserved1 [14:01] */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved1_MASK               0x00007ffe
 #define BCHP_HIF_INTR2_PCI_MASK_CLEAR_reserved1_SHIFT              1
 
 /* HIF_INTR2 :: PCI_MASK_CLEAR :: HIF_RGR_BRIDGE_INTR [00:00] */

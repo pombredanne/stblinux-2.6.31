@@ -69,9 +69,7 @@ enum fixed_addresses {
  */
 #if defined(CONFIG_CPU_TX39XX) || defined(CONFIG_CPU_TX49XX)
 #define FIXADDR_TOP	((unsigned long)(long)(int)(0xff000000 - 0x20000))
-#elif defined(CONFIG_BMIPS3300)
-#define FIXADDR_TOP	((unsigned long)(long)(int)0xff1e0000)
-#else
+#elif !defined(FIXADDR_TOP)
 #define FIXADDR_TOP	((unsigned long)(long)(int)0xfffe0000)
 #endif
 #define FIXADDR_SIZE	(__end_of_fixed_addresses << PAGE_SHIFT)

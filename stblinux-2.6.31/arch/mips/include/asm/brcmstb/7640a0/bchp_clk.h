@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:56:27 2010
- *                 MD5 Checksum         2140f8c1f86e8a5296b6aebfc26dee55
+ * Date:           Generated on         Fri May 21 05:55:37 2010
+ *                 MD5 Checksum         bfa214424b884cfe265e19a04057f29f
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -51,8 +51,8 @@
 #define BCHP_CLK_WAKEUP_MASK                     0x00070020 /* Hardware power management wakeup masks. */
 #define BCHP_CLK_CRITICAL_CTRL                   0x00070024 /* Hardware power management critical control. */
 #define BCHP_CLK_CRITICAL_STATUS                 0x00070028 /* Hardware power management critical status. */
+#define BCHP_CLK_PWRDN_ENABLE                    0x0007002c /* AON PMSM powerdown enable */
 #define BCHP_CLK_REGULATOR_2P5_VOLTS             0x0007003c /* 2.5V Regulator Voltage Adjustment */
-#define BCHP_CLK_PWR_DAC_CTRL                    0x00070040 /* Power DAC Control */
 #define BCHP_CLK_SCRATCH                         0x00070070 /* clock_gen  Scratch register */
 #define BCHP_CLK_SYS0_EBI_DIV                    0x00070110 /* SYS0 PLL channel 3 EBI output clock divider settings */
 #define BCHP_CLK_SYS0_LOCK_CNT                   0x0007011c /* SYS0 PLL Lock Counter */
@@ -659,53 +659,37 @@
 /***************************************************************************
  *WAKEUP_STATUS - Hardware power management wakeup status.
  ***************************************************************************/
-/* CLK :: WAKEUP_STATUS :: reserved0 [31:03] */
-#define BCHP_CLK_WAKEUP_STATUS_reserved0_MASK                      0xfffffff8
-#define BCHP_CLK_WAKEUP_STATUS_reserved0_SHIFT                     3
+/* CLK :: WAKEUP_STATUS :: reserved0 [31:01] */
+#define BCHP_CLK_WAKEUP_STATUS_reserved0_MASK                      0xfffffffe
+#define BCHP_CLK_WAKEUP_STATUS_reserved0_SHIFT                     1
 
-/* CLK :: WAKEUP_STATUS :: ENET [02:02] */
-#define BCHP_CLK_WAKEUP_STATUS_ENET_MASK                           0x00000004
-#define BCHP_CLK_WAKEUP_STATUS_ENET_SHIFT                          2
-
-/* CLK :: WAKEUP_STATUS :: HDMI [01:01] */
-#define BCHP_CLK_WAKEUP_STATUS_HDMI_MASK                           0x00000002
-#define BCHP_CLK_WAKEUP_STATUS_HDMI_SHIFT                          1
-
-/* CLK :: WAKEUP_STATUS :: SUNDRY [00:00] */
-#define BCHP_CLK_WAKEUP_STATUS_SUNDRY_MASK                         0x00000001
-#define BCHP_CLK_WAKEUP_STATUS_SUNDRY_SHIFT                        0
+/* CLK :: WAKEUP_STATUS :: AON [00:00] */
+#define BCHP_CLK_WAKEUP_STATUS_AON_MASK                            0x00000001
+#define BCHP_CLK_WAKEUP_STATUS_AON_SHIFT                           0
 
 /***************************************************************************
  *WAKEUP_MASK - Hardware power management wakeup masks.
  ***************************************************************************/
-/* CLK :: WAKEUP_MASK :: reserved0 [31:03] */
-#define BCHP_CLK_WAKEUP_MASK_reserved0_MASK                        0xfffffff8
-#define BCHP_CLK_WAKEUP_MASK_reserved0_SHIFT                       3
+/* CLK :: WAKEUP_MASK :: reserved0 [31:01] */
+#define BCHP_CLK_WAKEUP_MASK_reserved0_MASK                        0xfffffffe
+#define BCHP_CLK_WAKEUP_MASK_reserved0_SHIFT                       1
 
-/* CLK :: WAKEUP_MASK :: ENET [02:02] */
-#define BCHP_CLK_WAKEUP_MASK_ENET_MASK                             0x00000004
-#define BCHP_CLK_WAKEUP_MASK_ENET_SHIFT                            2
-#define BCHP_CLK_WAKEUP_MASK_ENET_Disable                          0
-#define BCHP_CLK_WAKEUP_MASK_ENET_Enable                           1
-
-/* CLK :: WAKEUP_MASK :: HDMI [01:01] */
-#define BCHP_CLK_WAKEUP_MASK_HDMI_MASK                             0x00000002
-#define BCHP_CLK_WAKEUP_MASK_HDMI_SHIFT                            1
-#define BCHP_CLK_WAKEUP_MASK_HDMI_Disable                          0
-#define BCHP_CLK_WAKEUP_MASK_HDMI_Enable                           1
-
-/* CLK :: WAKEUP_MASK :: SUNDRY [00:00] */
-#define BCHP_CLK_WAKEUP_MASK_SUNDRY_MASK                           0x00000001
-#define BCHP_CLK_WAKEUP_MASK_SUNDRY_SHIFT                          0
-#define BCHP_CLK_WAKEUP_MASK_SUNDRY_Disable                        0
-#define BCHP_CLK_WAKEUP_MASK_SUNDRY_Enable                         1
+/* CLK :: WAKEUP_MASK :: AON [00:00] */
+#define BCHP_CLK_WAKEUP_MASK_AON_MASK                              0x00000001
+#define BCHP_CLK_WAKEUP_MASK_AON_SHIFT                             0
+#define BCHP_CLK_WAKEUP_MASK_AON_Disable                           0
+#define BCHP_CLK_WAKEUP_MASK_AON_Enable                            1
 
 /***************************************************************************
  *CRITICAL_CTRL - Hardware power management critical control.
  ***************************************************************************/
-/* CLK :: CRITICAL_CTRL :: reserved0 [31:02] */
-#define BCHP_CLK_CRITICAL_CTRL_reserved0_MASK                      0xfffffffc
-#define BCHP_CLK_CRITICAL_CTRL_reserved0_SHIFT                     2
+/* CLK :: CRITICAL_CTRL :: reserved0 [31:03] */
+#define BCHP_CLK_CRITICAL_CTRL_reserved0_MASK                      0xfffffff8
+#define BCHP_CLK_CRITICAL_CTRL_reserved0_SHIFT                     3
+
+/* CLK :: CRITICAL_CTRL :: DDR_PHY_SLEEP [02:02] */
+#define BCHP_CLK_CRITICAL_CTRL_DDR_PHY_SLEEP_MASK                  0x00000004
+#define BCHP_CLK_CRITICAL_CTRL_DDR_PHY_SLEEP_SHIFT                 2
 
 /* CLK :: CRITICAL_CTRL :: MIPS_POWER_INTR [01:01] */
 #define BCHP_CLK_CRITICAL_CTRL_MIPS_POWER_INTR_MASK                0x00000002
@@ -727,6 +711,17 @@
 #define BCHP_CLK_CRITICAL_STATUS_TIMEOUT_ERR_SHIFT                 0
 
 /***************************************************************************
+ *PWRDN_ENABLE - AON PMSM powerdown enable
+ ***************************************************************************/
+/* CLK :: PWRDN_ENABLE :: reserved0 [31:01] */
+#define BCHP_CLK_PWRDN_ENABLE_reserved0_MASK                       0xfffffffe
+#define BCHP_CLK_PWRDN_ENABLE_reserved0_SHIFT                      1
+
+/* CLK :: PWRDN_ENABLE :: AON_STANDBY_ENABLE [00:00] */
+#define BCHP_CLK_PWRDN_ENABLE_AON_STANDBY_ENABLE_MASK              0x00000001
+#define BCHP_CLK_PWRDN_ENABLE_AON_STANDBY_ENABLE_SHIFT             0
+
+/***************************************************************************
  *REGULATOR_2P5_VOLTS - 2.5V Regulator Voltage Adjustment
  ***************************************************************************/
 /* CLK :: REGULATOR_2P5_VOLTS :: reserved0 [31:04] */
@@ -736,29 +731,6 @@
 /* CLK :: REGULATOR_2P5_VOLTS :: ADJUST [03:00] */
 #define BCHP_CLK_REGULATOR_2P5_VOLTS_ADJUST_MASK                   0x0000000f
 #define BCHP_CLK_REGULATOR_2P5_VOLTS_ADJUST_SHIFT                  0
-
-/***************************************************************************
- *PWR_DAC_CTRL - Power DAC Control
- ***************************************************************************/
-/* CLK :: PWR_DAC_CTRL :: HIGHZ [31:31] */
-#define BCHP_CLK_PWR_DAC_CTRL_HIGHZ_MASK                           0x80000000
-#define BCHP_CLK_PWR_DAC_CTRL_HIGHZ_SHIFT                          31
-#define BCHP_CLK_PWR_DAC_CTRL_HIGHZ_Highz                          1
-#define BCHP_CLK_PWR_DAC_CTRL_HIGHZ_Active                         0
-
-/* CLK :: PWR_DAC_CTRL :: PWRDN [30:30] */
-#define BCHP_CLK_PWR_DAC_CTRL_PWRDN_MASK                           0x40000000
-#define BCHP_CLK_PWR_DAC_CTRL_PWRDN_SHIFT                          30
-#define BCHP_CLK_PWR_DAC_CTRL_PWRDN_Normal                         0
-#define BCHP_CLK_PWR_DAC_CTRL_PWRDN_Power_Down                     1
-
-/* CLK :: PWR_DAC_CTRL :: reserved0 [29:10] */
-#define BCHP_CLK_PWR_DAC_CTRL_reserved0_MASK                       0x3ffffc00
-#define BCHP_CLK_PWR_DAC_CTRL_reserved0_SHIFT                      10
-
-/* CLK :: PWR_DAC_CTRL :: DATA [09:00] */
-#define BCHP_CLK_PWR_DAC_CTRL_DATA_MASK                            0x000003ff
-#define BCHP_CLK_PWR_DAC_CTRL_DATA_SHIFT                           0
 
 /***************************************************************************
  *SCRATCH - clock_gen  Scratch register

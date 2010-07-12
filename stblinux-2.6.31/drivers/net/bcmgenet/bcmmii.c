@@ -115,7 +115,6 @@ void mii_setup(struct net_device *dev)
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd ;
 	volatile uniMacRegs * umac = pDevCtrl->umac;
-	int bmcr;
 
 	TRACE(("%s: %s\n", __FUNCTION__, netif_carrier_ok(pDevCtrl->dev)? "netif_carrier_on":"netif_carrier_off"));
 	if(pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
@@ -124,14 +123,6 @@ void mii_setup(struct net_device *dev)
 		netif_carrier_on(pDevCtrl->dev);
 		pDevCtrl->dev->flags |= IFF_RUNNING;
 		return ;
-	}
-
-	/* Enable autoneg if it's not */
-	bmcr = mii_read(dev, pDevCtrl->phyAddr, MII_BMCR);
-	if(!(bmcr & BMCR_ANENABLE)) {
-		bmcr |= BMCR_ANENABLE;
-		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr);
-		mii_nway_restart(&pDevCtrl->mii);
 	}
 
 	mii_ethtool_gset(&pDevCtrl->mii, &ecmd);
@@ -153,7 +144,7 @@ void mii_setup(struct net_device *dev)
 	 * program UMAC and RGMII block accordingly, if the PHY is 
 	 * not capable of in-band signaling.
 	 */
-	if(pDevCtrl->phyType != BRCM_PHY_TYPE_EXT_GMII_IBS)
+	if (pDevCtrl->phyType != BRCM_PHY_TYPE_EXT_RGMII_IBS)
 	{
 		GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~OOB_DISABLE;
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_LINK;
@@ -181,8 +172,8 @@ void mii_setup(struct net_device *dev)
 			umac->cmd |= CMD_RX_PAUSE_IGNORE;
 			umac->cmd |= CMD_TX_PAUSE_IGNORE;
 		}
-	}else if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII ||
-			pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII_IBS)
+	} else if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
+			pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS)
 	{
 		unsigned int val;
     	val = mii_read(dev, pDevCtrl->phyAddr, MII_BRCM_AUX_STAT_SUM);
@@ -198,6 +189,7 @@ int mii_init(struct net_device *dev)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
     volatile uniMacRegs *umac;
+	int bmcr;
 
     umac = pDevCtrl->umac;
 	pDevCtrl->mii.phy_id = pDevCtrl->phyAddr;
@@ -207,6 +199,8 @@ int mii_init(struct net_device *dev)
 	pDevCtrl->mii.mdio_read = mii_read;
 	pDevCtrl->mii.mdio_write = mii_write;
 
+	/* Enable autoneg if it's not */
+	bmcr = mii_read(dev, pDevCtrl->phyAddr, MII_BMCR);
     switch(pDevCtrl->phyType) {
 
 		case BRCM_PHY_TYPE_INT:
@@ -225,16 +219,18 @@ int mii_init(struct net_device *dev)
 		case BRCM_PHY_TYPE_EXT_MII:
 			pDevCtrl->mii.supports_gmii = 0;
 			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_EPHY;
+			mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr|MII_BMCR);
 			printk(KERN_INFO "Config EPHY through MDIO\n");
             break;
-		case BRCM_PHY_TYPE_EXT_GMII:
+		case BRCM_PHY_TYPE_EXT_RGMII:
 			GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
 			GENET_RGMII_OOB_CTRL(pDevCtrl) |= (1 << 16);	/* Don't shift tx clock by 90 degree */
 			pDevCtrl->mii.supports_gmii = 1;
 			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
+			mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr|MII_BMCR);
 			printk(KERN_INFO "Config GPHY through MDIO\n");
             break;
-		case BRCM_PHY_TYPE_EXT_GMII_IBS:
+		case BRCM_PHY_TYPE_EXT_RGMII_IBS:
 			GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
 			GENET_RGMII_OOB_CTRL(pDevCtrl) |= (1 << 16);
 			/* Use in-band signaling for auto config.*/
@@ -242,6 +238,7 @@ int mii_init(struct net_device *dev)
 			umac->cmd |= CMD_AUTO_CONFIG;
 			pDevCtrl->mii.supports_gmii = 1;
 			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
+			mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr|MII_BMCR);
 			printk(KERN_INFO "Automatic Config GPHY \n");
             break;
 		case BRCM_PHY_TYPE_MOCA:

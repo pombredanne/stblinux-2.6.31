@@ -27,14 +27,9 @@
 #include <asm/debug.h>
 #include <asm/brcmstb/brcmstb.h>
 
-/* NOTE: all PHYSICAL addresses */
-#define PCI_MEM_START		0xd0000000
-#define PCI_MEM_SIZE		0x20000000
+#include <spaces.h>
 
-/* this is really 0x60000 long, but 32k ought to be enough for anyone */
-#define PCI_IO_START		0xf0000000
-#define PCI_IO_SIZE		0x00008000
-#define PCI_IO_ACTUAL_SIZE	0x00600000
+/* NOTE: all PHYSICAL addresses */
 
 #if defined(BCHP_PCIX_BRIDGE_GRB_REG_START)
 #define SATA_MEM_START		(BCHP_PCIX_BRIDGE_GRB_REG_START + 0x10010000)
@@ -43,12 +38,7 @@
 #endif
 #define SATA_MEM_SIZE		0x00010000
 
-#define PCIE_MEM_START		0xa0000000
-#define PCIE_MEM_SIZE		0x20000000
-
 /* internal controller registers for configuration reads/writes */
-#define PCI_IO_REG_START	0xf0600000
-#define PCI_IO_REG_SIZE		0x0000000c
 #define PCI_CFG_INDEX		0x04
 #define PCI_CFG_DATA		0x08
 
@@ -61,8 +51,6 @@
 #define SATA_CFG_INDEX		0x00
 #define SATA_CFG_DATA		0x04
 
-#define PCIE_IO_REG_START	0xf1000000
-#define PCIE_IO_REG_SIZE	0x00000020
 #define PCIE_CFG_INDEX		0x00
 #define PCIE_CFG_DATA		0x04
 
@@ -72,16 +60,30 @@
 #define BRCM_BUSNO_PCIE		0x02
 
 #if defined(CONFIG_BCM7420)
+
+/* 7420 uses the legacy register names */
+
+#define BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL BCHP_HIF_TOP_CTRL_MWIN_CTRL
+
 #define SET_BRIDGE_RESET(x)	\
 	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_BRIDGE_SW_RESET, (x))
 #define SET_PERST(x)		\
 	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_SW_PERST, (x))
-#else
+
+#define PCIE_IO_REG_START	_AC(0xf1000000, UL)
+#define PCIE_IO_REG_SIZE	_AC(0x00000020, UL)
+
+#else /* defined(CONFIG_BCM7420) */
+
 #define SET_BRIDGE_RESET(x)	\
 	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_BRIDGE_SW_INIT, (x))
 #define SET_PERST(x)		\
 	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_SW_PERST, (x))
-#endif
+
+#define PCIE_IO_REG_START	BCHP_PCIE_EXT_CFG_REG_START
+#define PCIE_IO_REG_SIZE	0x00000008
+
+#endif /* defined(CONFIG_BCM7420) */
 
 static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 *data);
@@ -290,12 +292,9 @@ static inline void brcm_setup_pci_bridge(void)
 	BDEV_WR(BCHP_PCI_CFG_CPU_2_PCI_IO_WIN1, 0x00200000 | MMIO_ENDIAN);
 	BDEV_WR(BCHP_PCI_CFG_CPU_2_PCI_IO_WIN2, 0x00400000 | MMIO_ENDIAN);
 
+#ifdef BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL
 	/* force PCI->SDRAM window to 1GB on reduced-strap chips */
-#if defined(BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL)
 	BDEV_WR_RB(BCHP_HIF_TOP_CTRL_PCI_MWIN_CTRL, 0x1);
-#elif defined(BCHP_HIF_TOP_CTRL_MWIN_CTRL)
-	/* alternate spelling on 7420 */
-	BDEV_WR_RB(BCHP_HIF_TOP_CTRL_MWIN_CTRL, 0x1);
 #endif
 
 	BDEV_WR(BCHP_PCI_CFG_MEMORY_BASE_W0, 0xfffffff0);
@@ -376,9 +375,17 @@ void brcm_early_pcie_setup(void)
 		PCIE_MEM_START + 0x18000000 + MMIO_ENDIAN);
 	BDEV_WR(BCHP_PCIE_MISC_CPU_2_PCIE_MEM_WIN3_HI, 0);
 
+#if defined(CONFIG_BRCM_HAS_2GB_MEMC0)
+	/* set up 4GB PCIE->SCB memory window on BAR2 */
+	BDEV_WR(BCHP_PCIE_MISC_RC_BAR2_CONFIG_LO, 0x00000011);
+	BDEV_WR(BCHP_PCIE_MISC_RC_BAR2_CONFIG_HI, 0x00000000);
+	BDEV_WR_F(PCIE_MISC_MISC_CTRL, SCB0_SIZE, 0x10);
+	BDEV_WR_F(PCIE_MISC_MISC_CTRL, SCB1_SIZE, 0x0f);
+#else
 	/* set up 1GB PCIE->SCB memory window on BAR2 */
 	BDEV_WR(BCHP_PCIE_MISC_RC_BAR2_CONFIG_LO, 0x0000000f);
 	BDEV_WR(BCHP_PCIE_MISC_RC_BAR2_CONFIG_HI, 0x00000000);
+#endif
 
 	/* disable PCIE->GISB window */
 	BDEV_WR(BCHP_PCIE_MISC_RC_BAR1_CONFIG_LO, 0x00000000);
@@ -419,7 +426,12 @@ static inline void brcm_setup_pcie_bridge(void)
 	BDEV_WR(BCHP_PCIE_RC_CFG_TYPE1_STATUS_COMMAND, 0x6);
 
 	/* set base/limit for outbound transactions */
+#if defined(CONFIG_BRCM_HAS_2GB_MEMC0)
+	BDEV_WR(BCHP_PCIE_RC_CFG_TYPE1_RC_MEM_BASE_LIMIT, 0xeff0d000);
+#else
 	BDEV_WR(BCHP_PCIE_RC_CFG_TYPE1_RC_MEM_BASE_LIMIT, 0xbff0a000);
+#endif
+
 	/* disable the prefetch range */
 	BDEV_WR(BCHP_PCIE_RC_CFG_TYPE1_RC_PREF_BASE_LIMIT, 0x0000fff0);
 
@@ -655,14 +667,12 @@ DECLARE_PCI_FIXUP_EARLY(PCI_ANY_ID, PCI_ANY_ID, brcm_pcibios_fixup);
  ***********************************************************************/
 
 /*
- * There is a 256MB hole at 1000_0000 in the system memory map.  So the
- * first 256MB of RAM starts at PA 0000_0000, but the remaining memory starts
- * at PA 2000_0000 instead of 1000_0000.
+ * PCI2.3 and PCIe inbound BARs collapse the "holes" in the chip's SCB
+ * address space.  SATA PCI/PCI-X does not.  Therefore the PCI addresses
+ * need to be adjusted as they will not match the SCB addresses (MIPS
+ * physical addresses).
  *
- * On PCI2.3 and PCIe, but not on PCI-X, the two memory regions are
- * made contiguous in hardware to avoid making the PCI window 256MB larger
- * than it needs to be.  Therefore, we need to adjust the bus addresses
- * in this case because they will not match our Linux physical addresses.
+ * The address maps can be found in <asm/mach-brcmstb/spaces.h> .
  */
 
 static int dev_collapses_memory_hole(struct device *dev)
@@ -688,9 +698,12 @@ static int dev_collapses_memory_hole(struct device *dev)
 
 static dma_addr_t brcm_phys_to_pci(struct device *dev, unsigned long phys)
 {
-	if (dev_collapses_memory_hole(dev) &&
-	    (phys >= (BRCM_PCI_HOLE_START + BRCM_PCI_HOLE_SIZE)))
-		phys -= BRCM_PCI_HOLE_SIZE;
+	if (!dev_collapses_memory_hole(dev))
+		return phys;
+	if (phys >= MEMC1_START)
+		return phys - MEMC1_PCI_OFFSET;
+	if (phys >= (BRCM_PCI_HOLE_START + BRCM_PCI_HOLE_SIZE))
+		return phys - BRCM_PCI_HOLE_SIZE;
 	return phys;
 }
 
@@ -706,8 +719,11 @@ dma_addr_t plat_map_dma_mem_page(struct device *dev, struct page *page)
 
 unsigned long plat_dma_addr_to_phys(struct device *dev, dma_addr_t dma_addr)
 {
-	if (dev_collapses_memory_hole(dev) &&
-	    (dma_addr >= BRCM_PCI_HOLE_START))
-		dma_addr += BRCM_PCI_HOLE_SIZE;
+	if (!dev_collapses_memory_hole(dev))
+		return dma_addr;
+	if (dma_addr >= (MEMC1_START - MEMC1_PCI_OFFSET))
+		return dma_addr + MEMC1_PCI_OFFSET;
+	if (dma_addr >= BRCM_PCI_HOLE_START)
+		return dma_addr + BRCM_PCI_HOLE_SIZE;
 	return dma_addr;
 }

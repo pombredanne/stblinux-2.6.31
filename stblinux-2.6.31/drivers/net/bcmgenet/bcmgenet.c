@@ -523,8 +523,8 @@ static int bcmgenet_open(struct net_device * dev)
 	pDevCtrl->txDma->tdma_ctrl |= (1 << (DMA_RING_DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN);
 
 	if(pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
-		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII ||
-		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII_IBS)
+		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
+		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS)
 	{
 		mod_timer(&pDevCtrl->timer, jiffies);
 	}
@@ -583,8 +583,8 @@ static int bcmgenet_close(struct net_device * dev)
 	bcmgenet_xmit(NULL, dev);
 
 	if(pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
-		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII ||
-		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII_IBS)
+		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
+		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS)
 	{
 		del_timer_sync(&pDevCtrl->timer);
 		cancel_work_sync(&pDevCtrl->bcmgenet_link_work);
@@ -1383,6 +1383,9 @@ static int bcmgenet_ring_poll(struct napi_struct * napi, int budget)
 static void bcmgenet_irq_task(struct work_struct * work)
 {
     BcmEnet_devctrl *pDevCtrl = container_of(work, struct BcmEnet_devctrl, bcmgenet_irq_work);
+	struct net_device *dev;
+
+	dev = pDevCtrl->dev;
 
 	TRACE(("%s\n", __FUNCTION__));
 	/* Cable plugged/unplugged event */
@@ -1390,6 +1393,32 @@ static void bcmgenet_irq_task(struct work_struct * work)
 		pDevCtrl->irq0_stat &= ~UMAC_IRQ_PHY_DET_R;
 		printk(KERN_CRIT "%s cable plugged in, powering up\n", pDevCtrl->dev->name);
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_CABLE_SENSE);
+#ifdef CONFIG_BCM35230A0
+		/* PHY bug workaround - A0 only */
+
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
+			BMCR_RESET);
+		mdelay(10);
+
+		/* disable APD */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1b, 0x5001);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+		/* 2's complement for ADC */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5556);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+		/* signal detect CM control; disable PGA strobe mask */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+		/* restart autonegotiation */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100);
+#endif
 
 	}else if (pDevCtrl->irq0_stat & UMAC_IRQ_PHY_DET_F) {
 		pDevCtrl->irq0_stat &= ~UMAC_IRQ_PHY_DET_F;
@@ -1980,7 +2009,7 @@ static int init_umac(BcmEnet_devctrl *pDevCtrl)
 		/*GENET bug */
 		pDevCtrl->ext->ext_pwr_mgmt |= EXT_ENERGY_DET_MASK;
 	}else if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
-			pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII)
+			pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII)
 	{
 		intrl2->cpu_mask_clear |= UMAC_IRQ_LINK_DOWN | UMAC_IRQ_LINK_UP ;
 
@@ -2952,6 +2981,11 @@ static int bcmgenet_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 		u_data = (struct acpi_data *)rq->ifr_data;
 		val = bcmgenet_read_hfb(dev, u_data);
 		break;
+ 	case SIOCGMIIPHY:
+ 	case SIOCGMIIREG:
+ 	case SIOCSMIIREG:
+ 		val = generic_mii_ioctl(&pDevCtrl->mii, if_mii(rq), cmd, NULL);
+ 		break;
 	default:
 		val = -EINVAL;
 		break;
@@ -3081,14 +3115,40 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	netif_carrier_off(pDevCtrl->dev);
 
 	if(pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
-		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII ||
-		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_GMII_IBS)
+		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
+		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS)
 	{
 		INIT_WORK(&pDevCtrl->bcmgenet_link_work, bcmgenet_gphy_link_status);
 		init_timer(&pDevCtrl->timer);
 		pDevCtrl->timer.data = (unsigned long)pDevCtrl;
 		pDevCtrl->timer.function = bcmgenet_gphy_link_timer;
-	}else {
+	} else {
+#ifdef CONFIG_BCM35230A0
+		/* PHY bug workaround - A0 only */
+
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
+			BMCR_RESET);
+		mdelay(10);
+
+		/* disable APD */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1b, 0x5001);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+		/* 2's complement for ADC */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5556);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+		/* signal detect CM control; disable PGA strobe mask */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+		/* restart autonegotiation */
+		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100);
+#endif
 		/* check link status */
 		mii_setup(dev);
 	}

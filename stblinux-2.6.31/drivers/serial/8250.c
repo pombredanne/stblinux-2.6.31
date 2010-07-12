@@ -578,7 +578,7 @@ static inline int _serial_dl_read(struct uart_8250_port *up)
 /* Uart divisor latch write */
 static inline void _serial_dl_write(struct uart_8250_port *up, int value)
 {
-#if !defined(CONFIG_BRCM_IKOS)
+#if !defined(CONFIG_BRCM_IKOS) && !defined(CONFIG_BRCM_HAS_PCU_UARTS)
 	serial_outp(up, UART_DLL, value & 0xff);
 	serial_outp(up, UART_DLM, value >> 8 & 0xff);
 #endif

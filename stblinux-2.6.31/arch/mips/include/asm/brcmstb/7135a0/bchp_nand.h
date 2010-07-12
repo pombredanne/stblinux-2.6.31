@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:16:26 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Wed May 26 03:34:59 2010
+ *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -199,17 +199,17 @@
 #define BCHP_NAND_CS_NAND_SELECT_AUTO_DEVICE_ID_CONFIG_MASK        0x40000000
 #define BCHP_NAND_CS_NAND_SELECT_AUTO_DEVICE_ID_CONFIG_SHIFT       30
 
-/* NAND :: CS_NAND_SELECT :: reserved0 [29:29] */
-#define BCHP_NAND_CS_NAND_SELECT_reserved0_MASK                    0x20000000
-#define BCHP_NAND_CS_NAND_SELECT_reserved0_SHIFT                   29
+/* NAND :: CS_NAND_SELECT :: NAND_WP [29:29] */
+#define BCHP_NAND_CS_NAND_SELECT_NAND_WP_MASK                      0x20000000
+#define BCHP_NAND_CS_NAND_SELECT_NAND_WP_SHIFT                     29
 
 /* NAND :: CS_NAND_SELECT :: WR_PROTECT_BLK0 [28:28] */
 #define BCHP_NAND_CS_NAND_SELECT_WR_PROTECT_BLK0_MASK              0x10000000
 #define BCHP_NAND_CS_NAND_SELECT_WR_PROTECT_BLK0_SHIFT             28
 
-/* NAND :: CS_NAND_SELECT :: reserved1 [27:16] */
-#define BCHP_NAND_CS_NAND_SELECT_reserved1_MASK                    0x0fff0000
-#define BCHP_NAND_CS_NAND_SELECT_reserved1_SHIFT                   16
+/* NAND :: CS_NAND_SELECT :: reserved0 [27:16] */
+#define BCHP_NAND_CS_NAND_SELECT_reserved0_MASK                    0x0fff0000
+#define BCHP_NAND_CS_NAND_SELECT_reserved0_SHIFT                   16
 
 /* NAND :: CS_NAND_SELECT :: EBI_CS_7_USES_NAND [15:15] */
 #define BCHP_NAND_CS_NAND_SELECT_EBI_CS_7_USES_NAND_MASK           0x00008000

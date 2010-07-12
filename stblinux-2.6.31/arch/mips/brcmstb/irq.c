@@ -378,6 +378,11 @@ void __init arch_init_irq(void)
 		);
 #endif
 
+#if defined(CONFIG_BRCM_HAS_PCU_UARTS)
+	BDEV_WR(BCHP_TVM_MAIN_INT_CNTL, 0);
+	BDEV_WR_F(TVM_MAIN_INT_CNTL, MAIN_UART1_INT_EN, 1);
+#endif
+
 #else /* CONFIG_BRCM_SHARED_UART_IRQ */
 
 	/* Set up all UPG L2 interrupts */

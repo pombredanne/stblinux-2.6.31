@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 02:58:38 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Wed May 26 03:12:31 2010
+ *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -448,8 +448,6 @@
 #define BCHP_SYS_TOP_CTRL_SEC_REG_END                      0x0040e704
 #define BCHP_AON_CTRL_SECURE_REG_START                     0x0040e800
 #define BCHP_AON_CTRL_SECURE_REG_END                       0x0040e830
-#define BCHP_MISB_BRIDGE_REG_START                         0x00440400
-#define BCHP_MISB_BRIDGE_REG_END                           0x00440408
 #define BCHP_EBI_REG_START                                 0x00440800
 #define BCHP_EBI_REG_END                                   0x00440bfc
 #define BCHP_HIF_INTR2_REG_START                           0x00441000
@@ -491,7 +489,7 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_START        0x00460800
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00460800
 #define BCHP_CLKGEN_REG_START                              0x00470000
-#define BCHP_CLKGEN_REG_END                                0x00470370
+#define BCHP_CLKGEN_REG_END                                0x00470374
 #define BCHP_PLL_VCXO_RM_REG_START                         0x00472000
 #define BCHP_PLL_VCXO_RM_REG_END                           0x0047202c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00472700
@@ -551,9 +549,9 @@
 #define BCHP_BOOTROM_REG_START                             0x00500000
 #define BCHP_BOOTROM_REG_END                               0x00500ffc
 #define BCHP_XPT_BUS_IF_REG_START                          0x00740000
-#define BCHP_XPT_BUS_IF_REG_END                            0x00740074
+#define BCHP_XPT_BUS_IF_REG_END                            0x00740078
 #define BCHP_XPT_XMEMIF_REG_START                          0x00741000
-#define BCHP_XPT_XMEMIF_REG_END                            0x00741084
+#define BCHP_XPT_XMEMIF_REG_END                            0x0074109c
 #define BCHP_XPT_PMU_REG_START                             0x00741800
 #define BCHP_XPT_PMU_REG_END                               0x00741808
 #define BCHP_XPT_WAKEUP_REG_START                          0x00742000
@@ -565,37 +563,73 @@
 #define BCHP_XPT_FE_REG_START                              0x00744000
 #define BCHP_XPT_FE_REG_END                                0x00744ffc
 #define BCHP_XPT_DPCR0_REG_START                           0x00746000
-#define BCHP_XPT_DPCR0_REG_END                             0x00746070
+#define BCHP_XPT_DPCR0_REG_END                             0x00746074
 #define BCHP_XPT_DPCR1_REG_START                           0x00746080
-#define BCHP_XPT_DPCR1_REG_END                             0x007460f0
+#define BCHP_XPT_DPCR1_REG_END                             0x007460f4
+#define BCHP_XPT_DPCR2_REG_START                           0x00746100
+#define BCHP_XPT_DPCR2_REG_END                             0x00746174
+#define BCHP_XPT_DPCR3_REG_START                           0x00746180
+#define BCHP_XPT_DPCR3_REG_END                             0x007461f4
+#define BCHP_XPT_DPCR4_REG_START                           0x00746200
+#define BCHP_XPT_DPCR4_REG_END                             0x00746274
+#define BCHP_XPT_DPCR5_REG_START                           0x00746280
+#define BCHP_XPT_DPCR5_REG_END                             0x007462f4
+#define BCHP_XPT_DPCR6_REG_START                           0x00746300
+#define BCHP_XPT_DPCR6_REG_END                             0x00746374
+#define BCHP_XPT_DPCR7_REG_START                           0x00746380
+#define BCHP_XPT_DPCR7_REG_END                             0x007463f4
 #define BCHP_XPT_DPCR_PP_REG_START                         0x00746400
 #define BCHP_XPT_DPCR_PP_REG_END                           0x00746404
 #define BCHP_XPT_PSUB_REG_START                            0x00746600
 #define BCHP_XPT_PSUB_REG_END                              0x007466c8
 #define BCHP_XPT_RSBUFF_REG_START                          0x00746800
-#define BCHP_XPT_RSBUFF_REG_END                            0x00746a64
+#define BCHP_XPT_RSBUFF_REG_END                            0x00746f2c
 #define BCHP_XPT_PB0_REG_START                             0x00747000
-#define BCHP_XPT_PB0_REG_END                               0x0074704c
+#define BCHP_XPT_PB0_REG_END                               0x00747060
 #define BCHP_XPT_PB1_REG_START                             0x00747080
-#define BCHP_XPT_PB1_REG_END                               0x007470cc
+#define BCHP_XPT_PB1_REG_END                               0x007470e0
+#define BCHP_XPT_PB2_REG_START                             0x00747100
+#define BCHP_XPT_PB2_REG_END                               0x00747160
+#define BCHP_XPT_PB3_REG_START                             0x00747180
+#define BCHP_XPT_PB3_REG_END                               0x007471e0
+#define BCHP_XPT_PB4_REG_START                             0x00747200
+#define BCHP_XPT_PB4_REG_END                               0x00747260
+#define BCHP_XPT_PB5_REG_START                             0x00747280
+#define BCHP_XPT_PB5_REG_END                               0x007472e0
+#define BCHP_XPT_PB6_REG_START                             0x00747300
+#define BCHP_XPT_PB6_REG_END                               0x00747360
+#define BCHP_XPT_PB7_REG_START                             0x00747380
+#define BCHP_XPT_PB7_REG_END                               0x007473e0
+#define BCHP_XPT_PB8_REG_START                             0x00747400
+#define BCHP_XPT_PB8_REG_END                               0x00747460
+#define BCHP_XPT_PB9_REG_START                             0x00747480
+#define BCHP_XPT_PB9_REG_END                               0x007474e0
+#define BCHP_XPT_PB10_REG_START                            0x00747500
+#define BCHP_XPT_PB10_REG_END                              0x00747560
+#define BCHP_XPT_PB11_REG_START                            0x00747580
+#define BCHP_XPT_PB11_REG_END                              0x007475e0
+#define BCHP_XPT_PB12_REG_START                            0x00747600
+#define BCHP_XPT_PB12_REG_END                              0x00747660
 #define BCHP_XPT_MPOD_REG_START                            0x00748000
 #define BCHP_XPT_MPOD_REG_END                              0x00748020
+#define BCHP_XPT_RMX0_REG_START                            0x00748400
+#define BCHP_XPT_RMX0_REG_END                              0x00748408
+#define BCHP_XPT_RMX1_REG_START                            0x00748500
+#define BCHP_XPT_RMX1_REG_END                              0x00748508
 #define BCHP_XPT_XCBUFF_REG_START                          0x0074a000
-#define BCHP_XPT_XCBUFF_REG_END                            0x0074a81c
-#define BCHP_XPT_RMX0_REG_START                            0x0074b000
-#define BCHP_XPT_RMX0_REG_END                              0x0074b008
-#define BCHP_XPT_RMX1_REG_START                            0x0074b800
-#define BCHP_XPT_RMX1_REG_END                              0x0074b808
-#define BCHP_XPT_XPU_REG_START                             0x0074c000
-#define BCHP_XPT_XPU_REG_END                               0x0074e7fc
+#define BCHP_XPT_XCBUFF_REG_END                            0x0074bcc8
 #define BCHP_XPT_RAVE_REG_START                            0x00750000
 #define BCHP_XPT_RAVE_REG_END                              0x0075a69c
 #define BCHP_XPT_PCROFFSET_REG_START                       0x0075b000
 #define BCHP_XPT_PCROFFSET_REG_END                         0x0075bffc
 #define BCHP_XPT_MSG_REG_START                             0x00760000
-#define BCHP_XPT_MSG_REG_END                               0x007647fc
+#define BCHP_XPT_MSG_REG_END                               0x00764814
 #define BCHP_XPT_GR_REG_START                              0x00765000
 #define BCHP_XPT_GR_REG_END                                0x0076500c
+#define BCHP_XPT_FULL_PID_PARSER_REG_START                 0x00766000
+#define BCHP_XPT_FULL_PID_PARSER_REG_END                   0x00767040
+#define BCHP_XPT_XPU_REG_START                             0x00768000
+#define BCHP_XPT_XPU_REG_END                               0x0076c7fc
 #define BCHP_MFD_0_REG_START                               0x00800000
 #define BCHP_MFD_0_REG_END                                 0x008000fc
 #define BCHP_MFD_1_REG_START                               0x00800400
@@ -2409,8 +2443,12 @@
 #define BCHP_XPT_PB_DESC_2_PB_FORCE_RESYNC_MASK                    0x40000000
 #define BCHP_XPT_PB_DESC_2_PB_FORCE_RESYNC_SHIFT                   30
 
-/* XPT_PB :: DESC_2 :: reserved0 [29:28] */
-#define BCHP_XPT_PB_DESC_2_reserved0_MASK                          0x30000000
+/* XPT_PB :: DESC_2 :: PB_HOST_DATA_INS_EN [29:29] */
+#define BCHP_XPT_PB_DESC_2_PB_HOST_DATA_INS_EN_MASK                0x20000000
+#define BCHP_XPT_PB_DESC_2_PB_HOST_DATA_INS_EN_SHIFT               29
+
+/* XPT_PB :: DESC_2 :: reserved0 [28:28] */
+#define BCHP_XPT_PB_DESC_2_reserved0_MASK                          0x10000000
 #define BCHP_XPT_PB_DESC_2_reserved0_SHIFT                         28
 
 /* XPT_PB :: DESC_2 :: PB_DESC_TAG_ID [27:24] */

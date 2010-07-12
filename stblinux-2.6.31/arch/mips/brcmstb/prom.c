@@ -37,11 +37,14 @@
 #include <asm/fw/cfe/cfe_api.h>
 #include <asm/fw/cfe/cfe_error.h>
 
-unsigned long brcm_dram0_size_mb = 0;
+#include <spaces.h>
+
+unsigned long brcm_dram0_size_mb;
+unsigned long brcm_dram1_size_mb;
 
 static u8 brcm_primary_macaddr[6] = { 0x00, 0x00, 0xde, 0xad, 0xbe, 0xef };
 
-unsigned long __initdata cfe_seal = 0;
+unsigned long __initdata cfe_seal;
 unsigned long __initdata cfe_entry;
 unsigned long __initdata cfe_handle;
 
@@ -232,6 +235,7 @@ static void __init cfe_read_configuration(void)
 
 	FETCH("ETH0_HWADDR", parse_eth0_hwaddr, brcm_primary_macaddr);
 	FETCH("DRAM0_SIZE", parse_ulong, &brcm_dram0_size_mb);
+	FETCH("DRAM1_SIZE", parse_ulong, &brcm_dram1_size_mb);
 	FETCH("CFE_BOARDNAME", parse_boardname, NULL);
 	FETCH("BOOT_FLAGS", parse_string, arcs_cmdline);
 
@@ -273,9 +277,8 @@ static inline void __init setup_early_16550(unsigned long base_pa)
 }
 
 #ifdef CONFIG_BRCM_HAS_PCU_UARTS
-#define BCHP_UARTA_REG_START	BCHP_PCU_UART2_RBR
-#define BCHP_UARTB_REG_START	BCHP_PCU_UART3_RBR
-#define BCHP_UARTC_REG_START	BCHP_PCU_UART4_RBR
+#define BCHP_UARTA_REG_START	BCHP_TVM_UART1_RBR
+#define BCHP_UARTB_REG_START	BCHP_PCU_UART2_RBR
 #endif
 
 static void __init brcm_setup_early_printk(void)
@@ -361,30 +364,40 @@ void __init prom_init(void)
 
 	board_get_ram_size(&brcm_dram0_size_mb);
 
-#ifdef CONFIG_BRCM_UPPER_MEMORY
-	if (brcm_dram0_size_mb > BRCM_MAX_LOWER_MB) {
-		unsigned long upper_mb = brcm_dram0_size_mb - BRCM_MAX_LOWER_MB;
+	do {
+		unsigned long dram0_mb = brcm_dram0_size_mb, mb;
 
-		if (upper_mb > BRCM_MAX_UPPER_MB) {
-			printk(KERN_WARNING "Reducing system memory to "
-				"%d MB due to kernel configuration\n",
-				BRCM_MAX_LOWER_MB + BRCM_MAX_UPPER_MB);
-			upper_mb = BRCM_MAX_UPPER_MB;
-		}
+		mb = min(dram0_mb, BRCM_MAX_LOWER_MB);
+		dram0_mb -= mb;
+
+		add_memory_region(0, mb << 20, BOOT_MEM_RAM);
+		if (!dram0_mb)
+			break;
+
+#ifdef CONFIG_BRCM_UPPER_MEMORY
+		mb = min(dram0_mb, BRCM_MAX_UPPER_MB);
+		dram0_mb -= mb;
 
 		brcm_upper_tlb_setup();
-		add_memory_region(0, BRCM_MAX_LOWER_MB << 20, BOOT_MEM_RAM);
-		add_memory_region(UPPERMEM_START, upper_mb << 20, BOOT_MEM_RAM);
-	} else {
-		add_memory_region(0, brcm_dram0_size_mb << 20, BOOT_MEM_RAM);
-	}
-#else
-	if(brcm_dram0_size_mb > BRCM_MAX_LOWER_MB) {
-		printk(KERN_WARNING "BRCM_UPPER_MEMORY is off; reducing memory "
-			"to %d MB\n", BRCM_MAX_LOWER_MB);
-		brcm_dram0_size_mb = BRCM_MAX_LOWER_MB;
-	}
-	add_memory_region(0, brcm_dram0_size_mb << 20, BOOT_MEM_RAM);
+		add_memory_region(UPPERMEM_START, mb << 20, BOOT_MEM_RAM);
+		if (!dram0_mb)
+			break;
+#endif
+
+#ifdef CONFIG_HIGHMEM
+		add_memory_region(HIGHMEM_START, dram0_mb << 20, BOOT_MEM_RAM);
+		break;
+#endif
+
+		printk(KERN_WARNING "Reducing DRAM0 to %lu MB; consider "
+			"using BRCM_UPPER_MEMORY or HIGHMEM\n",
+			brcm_dram0_size_mb - dram0_mb);
+	} while (0);
+
+#if defined(CONFIG_HIGHMEM) && defined(CONFIG_BRCM_HAS_1GB_MEMC1)
+	if (brcm_dram1_size_mb)
+		add_memory_region(MEMC1_START, brcm_dram1_size_mb << 20,
+			BOOT_MEM_RAM);
 #endif
 
 #ifdef CONFIG_SMP
@@ -405,22 +418,19 @@ void brcm_set_nmi_handler(void (*fn)(struct pt_regs *))
 }
 EXPORT_SYMBOL(brcm_set_nmi_handler);
 
-/* new vector for catching NMI and TP1 reset (genex.S) */
-extern void brcm_reset_nmi_vec(void);
+static inline void brcm_wr_vec(unsigned long dst, char *start, char *end)
+{
+	memcpy((void *)dst, start, end - start);
+	dma_cache_wback((unsigned long)start, end - start);
+	local_flush_icache_range(dst, dst + (end - start));
+	instruction_hazard();
+}
 
 static inline void brcm_nmi_handler_setup(void)
 {
-	u32 entry;
-
-	entry = KSEG1ADDR((u32)&brcm_reset_nmi_vec);
-	DEV_WR(KSEG0 + 0, 0x3c1a0000 | (entry >> 16));	  // lui k0, HI(entry)
-	DEV_WR(KSEG0 + 4, 0x375a0000 | (entry & 0xffff)); // ori k0, LO(entry)
-	DEV_WR(KSEG0 + 8, 0x03400008);			  // jr k0
-	DEV_WR(KSEG0 + 12, 0x00000000);			  // nop
-
-	dma_cache_wback(KSEG0, 16);
-	flush_icache_line(KSEG0);
-	instruction_hazard();
+	brcm_wr_vec(BRCM_NMI_VEC, brcm_reset_nmi_vec, brcm_reset_nmi_vec_end);
+	brcm_wr_vec(BRCM_WARM_RESTART_VEC, brcm_tp1_int_vec,
+		brcm_tp1_int_vec_end);
 }
 
 unsigned long brcm_setup_ebase(void)
@@ -430,16 +440,20 @@ unsigned long brcm_setup_ebase(void)
 	/*
 	 * Exception vector configuration on BMIPS4380:
 	 *
-	 * a000_0000 - new reset/NMI vector            (was: bfc0_0000)
+	 * 8000_0000 - new reset/NMI vector            (was: bfc0_0000)
 	 * 8000_0400 - new !BEV exception base         (was: 8000_0000)
 	 *
 	 * The reset/NMI vector can only be adjusted in 1MB increments, so
-	 * we put it at a000_0000 and then move the runtime exception vectors
+	 * we put it at 8000_0000 and then move the runtime exception vectors
 	 * up a little bit.
+	 *
+	 * The initial reset/NMI vector for TP1 is at a000_0000 because the
+	 * BMIPS4380 I$ comes up in an undefined state, but it is almost
+	 * immediately moved down to kseg0.
 	 */
 
 	unsigned long cbr = BMIPS_GET_CBR();
-	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_0, 0xa0080800);
+	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_0, 0x80080800);
 	DEV_WR_RB(cbr + BMIPS_RELO_VECTOR_CONTROL_1, 0xa0080800);
 
 	ebase = 0x80000400;
@@ -450,12 +464,16 @@ unsigned long brcm_setup_ebase(void)
 	 * BMIPS5000 is similar to BMIPS4380, but it uses different
 	 * configuration registers with different semantics:
 	 *
-	 * a000_0000 - new reset/NMI vector            (was: bfc0_0000)
+	 * 8000_0000 - new reset/NMI vector            (was: bfc0_0000)
 	 * 8000_1000 - new !BEV exception base         (was: 8000_0000)
+	 *
+	 * The initial reset/NMI vector for TP1 is at a000_0000 because
+	 * CP0 CONFIG comes up in an undefined state, but it is almost
+	 * immediately moved down to kseg0.
 	 */
 	ebase = 0x80001000;
 
-	write_c0_brcm_bootvec(0xa008a008);
+	write_c0_brcm_bootvec(0xa0088008);
 	write_c0_ebase(ebase);
 
 	board_nmi_handler_setup = &brcm_nmi_handler_setup;

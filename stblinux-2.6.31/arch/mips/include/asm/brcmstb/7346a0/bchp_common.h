@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:56:21 2010
- *                 MD5 Checksum         47fd0602d6c7abb64bf56c6d387b1fe1
+ * Date:           Generated on         Fri May 21 04:54:28 2010
+ *                 MD5 Checksum         526eeb57d157fd21df20644f876b78d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -247,7 +247,7 @@
 #define BCHP_SATA_PORT1_LEG_S3_REG_START                   0x00181a58
 #define BCHP_SATA_PORT1_LEG_S3_REG_END                     0x00181a98
 #define BCHP_DATA_MEM_REG_START                            0x00200000
-#define BCHP_DATA_MEM_REG_END                              0x00217ffc
+#define BCHP_DATA_MEM_REG_END                              0x0023fffc
 #define BCHP_CNTL_MEM_REG_START                            0x00240000
 #define BCHP_CNTL_MEM_REG_END                              0x0025fffc
 #define BCHP_MOCA_DMA_Channel0_REG_START                   0x00280000
@@ -269,7 +269,7 @@
 #define BCHP_MOCA_PHY_REG_START                            0x00288000
 #define BCHP_MOCA_PHY_REG_END                              0x0028a9fc
 #define BCHP_MOCA_TRX_REG_START                            0x0028c000
-#define BCHP_MOCA_TRX_REG_END                              0x0028c0c8
+#define BCHP_MOCA_TRX_REG_END                              0x0028c0d0
 #define BCHP_MOCA_GMII_REG_START                           0x00290000
 #define BCHP_MOCA_GMII_REG_END                             0x00290058
 #define BCHP_MOCA_DMA_Channel_rx_REG_START                 0x00290400
@@ -1061,7 +1061,7 @@
 #define BCHP_XPT_GR_REG_START                              0x00a25000
 #define BCHP_XPT_GR_REG_END                                0x00a2500c
 #define BCHP_XPT_FULL_PID_PARSER_REG_START                 0x00a26000
-#define BCHP_XPT_FULL_PID_PARSER_REG_END                   0x00a2703c
+#define BCHP_XPT_FULL_PID_PARSER_REG_END                   0x00a27040
 #define BCHP_XPT_XPU_REG_START                             0x00a28000
 #define BCHP_XPT_XPU_REG_END                               0x00a2c7fc
 

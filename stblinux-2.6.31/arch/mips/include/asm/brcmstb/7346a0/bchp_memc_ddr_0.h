@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:05:32 2010
- *                 MD5 Checksum         47fd0602d6c7abb64bf56c6d387b1fe1
+ * Date:           Generated on         Fri May 21 05:03:52 2010
+ *                 MD5 Checksum         526eeb57d157fd21df20644f876b78d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -526,12 +526,12 @@
 /***************************************************************************
  *DRAM_TIMING_3 - DDR-SDRAM Timing Register.
  ***************************************************************************/
-/* MEMC_DDR_0 :: DRAM_TIMING_3 :: reserved0 [31:23] */
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_3_reserved0_MASK               0xff800000
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_3_reserved0_SHIFT              23
+/* MEMC_DDR_0 :: DRAM_TIMING_3 :: reserved0 [31:24] */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_3_reserved0_MASK               0xff000000
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_3_reserved0_SHIFT              24
 
-/* MEMC_DDR_0 :: DRAM_TIMING_3 :: CKENB_CKE_DELAY [22:19] */
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_3_CKENB_CKE_DELAY_MASK         0x00780000
+/* MEMC_DDR_0 :: DRAM_TIMING_3 :: CKENB_CKE_DELAY [23:19] */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_3_CKENB_CKE_DELAY_MASK         0x00f80000
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_3_CKENB_CKE_DELAY_SHIFT        19
 
 /* MEMC_DDR_0 :: DRAM_TIMING_3 :: POWERUP_CKE_DELAY [18:10] */
@@ -568,16 +568,16 @@
 /***************************************************************************
  *DRAM_TIMING_5 - DDR-SDRAM Timing Register.
  ***************************************************************************/
-/* MEMC_DDR_0 :: DRAM_TIMING_5 :: reserved0 [31:28] */
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_reserved0_MASK               0xf0000000
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_reserved0_SHIFT              28
+/* MEMC_DDR_0 :: DRAM_TIMING_5 :: reserved0 [31:29] */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_reserved0_MASK               0xe0000000
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_reserved0_SHIFT              29
 
-/* MEMC_DDR_0 :: DRAM_TIMING_5 :: CKE_ASSETION_DELAY [27:18] */
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_ASSETION_DELAY_MASK      0x0ffc0000
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_ASSETION_DELAY_SHIFT     18
+/* MEMC_DDR_0 :: DRAM_TIMING_5 :: CKE_ASSETION_DELAY [28:19] */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_ASSETION_DELAY_MASK      0x1ff80000
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_ASSETION_DELAY_SHIFT     19
 
-/* MEMC_DDR_0 :: DRAM_TIMING_5 :: CKE_MIN_WIDTH [17:15] */
-#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_MIN_WIDTH_MASK           0x00038000
+/* MEMC_DDR_0 :: DRAM_TIMING_5 :: CKE_MIN_WIDTH [18:15] */
+#define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_MIN_WIDTH_MASK           0x00078000
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_5_CKE_MIN_WIDTH_SHIFT          15
 
 /* MEMC_DDR_0 :: DRAM_TIMING_5 :: PWDN_EXIT_DELAY [14:10] */

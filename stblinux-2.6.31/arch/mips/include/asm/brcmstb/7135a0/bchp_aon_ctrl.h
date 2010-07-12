@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:25:23 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Wed May 26 03:44:32 2010
+ *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -472,105 +472,105 @@
 /***************************************************************************
  *STRAP_VALUE_0 - Strapping values
  ***************************************************************************/
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_16 [31:31] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_16_MASK            0x80000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_16_SHIFT           31
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_14 [31:31] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_14_MASK            0x80000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_14_SHIFT           31
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_15 [30:30] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_15_MASK            0x40000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_15_SHIFT           30
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_13 [30:30] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_13_MASK            0x40000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_13_SHIFT           30
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_14 [29:29] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_14_MASK            0x20000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_14_SHIFT           29
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_12 [29:29] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_12_MASK            0x20000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_12_SHIFT           29
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_13 [28:28] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_13_MASK            0x10000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_13_SHIFT           28
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_11 [28:28] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_11_MASK            0x10000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_11_SHIFT           28
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_12 [27:27] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_12_MASK            0x08000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_12_SHIFT           27
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_10 [27:27] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_10_MASK            0x08000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_10_SHIFT           27
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_11 [26:26] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_11_MASK            0x04000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_11_SHIFT           26
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_9 [26:26] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_9_MASK             0x04000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_9_SHIFT            26
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_10 [25:25] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_10_MASK            0x02000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_10_SHIFT           25
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_8 [25:25] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_8_MASK             0x02000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_8_SHIFT            25
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_9 [24:24] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_9_MASK             0x01000000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_9_SHIFT            24
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_7 [24:24] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_7_MASK             0x01000000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_7_SHIFT            24
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_8 [23:23] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_8_MASK             0x00800000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_8_SHIFT            23
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_6 [23:23] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_6_MASK             0x00800000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_6_SHIFT            23
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_7 [22:22] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_7_MASK             0x00400000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_7_SHIFT            22
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_5 [22:22] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_5_MASK             0x00400000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_5_SHIFT            22
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_6 [21:21] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_6_MASK             0x00200000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_6_SHIFT            21
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_4 [21:21] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_4_MASK             0x00200000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_4_SHIFT            21
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_5 [20:20] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_5_MASK             0x00100000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_5_SHIFT            20
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_3 [20:20] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_3_MASK             0x00100000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_3_SHIFT            20
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_4 [19:19] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_4_MASK             0x00080000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_4_SHIFT            19
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_2 [19:19] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_2_MASK             0x00080000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_2_SHIFT            19
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_3 [18:18] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_3_MASK             0x00040000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_3_SHIFT            18
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_1 [18:18] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_1_MASK             0x00040000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_1_SHIFT            18
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_2 [17:17] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_2_MASK             0x00020000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_2_SHIFT            17
+/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_0 [17:17] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_0_MASK             0x00020000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_0_SHIFT            17
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_1 [16:16] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_1_MASK             0x00010000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_1_SHIFT            16
+/* AON_CTRL :: STRAP_VALUE_0 :: reset_outb_def_val [16:16] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_reset_outb_def_val_MASK        0x00010000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_reset_outb_def_val_SHIFT       16
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_spare_0 [15:15] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_0_MASK             0x00008000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_spare_0_SHIFT            15
+/* AON_CTRL :: STRAP_VALUE_0 :: ebi_boot_memory [15:15] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_ebi_boot_memory_MASK           0x00008000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_ebi_boot_memory_SHIFT          15
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_reset_outb_def_val [14:14] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_reset_outb_def_val_MASK  0x00004000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_reset_outb_def_val_SHIFT 14
+/* AON_CTRL :: STRAP_VALUE_0 :: boot_device [14:13] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_boot_device_MASK               0x00006000
+#define BCHP_AON_CTRL_STRAP_VALUE_0_boot_device_SHIFT              13
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_ebi_boot_memory [13:13] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_ebi_boot_memory_MASK     0x00002000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_ebi_boot_memory_SHIFT    13
+/* AON_CTRL :: STRAP_VALUE_0 :: nand_ecc [12:10] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_nand_ecc_MASK                  0x00001c00
+#define BCHP_AON_CTRL_STRAP_VALUE_0_nand_ecc_SHIFT                 10
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_boot_device [12:11] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_boot_device_MASK         0x00001800
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_boot_device_SHIFT        11
+/* AON_CTRL :: STRAP_VALUE_0 :: system_big_endian [09:09] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_system_big_endian_MASK         0x00000200
+#define BCHP_AON_CTRL_STRAP_VALUE_0_system_big_endian_SHIFT        9
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_nand_ecc [10:08] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_nand_ecc_MASK            0x00000700
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_nand_ecc_SHIFT           8
+/* AON_CTRL :: STRAP_VALUE_0 :: xcore_bias [08:05] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xcore_bias_MASK                0x000001e0
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xcore_bias_SHIFT               5
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_system_big_endian [07:07] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_system_big_endian_MASK   0x00000080
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_system_big_endian_SHIFT  7
+/* AON_CTRL :: STRAP_VALUE_0 :: xtal_bypass [04:04] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xtal_bypass_MASK               0x00000010
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xtal_bypass_SHIFT              4
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_xcore_bias [06:03] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_xcore_bias_MASK          0x00000078
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_xcore_bias_SHIFT         3
+/* AON_CTRL :: STRAP_VALUE_0 :: rsvd [03:02] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_rsvd_MASK                      0x0000000c
+#define BCHP_AON_CTRL_STRAP_VALUE_0_rsvd_SHIFT                     2
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_xtal_bypass [02:02] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_xtal_bypass_MASK         0x00000004
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_xtal_bypass_SHIFT        2
+/* AON_CTRL :: STRAP_VALUE_0 :: docsis_spi_passthru [01:01] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_docsis_spi_passthru_MASK       0x00000002
+#define BCHP_AON_CTRL_STRAP_VALUE_0_docsis_spi_passthru_SHIFT      1
 
-/* AON_CTRL :: STRAP_VALUE_0 :: strap_rsvd [01:00] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_rsvd_MASK                0x00000003
-#define BCHP_AON_CTRL_STRAP_VALUE_0_strap_rsvd_SHIFT               0
+/* AON_CTRL :: STRAP_VALUE_0 :: xtal_highpass_up [00:00] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xtal_highpass_up_MASK          0x00000001
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xtal_highpass_up_SHIFT         0
 
 /***************************************************************************
  *STRAP_VALUE_1 - Strapping values

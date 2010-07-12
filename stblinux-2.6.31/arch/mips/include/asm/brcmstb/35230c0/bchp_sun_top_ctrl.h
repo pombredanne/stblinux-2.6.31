@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 02:56:11 2010
- *                 MD5 Checksum         b742c675c94ab0a4246db427bf62a82c
+ * Date:           Generated on         Fri May 21 03:53:30 2010
+ *                 MD5 Checksum         a9e4c3bccb6739752e7f29050fac92f1
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -2357,7 +2357,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_vi_fb_1_SHIFT             0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_vi_fb_1_VI_FB_1           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_vi_fb_1_GPIO_34           1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_vi_fb_1_PM_VI_FB_1        2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_vi_fb_1_PVTMON_AVFE       2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_vi_fb_1_PM_VI_FB_1        3
 
 /***************************************************************************
  *PIN_MUX_CTRL_9 - Pinmux control register 9
@@ -2974,7 +2975,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad13_PCI_AD13        0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad13_GPIO_103        1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad13_NO_FUNC_VI_656_YCBCR_4 2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad13_TCON_GCLK3      3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad13_TCON_GCLK1      3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad13_SDIO_DATA2      4
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_17 :: pci_ad12 [27:24] */
@@ -2992,7 +2993,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad11_PCI_AD11        0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad11_GPIO_101        1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad11_NO_FUNC_VI_656_YCBCR_2 2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad11_TCON_GCLK1      3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad11_TCON_GCLK3      3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_17_pci_ad11_SDIO_DATA0      4
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_17 :: pci_ad10 [19:16] */
@@ -3341,45 +3342,44 @@
 /***************************************************************************
  *PIN_MUX_CTRL_23 - Pinmux control register 23
  ***************************************************************************/
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_4 [31:28] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_4_MASK     0xf0000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_4_SHIFT    28
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_4_VEC_DAC_DATA0_4 0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_4_DFE_DAC_CVBS0_4 1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_4_TEST_DAC_DATA0_4 2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_4_AVFE_ADC_DATA_4 3
-
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_3 [27:24] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_MASK     0x0f000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_SHIFT    24
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_3 [31:28] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_MASK     0xf0000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_SHIFT    28
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_VEC_DAC_DATA0_3 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_DFE_DAC_CVBS0_3 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_TEST_DAC_DATA0_3 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_3_AVFE_ADC_DATA_3 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_2 [23:20] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_MASK     0x00f00000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_SHIFT    20
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_2 [27:24] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_MASK     0x0f000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_SHIFT    24
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_VEC_DAC_DATA0_2 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_DFE_DAC_CVBS0_2 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_TEST_DAC_DATA0_2 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_2_AVFE_ADC_DATA_2 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_1 [19:16] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_MASK     0x000f0000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_SHIFT    16
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_1 [23:20] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_MASK     0x00f00000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_SHIFT    20
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_VEC_DAC_DATA0_1 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_DFE_DAC_CVBS0_1 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_TEST_DAC_DATA0_1 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_1_AVFE_ADC_DATA_1 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_0 [15:12] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_MASK     0x0000f000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_SHIFT    12
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: vec_dac_data0_0 [19:16] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_MASK     0x000f0000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_SHIFT    16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_VEC_DAC_DATA0_0 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_DFE_DAC_CVBS0_0 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_TEST_DAC_DATA0_0 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_vec_dac_data0_0_AVFE_ADC_DATA_0 3
+
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: poni_hdmi0_htplg_out [15:12] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_poni_hdmi0_htplg_out_MASK 0x0000f000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_poni_hdmi0_htplg_out_SHIFT 12
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_poni_hdmi0_htplg_out_PONI_HDMI0_HTPLG_OUT 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_poni_hdmi0_htplg_out_HDMI_RX_0_HTPLG_OUT 1
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_poni_hdmi0_htplg_out_PVTMON_FRC4 2
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_23 :: poni_ddc0_sda [11:08] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_23_poni_ddc0_sda_MASK       0x00000f00
@@ -3405,170 +3405,178 @@
 /***************************************************************************
  *PIN_MUX_CTRL_24 - Pinmux control register 24
  ***************************************************************************/
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_clk0 [31:28] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_clk0_MASK        0xf0000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_clk0_SHIFT       28
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_clk0_VEC_DAC_CLK0 0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_clk0_DFE_DAC_CVBS_CLK0 1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_clk0_TEST_DAC_CLK0 2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_clk0_AVFE_ADC_CLK 3
-
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_11 [27:24] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_MASK    0x0f000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_SHIFT   24
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_11 [31:28] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_MASK    0xf0000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_SHIFT   28
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_VEC_DAC_DATA0_11 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_DFE_DAC_CVBS0_11 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_TEST_DAC_DATA0_11 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_11_AVFE_ADC_DATA_11 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_10 [23:20] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_MASK    0x00f00000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_SHIFT   20
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_10 [27:24] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_MASK    0x0f000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_SHIFT   24
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_VEC_DAC_DATA0_10 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_DFE_DAC_CVBS0_10 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_TEST_DAC_DATA0_10 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_10_AVFE_ADC_DATA_10 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_9 [19:16] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_MASK     0x000f0000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_SHIFT    16
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_9 [23:20] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_MASK     0x00f00000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_SHIFT    20
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_VEC_DAC_DATA0_9 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_DFE_DAC_CVBS0_9 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_TEST_DAC_DATA0_9 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_9_AVFE_ADC_DATA_9 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_8 [15:12] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_MASK     0x0000f000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_SHIFT    12
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_8 [19:16] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_MASK     0x000f0000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_SHIFT    16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_VEC_DAC_DATA0_8 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_DFE_DAC_CVBS0_8 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_TEST_DAC_DATA0_8 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_8_AVFE_ADC_DATA_8 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_7 [11:08] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_MASK     0x00000f00
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_SHIFT    8
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_7 [15:12] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_MASK     0x0000f000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_SHIFT    12
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_VEC_DAC_DATA0_7 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_DFE_DAC_CVBS0_7 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_TEST_DAC_DATA0_7 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_7_AVFE_ADC_DATA_7 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_6 [07:04] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_MASK     0x000000f0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_SHIFT    4
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_6 [11:08] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_MASK     0x00000f00
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_SHIFT    8
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_VEC_DAC_DATA0_6 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_DFE_DAC_CVBS0_6 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_TEST_DAC_DATA0_6 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_6_AVFE_ADC_DATA_6 3
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_5 [03:00] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_MASK     0x0000000f
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_SHIFT    0
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_5 [07:04] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_MASK     0x000000f0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_SHIFT    4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_VEC_DAC_DATA0_5 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_DFE_DAC_CVBS0_5 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_TEST_DAC_DATA0_5 2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_5_AVFE_ADC_DATA_5 3
 
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_24 :: vec_dac_data0_4 [03:00] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_4_MASK     0x0000000f
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_4_SHIFT    0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_4_VEC_DAC_DATA0_4 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_4_DFE_DAC_CVBS0_4 1
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_4_TEST_DAC_DATA0_4 2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_24_vec_dac_data0_4_AVFE_ADC_DATA_4 3
+
 /***************************************************************************
  *PIN_MUX_CTRL_25 - Pinmux control register 25
  ***************************************************************************/
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_7 [31:28] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_7_MASK     0xf0000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_7_SHIFT    28
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_7_VEC_DAC_DATA1_7 0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_7_DFE_DAC_CVBS1_7 1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_7_TEST_DAC_DATA1_7 2
-
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_6 [27:24] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_MASK     0x0f000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_SHIFT    24
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_6 [31:28] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_MASK     0xf0000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_SHIFT    28
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_VEC_DAC_DATA1_6 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_DFE_DAC_CVBS1_6 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_6_TEST_DAC_DATA1_6 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_5 [23:20] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_MASK     0x00f00000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_SHIFT    20
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_5 [27:24] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_MASK     0x0f000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_SHIFT    24
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_VEC_DAC_DATA1_5 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_DFE_DAC_CVBS1_5 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_5_TEST_DAC_DATA1_5 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_4 [19:16] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_MASK     0x000f0000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_SHIFT    16
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_4 [23:20] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_MASK     0x00f00000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_SHIFT    20
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_VEC_DAC_DATA1_4 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_DFE_DAC_CVBS1_4 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_4_TEST_DAC_DATA1_4 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_3 [15:12] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_MASK     0x0000f000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_SHIFT    12
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_3 [19:16] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_MASK     0x000f0000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_SHIFT    16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_VEC_DAC_DATA1_3 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_DFE_DAC_CVBS1_3 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_3_TEST_DAC_DATA1_3 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_2 [11:08] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_MASK     0x00000f00
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_SHIFT    8
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_2 [15:12] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_MASK     0x0000f000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_SHIFT    12
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_VEC_DAC_DATA1_2 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_DFE_DAC_CVBS1_2 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_2_TEST_DAC_DATA1_2 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_1 [07:04] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_MASK     0x000000f0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_SHIFT    4
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_1 [11:08] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_MASK     0x00000f00
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_SHIFT    8
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_VEC_DAC_DATA1_1 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_DFE_DAC_CVBS1_1 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_1_TEST_DAC_DATA1_1 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_0 [03:00] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_MASK     0x0000000f
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_SHIFT    0
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_data1_0 [07:04] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_MASK     0x000000f0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_SHIFT    4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_VEC_DAC_DATA1_0 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_DFE_DAC_CVBS1_0 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_data1_0_TEST_DAC_DATA1_0 2
 
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_25 :: vec_dac_clk0 [03:00] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_clk0_MASK        0x0000000f
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_clk0_SHIFT       0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_clk0_VEC_DAC_CLK0 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_clk0_DFE_DAC_CVBS_CLK0 1
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_clk0_TEST_DAC_CLK0 2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_25_vec_dac_clk0_AVFE_ADC_CLK 3
+
 /***************************************************************************
  *PIN_MUX_CTRL_26 - Pinmux control register 26
  ***************************************************************************/
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: reserved0 [31:20] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_reserved0_MASK           0xfff00000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_reserved0_SHIFT          20
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: reserved0 [31:24] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_reserved0_MASK           0xff000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_reserved0_SHIFT          24
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_clk1 [19:16] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_MASK        0x000f0000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_SHIFT       16
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_clk1 [23:20] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_MASK        0x00f00000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_SHIFT       20
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_VEC_DAC_CLK1 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_DFE_DAC_CVBS_CLK1 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_clk1_TEST_DAC_CLK1 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_11 [15:12] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_MASK    0x0000f000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_SHIFT   12
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_11 [19:16] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_MASK    0x000f0000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_SHIFT   16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_VEC_DAC_DATA1_11 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_DFE_DAC_CVBS1_11 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_11_TEST_DAC_DATA1_11 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_10 [11:08] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_MASK    0x00000f00
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_SHIFT   8
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_10 [15:12] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_MASK    0x0000f000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_SHIFT   12
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_VEC_DAC_DATA1_10 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_DFE_DAC_CVBS1_10 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_10_TEST_DAC_DATA1_10 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_9 [07:04] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_MASK     0x000000f0
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_SHIFT    4
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_9 [11:08] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_MASK     0x00000f00
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_SHIFT    8
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_VEC_DAC_DATA1_9 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_DFE_DAC_CVBS1_9 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_9_TEST_DAC_DATA1_9 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_8 [03:00] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_MASK     0x0000000f
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_SHIFT    0
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_8 [07:04] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_MASK     0x000000f0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_SHIFT    4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_VEC_DAC_DATA1_8 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_DFE_DAC_CVBS1_8 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_8_TEST_DAC_DATA1_8 2
+
+/* SUN_TOP_CTRL :: PIN_MUX_CTRL_26 :: vec_dac_data1_7 [03:00] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_7_MASK     0x0000000f
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_7_SHIFT    0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_7_VEC_DAC_DATA1_7 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_7_DFE_DAC_CVBS1_7 1
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_26_vec_dac_data1_7_TEST_DAC_DATA1_7 2
 
 /***************************************************************************
  *PIN_MUX_PAD_CTRL_0 - Pad pull-up/pull-down control register 0
@@ -4080,20 +4088,16 @@
 /***************************************************************************
  *PIN_MUX_PAD_CTRL_14 - Pad pull-up/pull-down control register 14
  ***************************************************************************/
-/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_14 :: reserved0 [31:30] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_reserved0_MASK       0xc0000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_reserved0_SHIFT      30
-
-/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_14 :: spare_pad_ctrl_14 [29:28] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_MASK 0x30000000
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_SHIFT 28
+/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_14 :: spare_pad_ctrl_14 [31:30] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_MASK 0xc0000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_SHIFT 30
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_PULL_NONE 0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_PULL_DOWN 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_spare_pad_ctrl_14_PULL_UP 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_14 :: reserved1 [27:00] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_reserved1_MASK       0x0fffffff
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_reserved1_SHIFT      0
+/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_14 :: reserved0 [29:00] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_reserved0_MASK       0x3fffffff
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_14_reserved0_SHIFT      0
 
 /***************************************************************************
  *BYP_CLK_UNSELECT_0 - Bypass clock unselect register 0
