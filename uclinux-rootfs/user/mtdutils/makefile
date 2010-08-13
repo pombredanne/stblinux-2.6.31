@@ -8,7 +8,7 @@ BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
 
 CC			:= $(MACHINE)-linux-gcc
 STRIP			:= $(MACHINE)-linux-strip
-CFLAGS			:= -Os
+CFLAGS			:= -Os -DCONFIG_BRCMNAND_MTD_EXTENSION
 
 export CC CFLAGS
 

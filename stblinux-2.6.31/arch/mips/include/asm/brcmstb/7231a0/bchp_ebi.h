@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:29:04 2010
- *                 MD5 Checksum         48de0819069cffb1a27afe66f66cd920
+ * Date:           Generated on         Fri Jun 18 03:56:42 2010
+ *                 MD5 Checksum         31225c52cbfe1e7aaefda6ba3e2cff62
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -1356,9 +1356,41 @@
 /***************************************************************************
  *CS_SPI_SELECT - SPI CS Select
  ***************************************************************************/
-/* EBI :: CS_SPI_SELECT :: reserved0 [31:08] */
-#define BCHP_EBI_CS_SPI_SELECT_reserved0_MASK                      0xffffff00
-#define BCHP_EBI_CS_SPI_SELECT_reserved0_SHIFT                     8
+/* EBI :: CS_SPI_SELECT :: reserved0 [31:16] */
+#define BCHP_EBI_CS_SPI_SELECT_reserved0_MASK                      0xffff0000
+#define BCHP_EBI_CS_SPI_SELECT_reserved0_SHIFT                     16
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_7_USES_SPI [15:15] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_7_USES_SPI_MASK              0x00008000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_7_USES_SPI_SHIFT             15
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_6_USES_SPI [14:14] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_6_USES_SPI_MASK              0x00004000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_6_USES_SPI_SHIFT             14
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_5_USES_SPI [13:13] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_5_USES_SPI_MASK              0x00002000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_5_USES_SPI_SHIFT             13
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_4_USES_SPI [12:12] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_4_USES_SPI_MASK              0x00001000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_4_USES_SPI_SHIFT             12
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_3_USES_SPI [11:11] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_3_USES_SPI_MASK              0x00000800
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_3_USES_SPI_SHIFT             11
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_2_USES_SPI [10:10] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_2_USES_SPI_MASK              0x00000400
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_2_USES_SPI_SHIFT             10
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_1_USES_SPI [09:09] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_1_USES_SPI_MASK              0x00000200
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_1_USES_SPI_SHIFT             9
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_0_USES_SPI [08:08] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_0_USES_SPI_MASK              0x00000100
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_0_USES_SPI_SHIFT             8
 
 /* EBI :: CS_SPI_SELECT :: SPI_EBI_CS_7_SEL [07:07] */
 #define BCHP_EBI_CS_SPI_SELECT_SPI_EBI_CS_7_SEL_MASK               0x00000080

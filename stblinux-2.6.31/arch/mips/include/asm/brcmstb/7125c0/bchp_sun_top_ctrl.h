@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jan 22 20:31:22 2010
- *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
+ * Date:           Generated on         Mon Jun 21 20:26:23 2010
+ *                 MD5 Checksum         ca6a65ea070ab31476b927e4308136d1
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/1   1/25/10 9:55p albertl
- * SW7125-177: Initial revision.
+ * Hydra_Software_Devel/2   6/23/10 3:24p albertl
+ * SW7125-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -4519,7 +4519,7 @@
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_AUDIO_ZSP_CPU_ONE_HOT 4
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_MOCA_CPU_ONE_HOT 8
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_DOCSIS_MIPS_CPU_ONE_HOT 16
-#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_BSP_8051_CPU_ONE_HOT 32
+#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_BSP_CPU_ONE_HOT 32
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_DTP_CPU_ONE_HOT 64
 
 /***************************************************************************
@@ -4537,7 +4537,7 @@
 #define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_AUDIO_ZSP_CPU 2
 #define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_MOCA_CPU 3
 #define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_DOCSIS_MIPS_CPU 4
-#define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_BSP_8051_CPU 5
+#define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_BSP_CPU 5
 #define BCHP_SUN_TOP_CTRL_EJTAG_OUTPUT_SEL_ejtag_output_sel_DTP_CPU 6
 
 /***************************************************************************

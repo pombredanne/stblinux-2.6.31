@@ -107,7 +107,7 @@ static int sysfs_get(char *path, unsigned int *out)
 	f = fopen(path, "r");
 	if(! f)
 		return(-1);
-	if(fscanf(f, "%u", &tmp) != 1)
+	if(fscanf(f, "%u", &tmp) != 1 && fscanf(f, "0x%x", &tmp) != 1)
 	{
 		fclose(f);
 		return(-1);
@@ -287,6 +287,10 @@ int brcm_pm_get_status(void *vctx, struct brcm_pm_state *st)
 	if(sysfs_get(SYS_DDR_STAT, (unsigned int *)&st->ddr_timeout) != 0) {
 		st->ddr_timeout = BRCM_PM_UNDEF;
 	}
+	if(sysfs_get(SYS_STANDBY_FLAGS,
+			(unsigned int *)&st->standby_flags) != 0) {
+		st->standby_flags = BRCM_PM_UNDEF;
+	}
 	if(sysfs_get(SYS_TP1_STAT, (unsigned int *)&st->tp1_status) != 0) {
 		st->tp1_status = BRCM_PM_UNDEF;
 	}
@@ -443,6 +447,11 @@ int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
 	if(CHANGED(ddr_timeout))
 	{
 		ret |= sysfs_set(SYS_DDR_STAT, st->ddr_timeout);
+	}
+
+	if(CHANGED(standby_flags))
+	{
+		ret |= sysfs_set(SYS_STANDBY_FLAGS, st->standby_flags);
 	}
 
 #undef CHANGED

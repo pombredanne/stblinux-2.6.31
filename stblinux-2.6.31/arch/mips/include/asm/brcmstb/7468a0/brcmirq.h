@@ -27,6 +27,7 @@
 #define BRCM_IRQ_HIF		1
 #define BRCM_IRQ_HIF_SPI	72
 #define BRCM_IRQ_OHCI0_0	62
+#define BRCM_IRQ_PM		70
 #define BRCM_IRQ_UARTA		22
 #define BRCM_IRQ_UARTB		65
 #define BRCM_IRQ_UPG		19

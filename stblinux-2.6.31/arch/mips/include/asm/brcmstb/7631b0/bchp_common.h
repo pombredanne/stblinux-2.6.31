@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri May 14 14:02:03 2010
- *                 MD5 Checksum         6316be7b9e04755949a79bfd7d0784f3
+ * Date:           Generated on         Mon Jun  7 11:32:10 2010
+ *                 MD5 Checksum         20f07925fbb1f3597ca2335a6f0e4210
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,13 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7631/rdb/b0/bchp_common.h $
  * 
- * Hydra_Software_Devel/2   5/14/10 5:56p albertl
- * SWBLURAY-19573: Updated to match RDB.
+ * Hydra_Software_Devel/3   6/9/10 2:57p etrudeau
+ * SWBLURAY-19573: Updating with latest RDB as of tapeout and using
+ * Andover Quick RDB database since rdb_public was incorrect
+ * 
+ * Hydra_Software_Devel/3   6/9/10 2:07p etrudeau
+ * SWBLURAY-19573: Updating with latest RDB as of tapeout and using
+ * Andover Quick RDB database since rdb_public was incorrect
  *
  ***************************************************************************/
 
@@ -196,9 +201,9 @@
 #define BCHP_XPT_BUS_IF_REG_START                          0x00200000
 #define BCHP_XPT_BUS_IF_REG_END                            0x00200074
 #define BCHP_XPT_XMEMIF_REG_START                          0x00202000
-#define BCHP_XPT_XMEMIF_REG_END                            0x0020207c
+#define BCHP_XPT_XMEMIF_REG_END                            0x00202064
 #define BCHP_XPT_FE_REG_START                              0x00208000
-#define BCHP_XPT_FE_REG_END                                0x00208ffc
+#define BCHP_XPT_FE_REG_END                                0x00208dfc
 #define BCHP_XPT_PB0_REG_START                             0x0020b000
 #define BCHP_XPT_PB0_REG_END                               0x0020b048
 #define BCHP_XPT_PB1_REG_START                             0x0020b080
@@ -206,7 +211,7 @@
 #define BCHP_XPT_PB2_REG_START                             0x0020b100
 #define BCHP_XPT_PB2_REG_END                               0x0020b148
 #define BCHP_XPT_RAVE_REG_START                            0x00210000
-#define BCHP_XPT_RAVE_REG_END                              0x0021a69c
+#define BCHP_XPT_RAVE_REG_END                              0x0021a50c
 #define BCHP_XPT_XPU_REG_START                             0x00220000
 #define BCHP_XPT_XPU_REG_END                               0x002227fc
 #define BCHP_XPT_PCROFFSET_REG_START                       0x00227000
@@ -1938,6 +1943,20 @@
 /* XPT_RAVE :: NOTEH_AC3_AUDIO_ES_SETUP :: AUDIO_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_SHIFT 0
+
+/***************************************************************************
+ *NOTEH_DVD_AC3_AUDIO_ES_SETUP - ES Setup - DVD_AC3 Audio
+ ***************************************************************************/
+/* XPT_RAVE :: NOTEH_DVD_AC3_AUDIO_ES_SETUP :: DVD_AUDIO_AC3_ES_FORMAT [31:00] */
+#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
+#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_SHIFT 0
+
+/***************************************************************************
+ *NOTEI_DVD_LPCM_AUDIO_ES_SETUP - ES Setup - DVD_LPCM Audio
+ ***************************************************************************/
+/* XPT_RAVE :: NOTEI_DVD_LPCM_AUDIO_ES_SETUP :: DVD_AUDIO_LPCM_ES_FORMAT [31:00] */
+#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_MASK 0xffffffff
+#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
  *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio

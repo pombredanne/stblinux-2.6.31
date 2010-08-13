@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:16:38 2010
- *                 MD5 Checksum         d3eddea23beec7e33d13b4bcb5193126
+ * Date:           Generated on         Fri Jun 11 16:28:20 2010
+ *                 MD5 Checksum         2f3614fe2730b4e1d1d18509533c71c8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_wktmr.h $
+ * 
+ * Hydra_Software_Devel/2   6/11/10 7:37p albertl
+ * SW7422-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -42,11 +45,11 @@
 /***************************************************************************
  *WKTMR - Wakeup timer
  ***************************************************************************/
-#define BCHP_WKTMR_EVENT                         0x00401d80 /* Wakeup Timer Register */
-#define BCHP_WKTMR_COUNTER                       0x00401d84 /* Wakeup Counter */
-#define BCHP_WKTMR_ALARM                         0x00401d88 /* Wakeup Timer Alarm */
-#define BCHP_WKTMR_PRESCALER                     0x00401d8c /* Wakeup Timer Prescaler */
-#define BCHP_WKTMR_PRESCALER_VAL                 0x00401d90 /* Wakeup Timer Prescaler Value */
+#define BCHP_WKTMR_EVENT                         0x00408d80 /* Wakeup Timer Register */
+#define BCHP_WKTMR_COUNTER                       0x00408d84 /* Wakeup Counter */
+#define BCHP_WKTMR_ALARM                         0x00408d88 /* Wakeup Timer Alarm */
+#define BCHP_WKTMR_PRESCALER                     0x00408d8c /* Wakeup Timer Prescaler */
+#define BCHP_WKTMR_PRESCALER_VAL                 0x00408d90 /* Wakeup Timer Prescaler Value */
 
 /***************************************************************************
  *EVENT - Wakeup Timer Register

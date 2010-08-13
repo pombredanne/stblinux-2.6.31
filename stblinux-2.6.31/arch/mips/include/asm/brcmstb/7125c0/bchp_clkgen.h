@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jan 22 20:21:02 2010
- *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
+ * Date:           Generated on         Mon Jun 21 20:17:34 2010
+ *                 MD5 Checksum         ca6a65ea070ab31476b927e4308136d1
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_clkgen.h $
  * 
- * Hydra_Software_Devel/1   1/25/10 7:37p albertl
- * SW7125-177: Initial revision.
+ * Hydra_Software_Devel/2   6/23/10 3:21p albertl
+ * SW7125-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -468,9 +468,17 @@
 /***************************************************************************
  *SECTOP_DMA_CLK_PM_CTRL - Clock Disable Control Register for SECTOP_DMA
  ***************************************************************************/
-/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: reserved0 [31:00] */
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_MASK          0xffffffff
-#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_SHIFT         0
+/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: reserved0 [31:02] */
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_MASK          0xfffffffc
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_reserved0_SHIFT         2
+
+/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: DIS_CLK_108 [01:01] */
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_108_MASK        0x00000002
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_108_SHIFT       1
+
+/* CLKGEN :: SECTOP_DMA_CLK_PM_CTRL :: DIS_CLK_216 [00:00] */
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_216_MASK        0x00000001
+#define BCHP_CLKGEN_SECTOP_DMA_CLK_PM_CTRL_DIS_CLK_216_SHIFT       0
 
 /***************************************************************************
  *SUN_CLK_PM_CTRL - Clock Disable Control Register for SUN

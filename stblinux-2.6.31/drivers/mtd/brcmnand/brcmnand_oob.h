@@ -30,8 +30,12 @@ when	who what
 #define __BRCMNAND_OOB_H
 
 #include <linux/version.h>
+#include <linux/autoconf.h>
 
+#ifndef CONFIG_BRCMNAND_MTD_EXTENSION
 #define UNDERSIZED_ECCPOS_API	1
+#endif
+
 
 /*
  * Assuming proper include that precede this has the typedefs for struct nand_oobinfo
@@ -112,9 +116,7 @@ static struct nand_ecclayout brcmnand_oob_128 = {
 	.oobfree	= { /* 0-1 used for BBT and/or manufacturer bad block marker, 
 	                    * first slice loses 2 bytes for BBT */
 				{.offset=2, .length=4}, 
-				{.offset=9,.length=13}, 		/* First slice {9,7} 2nd slice {16,6}are combined */ 
-									/* ST uses 6th byte (offset=5) as Bad Block Indicator, 
-									  * in addition to the 1st byte, and will be adjusted at run time */
+				{.offset=9,.length=13}, 		
 				{.offset=25, .length=13},				/* 2nd slice  */
 				{.offset=41, .length=13},				/* 3rd slice */
 				{.offset=57, .length=13},				/* 4th slice */
@@ -180,11 +182,46 @@ static struct nand_ecclayout brcmnand_oob_bch4_2k = {
 			}
 };
 
+#if 1
+
+/*
+ * 4K page SLC/MLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and only have 16B OOB
+ * Rely on the fact that the UBI/UBIFS layer does not store anything in the OOB
+ */
+static struct nand_ecclayout brcmnand_oob_bch8_16_4k = {
+	.eccbytes	= 13*8,  /* 13*8 = 104 bytes */
+	.eccpos		= { 
+		3,4,5,6,7,8,9,10,11,12,13,14,15,
+		41,42,43,44,45,46,47,48,49,50,51,52,53,
+		68,69,70,71,72,73,74,75,76,77,78,79,80,
+		95,96,97,98,99,100,101,102,103,104,105,106,107,
+#if ! defined(UNDERSIZED_ECCPOS_API)
+		122,123,124,125,126,127,128,129,130,131,132,133,134,
+		149,150,151,152,153,154,155,156,157,158,159,160,161,
+		176,177,178,179,180,181,182,183,184,185,186,187,188,
+		203,204,205,206,207,208,209,210,211,212,213,214,215
+#endif
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=2}, 		/* 1st slice loses byte 0 */
+				{.offset=16,.length=3}, 		/* 2nd slice  */
+				{.offset=32, .length=3},		/* 3rd slice  */
+				{.offset=48, .length=3},		/* 4th slice */
+				{.offset=64, .length=3},		/* 5th slice */
+				{.offset=80, .length=3},		/* 6th slice */
+				{.offset=96, .length=3},		/* 7th slice */
+				{.offset=112, .length=3},		/* 8th slice */
+	            		//{.offset=0, .length=0}			/* End marker */
+			}
+};
+
+#endif
 
 /*
  * 4K page MLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and requires OOB size of 27B+
  */
-static struct nand_ecclayout brcmnand_oob_bch8_4k = {
+static struct nand_ecclayout brcmnand_oob_bch8_27_4k = {
 	.eccbytes	= 13*8,  /* 13*8 = 104 bytes */
 	.eccpos		= { 
 		14,15,16,17,18,19,20,21,22,23,24,25,26,
@@ -208,6 +245,37 @@ static struct nand_ecclayout brcmnand_oob_bch8_4k = {
 				{.offset=135, .length=14},		/* 6th slice */
 				{.offset=162, .length=14},		/* 7th slice */
 				{.offset=189, .length=14},		/* 8th slice */
+	            		//{.offset=0, .length=0}			/* End marker */
+			}
+};
+
+/*
+ * 4K page MLC with BCH-12 ECC, uses 20 ECC bytes per 512B ECC step, and requires OOB size of 27B+
+ */
+static struct nand_ecclayout brcmnand_oob_bch12_27_4k = {
+	.eccbytes	= 20*8,  /* 20*8 = 160 bytes */
+	.eccpos		= { 
+		 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,
+		34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,
+		61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,
+		88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,
+#if ! defined(UNDERSIZED_ECCPOS_API)
+		115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,
+		142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,
+		169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,
+		196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215
+#endif
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=6}, 		/* 1st slice loses byte 0 */
+				{.offset=27,.length=7}, 		/* 2nd slice  */
+				{.offset=54, .length=7},		/* 3rd slice  */
+				{.offset=81, .length=7},		/* 4th slice */
+				{.offset=108, .length=7},		/* 5th slice */
+				{.offset=135, .length=7},		/* 6th slice */
+				{.offset=162, .length=7},		/* 7th slice */
+				{.offset=189, .length=7},		/* 8th slice */
 	            		//{.offset=0, .length=0}			/* End marker */
 			}
 };

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed May 26 03:44:32 2010
- *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
+ * Date:           Generated on         Fri Jun 18 03:52:59 2010
+ *                 MD5 Checksum         f68c8d1869eaf4c070ec2a58d018b385
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -540,28 +540,20 @@
 #define BCHP_AON_CTRL_STRAP_VALUE_0_ebi_boot_memory_MASK           0x00008000
 #define BCHP_AON_CTRL_STRAP_VALUE_0_ebi_boot_memory_SHIFT          15
 
-/* AON_CTRL :: STRAP_VALUE_0 :: boot_device [14:13] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_boot_device_MASK               0x00006000
-#define BCHP_AON_CTRL_STRAP_VALUE_0_boot_device_SHIFT              13
+/* AON_CTRL :: STRAP_VALUE_0 :: boot_shape [14:11] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_boot_shape_MASK                0x00007800
+#define BCHP_AON_CTRL_STRAP_VALUE_0_boot_shape_SHIFT               11
 
-/* AON_CTRL :: STRAP_VALUE_0 :: nand_ecc [12:10] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_nand_ecc_MASK                  0x00001c00
-#define BCHP_AON_CTRL_STRAP_VALUE_0_nand_ecc_SHIFT                 10
+/* AON_CTRL :: STRAP_VALUE_0 :: system_big_endian [10:10] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_system_big_endian_MASK         0x00000400
+#define BCHP_AON_CTRL_STRAP_VALUE_0_system_big_endian_SHIFT        10
 
-/* AON_CTRL :: STRAP_VALUE_0 :: system_big_endian [09:09] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_system_big_endian_MASK         0x00000200
-#define BCHP_AON_CTRL_STRAP_VALUE_0_system_big_endian_SHIFT        9
+/* AON_CTRL :: STRAP_VALUE_0 :: xcore_bias [09:06] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xcore_bias_MASK                0x000003c0
+#define BCHP_AON_CTRL_STRAP_VALUE_0_xcore_bias_SHIFT               6
 
-/* AON_CTRL :: STRAP_VALUE_0 :: xcore_bias [08:05] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_xcore_bias_MASK                0x000001e0
-#define BCHP_AON_CTRL_STRAP_VALUE_0_xcore_bias_SHIFT               5
-
-/* AON_CTRL :: STRAP_VALUE_0 :: xtal_bypass [04:04] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_xtal_bypass_MASK               0x00000010
-#define BCHP_AON_CTRL_STRAP_VALUE_0_xtal_bypass_SHIFT              4
-
-/* AON_CTRL :: STRAP_VALUE_0 :: rsvd [03:02] */
-#define BCHP_AON_CTRL_STRAP_VALUE_0_rsvd_MASK                      0x0000000c
+/* AON_CTRL :: STRAP_VALUE_0 :: rsvd [05:02] */
+#define BCHP_AON_CTRL_STRAP_VALUE_0_rsvd_MASK                      0x0000003c
 #define BCHP_AON_CTRL_STRAP_VALUE_0_rsvd_SHIFT                     2
 
 /* AON_CTRL :: STRAP_VALUE_0 :: docsis_spi_passthru [01:01] */

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:31:04 2010
- *                 MD5 Checksum         d3eddea23beec7e33d13b4bcb5193126
+ * Date:           Generated on         Wed Jun  9 17:05:07 2010
+ *                 MD5 Checksum         e12b4c5c08ac555273c26b63d085a2b6
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_irq0.h $
+ * 
+ * Hydra_Software_Devel/2   6/10/10 7:27p albertl
+ * SW7422-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -88,21 +91,17 @@
 #define BCHP_IRQ0_IRQEN_uc_irqen_MASK                              0x00000200
 #define BCHP_IRQ0_IRQEN_uc_irqen_SHIFT                             9
 
-/* IRQ0 :: IRQEN :: reserved3 [08:08] */
-#define BCHP_IRQ0_IRQEN_reserved3_MASK                             0x00000100
-#define BCHP_IRQ0_IRQEN_reserved3_SHIFT                            8
-
-/* IRQ0 :: IRQEN :: icap_irqen [07:07] */
-#define BCHP_IRQ0_IRQEN_icap_irqen_MASK                            0x00000080
-#define BCHP_IRQ0_IRQEN_icap_irqen_SHIFT                           7
+/* IRQ0 :: IRQEN :: reserved3 [08:07] */
+#define BCHP_IRQ0_IRQEN_reserved3_MASK                             0x00000180
+#define BCHP_IRQ0_IRQEN_reserved3_SHIFT                            7
 
 /* IRQ0 :: IRQEN :: gio_irqen [06:06] */
 #define BCHP_IRQ0_IRQEN_gio_irqen_MASK                             0x00000040
 #define BCHP_IRQ0_IRQEN_gio_irqen_SHIFT                            6
 
-/* IRQ0 :: IRQEN :: kbd2_irqen [05:05] */
-#define BCHP_IRQ0_IRQEN_kbd2_irqen_MASK                            0x00000020
-#define BCHP_IRQ0_IRQEN_kbd2_irqen_SHIFT                           5
+/* IRQ0 :: IRQEN :: reserved4 [05:05] */
+#define BCHP_IRQ0_IRQEN_reserved4_MASK                             0x00000020
+#define BCHP_IRQ0_IRQEN_reserved4_SHIFT                            5
 
 /* IRQ0 :: IRQEN :: ua_irqen [04:04] */
 #define BCHP_IRQ0_IRQEN_ua_irqen_MASK                              0x00000010
@@ -112,17 +111,13 @@
 #define BCHP_IRQ0_IRQEN_ub_irqen_MASK                              0x00000008
 #define BCHP_IRQ0_IRQEN_ub_irqen_SHIFT                             3
 
-/* IRQ0 :: IRQEN :: reserved4 [02:02] */
-#define BCHP_IRQ0_IRQEN_reserved4_MASK                             0x00000004
-#define BCHP_IRQ0_IRQEN_reserved4_SHIFT                            2
+/* IRQ0 :: IRQEN :: irb_irqen [02:02] */
+#define BCHP_IRQ0_IRQEN_irb_irqen_MASK                             0x00000004
+#define BCHP_IRQ0_IRQEN_irb_irqen_SHIFT                            2
 
-/* IRQ0 :: IRQEN :: ldk_irqen [01:01] */
-#define BCHP_IRQ0_IRQEN_ldk_irqen_MASK                             0x00000002
-#define BCHP_IRQ0_IRQEN_ldk_irqen_SHIFT                            1
-
-/* IRQ0 :: IRQEN :: kbd1_irqen [00:00] */
-#define BCHP_IRQ0_IRQEN_kbd1_irqen_MASK                            0x00000001
-#define BCHP_IRQ0_IRQEN_kbd1_irqen_SHIFT                           0
+/* IRQ0 :: IRQEN :: reserved5 [01:00] */
+#define BCHP_IRQ0_IRQEN_reserved5_MASK                             0x00000003
+#define BCHP_IRQ0_IRQEN_reserved5_SHIFT                            0
 
 /***************************************************************************
  *IRQSTAT - Interrupt Status
@@ -167,21 +162,17 @@
 #define BCHP_IRQ0_IRQSTAT_ucirq_MASK                               0x00000200
 #define BCHP_IRQ0_IRQSTAT_ucirq_SHIFT                              9
 
-/* IRQ0 :: IRQSTAT :: reserved3 [08:08] */
-#define BCHP_IRQ0_IRQSTAT_reserved3_MASK                           0x00000100
-#define BCHP_IRQ0_IRQSTAT_reserved3_SHIFT                          8
-
-/* IRQ0 :: IRQSTAT :: icapirq [07:07] */
-#define BCHP_IRQ0_IRQSTAT_icapirq_MASK                             0x00000080
-#define BCHP_IRQ0_IRQSTAT_icapirq_SHIFT                            7
+/* IRQ0 :: IRQSTAT :: reserved3 [08:07] */
+#define BCHP_IRQ0_IRQSTAT_reserved3_MASK                           0x00000180
+#define BCHP_IRQ0_IRQSTAT_reserved3_SHIFT                          7
 
 /* IRQ0 :: IRQSTAT :: gioirq [06:06] */
 #define BCHP_IRQ0_IRQSTAT_gioirq_MASK                              0x00000040
 #define BCHP_IRQ0_IRQSTAT_gioirq_SHIFT                             6
 
-/* IRQ0 :: IRQSTAT :: kbd2irq [05:05] */
-#define BCHP_IRQ0_IRQSTAT_kbd2irq_MASK                             0x00000020
-#define BCHP_IRQ0_IRQSTAT_kbd2irq_SHIFT                            5
+/* IRQ0 :: IRQSTAT :: reserved4 [05:05] */
+#define BCHP_IRQ0_IRQSTAT_reserved4_MASK                           0x00000020
+#define BCHP_IRQ0_IRQSTAT_reserved4_SHIFT                          5
 
 /* IRQ0 :: IRQSTAT :: uairq [04:04] */
 #define BCHP_IRQ0_IRQSTAT_uairq_MASK                               0x00000010
@@ -191,17 +182,13 @@
 #define BCHP_IRQ0_IRQSTAT_ubirq_MASK                               0x00000008
 #define BCHP_IRQ0_IRQSTAT_ubirq_SHIFT                              3
 
-/* IRQ0 :: IRQSTAT :: reserved4 [02:02] */
-#define BCHP_IRQ0_IRQSTAT_reserved4_MASK                           0x00000004
-#define BCHP_IRQ0_IRQSTAT_reserved4_SHIFT                          2
+/* IRQ0 :: IRQSTAT :: irbirq [02:02] */
+#define BCHP_IRQ0_IRQSTAT_irbirq_MASK                              0x00000004
+#define BCHP_IRQ0_IRQSTAT_irbirq_SHIFT                             2
 
-/* IRQ0 :: IRQSTAT :: ldkirq [01:01] */
-#define BCHP_IRQ0_IRQSTAT_ldkirq_MASK                              0x00000002
-#define BCHP_IRQ0_IRQSTAT_ldkirq_SHIFT                             1
-
-/* IRQ0 :: IRQSTAT :: kbd1irq [00:00] */
-#define BCHP_IRQ0_IRQSTAT_kbd1irq_MASK                             0x00000001
-#define BCHP_IRQ0_IRQSTAT_kbd1irq_SHIFT                            0
+/* IRQ0 :: IRQSTAT :: reserved5 [01:00] */
+#define BCHP_IRQ0_IRQSTAT_reserved5_MASK                           0x00000003
+#define BCHP_IRQ0_IRQSTAT_reserved5_SHIFT                          0
 
 #endif /* #ifndef BCHP_IRQ0_H__ */
 

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed May 26 03:34:59 2010
- *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
+ * Date:           Generated on         Fri Jun 18 03:44:15 2010
+ *                 MD5 Checksum         f68c8d1869eaf4c070ec2a58d018b385
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -513,9 +513,9 @@
 #define BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK                       0x000f0000
 #define BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT                      16
 
-/* NAND :: ACC_CONTROL :: reserved0 [15:15] */
-#define BCHP_NAND_ACC_CONTROL_reserved0_MASK                       0x00008000
-#define BCHP_NAND_ACC_CONTROL_reserved0_SHIFT                      15
+/* NAND :: ACC_CONTROL :: CE_CARE [15:15] */
+#define BCHP_NAND_ACC_CONTROL_CE_CARE_MASK                         0x00008000
+#define BCHP_NAND_ACC_CONTROL_CE_CARE_SHIFT                        15
 
 /* NAND :: ACC_CONTROL :: SECTOR_SIZE_1K_0 [14:14] */
 #define BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_MASK                0x00004000
@@ -525,9 +525,9 @@
 #define BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_0_MASK               0x00003f00
 #define BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_0_SHIFT              8
 
-/* NAND :: ACC_CONTROL :: reserved1 [07:07] */
-#define BCHP_NAND_ACC_CONTROL_reserved1_MASK                       0x00000080
-#define BCHP_NAND_ACC_CONTROL_reserved1_SHIFT                      7
+/* NAND :: ACC_CONTROL :: reserved0 [07:07] */
+#define BCHP_NAND_ACC_CONTROL_reserved0_MASK                       0x00000080
+#define BCHP_NAND_ACC_CONTROL_reserved0_SHIFT                      7
 
 /* NAND :: ACC_CONTROL :: SECTOR_SIZE_1K [06:06] */
 #define BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_MASK                  0x00000040
@@ -1036,8 +1036,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_MASK                   0x000f0000
 #define BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_SHIFT                  16
 
-/* NAND :: ACC_CONTROL_CS1 :: reserved2 [15:07] */
-#define BCHP_NAND_ACC_CONTROL_CS1_reserved2_MASK                   0x0000ff80
+/* NAND :: ACC_CONTROL_CS1 :: CE_CARE [15:15] */
+#define BCHP_NAND_ACC_CONTROL_CS1_CE_CARE_MASK                     0x00008000
+#define BCHP_NAND_ACC_CONTROL_CS1_CE_CARE_SHIFT                    15
+
+/* NAND :: ACC_CONTROL_CS1 :: reserved2 [14:07] */
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved2_MASK                   0x00007f80
 #define BCHP_NAND_ACC_CONTROL_CS1_reserved2_SHIFT                  7
 
 /* NAND :: ACC_CONTROL_CS1 :: SECTOR_SIZE_1K [06:06] */
@@ -1235,8 +1239,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS2_ECC_LEVEL_MASK                   0x000f0000
 #define BCHP_NAND_ACC_CONTROL_CS2_ECC_LEVEL_SHIFT                  16
 
-/* NAND :: ACC_CONTROL_CS2 :: reserved2 [15:07] */
-#define BCHP_NAND_ACC_CONTROL_CS2_reserved2_MASK                   0x0000ff80
+/* NAND :: ACC_CONTROL_CS2 :: CE_CARE [15:15] */
+#define BCHP_NAND_ACC_CONTROL_CS2_CE_CARE_MASK                     0x00008000
+#define BCHP_NAND_ACC_CONTROL_CS2_CE_CARE_SHIFT                    15
+
+/* NAND :: ACC_CONTROL_CS2 :: reserved2 [14:07] */
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved2_MASK                   0x00007f80
 #define BCHP_NAND_ACC_CONTROL_CS2_reserved2_SHIFT                  7
 
 /* NAND :: ACC_CONTROL_CS2 :: SECTOR_SIZE_1K [06:06] */
@@ -1434,8 +1442,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS3_ECC_LEVEL_MASK                   0x000f0000
 #define BCHP_NAND_ACC_CONTROL_CS3_ECC_LEVEL_SHIFT                  16
 
-/* NAND :: ACC_CONTROL_CS3 :: reserved2 [15:07] */
-#define BCHP_NAND_ACC_CONTROL_CS3_reserved2_MASK                   0x0000ff80
+/* NAND :: ACC_CONTROL_CS3 :: CE_CARE [15:15] */
+#define BCHP_NAND_ACC_CONTROL_CS3_CE_CARE_MASK                     0x00008000
+#define BCHP_NAND_ACC_CONTROL_CS3_CE_CARE_SHIFT                    15
+
+/* NAND :: ACC_CONTROL_CS3 :: reserved2 [14:07] */
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved2_MASK                   0x00007f80
 #define BCHP_NAND_ACC_CONTROL_CS3_reserved2_SHIFT                  7
 
 /* NAND :: ACC_CONTROL_CS3 :: SECTOR_SIZE_1K [06:06] */

@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-06-18
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-07-25
 #
 # Original package: iperf-2.0.4.tar.bz2
 #
 diff -ruNp iperf.orig/makefile iperf/makefile
 --- iperf.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ iperf/makefile	2010-06-18 17:11:14.000000000 -0700
++++ iperf/makefile	2010-07-25 20:51:33.000000000 -0700
 @@ -0,0 +1,30 @@
 +include $(ROOTDIR)/config.arch
 +

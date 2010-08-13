@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2005-2006 Broadcom Corporation                 
+    Copyright (c) 2005-2010 Broadcom Corporation                 
     
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License version 2 as
@@ -659,7 +659,37 @@ PRINTK("%s: startblock=%d, dir=%d, chips=%d\n", __FUNCTION__, (int) startblock, 
 
 PRINTK("Checking Sig %c%c%c%c against OOB\n", td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3]);
 
-			if (!check_pattern(buf, scanlen, mtd->writesize, td)) {
+			/* If scan-auto mode, fish out the useful data from the ECC stuffs */
+			if (td->options & BRCMNAND_BBT_AUTO_PLACE) {
+				u_char abuf[16];
+				struct mtd_oob_ops ops;
+
+				memset(abuf, 0, 16);
+				ops.mode = MTD_OOB_AUTO;
+				ops.ooboffs = 0;
+				ops.ooblen = mtd->oobsize;
+				ops.oobbuf = abuf;
+				ops.datbuf = buf;
+				ops.len = mtd->writesize;
+				this->oob_poi = &buf[mtd->writesize];
+
+				(void) brcmnand_transfer_oob(this, abuf, &ops, td->len+1);
+//printk("BCH-8-16 scan: \n");
+//print_oobbuf(abuf, td->len+1);
+
+				/* Look for pattern at the beginning of OOB auto-buffer */
+				if (!check_pattern(abuf, mtd->oobsize, 0, td)) {
+					PRINTK("%s: Found BBT at offset %0llx\n", __FUNCTION__, offs);
+					td->pages[i] = actblock << blocktopage;
+					if (td->options & NAND_BBT_VERSION) {
+						td->version[i] = abuf[td->veroffs];
+					}
+					break;
+				}
+				
+			}
+			
+			else if (!check_pattern(buf, scanlen, mtd->writesize, td)) {
 PRINTK("%s: Found BBT at offset %0llx\n", __FUNCTION__, offs);
 				td->pages[i] = actblock << blocktopage;
 				if (td->options & NAND_BBT_VERSION) {
@@ -909,12 +939,38 @@ PRINTK("%s: Not NAND_BBT_SAVECONTENT\n", __FUNCTION__);
 			       (len >> this->page_shift)* mtd->oobsize);
 			offs = 0;
 			ooboffs = len;
-			/* Pattern is located in oob area of first page */
-			memcpy(&buf[ooboffs + td->offs], td->pattern, td->len);
-			
-			// Write the version number (1 byte)
-			if (td->options & NAND_BBT_VERSION) {
-				buf[ooboffs + td->veroffs]=td->version[0];
+
+			/* Auto-place for BCH-8 on 16B OOB? */
+			if (td->options & BRCMNAND_BBT_AUTO_PLACE) {
+				u_char abuf[8];
+				struct mtd_oob_ops ops;
+
+				memcpy(abuf, td->pattern, td->len);
+				// Write the version number (1 byte)
+				if (td->options & NAND_BBT_VERSION) {
+					abuf[td->veroffs] = td->version[0];
+				}
+				
+				ops.datbuf = NULL;
+				ops.len = 0;
+				ops.mode = MTD_OOB_AUTO;
+				ops.ooboffs = 0;
+				ops.ooblen = td->len + 1; /* 5 bytes */
+				ops.oobbuf = abuf;  /* Source oobbuf */
+				this->oob_poi = &buf[ooboffs]; /* Destination oobbuf */
+
+				/* Copy abuf into OOB free bytes */
+				(void) brcmnand_fill_oob(this, abuf, &ops);
+				
+			}
+			else { /* IN-PLACE OOB format */
+				/* Pattern is located in oob area of first page */
+				memcpy(&buf[ooboffs + td->offs], td->pattern, td->len);
+				
+				// Write the version number (1 byte)
+				if (td->options & NAND_BBT_VERSION) {
+					buf[ooboffs + td->veroffs]=td->version[0];
+				}
 			}
 		}
 
@@ -1487,11 +1543,9 @@ static struct nand_bbt_descr bbt_slc_bch4_mirror_descr = {
 	.pattern = mirror_pattern
 };
 
+/* Also used for bch-8 & bch-12 with 27B OOB */
 static struct nand_bbt_descr bbt_bch4_main_descr = {
 	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
-#if  0 //CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
-		| NAND_BBT_PERCHIP
-#endif
 		| NAND_BBT_2BIT | NAND_BBT_VERSION,
 	.offs =	1, 
 	.len = 4,
@@ -1502,9 +1556,6 @@ static struct nand_bbt_descr bbt_bch4_main_descr = {
 
 static struct nand_bbt_descr bbt_bch4_mirror_descr = {
 	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
-#if  0 //CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
-		| NAND_BBT_PERCHIP
-#endif
 		| NAND_BBT_2BIT | NAND_BBT_VERSION,
 	.offs =	1, /* THT: Changed from 8 */
 	.len = 4,
@@ -1513,6 +1564,30 @@ static struct nand_bbt_descr bbt_bch4_mirror_descr = {
 	.pattern = mirror_pattern
 };
 
+
+
+/* BCH-8 with only 16B OOB, uses auto-place for the (small) OOB */
+static struct nand_bbt_descr bbt_bch8_16_main_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
+		| NAND_BBT_2BIT | NAND_BBT_VERSION
+		| BRCMNAND_BBT_AUTO_PLACE,
+	.offs = 0, /* Signature is at offset 0 in auto-place format */
+	.len = 4,
+	.veroffs = 4, /* Version just follows the signature in auto-place format */
+	.maxblocks = 8, /* THT: Will update later, based on 4MB partition reserved for BBT */
+	.pattern = bbt_pattern
+};
+
+static struct nand_bbt_descr bbt_bch8_16_mirror_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
+		| NAND_BBT_2BIT | NAND_BBT_VERSION
+		| BRCMNAND_BBT_AUTO_PLACE,
+	.offs = 0, 
+	.len = 4,
+	.veroffs = 4,  
+	.maxblocks = 8,
+	.pattern = mirror_pattern
+};
 
 
 static int brcmnand_displayBBT(struct mtd_info* mtd)
@@ -1996,30 +2071,60 @@ printk("-->%s\n", __FUNCTION__);
 printk("%s: bbt_td = bbt_main_descr\n", __FUNCTION__);
 		}
 		else if (NAND_IS_MLC(this)) { // MLC 
-			/* Use the default pattern descriptors */
-			if (!this->bbt_td) {
-				this->bbt_td = brcmnand_bbt_desc_init(&bbt_bch4_main_descr);
-				this->bbt_md = brcmnand_bbt_desc_init(&bbt_bch4_mirror_descr);
+			if (this->ecclevel == BRCMNAND_ECC_BCH_8 && this->eccOobSize == 16) {
+				/* Use the default pattern descriptors */
+				if (!this->bbt_td) {
+					this->bbt_td = brcmnand_bbt_desc_init(&bbt_bch8_16_main_descr);
+					this->bbt_md = brcmnand_bbt_desc_init(&bbt_bch8_16_mirror_descr);
+				}
+				if (!this->badblock_pattern) {
+					// 2K & 4K MLC NAND use same pattern
+					this->badblock_pattern = &bch4_flashbased;
+				}
+printk("%s: bbt_td = bbt_bch8_16_main_descr\n", __FUNCTION__);
 			}
-			if (!this->badblock_pattern) {
-				// 2K & 4K MLC NAND use same pattern
-				this->badblock_pattern = &bch4_flashbased;
+			else {
+				/* Use the default pattern descriptors */
+				if (!this->bbt_td) {
+					this->bbt_td = brcmnand_bbt_desc_init(&bbt_bch4_main_descr);
+					this->bbt_md = brcmnand_bbt_desc_init(&bbt_bch4_mirror_descr);
+				}
+				if (!this->badblock_pattern) {
+					// 2K & 4K MLC NAND use same pattern
+					this->badblock_pattern = &bch4_flashbased;
+				}
 			}
 printk("%s: bbt_td = bbt_bch4_main_descr\n", __FUNCTION__);
 		}
-		else {/* SLC flashes using BCH-4 ECC */
+		else {/* SLC flashes using BCH-4 or higher ECC */
 			/* Small & Large SLC NAND use the same template */
+			if (this->ecclevel == BRCMNAND_ECC_BCH_4) {
 
-			if (!this->bbt_td) {
-				this->bbt_td = brcmnand_bbt_desc_init(&bbt_slc_bch4_main_descr);
-				this->bbt_md = brcmnand_bbt_desc_init(&bbt_slc_bch4_mirror_descr);
-			}
-			if (!this->badblock_pattern) {
-				this->badblock_pattern = (mtd->writesize > 512) ? &bch4_flashbased : &smallpage_flashbased;
-			}
+				if (!this->bbt_td) {
+					this->bbt_td = brcmnand_bbt_desc_init(&bbt_slc_bch4_main_descr);
+					this->bbt_md = brcmnand_bbt_desc_init(&bbt_slc_bch4_mirror_descr);
+				}
+				if (!this->badblock_pattern) {
+					this->badblock_pattern = (mtd->writesize > 512) ? &bch4_flashbased : &smallpage_flashbased;
+				}
 printk("%s: bbt_td = bbt_slc_bch4_main_descr\n", __FUNCTION__);	
-			
-			
+			}
+			else if (this->ecclevel == BRCMNAND_ECC_BCH_8) {
+				if (!this->bbt_td) {
+					this->bbt_td = brcmnand_bbt_desc_init(&bbt_bch8_16_main_descr);
+					this->bbt_md = brcmnand_bbt_desc_init(&bbt_bch8_16_mirror_descr);
+				}
+				if (!this->badblock_pattern) {
+					// 2K & 4K MLC NAND use same pattern
+					this->badblock_pattern = &bch4_flashbased;
+				}
+printk("%s: bbt_td = bbt_bch8_16_main_descr\n", __FUNCTION__);	
+			}
+			else {
+				printk(KERN_ERR "***** %s: Unsupported ECC level %d\n", 
+					__FUNCTION__, this->ecclevel);
+				BUG();
+			}
 		}
 	} else {
 		/* MLC memory based not supported */

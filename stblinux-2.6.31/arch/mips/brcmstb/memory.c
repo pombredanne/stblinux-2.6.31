@@ -54,7 +54,12 @@ struct bmem_region {
 
 static struct bmem_region bmem_regions[MAX_BMEM_REGIONS];
 static unsigned int n_bmem_regions = 0;
+
+#if defined(CONFIG_BRCM_IKOS)
+static unsigned int bmem_disabled = 1;
+#else
 static unsigned int bmem_disabled = 0;
+#endif
 
 /*
  * Parses command line for bmem= options

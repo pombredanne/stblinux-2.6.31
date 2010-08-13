@@ -113,6 +113,7 @@ int gNumNand = 0;
 int gClearBBT = 0;
 char gClearCET = 0;
 uint32_t gNandTiming1[NAND_MAX_CS], gNandTiming2[NAND_MAX_CS];
+uint32_t gAccControl[NAND_MAX_CS];
 
 static char *cmd = NULL;
 static unsigned long t1[NAND_MAX_CS], t2[NAND_MAX_CS];
@@ -135,6 +136,12 @@ module_param_array(t1, ulong, &nt1, 0444);
 MODULE_PARM_DESC(t1, "Comma separated list of NAND timing values 1, 0 for default value");
 module_param_array(t2, ulong, &nt2, 0444);
 MODULE_PARM_DESC(t2, "Comma separated list of NAND timing values 2, 0 for default value");
+
+static unsigned long acc[NAND_MAX_CS];
+static int nacc;
+module_param_array(acc, ulong, &nacc, 0444);
+MODULE_PARM_DESC(acc, "Comma separated list of NAND ACC_CONTROL values, 0 for default value"
+			"indexed by CS, values for CS0 will be ignored");
 
 static void* gPageBuffer = NULL;
 
@@ -443,17 +450,33 @@ static int __init brcmnanddrv_init(void)
 				__FUNCTION__, cmd);
 	}
 
-	ncsi = min(nt1, nt2);
-	for (csi=0; csi<ncsi; csi++) {
-		gNandTiming1[csi] = t1[csi];
-		gNandTiming2[csi] = t2[csi];
+	
+	for (csi=0; csi<NAND_MAX_CS; csi++) {
+		gNandTiming1[csi] = 0;
+		gNandTiming2[csi] = 0;
+		gAccControl[csi] = 0;
 	}
 
-	printk (KERN_INFO DRIVER_INFO " (BrcmNand Controller)\n");
-		ret = platform_driver_register(&brcmnand_platform_driver);
-		if (ret >= 0)
-			request_resource(&iomem_resource, &brcmnand_resources[0]);
+PRINTK("%s: nacc=%d, gAccControl[0]=%08x\n", __FUNCTION__, nacc, acc[0]);
+	for (csi=0; csi<nacc; csi++) {
+		gAccControl[csi] = acc[csi];
+	}
+	ncsi = max(nt1, nt2);
+	for (csi=0; csi<ncsi; csi++) {
+		if (nt1)
+			gNandTiming1[csi] = t1[csi];
+		if (nt2)
+			gNandTiming2[csi] = t2[csi];
+		
+	}
+
 	
+
+	printk (KERN_INFO DRIVER_INFO " (BrcmNand Controller)\n");
+	ret = platform_driver_register(&brcmnand_platform_driver);
+	if (ret >= 0)
+		request_resource(&iomem_resource, &brcmnand_resources[0]);
+
 	return 0;
 }
 

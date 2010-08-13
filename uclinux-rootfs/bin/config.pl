@@ -354,6 +354,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$linux{"CONFIG_BRCM_IKOS"} = "y";
 			$linux{"CONFIG_BRCM_IKOS_DEBUG"} = "y";
 			$linux{"CONFIG_BRCM_FORCED_DRAM0_SIZE"} = "32";
+			$linux{"CONFIG_BRCM_FORCED_DRAM1_SIZE"} = "0";
 			$linux{"CONFIG_BRCM_PM"} = "n";
 			$vendor{"CONFIG_USER_BRCM_PM"} = "n";
 		} elsif($mod eq "kgdb") {

@@ -468,7 +468,7 @@ static int __init platform_devices_setup(void)
 			phy_type = brcm_ext_mii_mode;
 		else {
 			phy_type = BRCM_PHY_TYPE_MOCA;
-			brcm_register_moca(0);
+			brcm_register_moca(id);
 		}
 #endif
 #if defined(CONFIG_BCMGENET_0_GPHY)
@@ -485,7 +485,7 @@ static int __init platform_devices_setup(void)
 			phy_type = brcm_ext_mii_mode;
 		else {
 			phy_type = BRCM_PHY_TYPE_MOCA;
-			brcm_register_moca(1);
+			brcm_register_moca(id);
 		}
 #endif
 #if defined(CONFIG_BCMGENET_1_GPHY)

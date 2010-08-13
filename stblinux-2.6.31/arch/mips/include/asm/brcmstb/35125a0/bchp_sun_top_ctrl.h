@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 02:19:00 2010
- *                 MD5 Checksum         a4ae86dca58fbde79c2e9efa9a2a5291
+ * Date:           Generated on         Fri Jun 18 02:46:26 2010
+ *                 MD5 Checksum         6d92f94565a656414eb6da162cfd3b19
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -1088,9 +1088,9 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_cpu_debug_sel_MASK 0x1e000000
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_cpu_debug_sel_SHIFT 25
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_burst_stat_sel [24:24] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_stat_sel_MASK 0x01000000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_stat_sel_SHIFT 24
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_burst_start_sel [24:24] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_start_sel_MASK 0x01000000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_burst_start_sel_SHIFT 24
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_access_mode [23:22] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_access_mode_MASK 0x00c00000
@@ -1108,36 +1108,44 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_continue_on_fail_MASK 0x00080000
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_continue_on_fail_SHIFT 19
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_time_margin [18:16] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_time_margin_MASK 0x00070000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_time_margin_SHIFT 16
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_program_verify_flag [18:18] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_program_verify_flag_MASK 0x00040000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_program_verify_flag_SHIFT 18
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_sadbyp [15:15] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_sadbyp_MASK 0x00008000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_sadbyp_SHIFT 15
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_double_word [17:17] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_double_word_MASK 0x00020000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_double_word_SHIFT 17
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_unused [14:14] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_unused_MASK 0x00004000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_unused_SHIFT 14
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_regc_sel [16:14] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_regc_sel_MASK 0x0001c000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_regc_sel_SHIFT 14
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_pbyp [13:13] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_pbyp_MASK 0x00002000
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_pbyp_SHIFT 13
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_quadfuse [13:13] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_quadfuse_MASK 0x00002000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_quadfuse_SHIFT 13
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_pcount [12:10] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_pcount_MASK 0x00001c00
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_pcount_SHIFT 10
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_doublefuse [12:12] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_doublefuse_MASK 0x00001000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_doublefuse_SHIFT 12
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_vsel [09:06] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_vsel_MASK 0x000003c0
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_vsel_SHIFT 6
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_read4x [11:11] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_read4x_MASK 0x00000800
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_read4x_SHIFT 11
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_prog_sel [05:05] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_prog_sel_MASK 0x00000020
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_prog_sel_SHIFT 5
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_read2x [10:10] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_read2x_MASK 0x00000400
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_read2x_SHIFT 10
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_command [04:01] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_command_MASK 0x0000001e
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_wrp_prog_in_debug [09:09] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_prog_in_debug_MASK 0x00000200
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_wrp_prog_in_debug_SHIFT 9
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_unused [08:06] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_unused_MASK 0x000001c0
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_unused_SHIFT 6
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_command [05:01] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_command_MASK 0x0000003e
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_jtag_otp_ctrl_command_SHIFT 1
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_0 :: jtag_otp_ctrl_start [00:00] */

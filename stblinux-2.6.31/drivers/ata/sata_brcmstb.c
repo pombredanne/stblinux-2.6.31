@@ -49,6 +49,7 @@
 #include <scsi/scsi_host.h>
 #include <linux/spinlock.h>
 #include <linux/libata.h>
+#include <linux/pm.h>
 #include <linux/clk.h>
 
 #ifdef CONFIG_PPC_OF
@@ -1867,6 +1868,30 @@ static void k2_sata_remove_one(struct pci_dev *pdev)
 	kfree(hp);
 }
 
+static int k2_sata_suspend(struct pci_dev *pdev, pm_message_t mesg)
+{
+#if	0
+	struct device *dev = &pdev->dev;
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct k2_host_priv *hp = host->private_data;
+
+	clk_disable(hp->clk);
+#endif
+	return 0;
+}
+
+static int k2_sata_resume(struct pci_dev *pdev)
+{
+#if	0
+	struct device *dev = &pdev->dev;
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct k2_host_priv *hp = host->private_data;
+
+	clk_enable(hp->clk);
+#endif
+	return 0;
+}
+
 #ifdef	CONFIG_SATA_SVW_PMP_HOTPLUG
 static int k2_pmp_hp_poll(struct ata_port *ap)
 {
@@ -2199,6 +2224,8 @@ static struct pci_driver k2_sata_pci_driver = {
 	.id_table		= k2_sata_pci_tbl,
 	.probe			= k2_sata_init_one,
 	.remove			= k2_sata_remove_one,
+	.suspend		= k2_sata_suspend,
+	.resume			= k2_sata_resume,
 };
 
 static int __init k2_sata_init(void)

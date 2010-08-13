@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed May 26 03:52:18 2010
- *                 MD5 Checksum         4825abb6e75a676a7fb55c229058b464
+ * Date:           Generated on         Thu Jul  8 03:43:18 2010
+ *                 MD5 Checksum         b644e23769d1b756250db802f694b032
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -63,26 +63,174 @@
 #define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ         0x003b2048 /* Memory Controller Sequencer Enable */
 #define BCHP_MEMC_DDR_0_CNTRLR_SM_TIMEOUT        0x003b204c /* Memory Controller , state machine timeout register. */
 #define BCHP_MEMC_DDR_0_BANK_STATUS              0x003b2050 /* Memory Controller, Bank Status Register. */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL             0x003b2054 /* Statistics Control register */
-#define BCHP_MEMC_DDR_0_STAT_TIMER               0x003b2058 /* Statistics Timer */
-#define BCHP_MEMC_DDR_0_STAT_IDLE                0x003b205c /* Idle Cycle Count Register. */
-#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE            0x003b2060 /* Maximum idle cycle count register. */
-#define BCHP_MEMC_DDR_0_STAT_CAS                 0x003b2064 /* CAS Count Register. */
-#define BCHP_MEMC_DDR_0_STAT_MAX_CAS             0x003b2068 /* Maximum CAS cycle count register. */
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE       0x003b206c /* Service Cycle Count register. */
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE   0x003b2070 /* Maximum service cycle count register. */
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE   0x003b2074 /* Minimum service cycle count register. */
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS       0x003b2078 /* Service Transaction Count register. */
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS   0x003b207c /* Maximum service Transaction count register. */
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS   0x003b2080 /* Minimum service cycle Transaction register. */
-#define BCHP_MEMC_DDR_0_STAT_PERF                0x003b2084 /* Performance Count register. */
-#define BCHP_MEMC_DDR_0_STAT_MAX_PERF            0x003b2088 /* Maximum performance count register. */
-#define BCHP_MEMC_DDR_0_TESTER_LATENCY           0x003b208c /* Memory Controller, Tester Latency Register. */
-#define BCHP_MEMC_DDR_0_DTPM_BYTE0               0x003b2090 /* Memory Controller, DATA_PINMAP_BYTE0_SEL Register. */
-#define BCHP_MEMC_DDR_0_DTPM_BYTE1               0x003b2094 /* Memory Controller, DATA_PINMAP_BYTE1_SEL Register. */
-#define BCHP_MEMC_DDR_0_DTPM_BYTE2               0x003b2098 /* Memory Controller, DATA_PINMAP_BYTE2_SEL Register. */
-#define BCHP_MEMC_DDR_0_DTPM_BYTE3               0x003b209c /* Memory Controller, DATA_PINMAP_BYTE3_SEL Register. */
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD   0x003b20a0 /* Memory Controller, DDR3 DRAM reset Register. */
+#define BCHP_MEMC_DDR_0_TESTER_LATENCY           0x003b2054 /* Memory Controller, Tester Latency Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE0               0x003b2058 /* Memory Controller, DATA_PINMAP_BYTE0_SEL Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE1               0x003b205c /* Memory Controller, DATA_PINMAP_BYTE1_SEL Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE2               0x003b2060 /* Memory Controller, DATA_PINMAP_BYTE2_SEL Register. */
+#define BCHP_MEMC_DDR_0_DTPM_BYTE3               0x003b2064 /* Memory Controller, DATA_PINMAP_BYTE3_SEL Register. */
+#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD   0x003b2068 /* Memory Controller, DDR3 DRAM reset Register. */
+#define BCHP_MEMC_DDR_0_STAT_CONTROL             0x003b206c /* Statistics Control register */
+#define BCHP_MEMC_DDR_0_STAT_TIMER               0x003b2070 /* Statistics Timer */
+#define BCHP_MEMC_DDR_0_STAT_IDLE_NOP            0x003b2074 /* DRAM Idle_NOP Cycle Count Register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_NOP        0x003b2078 /* Maximum DRAM idle_NOP cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_ALL             0x003b207c /* CAS Count Register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CAS_ALL         0x003b2080 /* Maximum DRAM CAS cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_PENALTY_ALL         0x003b2084 /* DRAM Penalty Cycle Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_TRANS_CYCLES_ALL 0x003b2088 /* Maximum number of transactions cycles (CAS+Penalty_ALL). */
+#define BCHP_MEMC_DDR_0_STAT_TRANS_READ_ALL      0x003b208c /* Number of overall system memory read transactions. */
+#define BCHP_MEMC_DDR_0_STAT_TRANS_WRITE_ALL     0x003b2090 /* Number of overall system memory write transactions. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_TRANS_ALL       0x003b2094 /* Maximum Number of Overall System memory transactions. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_TRANS_ALL       0x003b2098 /* Minimum Number of Overall System memory transactions. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_CAS  0x003b209c /* Service CAS Cycle Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_CAS 0x003b20a0 /* Maximum service CAS cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_CAS 0x003b20a4 /* Minimum service CAS cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_INTR_PENALTY 0x003b20a8 /* Service Intra DRAM Penalty Cycle Count register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_POST_PENALTY 0x003b20ac /* Service Post DRAM Penalty Cycle Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_CYCLES 0x003b20b0 /* Maximum service cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_CYCLES 0x003b20b4 /* Minimum service cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_TRANS_READ 0x003b20b8 /* Service Read Transaction Count register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_TRANS_WRITE 0x003b20bc /* Service Write Transaction Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_TRANS 0x003b20c0 /* Maximum service Transaction count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_TRANS 0x003b20c4 /* Minimum service cycle Transaction register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_LATENCY 0x003b20c8 /* Service Latency Count register. */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_LATENCY 0x003b20cc /* Maximum Service Latency count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_LATENCY 0x003b20d0 /* Minimum Service Latency count register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_ABS_MAX_SERVICE_LATENCY 0x003b20d4 /* Absolute Minimum Service Latency count register. */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_ABS_MIN_SERVICE_LATENCY 0x003b20d8 /* Absolute Maximum Service Latency count register. */
+#define BCHP_MEMC_DDR_0_STAT_REFRESH             0x003b20dc /* Total number of refreshes issuedr. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_0        0x003b20e0 /* CAS cycle count register for client 0. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_1        0x003b20e4 /* CAS cycle count register for client 1. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_2        0x003b20e8 /* CAS cycle count register for client 2. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_3        0x003b20ec /* CAS cycle count register for client 3. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_4        0x003b20f0 /* CAS cycle count register for client 4. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_5        0x003b20f4 /* CAS cycle count register for client 5. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_6        0x003b20f8 /* CAS cycle count register for client 6. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_7        0x003b20fc /* CAS cycle count register for client 7. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_8        0x003b2100 /* CAS cycle count register for client 8. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_9        0x003b2104 /* CAS cycle count register for client 9. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_10       0x003b2108 /* CAS cycle count register for client 10. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_11       0x003b210c /* CAS cycle count register for client 11. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_12       0x003b2110 /* CAS cycle count register for client 12. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_13       0x003b2114 /* CAS cycle count register for client 13. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_14       0x003b2118 /* CAS cycle count register for client 14. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_15       0x003b211c /* CAS cycle count register for client 15. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_16       0x003b2120 /* CAS cycle count register for client 16. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_17       0x003b2124 /* CAS cycle count register for client 17. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_18       0x003b2128 /* CAS cycle count register for client 18. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_19       0x003b212c /* CAS cycle count register for client 19. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_20       0x003b2130 /* CAS cycle count register for client 20. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_21       0x003b2134 /* CAS cycle count register for client 21. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_22       0x003b2138 /* CAS cycle count register for client 22. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_23       0x003b213c /* CAS cycle count register for client 23. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_24       0x003b2140 /* CAS cycle count register for client 24. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_25       0x003b2144 /* CAS cycle count register for client 25. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_26       0x003b2148 /* CAS cycle count register for client 26. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_27       0x003b214c /* CAS cycle count register for client 27. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_28       0x003b2150 /* CAS cycle count register for client 28. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_29       0x003b2154 /* CAS cycle count register for client 29. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_30       0x003b2158 /* CAS cycle count register for client 30. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_31       0x003b215c /* CAS cycle count register for client 31. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_32       0x003b2160 /* CAS cycle count register for client 32. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_33       0x003b2164 /* CAS cycle count register for client 33. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_34       0x003b2168 /* CAS cycle count register for client 34. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_35       0x003b216c /* CAS cycle count register for client 35. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_36       0x003b2170 /* CAS cycle count register for client 36. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_37       0x003b2174 /* CAS cycle count register for client 37. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_38       0x003b2178 /* CAS cycle count register for client 38. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_39       0x003b217c /* CAS cycle count register for client 39. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_40       0x003b2180 /* CAS cycle count register for client 40. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_41       0x003b2184 /* CAS cycle count register for client 41. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_42       0x003b2188 /* CAS cycle count register for client 42. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_43       0x003b218c /* CAS cycle count register for client 43. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_44       0x003b2190 /* CAS cycle count register for client 44. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_45       0x003b2194 /* CAS cycle count register for client 45. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_46       0x003b2198 /* CAS cycle count register for client 46. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_47       0x003b219c /* CAS cycle count register for client 47. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_48       0x003b21a0 /* CAS cycle count register for client 48. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_49       0x003b21a4 /* CAS cycle count register for client 49. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_50       0x003b21a8 /* CAS cycle count register for client 50. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_51       0x003b21ac /* CAS cycle count register for client 51. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_52       0x003b21b0 /* CAS cycle count register for client 52. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_53       0x003b21b4 /* CAS cycle count register for client 53. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_54       0x003b21b8 /* CAS cycle count register for client 54. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_55       0x003b21bc /* CAS cycle count register for client 55. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_56       0x003b21c0 /* CAS cycle count register for client 56. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_57       0x003b21c4 /* CAS cycle count register for client 57. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_58       0x003b21c8 /* CAS cycle count register for client 58. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_59       0x003b21cc /* CAS cycle count register for client 59. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_60       0x003b21d0 /* CAS cycle count register for client 60. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_61       0x003b21d4 /* CAS cycle count register for client 61. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_62       0x003b21d8 /* CAS cycle count register for client 62. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_63       0x003b21dc /* CAS cycle count register for client 63. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_64       0x003b21e0 /* CAS cycle count register for client 64. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_65       0x003b21e4 /* CAS cycle count register for client 65. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_66       0x003b21e8 /* CAS cycle count register for client 66. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_67       0x003b21ec /* CAS cycle count register for client 67. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_68       0x003b21f0 /* CAS cycle count register for client 68. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_69       0x003b21f4 /* CAS cycle count register for client 69. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_70       0x003b21f8 /* CAS cycle count register for client 70. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_71       0x003b21fc /* CAS cycle count register for client 71. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_72       0x003b2200 /* CAS cycle count register for client 72. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_73       0x003b2204 /* CAS cycle count register for client 73. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_74       0x003b2208 /* CAS cycle count register for client 74. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_75       0x003b220c /* CAS cycle count register for client 75. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_76       0x003b2210 /* CAS cycle count register for client 76. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_77       0x003b2214 /* CAS cycle count register for client 77. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_78       0x003b2218 /* CAS cycle count register for client 78. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_79       0x003b221c /* CAS cycle count register for client 79. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_80       0x003b2220 /* CAS cycle count register for client 80. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_81       0x003b2224 /* CAS cycle count register for client 81. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_82       0x003b2228 /* CAS cycle count register for client 82. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_83       0x003b222c /* CAS cycle count register for client 83. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_84       0x003b2230 /* CAS cycle count register for client 84. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_85       0x003b2234 /* CAS cycle count register for client 85. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_86       0x003b2238 /* CAS cycle count register for client 86. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_87       0x003b223c /* CAS cycle count register for client 87. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_88       0x003b2240 /* CAS cycle count register for client 88. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_89       0x003b2244 /* CAS cycle count register for client 89. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_90       0x003b2248 /* CAS cycle count register for client 90. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_91       0x003b224c /* CAS cycle count register for client 91. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_92       0x003b2250 /* CAS cycle count register for client 92. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_93       0x003b2254 /* CAS cycle count register for client 93. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_94       0x003b2258 /* CAS cycle count register for client 94. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_95       0x003b225c /* CAS cycle count register for client 95. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_96       0x003b2260 /* CAS cycle count register for client 96. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_97       0x003b2264 /* CAS cycle count register for client 97. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_98       0x003b2268 /* CAS cycle count register for client 98. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_99       0x003b226c /* CAS cycle count register for client 99. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_100      0x003b2270 /* CAS cycle count register for client 100. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_101      0x003b2274 /* CAS cycle count register for client 101. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_102      0x003b2278 /* CAS cycle count register for client 102. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_103      0x003b227c /* CAS cycle count register for client 103. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_104      0x003b2280 /* CAS cycle count register for client 104. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_105      0x003b2284 /* CAS cycle count register for client 105. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_106      0x003b2288 /* CAS cycle count register for client 106. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_107      0x003b228c /* CAS cycle count register for client 107. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_108      0x003b2290 /* CAS cycle count register for client 108. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_109      0x003b2294 /* CAS cycle count register for client 109. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_110      0x003b2298 /* CAS cycle count register for client 110. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_111      0x003b229c /* CAS cycle count register for client 111. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_112      0x003b22a0 /* CAS cycle count register for client 112. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_113      0x003b22a4 /* CAS cycle count register for client 113. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_114      0x003b22a8 /* CAS cycle count register for client 114. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_115      0x003b22ac /* CAS cycle count register for client 115. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_116      0x003b22b0 /* CAS cycle count register for client 116. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_117      0x003b22b4 /* CAS cycle count register for client 117. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_118      0x003b22b8 /* CAS cycle count register for client 118. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_119      0x003b22bc /* CAS cycle count register for client 119. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_120      0x003b22c0 /* CAS cycle count register for client 120. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_121      0x003b22c4 /* CAS cycle count register for client 121. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_122      0x003b22c8 /* CAS cycle count register for client 122. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_123      0x003b22cc /* CAS cycle count register for client 123. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_124      0x003b22d0 /* CAS cycle count register for client 124. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_125      0x003b22d4 /* CAS cycle count register for client 125. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_126      0x003b22d8 /* CAS cycle count register for client 126. */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_127      0x003b22dc /* CAS cycle count register for client 127. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CAS_ALL         0x003b22e0 /* Minimum DRAM CAS cycle count register. */
+#define BCHP_MEMC_DDR_0_STAT_MIN_TRANS_CYCLES_ALL 0x003b22e4 /* Minimum number of transactions cycles (CAS+Penalty_ALL). */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL 0x003b22e8 /* MEMSYS Auto Init Control. */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS  0x003b22ec /* MEMSYS Auto Init Status. */
+#define BCHP_MEMC_DDR_0_PHY_VDL_CALIB_AUTO_INIT_OVERRIDE 0x003b22f0 /* PHY VDL calibrate override from memc auto init. */
 
 /***************************************************************************
  *CNTRLR_CONFIG - Memory Controller Mode-Configuration Register.
@@ -654,132 +802,6 @@
 #define BCHP_MEMC_DDR_0_BANK_STATUS_BANK0_STATUS_SHIFT             0
 
 /***************************************************************************
- *STAT_CONTROL - Statistics Control register
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_CONTROL :: reserved0 [31:11] */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_reserved0_MASK                0xfffff800
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_reserved0_SHIFT               11
-
-/* MEMC_DDR_0 :: STAT_CONTROL :: COUNTER_MODE [10:10] */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_MASK             0x00000400
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_SHIFT            10
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_MAX_MIN_FUNCT    1
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_NORMAL           0
-
-/* MEMC_DDR_0 :: STAT_CONTROL :: PERF_CNT [09:09] */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_PERF_CNT_MASK                 0x00000200
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_PERF_CNT_SHIFT                9
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_PERF_CNT_ENABLE               1
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_PERF_CNT_DISABLE              0
-
-/* MEMC_DDR_0 :: STAT_CONTROL :: IDLE_CNT [08:08] */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_IDLE_CNT_MASK                 0x00000100
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_IDLE_CNT_SHIFT                8
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_IDLE_CNT_ENABLE               1
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_IDLE_CNT_DISABLE              0
-
-/* MEMC_DDR_0 :: STAT_CONTROL :: SERVICE_CNT [07:07] */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_SERVICE_CNT_MASK              0x00000080
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_SERVICE_CNT_SHIFT             7
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_SERVICE_CNT_ENABLE            1
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_SERVICE_CNT_DISABLE           0
-
-/* MEMC_DDR_0 :: STAT_CONTROL :: CLIENT_ID [06:00] */
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_CLIENT_ID_MASK                0x0000007f
-#define BCHP_MEMC_DDR_0_STAT_CONTROL_CLIENT_ID_SHIFT               0
-
-/***************************************************************************
- *STAT_TIMER - Statistics Timer
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_TIMER :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_TIMER_COUNT_MASK                      0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_TIMER_COUNT_SHIFT                     0
-
-/***************************************************************************
- *STAT_IDLE - Idle Cycle Count Register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_IDLE :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_IDLE_COUNT_MASK                       0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_IDLE_COUNT_SHIFT                      0
-
-/***************************************************************************
- *STAT_MAX_IDLE - Maximum idle cycle count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MAX_IDLE :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_COUNT_MASK                   0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_COUNT_SHIFT                  0
-
-/***************************************************************************
- *STAT_CAS - CAS Count Register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_CAS :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_CAS_COUNT_MASK                        0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_CAS_COUNT_SHIFT                       0
-
-/***************************************************************************
- *STAT_MAX_CAS - Maximum CAS cycle count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MAX_CAS :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MAX_CAS_COUNT_MASK                    0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MAX_CAS_COUNT_SHIFT                   0
-
-/***************************************************************************
- *STAT_SERVICE_CYCLE - Service Cycle Count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_SERVICE_CYCLE :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE_COUNT_MASK              0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_CYCLE_COUNT_SHIFT             0
-
-/***************************************************************************
- *STAT_MAX_SERVICE_CYCLE - Maximum service cycle count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MAX_SERVICE_CYCLE :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE_COUNT_MASK          0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_CYCLE_COUNT_SHIFT         0
-
-/***************************************************************************
- *STAT_MIN_SERVICE_CYCLE - Minimum service cycle count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MIN_SERVICE_CYCLE :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE_COUNT_MASK          0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_CYCLE_COUNT_SHIFT         0
-
-/***************************************************************************
- *STAT_SERVICE_TRANS - Service Transaction Count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_SERVICE_TRANS :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS_COUNT_MASK              0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_SERVICE_TRANS_COUNT_SHIFT             0
-
-/***************************************************************************
- *STAT_MAX_SERVICE_TRANS - Maximum service Transaction count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MAX_SERVICE_TRANS :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS_COUNT_MASK          0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MAX_SERVICE_TRANS_COUNT_SHIFT         0
-
-/***************************************************************************
- *STAT_MIN_SERVICE_TRANS - Minimum service cycle Transaction register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MIN_SERVICE_TRANS :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS_COUNT_MASK          0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MIN_SERVICE_TRANS_COUNT_SHIFT         0
-
-/***************************************************************************
- *STAT_PERF - Performance Count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_PERF :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_PERF_COUNT_MASK                       0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_PERF_COUNT_SHIFT                      0
-
-/***************************************************************************
- *STAT_MAX_PERF - Maximum performance count register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: STAT_MAX_PERF :: COUNT [31:00] */
-#define BCHP_MEMC_DDR_0_STAT_MAX_PERF_COUNT_MASK                   0xffffffff
-#define BCHP_MEMC_DDR_0_STAT_MAX_PERF_COUNT_SHIFT                  0
-
-/***************************************************************************
  *TESTER_LATENCY - Memory Controller, Tester Latency Register.
  ***************************************************************************/
 /* MEMC_DDR_0 :: TESTER_LATENCY :: reserved0 [31:07] */
@@ -1068,6 +1090,1216 @@
 /* MEMC_DDR_0 :: DRAM_DDR3_RESET_PERIOD :: DRAM_RESET_PERIOD [19:00] */
 #define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_DRAM_RESET_PERIOD_MASK 0x000fffff
 #define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_DRAM_RESET_PERIOD_SHIFT 0
+
+/***************************************************************************
+ *STAT_CONTROL - Statistics Control register
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CONTROL :: reserved0 [31:09] */
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_reserved0_MASK                0xfffffe00
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_reserved0_SHIFT               9
+
+/* MEMC_DDR_0 :: STAT_CONTROL :: COUNTER_MODE [08:08] */
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_MASK             0x00000100
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_SHIFT            8
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_MAX_MIN_FUNCT    1
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_COUNTER_MODE_NORMAL           0
+
+/* MEMC_DDR_0 :: STAT_CONTROL :: STAT_ENABLE [07:07] */
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_STAT_ENABLE_MASK              0x00000080
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_STAT_ENABLE_SHIFT             7
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_STAT_ENABLE_ENABLE            1
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_STAT_ENABLE_DISABLE           0
+
+/* MEMC_DDR_0 :: STAT_CONTROL :: CLIENT_ID [06:00] */
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_CLIENT_ID_MASK                0x0000007f
+#define BCHP_MEMC_DDR_0_STAT_CONTROL_CLIENT_ID_SHIFT               0
+
+/***************************************************************************
+ *STAT_TIMER - Statistics Timer
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_TIMER :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_TIMER_COUNT_MASK                      0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_TIMER_COUNT_SHIFT                     0
+
+/***************************************************************************
+ *STAT_IDLE_NOP - DRAM Idle_NOP Cycle Count Register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_IDLE_NOP :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_IDLE_NOP_COUNT_MASK                   0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_IDLE_NOP_COUNT_SHIFT                  0
+
+/***************************************************************************
+ *STAT_MAX_IDLE_NOP - Maximum DRAM idle_NOP cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_IDLE_NOP :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_NOP_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_IDLE_NOP_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_ALL - CAS Count Register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_ALL_COUNT_MASK                    0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_ALL_COUNT_SHIFT                   0
+
+/***************************************************************************
+ *STAT_MAX_CAS_ALL - Maximum DRAM CAS cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_CAS_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CAS_ALL_COUNT_MASK                0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_CAS_ALL_COUNT_SHIFT               0
+
+/***************************************************************************
+ *STAT_PENALTY_ALL - DRAM Penalty Cycle Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_PENALTY_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_PENALTY_ALL_COUNT_MASK                0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_PENALTY_ALL_COUNT_SHIFT               0
+
+/***************************************************************************
+ *STAT_MAX_TRANS_CYCLES_ALL - Maximum number of transactions cycles (CAS+Penalty_ALL).
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_TRANS_CYCLES_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_TRANS_CYCLES_ALL_COUNT_MASK       0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_TRANS_CYCLES_ALL_COUNT_SHIFT      0
+
+/***************************************************************************
+ *STAT_TRANS_READ_ALL - Number of overall system memory read transactions.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_TRANS_READ_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_TRANS_READ_ALL_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_TRANS_READ_ALL_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_TRANS_WRITE_ALL - Number of overall system memory write transactions.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_TRANS_WRITE_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_TRANS_WRITE_ALL_COUNT_MASK            0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_TRANS_WRITE_ALL_COUNT_SHIFT           0
+
+/***************************************************************************
+ *STAT_MAX_TRANS_ALL - Maximum Number of Overall System memory transactions.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_TRANS_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_TRANS_ALL_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_TRANS_ALL_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_MIN_TRANS_ALL - Minimum Number of Overall System memory transactions.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_TRANS_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_TRANS_ALL_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_TRANS_ALL_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CLIENT_SERVICE_CAS - Service CAS Cycle Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_SERVICE_CAS :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_CAS_COUNT_MASK         0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_CAS_COUNT_SHIFT        0
+
+/***************************************************************************
+ *STAT_MAX_CLIENT_SERVICE_CAS - Maximum service CAS cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_CLIENT_SERVICE_CAS :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_CAS_COUNT_MASK     0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_CAS_COUNT_SHIFT    0
+
+/***************************************************************************
+ *STAT_MIN_CLIENT_SERVICE_CAS - Minimum service CAS cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_CLIENT_SERVICE_CAS :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_CAS_COUNT_MASK     0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_CAS_COUNT_SHIFT    0
+
+/***************************************************************************
+ *STAT_CLIENT_SERVICE_INTR_PENALTY - Service Intra DRAM Penalty Cycle Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_SERVICE_INTR_PENALTY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_INTR_PENALTY_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_INTR_PENALTY_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_CLIENT_SERVICE_POST_PENALTY - Service Post DRAM Penalty Cycle Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_SERVICE_POST_PENALTY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_POST_PENALTY_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_POST_PENALTY_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_MAX_CLIENT_SERVICE_CYCLES - Maximum service cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_CLIENT_SERVICE_CYCLES :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_CYCLES_COUNT_MASK  0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_CYCLES_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_MIN_CLIENT_SERVICE_CYCLES - Minimum service cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_CLIENT_SERVICE_CYCLES :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_CYCLES_COUNT_MASK  0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_CYCLES_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_CLIENT_SERVICE_TRANS_READ - Service Read Transaction Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_SERVICE_TRANS_READ :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_TRANS_READ_COUNT_MASK  0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_TRANS_READ_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_CLIENT_SERVICE_TRANS_WRITE - Service Write Transaction Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_SERVICE_TRANS_WRITE :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_TRANS_WRITE_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_TRANS_WRITE_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_MAX_CLIENT_SERVICE_TRANS - Maximum service Transaction count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_CLIENT_SERVICE_TRANS :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_TRANS_COUNT_MASK   0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_TRANS_COUNT_SHIFT  0
+
+/***************************************************************************
+ *STAT_MIN_CLIENT_SERVICE_TRANS - Minimum service cycle Transaction register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_CLIENT_SERVICE_TRANS :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_TRANS_COUNT_MASK   0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_TRANS_COUNT_SHIFT  0
+
+/***************************************************************************
+ *STAT_CLIENT_SERVICE_LATENCY - Service Latency Count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_SERVICE_LATENCY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_LATENCY_COUNT_MASK     0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_SERVICE_LATENCY_COUNT_SHIFT    0
+
+/***************************************************************************
+ *STAT_MAX_CLIENT_SERVICE_LATENCY - Maximum Service Latency count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MAX_CLIENT_SERVICE_LATENCY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_LATENCY_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MAX_CLIENT_SERVICE_LATENCY_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_MIN_CLIENT_SERVICE_LATENCY - Minimum Service Latency count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_CLIENT_SERVICE_LATENCY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_LATENCY_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_CLIENT_SERVICE_LATENCY_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_CLIENT_ABS_MAX_SERVICE_LATENCY - Absolute Minimum Service Latency count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_ABS_MAX_SERVICE_LATENCY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_ABS_MAX_SERVICE_LATENCY_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_ABS_MAX_SERVICE_LATENCY_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_CLIENT_ABS_MIN_SERVICE_LATENCY - Absolute Maximum Service Latency count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CLIENT_ABS_MIN_SERVICE_LATENCY :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_ABS_MIN_SERVICE_LATENCY_COUNT_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CLIENT_ABS_MIN_SERVICE_LATENCY_COUNT_SHIFT 0
+
+/***************************************************************************
+ *STAT_REFRESH - Total number of refreshes issuedr.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_REFRESH :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_REFRESH_COUNT_MASK                    0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_REFRESH_COUNT_SHIFT                   0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_0 - CAS cycle count register for client 0.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_0 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_0_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_0_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_1 - CAS cycle count register for client 1.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_1 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_1_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_1_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_2 - CAS cycle count register for client 2.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_2 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_2_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_2_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_3 - CAS cycle count register for client 3.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_3 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_3_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_3_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_4 - CAS cycle count register for client 4.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_4 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_4_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_4_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_5 - CAS cycle count register for client 5.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_5 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_5_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_5_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_6 - CAS cycle count register for client 6.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_6 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_6_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_6_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_7 - CAS cycle count register for client 7.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_7 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_7_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_7_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_8 - CAS cycle count register for client 8.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_8 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_8_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_8_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_9 - CAS cycle count register for client 9.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_9 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_9_COUNT_MASK               0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_9_COUNT_SHIFT              0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_10 - CAS cycle count register for client 10.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_10 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_10_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_10_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_11 - CAS cycle count register for client 11.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_11 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_11_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_11_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_12 - CAS cycle count register for client 12.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_12 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_12_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_12_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_13 - CAS cycle count register for client 13.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_13 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_13_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_13_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_14 - CAS cycle count register for client 14.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_14 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_14_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_14_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_15 - CAS cycle count register for client 15.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_15 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_15_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_15_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_16 - CAS cycle count register for client 16.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_16 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_16_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_16_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_17 - CAS cycle count register for client 17.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_17 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_17_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_17_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_18 - CAS cycle count register for client 18.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_18 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_18_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_18_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_19 - CAS cycle count register for client 19.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_19 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_19_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_19_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_20 - CAS cycle count register for client 20.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_20 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_20_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_20_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_21 - CAS cycle count register for client 21.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_21 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_21_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_21_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_22 - CAS cycle count register for client 22.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_22 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_22_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_22_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_23 - CAS cycle count register for client 23.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_23 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_23_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_23_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_24 - CAS cycle count register for client 24.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_24 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_24_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_24_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_25 - CAS cycle count register for client 25.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_25 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_25_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_25_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_26 - CAS cycle count register for client 26.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_26 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_26_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_26_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_27 - CAS cycle count register for client 27.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_27 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_27_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_27_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_28 - CAS cycle count register for client 28.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_28 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_28_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_28_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_29 - CAS cycle count register for client 29.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_29 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_29_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_29_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_30 - CAS cycle count register for client 30.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_30 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_30_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_30_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_31 - CAS cycle count register for client 31.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_31 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_31_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_31_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_32 - CAS cycle count register for client 32.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_32 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_32_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_32_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_33 - CAS cycle count register for client 33.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_33 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_33_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_33_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_34 - CAS cycle count register for client 34.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_34 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_34_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_34_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_35 - CAS cycle count register for client 35.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_35 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_35_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_35_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_36 - CAS cycle count register for client 36.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_36 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_36_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_36_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_37 - CAS cycle count register for client 37.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_37 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_37_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_37_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_38 - CAS cycle count register for client 38.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_38 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_38_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_38_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_39 - CAS cycle count register for client 39.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_39 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_39_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_39_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_40 - CAS cycle count register for client 40.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_40 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_40_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_40_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_41 - CAS cycle count register for client 41.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_41 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_41_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_41_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_42 - CAS cycle count register for client 42.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_42 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_42_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_42_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_43 - CAS cycle count register for client 43.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_43 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_43_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_43_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_44 - CAS cycle count register for client 44.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_44 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_44_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_44_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_45 - CAS cycle count register for client 45.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_45 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_45_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_45_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_46 - CAS cycle count register for client 46.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_46 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_46_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_46_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_47 - CAS cycle count register for client 47.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_47 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_47_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_47_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_48 - CAS cycle count register for client 48.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_48 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_48_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_48_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_49 - CAS cycle count register for client 49.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_49 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_49_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_49_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_50 - CAS cycle count register for client 50.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_50 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_50_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_50_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_51 - CAS cycle count register for client 51.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_51 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_51_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_51_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_52 - CAS cycle count register for client 52.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_52 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_52_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_52_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_53 - CAS cycle count register for client 53.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_53 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_53_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_53_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_54 - CAS cycle count register for client 54.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_54 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_54_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_54_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_55 - CAS cycle count register for client 55.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_55 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_55_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_55_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_56 - CAS cycle count register for client 56.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_56 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_56_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_56_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_57 - CAS cycle count register for client 57.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_57 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_57_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_57_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_58 - CAS cycle count register for client 58.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_58 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_58_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_58_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_59 - CAS cycle count register for client 59.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_59 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_59_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_59_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_60 - CAS cycle count register for client 60.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_60 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_60_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_60_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_61 - CAS cycle count register for client 61.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_61 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_61_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_61_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_62 - CAS cycle count register for client 62.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_62 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_62_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_62_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_63 - CAS cycle count register for client 63.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_63 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_63_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_63_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_64 - CAS cycle count register for client 64.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_64 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_64_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_64_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_65 - CAS cycle count register for client 65.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_65 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_65_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_65_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_66 - CAS cycle count register for client 66.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_66 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_66_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_66_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_67 - CAS cycle count register for client 67.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_67 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_67_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_67_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_68 - CAS cycle count register for client 68.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_68 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_68_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_68_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_69 - CAS cycle count register for client 69.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_69 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_69_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_69_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_70 - CAS cycle count register for client 70.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_70 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_70_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_70_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_71 - CAS cycle count register for client 71.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_71 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_71_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_71_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_72 - CAS cycle count register for client 72.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_72 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_72_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_72_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_73 - CAS cycle count register for client 73.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_73 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_73_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_73_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_74 - CAS cycle count register for client 74.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_74 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_74_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_74_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_75 - CAS cycle count register for client 75.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_75 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_75_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_75_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_76 - CAS cycle count register for client 76.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_76 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_76_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_76_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_77 - CAS cycle count register for client 77.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_77 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_77_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_77_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_78 - CAS cycle count register for client 78.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_78 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_78_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_78_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_79 - CAS cycle count register for client 79.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_79 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_79_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_79_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_80 - CAS cycle count register for client 80.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_80 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_80_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_80_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_81 - CAS cycle count register for client 81.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_81 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_81_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_81_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_82 - CAS cycle count register for client 82.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_82 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_82_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_82_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_83 - CAS cycle count register for client 83.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_83 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_83_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_83_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_84 - CAS cycle count register for client 84.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_84 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_84_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_84_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_85 - CAS cycle count register for client 85.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_85 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_85_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_85_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_86 - CAS cycle count register for client 86.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_86 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_86_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_86_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_87 - CAS cycle count register for client 87.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_87 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_87_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_87_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_88 - CAS cycle count register for client 88.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_88 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_88_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_88_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_89 - CAS cycle count register for client 89.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_89 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_89_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_89_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_90 - CAS cycle count register for client 90.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_90 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_90_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_90_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_91 - CAS cycle count register for client 91.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_91 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_91_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_91_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_92 - CAS cycle count register for client 92.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_92 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_92_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_92_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_93 - CAS cycle count register for client 93.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_93 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_93_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_93_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_94 - CAS cycle count register for client 94.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_94 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_94_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_94_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_95 - CAS cycle count register for client 95.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_95 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_95_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_95_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_96 - CAS cycle count register for client 96.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_96 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_96_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_96_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_97 - CAS cycle count register for client 97.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_97 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_97_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_97_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_98 - CAS cycle count register for client 98.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_98 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_98_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_98_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_99 - CAS cycle count register for client 99.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_99 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_99_COUNT_MASK              0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_99_COUNT_SHIFT             0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_100 - CAS cycle count register for client 100.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_100 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_100_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_100_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_101 - CAS cycle count register for client 101.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_101 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_101_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_101_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_102 - CAS cycle count register for client 102.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_102 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_102_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_102_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_103 - CAS cycle count register for client 103.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_103 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_103_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_103_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_104 - CAS cycle count register for client 104.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_104 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_104_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_104_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_105 - CAS cycle count register for client 105.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_105 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_105_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_105_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_106 - CAS cycle count register for client 106.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_106 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_106_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_106_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_107 - CAS cycle count register for client 107.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_107 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_107_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_107_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_108 - CAS cycle count register for client 108.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_108 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_108_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_108_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_109 - CAS cycle count register for client 109.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_109 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_109_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_109_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_110 - CAS cycle count register for client 110.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_110 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_110_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_110_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_111 - CAS cycle count register for client 111.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_111 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_111_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_111_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_112 - CAS cycle count register for client 112.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_112 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_112_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_112_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_113 - CAS cycle count register for client 113.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_113 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_113_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_113_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_114 - CAS cycle count register for client 114.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_114 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_114_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_114_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_115 - CAS cycle count register for client 115.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_115 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_115_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_115_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_116 - CAS cycle count register for client 116.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_116 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_116_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_116_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_117 - CAS cycle count register for client 117.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_117 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_117_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_117_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_118 - CAS cycle count register for client 118.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_118 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_118_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_118_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_119 - CAS cycle count register for client 119.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_119 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_119_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_119_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_120 - CAS cycle count register for client 120.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_120 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_120_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_120_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_121 - CAS cycle count register for client 121.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_121 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_121_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_121_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_122 - CAS cycle count register for client 122.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_122 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_122_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_122_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_123 - CAS cycle count register for client 123.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_123 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_123_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_123_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_124 - CAS cycle count register for client 124.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_124 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_124_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_124_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_125 - CAS cycle count register for client 125.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_125 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_125_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_125_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_126 - CAS cycle count register for client 126.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_126 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_126_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_126_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_CAS_CLIENT_127 - CAS cycle count register for client 127.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_CAS_CLIENT_127 :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_127_COUNT_MASK             0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_CAS_CLIENT_127_COUNT_SHIFT            0
+
+/***************************************************************************
+ *STAT_MIN_CAS_ALL - Minimum DRAM CAS cycle count register.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_CAS_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_CAS_ALL_COUNT_MASK                0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_CAS_ALL_COUNT_SHIFT               0
+
+/***************************************************************************
+ *STAT_MIN_TRANS_CYCLES_ALL - Minimum number of transactions cycles (CAS+Penalty_ALL).
+ ***************************************************************************/
+/* MEMC_DDR_0 :: STAT_MIN_TRANS_CYCLES_ALL :: COUNT [31:00] */
+#define BCHP_MEMC_DDR_0_STAT_MIN_TRANS_CYCLES_ALL_COUNT_MASK       0xffffffff
+#define BCHP_MEMC_DDR_0_STAT_MIN_TRANS_CYCLES_ALL_COUNT_SHIFT      0
+
+/***************************************************************************
+ *MEMSYS_AUTO_INIT_CONTROL - MEMSYS Auto Init Control.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: reserved0 [31:09] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_reserved0_MASK    0xfffffe00
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_reserved0_SHIFT   9
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_PHY_VDL_CALIB_AUTO_INIT [08:08] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_PHY_VDL_CALIB_AUTO_INIT_MASK 0x00000100
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_PHY_VDL_CALIB_AUTO_INIT_SHIFT 8
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_DRAM_INIT_DONE_SET [07:07] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_DRAM_INIT_DONE_SET_MASK 0x00000080
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_DRAM_INIT_DONE_SET_SHIFT 7
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_STRAP_VALID_RESET [06:06] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_STRAP_VALID_RESET_MASK 0x00000040
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_STRAP_VALID_RESET_SHIFT 6
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_STRAP_VALID_SET [05:05] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_STRAP_VALID_SET_MASK 0x00000020
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_STRAP_VALID_SET_SHIFT 5
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_PHY_READY_SET [04:04] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_PHY_READY_SET_MASK 0x00000010
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_PHY_READY_SET_SHIFT 4
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_AUTO_INIT_ACTIVE_RESET [03:03] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_AUTO_INIT_ACTIVE_RESET_MASK 0x00000008
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_AUTO_INIT_ACTIVE_RESET_SHIFT 3
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_SHIM_PLL_LOCK_TO_PHY_SET [02:02] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_SHIM_PLL_LOCK_TO_PHY_SET_MASK 0x00000004
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_SHIM_PLL_LOCK_TO_PHY_SET_SHIFT 2
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: SKIP_PHY_AUTO_INIT [01:01] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_SKIP_PHY_AUTO_INIT_MASK 0x00000002
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_SKIP_PHY_AUTO_INIT_SHIFT 1
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: MEMSYS_AUTO_INIT_START [00:00] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_MEMSYS_AUTO_INIT_START_MASK 0x00000001
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_MEMSYS_AUTO_INIT_START_SHIFT 0
+
+/***************************************************************************
+ *MEMSYS_AUTO_INIT_STATUS - MEMSYS Auto Init Status.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: reserved0 [31:11] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_reserved0_MASK     0xfffff800
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_reserved0_SHIFT    11
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: MEMC_AUTO_INIT_STATES [10:05] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_MEMC_AUTO_INIT_STATES_MASK 0x000007e0
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_MEMC_AUTO_INIT_STATES_SHIFT 5
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: AUTO_INIT_ACTIVE [04:04] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_AUTO_INIT_ACTIVE_MASK 0x00000010
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_AUTO_INIT_ACTIVE_SHIFT 4
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: PHY_STRAP_VALID [03:03] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_PHY_STRAP_VALID_MASK 0x00000008
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_PHY_STRAP_VALID_SHIFT 3
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: PHY_READY [02:02] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_PHY_READY_MASK     0x00000004
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_PHY_READY_SHIFT    2
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: DRAM_INIT_DONE [01:01] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_DRAM_INIT_DONE_MASK 0x00000002
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_DRAM_INIT_DONE_SHIFT 1
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_STATUS :: MEMSYS_AUTO_INIT_DONE [00:00] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_MEMSYS_AUTO_INIT_DONE_MASK 0x00000001
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS_MEMSYS_AUTO_INIT_DONE_SHIFT 0
+
+/***************************************************************************
+ *PHY_VDL_CALIB_AUTO_INIT_OVERRIDE - PHY VDL calibrate override from memc auto init.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: PHY_VDL_CALIB_AUTO_INIT_OVERRIDE :: PHY_VDL_CALIB_OVERRIDE_VAL [31:00] */
+#define BCHP_MEMC_DDR_0_PHY_VDL_CALIB_AUTO_INIT_OVERRIDE_PHY_VDL_CALIB_OVERRIDE_VAL_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_PHY_VDL_CALIB_AUTO_INIT_OVERRIDE_PHY_VDL_CALIB_OVERRIDE_VAL_SHIFT 0
 
 #endif /* #ifndef BCHP_MEMC_DDR_0_H__ */
 

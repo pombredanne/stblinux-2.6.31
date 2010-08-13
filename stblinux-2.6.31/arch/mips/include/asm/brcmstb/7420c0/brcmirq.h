@@ -39,6 +39,7 @@
 #define BRCM_IRQ_PCI_A0		33
 #define BRCM_IRQ_PCI_A1		34
 #define BRCM_IRQ_PCI_A2		35
+#define BRCM_IRQ_PM		70
 #define BRCM_IRQ_SATA		42
 #define BRCM_IRQ_UARTA		22
 #define BRCM_IRQ_UARTB		65

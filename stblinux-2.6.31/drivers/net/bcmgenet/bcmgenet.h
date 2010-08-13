@@ -23,6 +23,7 @@
 #include <linux/skbuff.h>
 #include <linux/netdevice.h>
 #include <linux/spinlock.h>
+#include <linux/clk.h>
 #include "bcmgenet_map.h"
 
 #define TOTAL_DESC				256		/* total number of Buffer Descriptors, same for Rx/Tx */
@@ -124,7 +125,11 @@ typedef struct BcmEnet_devctrl {
 
 	struct work_struct bcmgenet_irq_work;	/* bottom half work */
 	struct work_struct bcmgenet_link_work;	/* GPHY link status work */
-    int             devnum;				/* 0=EMAC_0, 1=EMAC_1 */
+    int    devnum;							/* 0=EMAC_0, 1=EMAC_1 */
+	struct clk *clk;
+	int dev_opened;						/* device opened. */
+	int dev_asleep;						/* device is at sleep */
+	struct platform_device *pdev;
 } BcmEnet_devctrl;
 
 #if defined(CONFIG_BCMGENET_DUMP_TRACE)

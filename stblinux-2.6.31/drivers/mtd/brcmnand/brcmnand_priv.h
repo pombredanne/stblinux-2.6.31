@@ -317,6 +317,14 @@ extern int brcmnand_scan(struct mtd_info *mtd , int cs, int maxchips);
 extern void brcmnand_release(struct mtd_info *mtd);
 
 /* BrcmNAND BBT interface */
+
+/* Auto-format scan layout for BCH-8 with 16B OOB */
+#define BRCMNAND_BBT_AUTO_PLACE	0x80000000
+
+extern uint8_t* brcmnand_transfer_oob(struct brcmnand_chip *chip, uint8_t *oob,
+				  struct mtd_oob_ops *ops, int len);
+extern uint8_t* brcmnand_fill_oob(struct brcmnand_chip *chip, uint8_t *oob, struct mtd_oob_ops *ops);
+
 /* Read the OOB bytes and tell whether a block is bad without consulting the BBT */
 extern int brcmnand_isbad_raw (struct mtd_info *mtd, loff_t offs);
 

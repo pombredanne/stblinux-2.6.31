@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri May 21 03:19:03 2010
- *                 MD5 Checksum         a9e4c3bccb6739752e7f29050fac92f1
+ * Date:           Generated on         Fri Jul  2 03:06:57 2010
+ *                 MD5 Checksum         8c090aa917c38117bf4037bfe433c122
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -321,7 +321,7 @@
 #define BCHP_Clkgen_SC_regs_REG_START                      0x00300640
 #define BCHP_Clkgen_SC_regs_REG_END                        0x00300644
 #define BCHP_MEM_PWR_DOWN_REG_START                        0x00300680
-#define BCHP_MEM_PWR_DOWN_REG_END                          0x003006c8
+#define BCHP_MEM_PWR_DOWN_REG_END                          0x003006d0
 #define BCHP_MIPS_PLL_REG_START                            0x00300a00
 #define BCHP_MIPS_PLL_REG_END                              0x00300a2c
 #define BCHP_MIPS_PLL_CLUSTER_REGS_GR_BRIDGE_REG_START     0x00300a40
@@ -337,7 +337,7 @@
 #define BCHP_MEMC_ARB_0_REG_START                          0x003b1000
 #define BCHP_MEMC_ARB_0_REG_END                            0x003b1244
 #define BCHP_MEMC_DDR_0_REG_START                          0x003b2000
-#define BCHP_MEMC_DDR_0_REG_END                            0x003b20a0
+#define BCHP_MEMC_DDR_0_REG_END                            0x003b22e0
 #define BCHP_MEMC_L2_0_REG_START                           0x003b3000
 #define BCHP_MEMC_L2_0_REG_END                             0x003b302c
 #define BCHP_MEMC_RGRB_0_REG_START                         0x003b4000
@@ -345,7 +345,7 @@
 #define BCHP_MEMC_MISC_0_REG_START                         0x003b5000
 #define BCHP_MEMC_MISC_0_REG_END                           0x003b5010
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_START            0x003b6000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_END              0x003b60a4
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_END              0x003b60c0
 #define BCHP_DDR40_PHY_WORD_LANE_0_REG_START               0x003b6200
 #define BCHP_DDR40_PHY_WORD_LANE_0_REG_END                 0x003b63ac
 #define BCHP_DDR40_PHY_WORD_LANE_1_REG_START               0x003b6400
@@ -541,7 +541,7 @@
 #define BCHP_LACE_0_REG_START                              0x00544400
 #define BCHP_LACE_0_REG_END                                0x00544558
 #define BCHP_SHADE_0_REG_START                             0x00544800
-#define BCHP_SHADE_0_REG_END                               0x005449b8
+#define BCHP_SHADE_0_REG_END                               0x005449fc
 #define BCHP_HIST_1_REG_START                              0x00545000
 #define BCHP_HIST_1_REG_END                                0x00545630
 #define BCHP_MASK_0_REG_START                              0x00546000
@@ -571,7 +571,7 @@
 #define BCHP_HD_ANR_AND_0_REG_START                        0x00581800
 #define BCHP_HD_ANR_AND_0_REG_END                          0x00581888
 #define BCHP_MDI_TOP_0_REG_START                           0x00582000
-#define BCHP_MDI_TOP_0_REG_END                             0x00582030
+#define BCHP_MDI_TOP_0_REG_END                             0x00582050
 #define BCHP_MDI_FCB_0_REG_START                           0x00582400
 #define BCHP_MDI_FCB_0_REG_END                             0x005827fc
 #define BCHP_MDI_PPB_0_REG_START                           0x00582800
@@ -1095,7 +1095,7 @@
 #define BCHP_PDP_SPI3_REG_START                            0x005b8060
 #define BCHP_PDP_SPI3_REG_END                              0x005b807c
 #define BCHP_BVN_I2S_REG_START                             0x005b8080
-#define BCHP_BVN_I2S_REG_END                               0x005b80f0
+#define BCHP_BVN_I2S_REG_END                               0x005b8098
 #define BCHP_BVN_PWM_REG_START                             0x005b8100
 #define BCHP_BVN_PWM_REG_END                               0x005b8138
 #define BCHP_PDP_BACKEND_VFD_REG_START                     0x005c0000

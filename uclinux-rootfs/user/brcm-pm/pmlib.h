@@ -72,7 +72,7 @@ struct brcm_pm_state
 
 	int ddr_timeout;	/* 0=no PM, >0 = timeout for self-refresh */
 
-	unsigned long standby_flags;
+	int standby_flags;
 };
 
 struct brcm_pm_cfg

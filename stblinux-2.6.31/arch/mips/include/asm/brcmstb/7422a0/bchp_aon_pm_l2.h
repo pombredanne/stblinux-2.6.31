@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:15:51 2010
- *                 MD5 Checksum         d3eddea23beec7e33d13b4bcb5193126
+ * Date:           Generated on         Mon Jun 28 18:40:03 2010
+ *                 MD5 Checksum         2e12e9c7735691062d23de8e3e69b7a8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_aon_pm_l2.h $
+ * 
+ * Hydra_Software_Devel/5   6/29/10 9:25p albertl
+ * SW7422-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -42,29 +45,33 @@
 /***************************************************************************
  *AON_PM_L2 - AON Power Management L2 Interrupt Controller Registers
  ***************************************************************************/
-#define BCHP_AON_PM_L2_CPU_STATUS                0x00401140 /* CPU interrupt Status Register */
-#define BCHP_AON_PM_L2_CPU_SET                   0x00401144 /* CPU interrupt Set Register */
-#define BCHP_AON_PM_L2_CPU_CLEAR                 0x00401148 /* CPU interrupt Clear Register */
-#define BCHP_AON_PM_L2_CPU_MASK_STATUS           0x0040114c /* CPU interrupt Mask Status Register */
-#define BCHP_AON_PM_L2_CPU_MASK_SET              0x00401150 /* CPU interrupt Mask Set Register */
-#define BCHP_AON_PM_L2_CPU_MASK_CLEAR            0x00401154 /* CPU interrupt Mask Clear Register */
-#define BCHP_AON_PM_L2_PCI_STATUS                0x00401158 /* PCI interrupt Status Register */
-#define BCHP_AON_PM_L2_PCI_SET                   0x0040115c /* PCI interrupt Set Register */
-#define BCHP_AON_PM_L2_PCI_CLEAR                 0x00401160 /* PCI interrupt Clear Register */
-#define BCHP_AON_PM_L2_PCI_MASK_STATUS           0x00401164 /* PCI interrupt Mask Status Register */
-#define BCHP_AON_PM_L2_PCI_MASK_SET              0x00401168 /* PCI interrupt Mask Set Register */
-#define BCHP_AON_PM_L2_PCI_MASK_CLEAR            0x0040116c /* PCI interrupt Mask Clear Register */
+#define BCHP_AON_PM_L2_CPU_STATUS                0x00408240 /* CPU interrupt Status Register */
+#define BCHP_AON_PM_L2_CPU_SET                   0x00408244 /* CPU interrupt Set Register */
+#define BCHP_AON_PM_L2_CPU_CLEAR                 0x00408248 /* CPU interrupt Clear Register */
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS           0x0040824c /* CPU interrupt Mask Status Register */
+#define BCHP_AON_PM_L2_CPU_MASK_SET              0x00408250 /* CPU interrupt Mask Set Register */
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR            0x00408254 /* CPU interrupt Mask Clear Register */
+#define BCHP_AON_PM_L2_PCI_STATUS                0x00408258 /* PCI interrupt Status Register */
+#define BCHP_AON_PM_L2_PCI_SET                   0x0040825c /* PCI interrupt Set Register */
+#define BCHP_AON_PM_L2_PCI_CLEAR                 0x00408260 /* PCI interrupt Clear Register */
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS           0x00408264 /* PCI interrupt Mask Status Register */
+#define BCHP_AON_PM_L2_PCI_MASK_SET              0x00408268 /* PCI interrupt Mask Set Register */
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR            0x0040826c /* PCI interrupt Mask Clear Register */
 
 /***************************************************************************
  *CPU_STATUS - CPU interrupt Status Register
  ***************************************************************************/
-/* AON_PM_L2 :: CPU_STATUS :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_CPU_STATUS_reserved0_MASK                   0xffffc000
-#define BCHP_AON_PM_L2_CPU_STATUS_reserved0_SHIFT                  14
+/* AON_PM_L2 :: CPU_STATUS :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_CPU_STATUS_reserved0_MASK                   0xffff8000
+#define BCHP_AON_PM_L2_CPU_STATUS_reserved0_SHIFT                  15
 
-/* AON_PM_L2 :: CPU_STATUS :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_CPU_STATUS_SPARE_WAKEUP_EVENT_0_MASK        0x00002000
-#define BCHP_AON_PM_L2_CPU_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT       13
+/* AON_PM_L2 :: CPU_STATUS :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_CPU_STATUS_SPARE_WAKEUP_EVENT_0_MASK        0x00004000
+#define BCHP_AON_PM_L2_CPU_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT       14
+
+/* AON_PM_L2 :: CPU_STATUS :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_CPU_STATUS_BOUNDARY_SCAN_REQ_MASK           0x00002000
+#define BCHP_AON_PM_L2_CPU_STATUS_BOUNDARY_SCAN_REQ_SHIFT          13
 
 /* AON_PM_L2 :: CPU_STATUS :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_CPU_STATUS_MOCA_MASK                        0x00001000
@@ -121,13 +128,17 @@
 /***************************************************************************
  *CPU_SET - CPU interrupt Set Register
  ***************************************************************************/
-/* AON_PM_L2 :: CPU_SET :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_CPU_SET_reserved0_MASK                      0xffffc000
-#define BCHP_AON_PM_L2_CPU_SET_reserved0_SHIFT                     14
+/* AON_PM_L2 :: CPU_SET :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_CPU_SET_reserved0_MASK                      0xffff8000
+#define BCHP_AON_PM_L2_CPU_SET_reserved0_SHIFT                     15
 
-/* AON_PM_L2 :: CPU_SET :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_CPU_SET_SPARE_WAKEUP_EVENT_0_MASK           0x00002000
-#define BCHP_AON_PM_L2_CPU_SET_SPARE_WAKEUP_EVENT_0_SHIFT          13
+/* AON_PM_L2 :: CPU_SET :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_CPU_SET_SPARE_WAKEUP_EVENT_0_MASK           0x00004000
+#define BCHP_AON_PM_L2_CPU_SET_SPARE_WAKEUP_EVENT_0_SHIFT          14
+
+/* AON_PM_L2 :: CPU_SET :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_CPU_SET_BOUNDARY_SCAN_REQ_MASK              0x00002000
+#define BCHP_AON_PM_L2_CPU_SET_BOUNDARY_SCAN_REQ_SHIFT             13
 
 /* AON_PM_L2 :: CPU_SET :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_CPU_SET_MOCA_MASK                           0x00001000
@@ -184,13 +195,17 @@
 /***************************************************************************
  *CPU_CLEAR - CPU interrupt Clear Register
  ***************************************************************************/
-/* AON_PM_L2 :: CPU_CLEAR :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_CPU_CLEAR_reserved0_MASK                    0xffffc000
-#define BCHP_AON_PM_L2_CPU_CLEAR_reserved0_SHIFT                   14
+/* AON_PM_L2 :: CPU_CLEAR :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_CPU_CLEAR_reserved0_MASK                    0xffff8000
+#define BCHP_AON_PM_L2_CPU_CLEAR_reserved0_SHIFT                   15
 
-/* AON_PM_L2 :: CPU_CLEAR :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_CPU_CLEAR_SPARE_WAKEUP_EVENT_0_MASK         0x00002000
-#define BCHP_AON_PM_L2_CPU_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT        13
+/* AON_PM_L2 :: CPU_CLEAR :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_CPU_CLEAR_SPARE_WAKEUP_EVENT_0_MASK         0x00004000
+#define BCHP_AON_PM_L2_CPU_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT        14
+
+/* AON_PM_L2 :: CPU_CLEAR :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_CPU_CLEAR_BOUNDARY_SCAN_REQ_MASK            0x00002000
+#define BCHP_AON_PM_L2_CPU_CLEAR_BOUNDARY_SCAN_REQ_SHIFT           13
 
 /* AON_PM_L2 :: CPU_CLEAR :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_CPU_CLEAR_MOCA_MASK                         0x00001000
@@ -247,13 +262,17 @@
 /***************************************************************************
  *CPU_MASK_STATUS - CPU interrupt Mask Status Register
  ***************************************************************************/
-/* AON_PM_L2 :: CPU_MASK_STATUS :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_CPU_MASK_STATUS_reserved0_MASK              0xffffc000
-#define BCHP_AON_PM_L2_CPU_MASK_STATUS_reserved0_SHIFT             14
+/* AON_PM_L2 :: CPU_MASK_STATUS :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS_reserved0_MASK              0xffff8000
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS_reserved0_SHIFT             15
 
-/* AON_PM_L2 :: CPU_MASK_STATUS :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_CPU_MASK_STATUS_SPARE_WAKEUP_EVENT_0_MASK   0x00002000
-#define BCHP_AON_PM_L2_CPU_MASK_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT  13
+/* AON_PM_L2 :: CPU_MASK_STATUS :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS_SPARE_WAKEUP_EVENT_0_MASK   0x00004000
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT  14
+
+/* AON_PM_L2 :: CPU_MASK_STATUS :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS_BOUNDARY_SCAN_REQ_MASK      0x00002000
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS_BOUNDARY_SCAN_REQ_SHIFT     13
 
 /* AON_PM_L2 :: CPU_MASK_STATUS :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_CPU_MASK_STATUS_MOCA_MASK                   0x00001000
@@ -310,13 +329,17 @@
 /***************************************************************************
  *CPU_MASK_SET - CPU interrupt Mask Set Register
  ***************************************************************************/
-/* AON_PM_L2 :: CPU_MASK_SET :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_CPU_MASK_SET_reserved0_MASK                 0xffffc000
-#define BCHP_AON_PM_L2_CPU_MASK_SET_reserved0_SHIFT                14
+/* AON_PM_L2 :: CPU_MASK_SET :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_CPU_MASK_SET_reserved0_MASK                 0xffff8000
+#define BCHP_AON_PM_L2_CPU_MASK_SET_reserved0_SHIFT                15
 
-/* AON_PM_L2 :: CPU_MASK_SET :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_CPU_MASK_SET_SPARE_WAKEUP_EVENT_0_MASK      0x00002000
-#define BCHP_AON_PM_L2_CPU_MASK_SET_SPARE_WAKEUP_EVENT_0_SHIFT     13
+/* AON_PM_L2 :: CPU_MASK_SET :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_CPU_MASK_SET_SPARE_WAKEUP_EVENT_0_MASK      0x00004000
+#define BCHP_AON_PM_L2_CPU_MASK_SET_SPARE_WAKEUP_EVENT_0_SHIFT     14
+
+/* AON_PM_L2 :: CPU_MASK_SET :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_CPU_MASK_SET_BOUNDARY_SCAN_REQ_MASK         0x00002000
+#define BCHP_AON_PM_L2_CPU_MASK_SET_BOUNDARY_SCAN_REQ_SHIFT        13
 
 /* AON_PM_L2 :: CPU_MASK_SET :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_CPU_MASK_SET_MOCA_MASK                      0x00001000
@@ -373,13 +396,17 @@
 /***************************************************************************
  *CPU_MASK_CLEAR - CPU interrupt Mask Clear Register
  ***************************************************************************/
-/* AON_PM_L2 :: CPU_MASK_CLEAR :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_reserved0_MASK               0xffffc000
-#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_reserved0_SHIFT              14
+/* AON_PM_L2 :: CPU_MASK_CLEAR :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_reserved0_MASK               0xffff8000
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_reserved0_SHIFT              15
 
-/* AON_PM_L2 :: CPU_MASK_CLEAR :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_MASK    0x00002000
-#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT   13
+/* AON_PM_L2 :: CPU_MASK_CLEAR :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_MASK    0x00004000
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT   14
+
+/* AON_PM_L2 :: CPU_MASK_CLEAR :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_BOUNDARY_SCAN_REQ_MASK       0x00002000
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR_BOUNDARY_SCAN_REQ_SHIFT      13
 
 /* AON_PM_L2 :: CPU_MASK_CLEAR :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_CPU_MASK_CLEAR_MOCA_MASK                    0x00001000
@@ -436,13 +463,17 @@
 /***************************************************************************
  *PCI_STATUS - PCI interrupt Status Register
  ***************************************************************************/
-/* AON_PM_L2 :: PCI_STATUS :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_PCI_STATUS_reserved0_MASK                   0xffffc000
-#define BCHP_AON_PM_L2_PCI_STATUS_reserved0_SHIFT                  14
+/* AON_PM_L2 :: PCI_STATUS :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_PCI_STATUS_reserved0_MASK                   0xffff8000
+#define BCHP_AON_PM_L2_PCI_STATUS_reserved0_SHIFT                  15
 
-/* AON_PM_L2 :: PCI_STATUS :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_PCI_STATUS_SPARE_WAKEUP_EVENT_0_MASK        0x00002000
-#define BCHP_AON_PM_L2_PCI_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT       13
+/* AON_PM_L2 :: PCI_STATUS :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_PCI_STATUS_SPARE_WAKEUP_EVENT_0_MASK        0x00004000
+#define BCHP_AON_PM_L2_PCI_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT       14
+
+/* AON_PM_L2 :: PCI_STATUS :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_PCI_STATUS_BOUNDARY_SCAN_REQ_MASK           0x00002000
+#define BCHP_AON_PM_L2_PCI_STATUS_BOUNDARY_SCAN_REQ_SHIFT          13
 
 /* AON_PM_L2 :: PCI_STATUS :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_PCI_STATUS_MOCA_MASK                        0x00001000
@@ -499,13 +530,17 @@
 /***************************************************************************
  *PCI_SET - PCI interrupt Set Register
  ***************************************************************************/
-/* AON_PM_L2 :: PCI_SET :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_PCI_SET_reserved0_MASK                      0xffffc000
-#define BCHP_AON_PM_L2_PCI_SET_reserved0_SHIFT                     14
+/* AON_PM_L2 :: PCI_SET :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_PCI_SET_reserved0_MASK                      0xffff8000
+#define BCHP_AON_PM_L2_PCI_SET_reserved0_SHIFT                     15
 
-/* AON_PM_L2 :: PCI_SET :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_PCI_SET_SPARE_WAKEUP_EVENT_0_MASK           0x00002000
-#define BCHP_AON_PM_L2_PCI_SET_SPARE_WAKEUP_EVENT_0_SHIFT          13
+/* AON_PM_L2 :: PCI_SET :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_PCI_SET_SPARE_WAKEUP_EVENT_0_MASK           0x00004000
+#define BCHP_AON_PM_L2_PCI_SET_SPARE_WAKEUP_EVENT_0_SHIFT          14
+
+/* AON_PM_L2 :: PCI_SET :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_PCI_SET_BOUNDARY_SCAN_REQ_MASK              0x00002000
+#define BCHP_AON_PM_L2_PCI_SET_BOUNDARY_SCAN_REQ_SHIFT             13
 
 /* AON_PM_L2 :: PCI_SET :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_PCI_SET_MOCA_MASK                           0x00001000
@@ -562,13 +597,17 @@
 /***************************************************************************
  *PCI_CLEAR - PCI interrupt Clear Register
  ***************************************************************************/
-/* AON_PM_L2 :: PCI_CLEAR :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_PCI_CLEAR_reserved0_MASK                    0xffffc000
-#define BCHP_AON_PM_L2_PCI_CLEAR_reserved0_SHIFT                   14
+/* AON_PM_L2 :: PCI_CLEAR :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_PCI_CLEAR_reserved0_MASK                    0xffff8000
+#define BCHP_AON_PM_L2_PCI_CLEAR_reserved0_SHIFT                   15
 
-/* AON_PM_L2 :: PCI_CLEAR :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_PCI_CLEAR_SPARE_WAKEUP_EVENT_0_MASK         0x00002000
-#define BCHP_AON_PM_L2_PCI_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT        13
+/* AON_PM_L2 :: PCI_CLEAR :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_PCI_CLEAR_SPARE_WAKEUP_EVENT_0_MASK         0x00004000
+#define BCHP_AON_PM_L2_PCI_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT        14
+
+/* AON_PM_L2 :: PCI_CLEAR :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_PCI_CLEAR_BOUNDARY_SCAN_REQ_MASK            0x00002000
+#define BCHP_AON_PM_L2_PCI_CLEAR_BOUNDARY_SCAN_REQ_SHIFT           13
 
 /* AON_PM_L2 :: PCI_CLEAR :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_PCI_CLEAR_MOCA_MASK                         0x00001000
@@ -625,13 +664,17 @@
 /***************************************************************************
  *PCI_MASK_STATUS - PCI interrupt Mask Status Register
  ***************************************************************************/
-/* AON_PM_L2 :: PCI_MASK_STATUS :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_PCI_MASK_STATUS_reserved0_MASK              0xffffc000
-#define BCHP_AON_PM_L2_PCI_MASK_STATUS_reserved0_SHIFT             14
+/* AON_PM_L2 :: PCI_MASK_STATUS :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS_reserved0_MASK              0xffff8000
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS_reserved0_SHIFT             15
 
-/* AON_PM_L2 :: PCI_MASK_STATUS :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_PCI_MASK_STATUS_SPARE_WAKEUP_EVENT_0_MASK   0x00002000
-#define BCHP_AON_PM_L2_PCI_MASK_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT  13
+/* AON_PM_L2 :: PCI_MASK_STATUS :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS_SPARE_WAKEUP_EVENT_0_MASK   0x00004000
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS_SPARE_WAKEUP_EVENT_0_SHIFT  14
+
+/* AON_PM_L2 :: PCI_MASK_STATUS :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS_BOUNDARY_SCAN_REQ_MASK      0x00002000
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS_BOUNDARY_SCAN_REQ_SHIFT     13
 
 /* AON_PM_L2 :: PCI_MASK_STATUS :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_PCI_MASK_STATUS_MOCA_MASK                   0x00001000
@@ -688,13 +731,17 @@
 /***************************************************************************
  *PCI_MASK_SET - PCI interrupt Mask Set Register
  ***************************************************************************/
-/* AON_PM_L2 :: PCI_MASK_SET :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_PCI_MASK_SET_reserved0_MASK                 0xffffc000
-#define BCHP_AON_PM_L2_PCI_MASK_SET_reserved0_SHIFT                14
+/* AON_PM_L2 :: PCI_MASK_SET :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_PCI_MASK_SET_reserved0_MASK                 0xffff8000
+#define BCHP_AON_PM_L2_PCI_MASK_SET_reserved0_SHIFT                15
 
-/* AON_PM_L2 :: PCI_MASK_SET :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_PCI_MASK_SET_SPARE_WAKEUP_EVENT_0_MASK      0x00002000
-#define BCHP_AON_PM_L2_PCI_MASK_SET_SPARE_WAKEUP_EVENT_0_SHIFT     13
+/* AON_PM_L2 :: PCI_MASK_SET :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_PCI_MASK_SET_SPARE_WAKEUP_EVENT_0_MASK      0x00004000
+#define BCHP_AON_PM_L2_PCI_MASK_SET_SPARE_WAKEUP_EVENT_0_SHIFT     14
+
+/* AON_PM_L2 :: PCI_MASK_SET :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_PCI_MASK_SET_BOUNDARY_SCAN_REQ_MASK         0x00002000
+#define BCHP_AON_PM_L2_PCI_MASK_SET_BOUNDARY_SCAN_REQ_SHIFT        13
 
 /* AON_PM_L2 :: PCI_MASK_SET :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_PCI_MASK_SET_MOCA_MASK                      0x00001000
@@ -751,13 +798,17 @@
 /***************************************************************************
  *PCI_MASK_CLEAR - PCI interrupt Mask Clear Register
  ***************************************************************************/
-/* AON_PM_L2 :: PCI_MASK_CLEAR :: reserved0 [31:14] */
-#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_reserved0_MASK               0xffffc000
-#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_reserved0_SHIFT              14
+/* AON_PM_L2 :: PCI_MASK_CLEAR :: reserved0 [31:15] */
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_reserved0_MASK               0xffff8000
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_reserved0_SHIFT              15
 
-/* AON_PM_L2 :: PCI_MASK_CLEAR :: SPARE_WAKEUP_EVENT_0 [13:13] */
-#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_MASK    0x00002000
-#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT   13
+/* AON_PM_L2 :: PCI_MASK_CLEAR :: SPARE_WAKEUP_EVENT_0 [14:14] */
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_MASK    0x00004000
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_SPARE_WAKEUP_EVENT_0_SHIFT   14
+
+/* AON_PM_L2 :: PCI_MASK_CLEAR :: BOUNDARY_SCAN_REQ [13:13] */
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_BOUNDARY_SCAN_REQ_MASK       0x00002000
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR_BOUNDARY_SCAN_REQ_SHIFT      13
 
 /* AON_PM_L2 :: PCI_MASK_CLEAR :: MOCA [12:12] */
 #define BCHP_AON_PM_L2_PCI_MASK_CLEAR_MOCA_MASK                    0x00001000

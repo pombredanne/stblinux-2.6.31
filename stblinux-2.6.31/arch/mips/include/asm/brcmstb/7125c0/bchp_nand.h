@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jan 22 20:23:05 2010
- *                 MD5 Checksum         a2d1f2163f65e87d228a0fb491cb442d
+ * Date:           Generated on         Mon Jun 21 20:19:19 2010
+ *                 MD5 Checksum         ca6a65ea070ab31476b927e4308136d1
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7125/rdb/c0/bchp_nand.h $
  * 
- * Hydra_Software_Devel/1   1/25/10 9:10p albertl
- * SW7125-177: Initial revision.
+ * Hydra_Software_Devel/2   6/23/10 3:23p albertl
+ * SW7125-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -931,8 +931,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS1_RD_ECC_EN_MASK                   0x80000000
 #define BCHP_NAND_ACC_CONTROL_CS1_RD_ECC_EN_SHIFT                  31
 
-/* NAND :: ACC_CONTROL_CS1 :: reserved0 [30:29] */
-#define BCHP_NAND_ACC_CONTROL_CS1_reserved0_MASK                   0x60000000
+/* NAND :: ACC_CONTROL_CS1 :: WR_ECC_EN [30:30] */
+#define BCHP_NAND_ACC_CONTROL_CS1_WR_ECC_EN_MASK                   0x40000000
+#define BCHP_NAND_ACC_CONTROL_CS1_WR_ECC_EN_SHIFT                  30
+
+/* NAND :: ACC_CONTROL_CS1 :: reserved0 [29:29] */
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved0_MASK                   0x20000000
 #define BCHP_NAND_ACC_CONTROL_CS1_reserved0_SHIFT                  29
 
 /* NAND :: ACC_CONTROL_CS1 :: FAST_PGM_RDIN [28:28] */
@@ -951,8 +955,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS1_WR_PREEMPT_EN_MASK               0x02000000
 #define BCHP_NAND_ACC_CONTROL_CS1_WR_PREEMPT_EN_SHIFT              25
 
-/* NAND :: ACC_CONTROL_CS1 :: reserved1 [24:20] */
-#define BCHP_NAND_ACC_CONTROL_CS1_reserved1_MASK                   0x01f00000
+/* NAND :: ACC_CONTROL_CS1 :: PAGE_HIT_EN [24:24] */
+#define BCHP_NAND_ACC_CONTROL_CS1_PAGE_HIT_EN_MASK                 0x01000000
+#define BCHP_NAND_ACC_CONTROL_CS1_PAGE_HIT_EN_SHIFT                24
+
+/* NAND :: ACC_CONTROL_CS1 :: reserved1 [23:20] */
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved1_MASK                   0x00f00000
 #define BCHP_NAND_ACC_CONTROL_CS1_reserved1_SHIFT                  20
 
 /* NAND :: ACC_CONTROL_CS1 :: ECC_LEVEL [19:16] */
@@ -1115,8 +1123,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS2_RD_ECC_EN_MASK                   0x80000000
 #define BCHP_NAND_ACC_CONTROL_CS2_RD_ECC_EN_SHIFT                  31
 
-/* NAND :: ACC_CONTROL_CS2 :: reserved0 [30:29] */
-#define BCHP_NAND_ACC_CONTROL_CS2_reserved0_MASK                   0x60000000
+/* NAND :: ACC_CONTROL_CS2 :: WR_ECC_EN [30:30] */
+#define BCHP_NAND_ACC_CONTROL_CS2_WR_ECC_EN_MASK                   0x40000000
+#define BCHP_NAND_ACC_CONTROL_CS2_WR_ECC_EN_SHIFT                  30
+
+/* NAND :: ACC_CONTROL_CS2 :: reserved0 [29:29] */
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved0_MASK                   0x20000000
 #define BCHP_NAND_ACC_CONTROL_CS2_reserved0_SHIFT                  29
 
 /* NAND :: ACC_CONTROL_CS2 :: FAST_PGM_RDIN [28:28] */
@@ -1135,8 +1147,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS2_WR_PREEMPT_EN_MASK               0x02000000
 #define BCHP_NAND_ACC_CONTROL_CS2_WR_PREEMPT_EN_SHIFT              25
 
-/* NAND :: ACC_CONTROL_CS2 :: reserved1 [24:20] */
-#define BCHP_NAND_ACC_CONTROL_CS2_reserved1_MASK                   0x01f00000
+/* NAND :: ACC_CONTROL_CS2 :: PAGE_HIT_EN [24:24] */
+#define BCHP_NAND_ACC_CONTROL_CS2_PAGE_HIT_EN_MASK                 0x01000000
+#define BCHP_NAND_ACC_CONTROL_CS2_PAGE_HIT_EN_SHIFT                24
+
+/* NAND :: ACC_CONTROL_CS2 :: reserved1 [23:20] */
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved1_MASK                   0x00f00000
 #define BCHP_NAND_ACC_CONTROL_CS2_reserved1_SHIFT                  20
 
 /* NAND :: ACC_CONTROL_CS2 :: ECC_LEVEL [19:16] */
@@ -1299,8 +1315,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS3_RD_ECC_EN_MASK                   0x80000000
 #define BCHP_NAND_ACC_CONTROL_CS3_RD_ECC_EN_SHIFT                  31
 
-/* NAND :: ACC_CONTROL_CS3 :: reserved0 [30:29] */
-#define BCHP_NAND_ACC_CONTROL_CS3_reserved0_MASK                   0x60000000
+/* NAND :: ACC_CONTROL_CS3 :: WR_ECC_EN [30:30] */
+#define BCHP_NAND_ACC_CONTROL_CS3_WR_ECC_EN_MASK                   0x40000000
+#define BCHP_NAND_ACC_CONTROL_CS3_WR_ECC_EN_SHIFT                  30
+
+/* NAND :: ACC_CONTROL_CS3 :: reserved0 [29:29] */
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved0_MASK                   0x20000000
 #define BCHP_NAND_ACC_CONTROL_CS3_reserved0_SHIFT                  29
 
 /* NAND :: ACC_CONTROL_CS3 :: FAST_PGM_RDIN [28:28] */
@@ -1319,8 +1339,12 @@
 #define BCHP_NAND_ACC_CONTROL_CS3_WR_PREEMPT_EN_MASK               0x02000000
 #define BCHP_NAND_ACC_CONTROL_CS3_WR_PREEMPT_EN_SHIFT              25
 
-/* NAND :: ACC_CONTROL_CS3 :: reserved1 [24:20] */
-#define BCHP_NAND_ACC_CONTROL_CS3_reserved1_MASK                   0x01f00000
+/* NAND :: ACC_CONTROL_CS3 :: PAGE_HIT_EN [24:24] */
+#define BCHP_NAND_ACC_CONTROL_CS3_PAGE_HIT_EN_MASK                 0x01000000
+#define BCHP_NAND_ACC_CONTROL_CS3_PAGE_HIT_EN_SHIFT                24
+
+/* NAND :: ACC_CONTROL_CS3 :: reserved1 [23:20] */
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved1_MASK                   0x00f00000
 #define BCHP_NAND_ACC_CONTROL_CS3_reserved1_SHIFT                  20
 
 /* NAND :: ACC_CONTROL_CS3 :: ECC_LEVEL [19:16] */

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:30:14 2010
- *                 MD5 Checksum         d3eddea23beec7e33d13b4bcb5193126
+ * Date:           Generated on         Wed Jun  9 17:04:01 2010
+ *                 MD5 Checksum         e12b4c5c08ac555273c26b63d085a2b6
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_pcie_misc.h $
+ * 
+ * Hydra_Software_Devel/3   6/10/10 7:28p albertl
+ * SW7422-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -145,9 +148,9 @@
 #define BCHP_PCIE_MISC_MISC_CTRL_SCB_ACCESS_EN_MASK                0x00001000
 #define BCHP_PCIE_MISC_MISC_CTRL_SCB_ACCESS_EN_SHIFT               12
 
-/* PCIE_MISC :: MISC_CTRL :: PCIE_REPLY_ERR_DIS [11:11] */
-#define BCHP_PCIE_MISC_MISC_CTRL_PCIE_REPLY_ERR_DIS_MASK           0x00000800
-#define BCHP_PCIE_MISC_MISC_CTRL_PCIE_REPLY_ERR_DIS_SHIFT          11
+/* PCIE_MISC :: MISC_CTRL :: UBUS_PCIE_REPLY_ERR_DIS [11:11] */
+#define BCHP_PCIE_MISC_MISC_CTRL_UBUS_PCIE_REPLY_ERR_DIS_MASK      0x00000800
+#define BCHP_PCIE_MISC_MISC_CTRL_UBUS_PCIE_REPLY_ERR_DIS_SHIFT     11
 
 /* PCIE_MISC :: MISC_CTRL :: UBUS_REG_ACCESS_RO [10:10] */
 #define BCHP_PCIE_MISC_MISC_CTRL_UBUS_REG_ACCESS_RO_MASK           0x00000400

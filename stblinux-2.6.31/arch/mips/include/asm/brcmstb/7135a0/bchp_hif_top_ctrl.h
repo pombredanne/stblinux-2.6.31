@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed May 26 03:20:32 2010
- *                 MD5 Checksum         6a138e343df9f1349726428ffadb26d8
+ * Date:           Generated on         Fri Jun 18 03:33:42 2010
+ *                 MD5 Checksum         f68c8d1869eaf4c070ec2a58d018b385
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -230,17 +230,13 @@
 /***************************************************************************
  *FLASH_TYPE - HIF Decoded Flash Type
  ***************************************************************************/
-/* HIF_TOP_CTRL :: FLASH_TYPE :: reserved0 [31:04] */
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved0_MASK                0xfffffff0
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved0_SHIFT               4
+/* HIF_TOP_CTRL :: FLASH_TYPE :: reserved0 [31:03] */
+#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved0_MASK                0xfffffff8
+#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved0_SHIFT               3
 
-/* HIF_TOP_CTRL :: FLASH_TYPE :: InvalidStrap [03:03] */
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_InvalidStrap_MASK             0x00000008
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_InvalidStrap_SHIFT            3
-
-/* HIF_TOP_CTRL :: FLASH_TYPE :: reserved1 [02:02] */
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved1_MASK                0x00000004
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_reserved1_SHIFT               2
+/* HIF_TOP_CTRL :: FLASH_TYPE :: InvalidStrap [02:02] */
+#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_InvalidStrap_MASK             0x00000004
+#define BCHP_HIF_TOP_CTRL_FLASH_TYPE_InvalidStrap_SHIFT            2
 
 /* HIF_TOP_CTRL :: FLASH_TYPE :: FLASH_TYPE [01:00] */
 #define BCHP_HIF_TOP_CTRL_FLASH_TYPE_FLASH_TYPE_MASK               0x00000003

@@ -52,6 +52,8 @@
 #include <linux/delay.h>
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
+#include <linux/pm.h>
+#include <linux/clk.h>
 
 #include <linux/mii.h>
 #include <linux/ethtool.h>
@@ -499,6 +501,8 @@ static int bcmgenet_open(struct net_device * dev)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 
+    clk_enable(pDevCtrl->clk);
+
     /* disable ethernet MAC while updating its registers */
     pDevCtrl->umac->cmd &= ~(CMD_TX_EN | CMD_RX_EN);
 
@@ -533,6 +537,7 @@ static int bcmgenet_open(struct net_device * dev)
 	napi_enable(&pDevCtrl->napi);
     
 	pDevCtrl->umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
+	pDevCtrl->dev_opened = 1;
 
     return 0;
 }
@@ -589,6 +594,8 @@ static int bcmgenet_close(struct net_device * dev)
 		del_timer_sync(&pDevCtrl->timer);
 		cancel_work_sync(&pDevCtrl->bcmgenet_link_work);
 	}
+	pDevCtrl->dev_opened = 0;
+	clk_disable(pDevCtrl->clk);
 	return 0;
 }
 
@@ -2338,6 +2345,9 @@ static int bcmgenet_init_dev(BcmEnet_devctrl *pDevCtrl)
     void *ptxCbs, *prxCbs;
 	volatile DmaDesc * lastBd;
 
+	pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "enet");
+	clk_enable(pDevCtrl->clk);
+
 	TRACE(("%s\n", __FUNCTION__));
     /* setup buffer/pointer relationships here */
     pDevCtrl->nrTxBds = pDevCtrl->nrRxBds = TOTAL_DESC;
@@ -2366,6 +2376,7 @@ static int bcmgenet_init_dev(BcmEnet_devctrl *pDevCtrl)
 	
     /* alloc space for the tx control block pool */
     if (!(ptxCbs = kmalloc(pDevCtrl->nrTxBds*sizeof(Enet_CB), GFP_KERNEL))) {
+		clk_disable(pDevCtrl->clk);
         return -ENOMEM;
     }
     memset(ptxCbs, 0, pDevCtrl->nrTxBds*sizeof(Enet_CB));
@@ -2423,6 +2434,7 @@ error1:
 	kfree(prxCbs);
 error2:
 	kfree(ptxCbs);
+	clk_disable(pDevCtrl->clk);
 
 	TRACE(("%s Failed!\n", __FUNCTION__));
 	return ret;
@@ -2471,6 +2483,8 @@ static void bcmgenet_uninit_dev(BcmEnet_devctrl *pDevCtrl)
             kfree(pDevCtrl->rxCbs);
             pDevCtrl->rxCbs = NULL;
         }
+
+		clk_put(pDevCtrl->clk);
     }
 }
 /*
@@ -3078,7 +3092,8 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	init_waitqueue_head(&pDevCtrl->wq);
 	
 	pDevCtrl->phyType = cfg->phy_type;
-	
+	pDevCtrl->pdev = pdev;
+
 	/* Init GENET registers, Tx/Rx buffers */
 	if(bcmgenet_init_dev(pDevCtrl) < 0)
 	{
@@ -3090,6 +3105,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		if( mii_probe(dev, cfg) < 0)
 		{
 			printk(KERN_ERR "No PHY detected, not registering interface:%d\n", pdev->id);
+			clk_disable(pDevCtrl->clk);
 			goto err1;
 		}else {
 			printk(KERN_CRIT "Found PHY at Address %d\n", pDevCtrl->phyAddr);
@@ -3164,9 +3180,12 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	
 	pDevCtrl->next_dev = eth_root_dev;
 	eth_root_dev = dev;
+	clk_disable(pDevCtrl->clk);
+
 	return(0);
 
 err2:
+	clk_disable(pDevCtrl->clk);
 	bcmgenet_uninit_dev(pDevCtrl);
 err1:
 	iounmap(base);
@@ -3190,9 +3209,61 @@ static int bcmgenet_drv_remove(struct platform_device *pdev)
 	return(0);
 }
 
+static int bcmgenet_drv_suspend(struct platform_device *pdev,
+	pm_message_t state)
+{
+	int val = 0;
+#ifdef PM_WOL
+	struct ethtool_wolinfo wolinfo;
+#endif
+	BcmEnet_devctrl *pDevCtrl = dev_get_drvdata(&pdev->dev);
+
+#ifdef PM_WOL
+	wolinfo.wolopts = WAKE_MAGIC;
+	
+	if(bcmgenet_set_wol(pDevCtrl->dev, &wolinfo) < 0)
+		printk(KERN_WARN "Device %s is not entering WoL mode\n", pDevCtrl->dev->name);
+#endif
+	if(pDevCtrl->dev_opened && !pDevCtrl->dev_asleep) {
+		pDevCtrl->dev_asleep = 1;
+		val = bcmgenet_close(pDevCtrl->dev);
+		/* After close call, dev_opened flag will be 0, we need to remember what was the state
+		 * before going into suspend mode.*/
+		pDevCtrl->dev_opened = 1;
+	}else
+		val = 0;
+
+	return val;
+}
+
+static int bcmgenet_drv_resume(struct platform_device *pdev)
+{
+	int val = 0;
+	BcmEnet_devctrl *pDevCtrl = dev_get_drvdata(&pdev->dev);
+
+	if(pDevCtrl->dev_opened)
+		val = bcmgenet_open(pDevCtrl->dev);
+	else {
+		clk_enable(pDevCtrl->clk);
+		val = 0;
+	}
+	if(pDevCtrl->dev_asleep)
+		pDevCtrl->dev_asleep = 0;
+	
+#ifdef PM_WOL
+	/* wakeup from WoL mode */
+	bcmgenet_power_up(pDevCtrl, GENET_POWER_WOL_MAGIC);
+
+#endif
+
+	return val;
+}
+
 static struct platform_driver bcmgenet_plat_drv = {
 	.probe =		bcmgenet_drv_probe,
 	.remove =		bcmgenet_drv_remove,
+	.suspend =		bcmgenet_drv_suspend,
+	.resume =		bcmgenet_drv_resume,
 	.driver = {
 		.name =		"bcmgenet",
 		.owner =	THIS_MODULE,

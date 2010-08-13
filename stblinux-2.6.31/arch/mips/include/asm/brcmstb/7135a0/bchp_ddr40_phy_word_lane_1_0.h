@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:03:36 2010
- *                 MD5 Checksum         3e283e8b2ae9d550071581bfdb7a5d89
+ * Date:           Generated on         Fri Jun 18 03:31:25 2010
+ *                 MD5 Checksum         f68c8d1869eaf4c070ec2a58d018b385
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -104,18 +104,18 @@
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_VDL_OVRIDE_BYTE1_BIT_RD_EN 0x003b6514 /* Read Enable Bit VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_RD_EN 0x003b6520 /* Read Enable Byte VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN 0x003b6524 /* Read Enable Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_R_P 0x003b6528 /* Read DQSP Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_R_N 0x003b652c /* Read DQSN Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_P 0x003b6530 /* Read DQSP Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_N 0x003b6534 /* Read DQSN Bit VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_R_P 0x003b6528 /* Read DQSP VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_R_N 0x003b652c /* Read DQSN VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_P 0x003b6530 /* Read DQ-P VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_N 0x003b6534 /* Read DQ-N VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_W 0x003b6538 /* Write DQ Byte VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE0_BIT_W 0x003b653c /* Write DQ Bit VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_RD_EN 0x003b6540 /* Read Enable Byte VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN 0x003b6544 /* Read Enable Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_R_P 0x003b6548 /* Read DQSP Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_R_N 0x003b654c /* Read DQSN Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_P 0x003b6550 /* Read DQSP Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_N 0x003b6554 /* Read DQSN Bit VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_R_P 0x003b6548 /* Read DQSP VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_R_N 0x003b654c /* Read DQSN VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_P 0x003b6550 /* Read DQ-P VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_N 0x003b6554 /* Read DQ-N VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_W 0x003b6558 /* Write DQ Byte VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_DYN_VDL_OVRIDE_BYTE1_BIT_W 0x003b655c /* Write DQ Bit VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_1_0_READ_DATA_DLY 0x003b6560 /* Word Lane read channel control register */

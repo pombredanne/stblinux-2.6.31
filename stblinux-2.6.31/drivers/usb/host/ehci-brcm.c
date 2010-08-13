@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Broadcom Corporation
+ * Copyright (C) 2009 - 2010 Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,38 +15,30 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* force non-byteswapping reads/writes on LE and BE alike */
-#define CONFIG_USB_EHCI_BIG_ENDIAN_MMIO		1
-#define readl_be(x)				__raw_readl(x)
-#define writel_be(x, y)				__raw_writel(x, y)
-
-#include <linux/platform_device.h>
-#include <linux/mmdebug.h>
-#include <asm/irq.h>
-#include <asm/brcmstb/brcmstb.h>
-
-/* stock Linux drivers assume USB is always PCI-based on platforms with PCI */
-#undef CONFIG_PCI
+#include "usb-brcm.h"
 
 static struct platform_driver	ehci_hcd_brcm_driver;
 #define PLATFORM_DRIVER		ehci_hcd_brcm_driver
 
 #include "ehci-hcd.c"
 
+/* catch unwanted redefinitions */
+#define CONFIG_PCI		0
+
 /* for global USB settings, see arch/mips/brcmstb/bchip.c */
 
-static int ehci_brcm_reset (struct usb_hcd *hcd)
+static int ehci_brcm_reset(struct usb_hcd *hcd)
 {
-	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
+	struct ehci_hcd		*ehci = hcd_to_ehci(hcd);
 	int ret;
 
 	ehci->big_endian_mmio = 1;
 
 	ehci->caps = (struct ehci_caps *) hcd->regs;
-	ehci->regs = (struct ehci_regs *) (hcd->regs + 
-		HC_LENGTH (ehci_readl(ehci, &ehci->caps->hc_capbase)));
-	dbg_hcs_params (ehci, "reset");
-	dbg_hcc_params (ehci, "reset");
+	ehci->regs = (struct ehci_regs *) (hcd->regs +
+		HC_LENGTH(ehci_readl(ehci, &ehci->caps->hc_capbase)));
+	dbg_hcs_params(ehci, "reset");
+	dbg_hcc_params(ehci, "reset");
 
 	/* cache this readonly data; minimize PCI reads */
 	ehci->hcs_params = ehci_readl(ehci, &ehci->caps->hcs_params);
@@ -59,11 +51,11 @@ static int ehci_brcm_reset (struct usb_hcd *hcd)
 	ehci_halt(ehci);
 
 	ret = ehci_init(hcd);
-	if(ret)
-		return(ret);
+	if (ret)
+		return ret;
 	ehci_port_power(ehci, 1);
 
-	return(ret);
+	return ret;
 }
 
 /*-------------------------------------------------------------------------*/
@@ -116,59 +108,14 @@ static const struct hc_driver ehci_brcm_hc_driver = {
 
 /*-------------------------------------------------------------------------*/
 
-#define resource_len(r) (((r)->end - (r)->start) + 1)
 static int ehci_hcd_brcm_probe(struct platform_device *pdev)
 {
-	struct resource *res = NULL;
-	struct usb_hcd *hcd = NULL;
-	int irq = -1;
-	int ret;
-
-	if (usb_disabled())
-		return -ENODEV;
-
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (!res) {
-		err("platform_get_resource error.");
-		return -ENODEV;
-	}
-
-	irq = platform_get_irq(pdev, 0);
-	if (irq < 0) {
-		err("platform_get_irq error.");
-		return -ENODEV;
-	}
-
-	/* initialize hcd */
-	hcd = usb_create_hcd(&ehci_brcm_hc_driver, &pdev->dev, (char *)hcd_name);
-	if (!hcd) {
-		err("Failed to create hcd");
-		return -ENOMEM;
-	}
-
-	hcd->regs = ioremap(res->start, res->end - res->start);
-	hcd->rsrc_start = res->start;
-	hcd->rsrc_len = resource_len(res);
-	ret = usb_add_hcd(hcd, irq, IRQF_DISABLED);
-	if (ret != 0) {
-		err("Failed to add hcd");
-		iounmap(hcd->regs);
-		usb_put_hcd(hcd);
-		return ret;
-	}
-
-	return ret;
+	return brcm_usb_probe(pdev, hcd_name, &ehci_brcm_hc_driver);
 }
 
 static int ehci_hcd_brcm_remove(struct platform_device *pdev)
 {
-	struct usb_hcd *hcd = platform_get_drvdata(pdev);
-
-	usb_remove_hcd(hcd);
-	iounmap(hcd->regs);
-	usb_put_hcd(hcd);
-
-	return 0;
+	return brcm_usb_remove(pdev);
 }
 
 static struct platform_driver ehci_hcd_brcm_driver = {

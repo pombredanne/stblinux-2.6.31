@@ -526,23 +526,28 @@ static inline unsigned int __init probe_ram_size(void)
 	return(memsize);
 }
 
-void __init board_get_ram_size(unsigned long *size)
+void __init board_get_ram_size(unsigned long *dram0_mb, unsigned long *dram1_mb)
 {
 #if defined(CONFIG_BRCM_OVERRIDE_RAM_SIZE)
-	*size = CONFIG_BRCM_FORCED_DRAM0_SIZE;
-	printk("Using %lu MB RAM (from kernel configuration)\n", *size);
+	*dram0_mb = CONFIG_BRCM_FORCED_DRAM0_SIZE;
+#if defined(CONFIG_BRCM_FORCED_DRAM1_SIZE)
+	*dram1_mb = CONFIG_BRCM_FORCED_DRAM1_SIZE;
+#endif
+	printk("Using %lu + %lu MB RAM (from kernel configuration)\n",
+		*dram0_mb, *dram1_mb);
 #else
 	/* DRAM0_SIZE variable from CFE */
-	if(*size) {
-		printk("Using %lu MB RAM (from CFE)\n", *size);
+	if(*dram0_mb) {
+		printk("Using %lu + %lu MB RAM (from CFE)\n",
+			*dram0_mb, *dram1_mb);
 		return;
 	}
 
-	*size = bchip_strap_ram_size();
-	if(*size)
-		printk("Using %lu MB RAM (from straps)\n", *size);
+	*dram0_mb = bchip_strap_ram_size();
+	if(*dram0_mb)
+		printk("Using %lu MB RAM (from straps)\n", *dram0_mb);
 	else
-		*size = probe_ram_size();
+		*dram0_mb = probe_ram_size();
 #endif
 }
 

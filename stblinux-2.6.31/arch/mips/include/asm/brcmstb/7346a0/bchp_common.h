@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri May 21 04:54:28 2010
- *                 MD5 Checksum         526eeb57d157fd21df20644f876b78d8
+ * Date:           Generated on         Fri Jun 18 04:07:53 2010
+ *                 MD5 Checksum         ce6dd94e396cc6694143e2044e459964
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -684,18 +684,18 @@
 #define BCHP_BVNB_INTR2_REG_END                            0x0064602c
 #define BCHP_BMISC_REG_START                               0x00646400
 #define BCHP_BMISC_REG_END                                 0x0064641c
-#define BCHP_MADR_TOP_0_REG_START                          0x00660000
-#define BCHP_MADR_TOP_0_REG_END                            0x00660010
+#define BCHP_MVP_TOP_0_REG_START                           0x00660000
+#define BCHP_MVP_TOP_0_REG_END                             0x0066002c
 #define BCHP_SIOB_0_REG_START                              0x00660200
 #define BCHP_SIOB_0_REG_END                                0x006602fc
 #define BCHP_HSCL_0_REG_START                              0x00660400
 #define BCHP_HSCL_0_REG_END                                0x006607fc
 #define BCHP_MDI_TOP_0_REG_START                           0x00662000
-#define BCHP_MDI_TOP_0_REG_END                             0x00662040
-#define BCHP_MDI_FCB_0_REG_START                           0x00662400
-#define BCHP_MDI_FCB_0_REG_END                             0x006624a4
+#define BCHP_MDI_TOP_0_REG_END                             0x00662044
 #define BCHP_MDI_PPB_0_REG_START                           0x00662800
 #define BCHP_MDI_PPB_0_REG_END                             0x00662bfc
+#define BCHP_MDI_FCN_0_REG_START                           0x00662c00
+#define BCHP_MDI_FCN_0_REG_END                             0x00662ffc
 #define BCHP_MISC_REG_START                                0x00680000
 #define BCHP_MISC_REG_END                                  0x00680070
 #define BCHP_IT_0_REG_START                                0x00681000
@@ -798,8 +798,8 @@
 #define BCHP_HDMI_TX_PHY_REG_END                           0x006a0ac0
 #define BCHP_HDMI_RM_REG_START                             0x006a0b00
 #define BCHP_HDMI_RM_REG_END                               0x006a0b2c
-#define BCHP_HDMI_INTR2_REG_START                          0x006a0b40
-#define BCHP_HDMI_INTR2_REG_END                            0x006a0b6c
+#define BCHP_HDMI_TX_INTR2_REG_START                       0x006a0b40
+#define BCHP_HDMI_TX_INTR2_REG_END                         0x006a0b6c
 #define BCHP_HDMI_RAM_REG_START                            0x006a0c00
 #define BCHP_HDMI_RAM_REG_END                              0x006a0dfc
 #define BCHP_BVN_RGR_REG_START                             0x006a8000

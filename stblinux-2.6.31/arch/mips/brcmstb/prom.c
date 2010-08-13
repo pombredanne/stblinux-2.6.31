@@ -362,7 +362,7 @@ void __init prom_init(void)
 
 	bchip_early_setup();
 
-	board_get_ram_size(&brcm_dram0_size_mb);
+	board_get_ram_size(&brcm_dram0_size_mb, &brcm_dram1_size_mb);
 
 	do {
 		unsigned long dram0_mb = brcm_dram0_size_mb, mb;

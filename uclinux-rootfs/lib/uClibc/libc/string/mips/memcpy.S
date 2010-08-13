@@ -1303,8 +1303,7 @@ L(intCheck8w): 			# SRC is at begin of word
 	 *	  prefetch 2 L2 line, using integer registers 			*
 	 * memory copy for 64B D-Cache line size				*
 	 *--------------------------------------------------------------------- */
-	add	v0, a1, a3	#start address A(a1), end address A(v0)
-        add	v1, a0, a3	#start address B(a0), end address B(v1)
+	add	v1, a0, a3	#start address B(a0), end address B(v1)
 
 	/* save stable registers */
 	subu	sp, sp, 28

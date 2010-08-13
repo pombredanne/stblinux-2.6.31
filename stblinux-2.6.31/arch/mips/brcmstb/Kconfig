@@ -15,6 +15,7 @@ config BRCM_LEGACY
 	  Say Y to enable legacy platforms (anything older than 7405).
 	  These builds are not supported by Broadcom and they may be
 	  removed at any time.
+	  
 
 choice
 	prompt "Chipset selection"
@@ -36,7 +37,6 @@ config BCM3548B0
 	select BRCM_HAS_EDU
 	select BRCM_HAS_BSPI_V2
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_STANDBY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -151,6 +151,8 @@ config BCM7125C0
 	select BRCM_HAS_SATA2
 	select BRCM_SATA_75MHZ_PLL
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_HAS_ANALOG_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -336,6 +338,22 @@ config BCM7346A0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
+config BCM7358A0
+	bool "7358 Ax"
+	select BRCM_PLATFORM_DEFAULTS
+	select BCM7358
+	select BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_WKTMR
+
 config BCM7400E0
 	bool "7400/97456 Dx/Ex"
 	depends on BRCM_LEGACY
@@ -445,6 +463,23 @@ config BCM7408A0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
+config BCM7408B0
+	bool "7408 Bx"
+	select BRCM_PLATFORM_DEFAULTS
+	select BCM7408
+	select BMIPS4380
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V2
+	select BRCM_HAS_NAND_MAJOR_3
+	select BRCM_HAS_NAND_MINOR_4
+	select BRCM_HAS_BSPI_V3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
+
 config BCM7420C0
 	bool "7420 Cx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -466,6 +501,8 @@ config BCM7420C0
 	select BRCM_HAS_SATA2
 	select BRCM_SATA_75MHZ_PLL
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_HAS_ANALOG_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -735,6 +772,13 @@ config BRCM_FORCED_DRAM0_SIZE
 	help
 	  How many megabytes of RAM are on the primary DRAM controller?
 
+config BRCM_FORCED_DRAM1_SIZE
+	int "RAM on secondary DRAM controller (MB)"
+	depends on BRCM_OVERRIDE_RAM_SIZE && BRCM_HAS_1GB_MEMC1
+	default 256
+	help
+	  How many megabytes of RAM are on the secondary DRAM controller?
+
 
 #####################################################################
 # User options: Onchip peripherals
@@ -796,9 +840,18 @@ config BRCM_FIXED_MTD_PARTITIONS
 config MTD_BRCMNAND
 	tristate "Broadcom NAND controller support"
 	depends on BRCM_HAS_NAND && BRCM_FLASH
+	select BRCMNAND_MTD_EXTENSION
 	default y
 	help
 	  Say Y to enable the onchip NAND controller.
+	  
+config BRCMNAND_MTD_EXTENSION
+	bool "Enable Broadcom NAND controller extension"
+	depends on MTD_BRCMNAND
+	default y
+	help
+	  Say Y to enable Broadcom NAND extension in order to support
+	  27Byte Spare Area and 8KB page NAND flashes.
 
 config MTD_BRCMNAND_VERIFY_WRITE
 	bool "Verify Broadcom NAND page writes"
@@ -1191,8 +1244,8 @@ config BMIPS5000
 	select BRCM_ZSCM_L2
 	select SYS_SUPPORTS_SMP
 	select SYS_SUPPORTS_HOTPLUG_CPU
-	#select SYS_SUPPORTS_HIGHMEM
-	#select CPU_SUPPORTS_HIGHMEM
+	select SYS_SUPPORTS_HIGHMEM if !BCM7420 # XXX
+	select CPU_SUPPORTS_HIGHMEM if !BCM7420 # XXX
 
 config MTI_R5K
 	bool
@@ -1508,6 +1561,9 @@ config BRCM_HAS_2GB_MEMC0
 config BRCM_HAS_1GB_MEMC1
 	bool
 
+config BRCM_HAS_ANALOG_DDR_PHY
+	bool
+
 config BRCM_HAS_STANDBY
 	bool
 
@@ -1580,6 +1636,9 @@ config BCM7344
 	bool
 
 config BCM7346
+	bool
+
+config BCM7358
 	bool
 
 config BCM7400

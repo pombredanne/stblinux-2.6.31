@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:32:28 2010
- *                 MD5 Checksum         d3eddea23beec7e33d13b4bcb5193126
+ * Date:           Generated on         Mon Jun 28 19:02:08 2010
+ *                 MD5 Checksum         2e12e9c7735691062d23de8e3e69b7a8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_ddr40_phy_word_lane_0_0.h $
+ * 
+ * Hydra_Software_Devel/4   6/29/10 9:27p albertl
+ * SW7422-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -42,7 +45,7 @@
 /***************************************************************************
  *DDR40_PHY_WORD_LANE_0_0 - DDR40 DDR40 word lane #0 control registers 0
  ***************************************************************************/
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN 0x003b6200 /* Read Enable Byte VDL static override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN 0x003b6200 /* Read Enable Byte VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_W 0x003b6204 /* Write Byte VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_R_P 0x003b6208 /* Read Byte DQSP VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_R_N 0x003b620c /* Read Byte DQSN VDL static override control register */
@@ -72,7 +75,6 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_BIT7_R_P 0x003b626c /* Read DQSP Bit VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_BIT7_R_N 0x003b6270 /* Read DQSN Bit VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_BIT_RD_EN 0x003b6274 /* Read Enable Bit VDL static override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN 0x003b62a0 /* Read Enable Byte VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_W 0x003b62a4 /* Write Byte VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_R_P 0x003b62a8 /* Read Byte DQSP VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_R_N 0x003b62ac /* Read Byte DQSN VDL static override control register */
@@ -102,20 +104,16 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_BIT7_R_P 0x003b630c /* Read DQSP Bit VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_BIT7_R_N 0x003b6310 /* Read DQSN Bit VDL static override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_BIT_RD_EN 0x003b6314 /* Read Enable Bit VDL static override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN 0x003b6320 /* Read Enable Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN 0x003b6324 /* Read Enable Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_P 0x003b6328 /* Read DQSP Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_N 0x003b632c /* Read DQSN Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_P 0x003b6330 /* Read DQSP Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_N 0x003b6334 /* Read DQSN Bit VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_P 0x003b6328 /* Read DQSP VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_N 0x003b632c /* Read DQSN VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_P 0x003b6330 /* Read DQ-P VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_N 0x003b6334 /* Read DQ-N VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_W 0x003b6338 /* Write DQ Byte VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_W 0x003b633c /* Write DQ Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN 0x003b6340 /* Read Enable Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN 0x003b6344 /* Read Enable Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_P 0x003b6348 /* Read DQSP Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_N 0x003b634c /* Read DQSN Byte VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_P 0x003b6350 /* Read DQSP Bit VDL dynamic override control register */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_N 0x003b6354 /* Read DQSN Bit VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_P 0x003b6348 /* Read DQSP VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_N 0x003b634c /* Read DQSN VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_P 0x003b6350 /* Read DQ-P VDL dynamic override control register */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_N 0x003b6354 /* Read DQ-N VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_W 0x003b6358 /* Write DQ Byte VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_W 0x003b635c /* Write DQ Bit VDL dynamic override control register */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_READ_DATA_DLY 0x003b6360 /* Word Lane read channel control register */
@@ -136,39 +134,39 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_WR_PREAMBLE_MODE 0x003b63ac /* Write cycle preamble control register */
 
 /***************************************************************************
- *VDL_OVRIDE_BYTE0_RD_EN - Read Enable Byte VDL static override control register
+ *VDL_OVRIDE_BYTE_RD_EN - Read Enable Byte VDL static override control register
  ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: busy [31:31] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_busy_MASK 0x80000000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_busy_SHIFT 31
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: busy [31:31] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_busy_MASK 0x80000000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_busy_SHIFT 31
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: reserved0 [30:18] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_reserved0_MASK 0x7ffc0000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_reserved0_SHIFT 18
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: reserved0 [30:18] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_reserved0_MASK 0x7ffc0000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_reserved0_SHIFT 18
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: ovr_force [17:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_ovr_force_MASK 0x00020000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_ovr_force_SHIFT 17
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: ovr_force [17:17] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_ovr_force_MASK 0x00020000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_ovr_force_SHIFT 17
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: ovr_en [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_ovr_en_MASK 0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_ovr_en_SHIFT 16
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: ovr_en [16:16] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_ovr_en_MASK 0x00010000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_ovr_en_SHIFT 16
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: reserved1 [15:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_reserved1_MASK 0x0000fe00
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_reserved1_SHIFT 9
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: reserved1 [15:09] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_reserved1_MASK 0x0000fe00
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_reserved1_SHIFT 9
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: byte_sel [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_byte_sel_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_byte_sel_SHIFT 8
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: byte_sel [08:08] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_byte_sel_MASK 0x00000100
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_byte_sel_SHIFT 8
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: reserved2 [07:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_reserved2_MASK 0x000000c0
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_reserved2_SHIFT 6
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: reserved2 [07:06] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_reserved2_MASK 0x000000c0
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_reserved2_SHIFT 6
 
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE0_RD_EN :: ovr_step [05:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_ovr_step_MASK 0x0000003f
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_RD_EN_ovr_step_SHIFT 0
+/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE_RD_EN :: ovr_step [05:00] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_ovr_step_MASK 0x0000003f
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE_RD_EN_ovr_step_SHIFT 0
 
 /***************************************************************************
  *VDL_OVRIDE_BYTE0_W - Write Byte VDL static override control register
@@ -1186,41 +1184,6 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE0_BIT_RD_EN_ovr_step_SHIFT 0
 
 /***************************************************************************
- *VDL_OVRIDE_BYTE1_RD_EN - Read Enable Byte VDL static override control register
- ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: busy [31:31] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_busy_MASK 0x80000000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_busy_SHIFT 31
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: reserved0 [30:18] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_reserved0_MASK 0x7ffc0000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_reserved0_SHIFT 18
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: ovr_force [17:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_ovr_force_MASK 0x00020000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_ovr_force_SHIFT 17
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: ovr_en [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_ovr_en_MASK 0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_ovr_en_SHIFT 16
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: reserved1 [15:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_reserved1_MASK 0x0000fe00
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_reserved1_SHIFT 9
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: byte_sel [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_byte_sel_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_byte_sel_SHIFT 8
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: reserved2 [07:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_reserved2_MASK 0x000000c0
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_reserved2_SHIFT 6
-
-/* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_RD_EN :: ovr_step [05:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_ovr_step_MASK 0x0000003f
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_RD_EN_ovr_step_SHIFT 0
-
-/***************************************************************************
  *VDL_OVRIDE_BYTE1_W - Write Byte VDL static override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: VDL_OVRIDE_BYTE1_W :: busy [31:31] */
@@ -2236,61 +2199,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_VDL_OVRIDE_BYTE1_BIT_RD_EN_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE0_RD_EN - Read Enable Byte VDL dynamic override control register
- ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_RD_EN :: reserved0 [31:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_reserved0_MASK 0xfffe0000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_reserved0_SHIFT 17
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_RD_EN :: ovr_en [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_ovr_en_MASK 0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_ovr_en_SHIFT 16
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_RD_EN :: reserved1 [15:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_reserved1_MASK 0x0000fe00
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_reserved1_SHIFT 9
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_RD_EN :: byte_sel [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_byte_sel_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_byte_sel_SHIFT 8
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_RD_EN :: reserved2 [07:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_reserved2_MASK 0x000000c0
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_reserved2_SHIFT 6
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_RD_EN :: ovr_step [05:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_ovr_step_MASK 0x0000003f
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_RD_EN_ovr_step_SHIFT 0
-
-/***************************************************************************
- *DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN - Read Enable Bit VDL dynamic override control register
- ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN :: reserved0 [31:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_reserved0_MASK 0xfffe0000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_reserved0_SHIFT 17
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN :: ovr_en [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_ovr_en_MASK 0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_ovr_en_SHIFT 16
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN :: reserved1 [15:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_reserved1_MASK 0x0000fe00
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_reserved1_SHIFT 9
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN :: byte_sel [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_byte_sel_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_byte_sel_SHIFT 8
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN :: reserved2 [07:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_reserved2_MASK 0x000000c0
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_reserved2_SHIFT 6
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN :: ovr_step [05:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_ovr_step_MASK 0x0000003f
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_RD_EN_ovr_step_SHIFT 0
-
-/***************************************************************************
- *DYN_VDL_OVRIDE_BYTE0_R_P - Read DQSP Byte VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE0_R_P - Read DQSP VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_R_P :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_P_reserved0_MASK 0xfffe0000
@@ -2317,7 +2226,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_P_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE0_R_N - Read DQSN Byte VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE0_R_N - Read DQSN VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_R_N :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_N_reserved0_MASK 0xfffe0000
@@ -2344,7 +2253,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_R_N_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE0_BIT_R_P - Read DQSP Bit VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE0_BIT_R_P - Read DQ-P VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_R_P :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_P_reserved0_MASK 0xfffe0000
@@ -2371,7 +2280,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_P_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE0_BIT_R_N - Read DQSN Bit VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE0_BIT_R_N - Read DQ-N VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE0_BIT_R_N :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_R_N_reserved0_MASK 0xfffe0000
@@ -2452,61 +2361,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE0_BIT_W_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE1_RD_EN - Read Enable Byte VDL dynamic override control register
- ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_RD_EN :: reserved0 [31:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_reserved0_MASK 0xfffe0000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_reserved0_SHIFT 17
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_RD_EN :: ovr_en [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_ovr_en_MASK 0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_ovr_en_SHIFT 16
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_RD_EN :: reserved1 [15:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_reserved1_MASK 0x0000fe00
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_reserved1_SHIFT 9
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_RD_EN :: byte_sel [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_byte_sel_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_byte_sel_SHIFT 8
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_RD_EN :: reserved2 [07:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_reserved2_MASK 0x000000c0
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_reserved2_SHIFT 6
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_RD_EN :: ovr_step [05:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_ovr_step_MASK 0x0000003f
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_RD_EN_ovr_step_SHIFT 0
-
-/***************************************************************************
- *DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN - Read Enable Bit VDL dynamic override control register
- ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN :: reserved0 [31:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_reserved0_MASK 0xfffe0000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_reserved0_SHIFT 17
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN :: ovr_en [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_ovr_en_MASK 0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_ovr_en_SHIFT 16
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN :: reserved1 [15:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_reserved1_MASK 0x0000fe00
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_reserved1_SHIFT 9
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN :: byte_sel [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_byte_sel_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_byte_sel_SHIFT 8
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN :: reserved2 [07:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_reserved2_MASK 0x000000c0
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_reserved2_SHIFT 6
-
-/* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN :: ovr_step [05:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_ovr_step_MASK 0x0000003f
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_RD_EN_ovr_step_SHIFT 0
-
-/***************************************************************************
- *DYN_VDL_OVRIDE_BYTE1_R_P - Read DQSP Byte VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE1_R_P - Read DQSP VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_R_P :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_P_reserved0_MASK 0xfffe0000
@@ -2533,7 +2388,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_P_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE1_R_N - Read DQSN Byte VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE1_R_N - Read DQSN VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_R_N :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_N_reserved0_MASK 0xfffe0000
@@ -2560,7 +2415,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_R_N_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE1_BIT_R_P - Read DQSP Bit VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE1_BIT_R_P - Read DQ-P VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_R_P :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_P_reserved0_MASK 0xfffe0000
@@ -2587,7 +2442,7 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_P_ovr_step_SHIFT 0
 
 /***************************************************************************
- *DYN_VDL_OVRIDE_BYTE1_BIT_R_N - Read DQSN Bit VDL dynamic override control register
+ *DYN_VDL_OVRIDE_BYTE1_BIT_R_N - Read DQ-N VDL dynamic override control register
  ***************************************************************************/
 /* DDR40_PHY_WORD_LANE_0_0 :: DYN_VDL_OVRIDE_BYTE1_BIT_R_N :: reserved0 [31:17] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DYN_VDL_OVRIDE_BYTE1_BIT_R_N_reserved0_MASK 0xfffe0000
@@ -2850,104 +2705,116 @@
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_idle_MASK    0x80000000
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_idle_SHIFT   31
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: auto_dq_rxenb [30:30] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_rxenb_MASK 0x40000000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_rxenb_SHIFT 30
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: reserved0 [30:24] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_reserved0_MASK 0x7f000000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_reserved0_SHIFT 24
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: auto_dq_iddq [29:29] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_iddq_MASK 0x20000000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_iddq_SHIFT 29
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: auto_dq_rxenb_mode [23:22] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_rxenb_mode_MASK 0x00c00000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_rxenb_mode_SHIFT 22
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: reserved0 [28:20] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_reserved0_MASK 0x1ff00000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_reserved0_SHIFT 20
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: auto_dq_iddq_mode [21:20] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_iddq_mode_MASK 0x00300000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_auto_dq_iddq_mode_SHIFT 20
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dm_rxenb [19:19] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_rxenb_MASK 0x00080000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_rxenb_SHIFT 19
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_rxenb [19:19] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_rxenb_MASK 0x00080000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_rxenb_SHIFT 19
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dm_iddq [18:18] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_iddq_MASK 0x00040000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_iddq_SHIFT 18
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_iddq [18:18] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_iddq_MASK 0x00040000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_iddq_SHIFT 18
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dm_reb [17:17] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_reb_MASK  0x00020000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_reb_SHIFT 17
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_reb [17:17] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_reb_MASK  0x00020000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_reb_SHIFT 17
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dm_oeb [16:16] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_oeb_MASK  0x00010000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dm_oeb_SHIFT 16
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_oeb [16:16] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_oeb_MASK  0x00010000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_oeb_SHIFT 16
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_rxenb [15:15] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_rxenb_MASK 0x00008000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_rxenb_SHIFT 15
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_rxenb [15:15] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_rxenb_MASK 0x00008000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_rxenb_SHIFT 15
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_iddq [14:14] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_iddq_MASK 0x00004000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_iddq_SHIFT 14
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_iddq [14:14] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_iddq_MASK 0x00004000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_iddq_SHIFT 14
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_reb [13:13] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_reb_MASK  0x00002000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_reb_SHIFT 13
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_reb [13:13] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_reb_MASK 0x00002000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_reb_SHIFT 13
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dq_oeb [12:12] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_oeb_MASK  0x00001000
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dq_oeb_SHIFT 12
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_oeb [12:12] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_oeb_MASK 0x00001000
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_oeb_SHIFT 12
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_rxenb [11:11] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_rxenb_MASK 0x00000800
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_rxenb_SHIFT 11
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_rxenb [11:11] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_rxenb_MASK 0x00000800
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_rxenb_SHIFT 11
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_iddq [10:10] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_iddq_MASK 0x00000400
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_iddq_SHIFT 10
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_iddq [10:10] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_iddq_MASK 0x00000400
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_iddq_SHIFT 10
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_reb [09:09] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_reb_MASK 0x00000200
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_reb_SHIFT 9
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_reb [09:09] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_reb_MASK 0x00000200
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_reb_SHIFT 9
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: read_enb_oeb [08:08] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_oeb_MASK 0x00000100
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_read_enb_oeb_SHIFT 8
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_oeb [08:08] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_oeb_MASK 0x00000100
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_oeb_SHIFT 8
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_rxenb [07:07] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_rxenb_MASK 0x00000080
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_rxenb_SHIFT 7
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk1_rxenb [07:07] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_rxenb_MASK 0x00000080
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_rxenb_SHIFT 7
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_iddq [06:06] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_iddq_MASK 0x00000040
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_iddq_SHIFT 6
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk1_iddq [06:06] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_iddq_MASK 0x00000040
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_iddq_SHIFT 6
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_reb [05:05] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_reb_MASK 0x00000020
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_reb_SHIFT 5
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk1_reb [05:05] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_reb_MASK 0x00000020
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_reb_SHIFT 5
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: dqs_oeb [04:04] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_oeb_MASK 0x00000010
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_dqs_oeb_SHIFT 4
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk1_oeb [04:04] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_oeb_MASK 0x00000010
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk1_oeb_SHIFT 4
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk_rxenb [03:03] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_rxenb_MASK 0x00000008
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_rxenb_SHIFT 3
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk0_rxenb [03:03] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_rxenb_MASK 0x00000008
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_rxenb_SHIFT 3
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk_iddq [02:02] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_iddq_MASK 0x00000004
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_iddq_SHIFT 2
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk0_iddq [02:02] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_iddq_MASK 0x00000004
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_iddq_SHIFT 2
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk_reb [01:01] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_reb_MASK 0x00000002
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_reb_SHIFT 1
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk0_reb [01:01] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_reb_MASK 0x00000002
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_reb_SHIFT 1
 
-/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk_oeb [00:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_oeb_MASK 0x00000001
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk_oeb_SHIFT 0
+/* DDR40_PHY_WORD_LANE_0_0 :: IDLE_PAD_CONTROL :: clk0_oeb [00:00] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_oeb_MASK 0x00000001
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_IDLE_PAD_CONTROL_clk0_oeb_SHIFT 0
 
 /***************************************************************************
  *DRIVE_PAD_CTL - SSTL pad drive characteristics control register
  ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: DRIVE_PAD_CTL :: reserved0 [31:07] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_reserved0_MASK  0xffffff80
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_reserved0_SHIFT 7
+/* DDR40_PHY_WORD_LANE_0_0 :: DRIVE_PAD_CTL :: reserved0 [31:10] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_reserved0_MASK  0xfffffc00
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_reserved0_SHIFT 10
+
+/* DDR40_PHY_WORD_LANE_0_0 :: DRIVE_PAD_CTL :: dqs_tx_dis [09:09] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_dqs_tx_dis_MASK 0x00000200
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_dqs_tx_dis_SHIFT 9
+
+/* DDR40_PHY_WORD_LANE_0_0 :: DRIVE_PAD_CTL :: half_strength_ck [08:08] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_half_strength_ck_MASK 0x00000100
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_half_strength_ck_SHIFT 8
+
+/* DDR40_PHY_WORD_LANE_0_0 :: DRIVE_PAD_CTL :: half_strength [07:07] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_half_strength_MASK 0x00000080
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_half_strength_SHIFT 7
 
 /* DDR40_PHY_WORD_LANE_0_0 :: DRIVE_PAD_CTL :: rdqs_en [06:06] */
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_DRIVE_PAD_CTL_rdqs_en_MASK    0x00000040
@@ -2976,13 +2843,21 @@
 /***************************************************************************
  *CLOCK_PAD_DISABLE - Clock pad disable register
  ***************************************************************************/
-/* DDR40_PHY_WORD_LANE_0_0 :: CLOCK_PAD_DISABLE :: reserved0 [31:01] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_reserved0_MASK 0xfffffffe
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_reserved0_SHIFT 1
+/* DDR40_PHY_WORD_LANE_0_0 :: CLOCK_PAD_DISABLE :: reserved0 [31:03] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_reserved0_MASK 0xfffffff8
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_reserved0_SHIFT 3
 
-/* DDR40_PHY_WORD_LANE_0_0 :: CLOCK_PAD_DISABLE :: clk_pad_dis [00:00] */
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_clk_pad_dis_MASK 0x00000001
-#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_clk_pad_dis_SHIFT 0
+/* DDR40_PHY_WORD_LANE_0_0 :: CLOCK_PAD_DISABLE :: dm_pad_dis [02:02] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_dm_pad_dis_MASK 0x00000004
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_dm_pad_dis_SHIFT 2
+
+/* DDR40_PHY_WORD_LANE_0_0 :: CLOCK_PAD_DISABLE :: clk1_pad_dis [01:01] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_clk1_pad_dis_MASK 0x00000002
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_clk1_pad_dis_SHIFT 1
+
+/* DDR40_PHY_WORD_LANE_0_0 :: CLOCK_PAD_DISABLE :: clk0_pad_dis [00:00] */
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_clk0_pad_dis_MASK 0x00000001
+#define BCHP_DDR40_PHY_WORD_LANE_0_0_CLOCK_PAD_DISABLE_clk0_pad_dis_SHIFT 0
 
 /***************************************************************************
  *WR_PREAMBLE_MODE - Write cycle preamble control register

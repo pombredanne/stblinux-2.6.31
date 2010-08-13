@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-06-18
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-07-25
 #
 # Original package: samba-3.0.25b.tar.bz2
 #
 diff -ruNp samba.orig/makefile samba/makefile
 --- samba.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ samba/makefile	2010-06-18 17:11:13.000000000 -0700
++++ samba/makefile	2010-07-25 20:51:31.000000000 -0700
 @@ -0,0 +1,54 @@
 +CFLAGS += -fno-builtin
 +export CFLAGS
@@ -63,7 +63,7 @@ diff -ruNp samba.orig/makefile samba/makefile
 +	)
 diff -ruNp samba.orig/source/smb/smb.conf samba/source/smb/smb.conf
 --- samba.orig/source/smb/smb.conf	1969-12-31 16:00:00.000000000 -0800
-+++ samba/source/smb/smb.conf	2010-06-18 17:11:13.000000000 -0700
++++ samba/source/smb/smb.conf	2010-07-25 20:51:31.000000000 -0700
 @@ -0,0 +1,29 @@
 +[global]
 +   workgroup = mshome
