@@ -55,32 +55,6 @@ when	who what
 
 extern int dev_debug;
 
-/* 
- * NUM_NAND_CS here is strictly based on the number of CS in the NAND registers
- * It does not have the same value as NUM_CS in brcmstb/setup.c
- * It is not the same as NAND_MAX_CS, the later being the bit fields found in NAND_CS_NAND_SELECT.
- */
-
-/* # number of CS supported by EBI */
-#ifdef BCHP_NAND_CS_NAND_SELECT_EBI_CS_7_SEL_MASK
-/* Version < 3 */
-#define NAND_MAX_CS    8
-
-#elif defined(BCHP_NAND_CS_NAND_SELECT_EBI_CS_3_SEL_MASK)
-/* 7420Cx */
-#define NAND_MAX_CS    4
-#else
-/* 3548 */
-#define NAND_MAX_CS 2
-#endif
-
-/* Number of CS seen by NAND */
-#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
-#define NUM_NAND_CS			4
-
-#else
-#define NUM_NAND_CS			2
-#endif
 
 struct brcmnand_info {
 	struct mtd_info		mtd;
@@ -160,21 +134,21 @@ brcmnand_sort_chipSelects(struct brcmnand_chip* chip)
   	int i;
 	//extern const int gMaxNandCS;
 	
-  	chip->numchips = 0;
+  	chip->ctrl->numchips = 0;
  
 	for (i=0; i < NAND_MAX_CS; i++) {
 		if (BDEV_RD(BCHP_NAND_CS_NAND_SELECT) & (0x100 << i)) {
-			chip->CS[chip->numchips] = i;
-			chip->numchips++;
+			chip->ctrl->CS[chip->ctrl->numchips] = i;
+			chip->ctrl->numchips++;
 		}
 	}
 PRINTK("%s: NAND_SELECT=%08x, numchips=%d\n", 
-	__FUNCTION__, (unsigned int) BDEV_RD(BCHP_NAND_CS_NAND_SELECT), chip->numchips);
+	__FUNCTION__, (unsigned int) BDEV_RD(BCHP_NAND_CS_NAND_SELECT), chip->ctrl->numchips);
 	return 0;
 
   #else /* Architecture do not support multiple NAND_SELECT */
-	chip->numchips = 1;
-  	chip->CS[0] = 0;
+	chip->ctrl->numchips = 1;
+  	chip->ctrl->CS[0] = 0;
 
 	return 0;
 	
@@ -248,28 +222,47 @@ static int __devinit brcmnanddrv_probe(struct platform_device *pdev)
 	//static int numCSProcessed = 0;
 	//int lastChip;
 	struct brcmnand_info* info;
+	static struct brcmnand_ctrl* ctrl = (struct brcmnand_ctrl*) 0;
 	
 
 //extern int dev_debug, gdebug;
 
-
-
-		/* FOr now all devices share the same buffer */
-	if (!gPageBuffer) {
+	/*
+	 * First chip select, allocate global driver struct
+	 */
+	if (!ctrl && !csi) {	
+			/* FOr now all devices share the same buffer */
+		if (!gPageBuffer) {
 #ifndef CONFIG_MTD_BRCMNAND_EDU
-	
-	gPageBuffer = kmalloc(sizeof(struct nand_buffers), GFP_KERNEL);
+		
+		gPageBuffer = kmalloc(sizeof(struct nand_buffers), GFP_KERNEL);
 
 #else
-	/* Align on 32B boundary for efficient DMA transfer */
-	gPageBuffer = kmalloc(sizeof(struct nand_buffers) + 31, GFP_DMA);
-		
+		/* Align on 32B boundary for efficient DMA transfer */
+		gPageBuffer = kmalloc(sizeof(struct nand_buffers) + 31, GFP_DMA);
+			
 #endif
+		}
+		
+		if (!gPageBuffer) {
+			return -ENOMEM;
+		}
+		
+		ctrl = kmalloc(sizeof(struct brcmnand_ctrl), GFP_KERNEL);
+		if (!ctrl) {
+			kfree(gPageBuffer);
+			return -ENOMEM;
+		}
+		memset(ctrl, 0, sizeof(struct brcmnand_ctrl));
+		ctrl->state = FL_READY;
+		init_waitqueue_head(&ctrl->wq);
+		spin_lock_init(&ctrl->chip_lock);
 	}
+/* Else if Controller rev is earlier than 3.2, this is a no-op */
+#if 0
+
+#endif
 	
-	if (!gPageBuffer) {
-		return -ENOMEM;
-	}
 
 	
 	//gPageBuffer = NULL;
@@ -279,7 +272,7 @@ static int __devinit brcmnanddrv_probe(struct platform_device *pdev)
 
 	gNandInfo[csi] = info;
 	memset(info, 0, sizeof(struct brcmnand_info));
-
+	info->brcmnand.ctrl = ctrl;
 
 	/*
 	 * Since platform_data does not send us the number of NAND chips, 
@@ -296,17 +289,17 @@ static int __devinit brcmnanddrv_probe(struct platform_device *pdev)
 		
 		if (0 == gNumNand) { /* First CS */
 			brcmnand_sort_chipSelects(&info->brcmnand);
-			gNumNand = info->brcmnand.numchips;
+			gNumNand = info->brcmnand.ctrl->numchips;
 		}
 		else  { /* Subsequent CS */
 			brcmnand_sort_chipSelects(&info->brcmnand);
-			info->brcmnand.numchips = gNumNand;
+			info->brcmnand.ctrl->numchips = gNumNand;
 		}	
 	}
 
 #else
 	/* Version 1.0 and earlier */
-		info->brcmnand.numchips = gNumNand = 1;
+		info->brcmnand.ctrl->numchips = gNumNand = 1;
 #endif
 	info->brcmnand.csi = csi;
 	
@@ -315,13 +308,13 @@ static int __devinit brcmnanddrv_probe(struct platform_device *pdev)
 
 
 #ifndef CONFIG_MTD_BRCMNAND_EDU
-	info->brcmnand.buffers = (struct nand_buffers*) gPageBuffer;
+	info->brcmnand.ctrl->buffers = (struct nand_buffers*) gPageBuffer;
 #else
 	/* Align on 32B boundary for efficient DMA transfer */
-	info->brcmnand.buffers = (struct nand_buffers*) (((unsigned int) gPageBuffer+31) & (~31));
+	info->brcmnand.ctrl->buffers = (struct nand_buffers*) (((unsigned int) gPageBuffer+31) & (~31));
 #endif
 			
-	info->brcmnand.numchips = gNumNand; 
+	info->brcmnand.ctrl->numchips = gNumNand; 
 	info->brcmnand.chip_shift = 0; // Only 1 chip
 	info->brcmnand.priv = &info->mtd;
 

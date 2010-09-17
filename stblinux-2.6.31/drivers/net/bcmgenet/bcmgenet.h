@@ -145,6 +145,7 @@ typedef struct BcmEnet_devctrl {
 #ifdef CONFIG_BRCM_GENET_V2
 
 #define GENET_TBUF_CTRL(pdev)			(pdev->tbuf->tbuf_ctrl)
+#define GENET_TBUF_BP_MC(pdev)			(pdev->tbuf->tbuf_bp_mc)
 #define GENET_TBUF_ENDIAN_CTRL(pdev)	(pdev->tbuf->tbuf_endian_ctrl)
 #define GENET_TBUF_FLUSH_CTRL(pdev)		(pdev->sys->tbuf_flush_ctrl)
 #define GENET_RBUF_FLUSH_CTRL(pdev)		(pdev->sys->rbuf_flush_ctrl)
@@ -157,6 +158,7 @@ typedef struct BcmEnet_devctrl {
 #else
 
 #define GENET_TBUF_CTRL(pdev)			(pdev->rbuf->tbuf_ctrl)
+#define GENET_TBUF_BP_MC(pdev)			(pdev->rbuf->tbuf_bp_mc)
 #define GENET_TBUF_ENDIAN_CTRL(pdev)	(pdev->rbuf->tbuf_endian_ctrl)
 #define GENET_TBUF_FLUSH_CTRL(pdev)		(pdev->rbuf->tbuf_flush_ctrl)
 #define GENET_RBUF_FLUSH_CTRL(pdev)		(pdev->rbuf->rbuf_flush_ctrl)

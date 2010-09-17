@@ -73,6 +73,38 @@ typedef u32 uint32;
 #define MTD_IS_MLC(mtd) ((((mtd)->flags & MTD_CAP_MLC_NANDFLASH) == MTD_CAP_MLC_NANDFLASH) &&\
 			(((mtd)->flags & MTD_OOB_NOT_WRITEABLE) == MTD_OOB_NOT_WRITEABLE))
 
+
+/* 
+ * NUM_NAND_CS here is strictly based on the number of CS in the NAND registers
+ * It does not have the same value as NUM_CS in brcmstb/setup.c
+ * It is not the same as NAND_MAX_CS, the later being the bit fields found in NAND_CS_NAND_SELECT.
+ */
+
+/*
+ * # number of CS supported by EBI
+ */
+#ifdef BCHP_NAND_CS_NAND_SELECT_EBI_CS_7_SEL_MASK
+/* Version < 3 */
+#define NAND_MAX_CS    8
+
+#elif defined(BCHP_NAND_CS_NAND_SELECT_EBI_CS_3_SEL_MASK)
+/* 7420Cx */
+#define NAND_MAX_CS    4
+#else
+/* 3548 */
+#define NAND_MAX_CS 2
+#endif
+
+/* 
+ * Number of CS seen by NAND
+ */
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
+#define NUM_NAND_CS			4
+
+#else
+#define NUM_NAND_CS			2
+#endif
+
 #ifdef CONFIG_MTD_BRCMNAND_USE_ISR
 
 #define BCM_BASE_ADDRESS				0xb0000000

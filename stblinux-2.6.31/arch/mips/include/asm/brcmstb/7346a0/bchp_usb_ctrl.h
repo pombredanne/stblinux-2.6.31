@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:02:33 2010
- *                 MD5 Checksum         47fd0602d6c7abb64bf56c6d387b1fe1
+ * Date:           Generated on         Mon Aug  2 15:05:57 2010
+ *                 MD5 Checksum         616c5da46e7f2e811fb57b174083665d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7346/rdb/a0/bchp_usb_ctrl.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 8:02p pntruong
+ * SW7346-2: Initial version.
  *
  ***************************************************************************/
 
@@ -61,21 +64,21 @@
 /***************************************************************************
  *SETUP - Setup Register
  ***************************************************************************/
-/* USB_CTRL :: SETUP :: async_expire_dis [31:31] */
-#define BCHP_USB_CTRL_SETUP_async_expire_dis_MASK                  0x80000000
-#define BCHP_USB_CTRL_SETUP_async_expire_dis_SHIFT                 31
-
-/* USB_CTRL :: SETUP :: OC_DISABLE [30:28] */
-#define BCHP_USB_CTRL_SETUP_OC_DISABLE_MASK                        0x70000000
+/* USB_CTRL :: SETUP :: OC_DISABLE [31:28] */
+#define BCHP_USB_CTRL_SETUP_OC_DISABLE_MASK                        0xf0000000
 #define BCHP_USB_CTRL_SETUP_OC_DISABLE_SHIFT                       28
 
 /* USB_CTRL :: SETUP :: SRAM_CS_DIS [27:25] */
 #define BCHP_USB_CTRL_SETUP_SRAM_CS_DIS_MASK                       0x0e000000
 #define BCHP_USB_CTRL_SETUP_SRAM_CS_DIS_SHIFT                      25
 
-/* USB_CTRL :: SETUP :: SETUP_SPARE [24:12] */
-#define BCHP_USB_CTRL_SETUP_SETUP_SPARE_MASK                       0x01fff000
-#define BCHP_USB_CTRL_SETUP_SETUP_SPARE_SHIFT                      12
+/* USB_CTRL :: SETUP :: SETUP_SPARE [24:13] */
+#define BCHP_USB_CTRL_SETUP_SETUP_SPARE_MASK                       0x01ffe000
+#define BCHP_USB_CTRL_SETUP_SETUP_SPARE_SHIFT                      13
+
+/* USB_CTRL :: SETUP :: async_expire_dis [12:12] */
+#define BCHP_USB_CTRL_SETUP_async_expire_dis_MASK                  0x00001000
+#define BCHP_USB_CTRL_SETUP_async_expire_dis_SHIFT                 12
 
 /* USB_CTRL :: SETUP :: discon_intr_en [11:11] */
 #define BCHP_USB_CTRL_SETUP_discon_intr_en_MASK                    0x00000800
@@ -268,9 +271,25 @@
 /***************************************************************************
  *MDIO - MDIO Interface Programming Register
  ***************************************************************************/
-/* USB_CTRL :: MDIO :: MDIO_SPARE [31:26] */
-#define BCHP_USB_CTRL_MDIO_MDIO_SPARE_MASK                         0xfc000000
-#define BCHP_USB_CTRL_MDIO_MDIO_SPARE_SHIFT                        26
+/* USB_CTRL :: MDIO :: MDIO_CLK_SEL [31:31] */
+#define BCHP_USB_CTRL_MDIO_MDIO_CLK_SEL_MASK                       0x80000000
+#define BCHP_USB_CTRL_MDIO_MDIO_CLK_SEL_SHIFT                      31
+
+/* USB_CTRL :: MDIO :: MDIO_XVER_SELECT [30:29] */
+#define BCHP_USB_CTRL_MDIO_MDIO_XVER_SELECT_MASK                   0x60000000
+#define BCHP_USB_CTRL_MDIO_MDIO_XVER_SELECT_SHIFT                  29
+
+/* USB_CTRL :: MDIO :: MDIO_TERM_SELECT [28:28] */
+#define BCHP_USB_CTRL_MDIO_MDIO_TERM_SELECT_MASK                   0x10000000
+#define BCHP_USB_CTRL_MDIO_MDIO_TERM_SELECT_SHIFT                  28
+
+/* USB_CTRL :: MDIO :: MDIO_FS_XVER_OWN [27:27] */
+#define BCHP_USB_CTRL_MDIO_MDIO_FS_XVER_OWN_MASK                   0x08000000
+#define BCHP_USB_CTRL_MDIO_MDIO_FS_XVER_OWN_SHIFT                  27
+
+/* USB_CTRL :: MDIO :: MDIO_TESTMODE [26:26] */
+#define BCHP_USB_CTRL_MDIO_MDIO_TESTMODE_MASK                      0x04000000
+#define BCHP_USB_CTRL_MDIO_MDIO_TESTMODE_SHIFT                     26
 
 /* USB_CTRL :: MDIO :: WR_START [25:25] */
 #define BCHP_USB_CTRL_MDIO_WR_START_MASK                           0x02000000
@@ -369,9 +388,13 @@
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_MASK        0x04000000
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_SHIFT       26
 
-/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:00] */
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03ffffff
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                0
+/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:01] */
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03fffffe
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                1
+
+/* USB_CTRL :: USB_SIMCTL :: FS_DLY_EN [00:00] */
+#define BCHP_USB_CTRL_USB_SIMCTL_FS_DLY_EN_MASK                    0x00000001
+#define BCHP_USB_CTRL_USB_SIMCTL_FS_DLY_EN_SHIFT                   0
 
 /***************************************************************************
  *USB_TESTCTL - Throutput Test Control

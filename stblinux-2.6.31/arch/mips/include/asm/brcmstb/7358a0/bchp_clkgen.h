@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:19:25 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug  2 14:46:20 2010
+ *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_clkgen.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 4:21p pntruong
+ * SW7358-2: Initial version of rdb header files.
  *
  ***************************************************************************/
 
@@ -42,201 +45,201 @@
 /***************************************************************************
  *CLKGEN - clkgen registers
  ***************************************************************************/
-#define BCHP_CLKGEN_PLL_MIPS_PLL_PWRDN           0x00040000 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_CONTROL         0x00040004 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_DIV             0x00040008 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_MDIV0_2         0x0004000c /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_POSTDIVIDER_CTRL 0x00040010 /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_GAIN            0x00040014 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_SSC_MODE_CONTROL_LOW 0x00040018 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_SSC_MODE_CONTROL_HIGH 0x0004001c /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_MISC            0x00040020 /* Miscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_MISC2           0x00040024 /* Miscellaneous control bus continued. */
-#define BCHP_CLKGEN_PLL_MIPS_PLL_LOCK_STATUS     0x00040028 /* Lock Status */
-#define BCHP_CLKGEN_PLL_AVD_PLL_RESET            0x0004002c /* Resets */
-#define BCHP_CLKGEN_PLL_AVD_PLL_PWRDN            0x00040030 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_AVD_PLL_CONTROL          0x00040034 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_AVD_PLL_DIV              0x00040038 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_AVD_PLL_MDIV0_2          0x0004003c /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_AVD_PLL_POSTDIVIDER_CTRL 0x00040040 /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_AVD_PLL_GAIN             0x00040044 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_AVD_PLL_SSC_MODE_CONTROL_LOW 0x00040048 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AVD_PLL_SSC_MODE_CONTROL_HIGH 0x0004004c /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AVD_PLL_MISC             0x00040050 /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_AVD_PLL_LOCK_STATUS      0x00040054 /* Lock Status */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_RESET         0x00040058 /* Resets */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_PWRDN         0x0004005c /* Powerdowns */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_CONTROL       0x00040060 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_DIV           0x00040064 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_GAIN          0x00040068 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_LOW 0x0004006c /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_HIGH 0x00040070 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_LOCK_STATUS   0x00040074 /* Lock Status */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_RESET           0x00040078 /* Resets */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_PWRDN           0x0004007c /* Powerdowns */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CONTROL         0x00040080 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_DIV             0x00040084 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_MDIV0_2         0x00040088 /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_MDIV3_5         0x0004008c /* Post divider Channels 3 to 5 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_POSTDIVIDER_CTRL 0x00040090 /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_GAIN            0x00040094 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_LOW 0x00040098 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_HIGH 0x0004009c /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_MISC            0x000400a0 /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_LOCK_STATUS     0x000400a4 /* Lock Status */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_RESET           0x000400a8 /* Resets */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_PWRDN           0x000400ac /* Powerdowns */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_CONTROL         0x000400b0 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_DIV             0x000400b4 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_MDIV0_2         0x000400b8 /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_MDIV3_5         0x000400bc /* Post divider Channels 3 to 5 */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_POSTDIVIDER_CTRL 0x000400c0 /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_GAIN            0x000400c4 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_SSC_MODE_CONTROL_LOW 0x000400c8 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_SSC_MODE_CONTROL_HIGH 0x000400cc /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_MISC            0x000400d0 /* Miscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_MISC2           0x000400d4 /* Miscellaneous control bus continued. */
-#define BCHP_CLKGEN_PLL_MOCA_PLL_LOCK_STATUS     0x000400d8 /* Lock Status */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_PWRDN           0x000400dc /* Powerdowns */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CONTROL         0x000400e0 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_DIV             0x000400e4 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_MDIV0_2         0x000400e8 /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_MDIV3_5         0x000400ec /* Post divider Channels 3 to 5 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_POSTDIVIDER_CTRL 0x000400f0 /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_GAIN            0x000400f4 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_LOW 0x000400f8 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_HIGH 0x000400fc /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC            0x00040100 /* Miscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC2           0x00040104 /* Miscellaneous control bus continued. */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_LOCK_STATUS     0x00040108 /* Lock Status */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_RESET          0x0004010c /* Resets */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_PWRDN          0x00040110 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_CONTROL        0x00040114 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_DIV            0x00040118 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_MDIV0_2        0x0004011c /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_POSTDIVIDER_CTRL 0x00040120 /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_GAIN           0x00040124 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_SSC_MODE_CONTROL_LOW 0x00040128 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_SSC_MODE_CONTROL_HIGH 0x0004012c /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_MISC           0x00040130 /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_RAAGA_PLL_LOCK_STATUS    0x00040134 /* Lock Status */
-#define BCHP_CLKGEN_PLL_SC_PLL_RESET             0x00040138 /* Resets */
-#define BCHP_CLKGEN_PLL_SC_PLL_PWRDN             0x0004013c /* Powerdowns */
-#define BCHP_CLKGEN_PLL_SC_PLL_CONTROL           0x00040140 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_SC_PLL_DIV               0x00040144 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_SC_PLL_MDIV0_2           0x00040148 /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_SC_PLL_POSTDIVIDER_CTRL  0x0004014c /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_SC_PLL_GAIN              0x00040150 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_LOW 0x00040154 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_HIGH 0x00040158 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SC_PLL_MISC              0x0004015c /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_SC_PLL_LOCK_STATUS       0x00040160 /* Lock Status */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_RESET           0x00040164 /* Resets */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_PWRDN           0x00040168 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_CONTROL         0x0004016c /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_DIV             0x00040170 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_MDIV0_2         0x00040174 /* Post divider Channels 0 to 2 */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_FRAC            0x00040178 /* Fractional */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_POSTDIVIDER_CTRL 0x0004017c /* PLL Post Divider Control */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_GAIN            0x00040180 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_LOW 0x00040184 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_HIGH 0x00040188 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_MISC            0x0004018c /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_LOCK_STATUS     0x00040190 /* Lock Status */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_RESET         0x00040194 /* Resets */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_PWRDN         0x00040198 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_CONTROL       0x0004019c /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_DIV           0x000401a0 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_GAIN          0x000401a4 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_LOW 0x000401a8 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_HIGH 0x000401ac /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_LOCK_STATUS   0x000401b0 /* Lock Status */
-#define BCHP_CLKGEN_MOCA_TOP_MEMORY_STANDBY_ENABLE 0x000401b4 /* Moca top memory standby enable */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_DISABLE   0x000401b8 /* Disable BCM_MIPS_TOP's clocks */
-#define BCHP_CLKGEN_USB0_MEMORY_STANDBY_ENABLE   0x000401bc /* Usb0 memory standby enable */
-#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE         0x000401c0 /* Disable CLKGEN's clocks */
-#define BCHP_CLKGEN_MULTI_CLOCK_DISABLE          0x000401c4 /* Disable MULTI's clocks */
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT         0x000401c8 /* Mux selects for Smartcard clocks */
-#define BCHP_CLKGEN_USB0_CLOCK_ENABLE            0x000401cc /* Usb0 clock enable */
-#define BCHP_CLKGEN_INTERNAL_MUX_SELECT          0x000401d0 /* Mux selects for Internal clocks */
-#define BCHP_CLKGEN_SVD0_TOP_POWER_SWITCH_MEMORY 0x000401d4 /* Svd0 top power switch memory */
-#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_DISABLE    0x000401d8 /* Disable VEC_AIO_TOP's clocks */
-#define BCHP_CLKGEN_USB1_CLOCK_DISABLE           0x000401dc /* Disable USB1's clocks */
-#define BCHP_CLKGEN_USB0_POWER_SWITCH_MEMORY     0x000401e0 /* Usb0 power switch memory */
-#define BCHP_CLKGEN_DVP_HT_MEMORY_STANDBY_ENABLE 0x000401e4 /* Dvp ht memory standby enable */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_CLOCK_ENABLE    0x000401e8 /* Sds afec top clock enable */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_CLOCK_ENABLE    0x000401ec /* Sds tfec top clock enable */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE    0x000401f0 /* Bcm mips top clock enable */
-#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_DISABLE   0x000401f4 /* Disable SDS_RECEIVER's clocks */
-#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_B 0x000401f8 /* Vec aio top memory standby enable b */
-#define BCHP_CLKGEN_MEMSYS_32_CLOCK_ENABLE       0x000401fc /* Memsys 32 clock enable */
-#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_B 0x00040200 /* Vec aio top power switch memory b */
-#define BCHP_CLKGEN_PAD_MUX_SELECT               0x00040204 /* Mux selects for Pad clocks */
-#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_POWER_SWITCH_MEMORY_A 0x00040208 /* Dual genet top rgmii power switch memory a */
-#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE        0x0004020c /* Core xpt clock enable */
-#define BCHP_CLKGEN_GRAPHICS_CLOCK_DISABLE       0x00040210 /* Disable GRAPHICS's clocks */
-#define BCHP_CLKGEN_GRAPHICS_POWER_SWITCH_MEMORY 0x00040214 /* Graphics power switch memory */
-#define BCHP_CLKGEN_RAAGA_DSP_TOP_CLOCK_ENABLE   0x00040218 /* Raaga dsp top clock enable */
-#define BCHP_CLKGEN_SDS_RECEIVER_OBSERVE_CLOCK   0x0004021c /* Sds receiver observe clock */
-#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE 0x00040220 /* Core xpt memory standby enable */
-#define BCHP_CLKGEN_PM_PLL_LOCK_WAIT             0x00040224 /* Power management PLL Lock Wait */
-#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY 0x00040228 /* Core xpt power switch memory */
-#define BCHP_CLKGEN_HIF_CLOCK_DISABLE            0x0004022c /* Disable HIF's clocks */
-#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_CLOCK_DISABLE 0x00040230 /* Disable DUAL_GENET_TOP_RGMII's clocks */
-#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_A 0x00040234 /* Vec aio top memory standby enable a */
-#define BCHP_CLKGEN_CORE_XPT_CLOCK_DISABLE       0x00040238 /* Disable CORE_XPT's clocks */
-#define BCHP_CLKGEN_PAD_CLOCK_DISABLE            0x0004023c /* Disable PAD's clocks */
-#define BCHP_CLKGEN_USB0_CLOCK_DISABLE           0x00040240 /* Disable USB0's clocks */
-#define BCHP_CLKGEN_RAAGA_DSP_TOP_POWER_SWITCH_MEMORY 0x00040244 /* Raaga dsp top power switch memory */
-#define BCHP_CLKGEN_SYS_AON_CLOCK_DISABLE        0x00040248 /* Disable SYS_AON's clocks */
-#define BCHP_CLKGEN_DVP_HT_CLOCK_DISABLE         0x0004024c /* Disable DVP_HT's clocks */
-#define BCHP_CLKGEN_UHFR_TOP_CLOCK_DISABLE       0x00040250 /* Disable UHFR_TOP's clocks */
-#define BCHP_CLKGEN_SYS_CTRL_CLOCK_DISABLE       0x00040254 /* Disable SYS_CTRL's clocks */
-#define BCHP_CLKGEN_ANA_XTAL_LOW_CUR_40G_M7FC_GISB_CONTROL 0x00040258 /* Ana xtal low cur 40g m7fc gisb control */
-#define BCHP_CLKGEN_PM_DDR_PLL_PWRDN             0x0004025c /* Power management DDR PLL powerdown */
-#define BCHP_CLKGEN_GRAPHICS_MEMORY_STANDBY_ENABLE 0x00040260 /* Graphics memory standby enable */
-#define BCHP_CLKGEN_SYS_CTRL_MEMORY_STANDBY_ENABLE 0x00040264 /* Sys ctrl memory standby enable */
-#define BCHP_CLKGEN_SVD0_TOP_CLOCK_ENABLE        0x00040268 /* Svd0 top clock enable */
-#define BCHP_CLKGEN_UHFR_TOP_CLOCK_ENABLE        0x0004026c /* Uhfr top clock enable */
-#define BCHP_CLKGEN_SVD0_TOP_MEMORY_STANDBY_ENABLE 0x00040270 /* Svd0 top memory standby enable */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_MEMORY_STANDBY_ENABLE 0x00040274 /* Sds afec top memory standby enable */
-#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_MEMORY_STANDBY_ENABLE_A 0x00040278 /* Dual genet top rgmii memory standby enable a */
-#define BCHP_CLKGEN_DVP_HT_ENABLE                0x0004027c /* Dvp ht enable */
-#define BCHP_CLKGEN_CLKGEN_CLOCK_ENABLE          0x00040280 /* Clkgen clock enable */
-#define BCHP_CLKGEN_MOCA_TOP_POWER_SWITCH_MEMORY 0x00040284 /* Moca top power switch memory */
-#define BCHP_CLKGEN_USB1_POWER_SWITCH_MEMORY     0x00040288 /* Usb1 power switch memory */
-#define BCHP_CLKGEN_SYS_CTRL_CLOCK_ENABLE        0x0004028c /* Sys ctrl clock enable */
-#define BCHP_CLKGEN_MOCA_TOP_CLOCK_ENABLE        0x00040290 /* Moca top clock enable */
-#define BCHP_CLKGEN_HIF_CLOCK_ENABLE             0x00040294 /* Hif clock enable */
-#define BCHP_CLKGEN_MEMSYS_32_MEMORY_STANDBY_ENABLE 0x00040298 /* Memsys 32 memory standby enable */
-#define BCHP_CLKGEN_USB1_CLOCK_ENABLE            0x0004029c /* Usb1 clock enable */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_POWER_SWITCH_MEMORY 0x000402a0 /* Sds afec top power switch memory */
-#define BCHP_CLKGEN_DVP_HT_POWER_SWITCH_MEMORY   0x000402a4 /* Dvp ht power switch memory */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_MEMORY_STANDBY_ENABLE 0x000402a8 /* Sds tfec top memory standby enable */
-#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_ENABLE    0x000402ac /* Sds receiver clock enable */
-#define BCHP_CLKGEN_SECTOP_CLOCK_ENABLE          0x000402b0 /* Sectop clock enable */
-#define BCHP_CLKGEN_BVN_TOP_MEMORY_STANDBY_ENABLE 0x000402b4 /* Bvn top memory standby enable */
-#define BCHP_CLKGEN_SECTOP_MEMORY_STANDBY_ENABLE 0x000402b8 /* Sectop memory standby enable */
-#define BCHP_CLKGEN_BVN_TOP_CLOCK_ENABLE         0x000402bc /* Bvn top clock enable */
-#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_ENABLE     0x000402c0 /* Vec aio top clock enable */
-#define BCHP_CLKGEN_FTM_TOP_MEMORY_STANDBY_ENABLE 0x000402c4 /* Ftm top memory standby enable */
-#define BCHP_CLKGEN_RAAGA_DSP_TOP_MEMORY_STANDBY_ENABLE 0x000402c8 /* Raaga dsp top memory standby enable */
-#define BCHP_CLKGEN_USB1_MEMORY_STANDBY_ENABLE   0x000402cc /* Usb1 memory standby enable */
-#define BCHP_CLKGEN_UHFR_TOP_MEMORY_STANDBY_ENABLE 0x000402d0 /* Uhfr top memory standby enable */
-#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_A 0x000402d4 /* Vec aio top power switch memory a */
-#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_POWER_SWITCH_MEMORY_B 0x000402d8 /* Dual genet top rgmii power switch memory b */
-#define BCHP_CLKGEN_GRAPHICS_CLOCK_ENABLE        0x000402dc /* Graphics clock enable */
-#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_CLOCK_ENABLE 0x000402e0 /* Dual genet top rgmii clock enable */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_MEMORY_STANDBY_ENABLE 0x000402e4 /* Bcm mips top memory standby enable */
-#define BCHP_CLKGEN_UHFR_TOP_POWER_SWITCH_MEMORY 0x000402e8 /* Uhfr top power switch memory */
-#define BCHP_CLKGEN_SDS_RECEIVER_MEMORY_STANDBY_ENABLE 0x000402ec /* Sds receiver memory standby enable */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_POWER_SWITCH_MEMORY 0x000402f0 /* Sds tfec top power switch memory */
-#define BCHP_CLKGEN_BVN_TOP_POWER_SWITCH_MEMORY  0x000402f4 /* Bvn top power switch memory */
-#define BCHP_CLKGEN_DVP_HT_CLOCK_ENABLE          0x000402f8 /* Dvp ht clock enable */
-#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_CLOCK_SELECT 0x000402fc /* Dual genet top rgmii clock select */
-#define BCHP_CLKGEN_FTM_TOP_CLOCK_ENABLE         0x00040300 /* Ftm top clock enable */
-#define BCHP_CLKGEN_FTM_TOP_POWER_SWITCH_MEMORY  0x00040304 /* Ftm top power switch memory */
-#define BCHP_CLKGEN_SDS_RECEIVER_POWER_SWITCH_MEMORY 0x00040308 /* Sds receiver power switch memory */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_PWRDN           0x00420000 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_CONTROL         0x00420004 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_DIV             0x00420008 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_MDIV0_2         0x0042000c /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_POSTDIVIDER_CTRL 0x00420010 /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_GAIN            0x00420014 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_SSC_MODE_CONTROL_LOW 0x00420018 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_SSC_MODE_CONTROL_HIGH 0x0042001c /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_MISC            0x00420020 /* Miscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_MISC2           0x00420024 /* Miscellaneous control bus continued. */
+#define BCHP_CLKGEN_PLL_MIPS_PLL_LOCK_STATUS     0x00420028 /* Lock Status */
+#define BCHP_CLKGEN_PLL_AVD_PLL_RESET            0x0042002c /* Resets */
+#define BCHP_CLKGEN_PLL_AVD_PLL_PWRDN            0x00420030 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_AVD_PLL_CONTROL          0x00420034 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_AVD_PLL_DIV              0x00420038 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_AVD_PLL_MDIV0_2          0x0042003c /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_AVD_PLL_POSTDIVIDER_CTRL 0x00420040 /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_AVD_PLL_GAIN             0x00420044 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_AVD_PLL_SSC_MODE_CONTROL_LOW 0x00420048 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_AVD_PLL_SSC_MODE_CONTROL_HIGH 0x0042004c /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_AVD_PLL_MISC             0x00420050 /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_AVD_PLL_LOCK_STATUS      0x00420054 /* Lock Status */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_RESET         0x00420058 /* Resets */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_PWRDN         0x0042005c /* Powerdowns */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_CONTROL       0x00420060 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_DIV           0x00420064 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_GAIN          0x00420068 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_LOW 0x0042006c /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_HIGH 0x00420070 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_LOCK_STATUS   0x00420074 /* Lock Status */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_RESET           0x00420078 /* Resets */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_PWRDN           0x0042007c /* Powerdowns */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CONTROL         0x00420080 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_DIV             0x00420084 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_MDIV0_2         0x00420088 /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_MDIV3_5         0x0042008c /* Post divider Channels 3 to 5 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_POSTDIVIDER_CTRL 0x00420090 /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_GAIN            0x00420094 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_LOW 0x00420098 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_HIGH 0x0042009c /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_MISC            0x004200a0 /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_LOCK_STATUS     0x004200a4 /* Lock Status */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_RESET           0x004200a8 /* Resets */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_PWRDN           0x004200ac /* Powerdowns */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_CONTROL         0x004200b0 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_DIV             0x004200b4 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_MDIV0_2         0x004200b8 /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_MDIV3_5         0x004200bc /* Post divider Channels 3 to 5 */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_POSTDIVIDER_CTRL 0x004200c0 /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_GAIN            0x004200c4 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_SSC_MODE_CONTROL_LOW 0x004200c8 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_SSC_MODE_CONTROL_HIGH 0x004200cc /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_MISC            0x004200d0 /* Miscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_MISC2           0x004200d4 /* Miscellaneous control bus continued. */
+#define BCHP_CLKGEN_PLL_MOCA_PLL_LOCK_STATUS     0x004200d8 /* Lock Status */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_PWRDN           0x004200dc /* Powerdowns */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CONTROL         0x004200e0 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_DIV             0x004200e4 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_MDIV0_2         0x004200e8 /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_MDIV3_5         0x004200ec /* Post divider Channels 3 to 5 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_POSTDIVIDER_CTRL 0x004200f0 /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_GAIN            0x004200f4 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_LOW 0x004200f8 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_HIGH 0x004200fc /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC            0x00420100 /* Miscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC2           0x00420104 /* Miscellaneous control bus continued. */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_LOCK_STATUS     0x00420108 /* Lock Status */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_RESET          0x0042010c /* Resets */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_PWRDN          0x00420110 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_CONTROL        0x00420114 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_DIV            0x00420118 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_MDIV0_2        0x0042011c /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_POSTDIVIDER_CTRL 0x00420120 /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_GAIN           0x00420124 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_SSC_MODE_CONTROL_LOW 0x00420128 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_SSC_MODE_CONTROL_HIGH 0x0042012c /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_MISC           0x00420130 /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_RAAGA_PLL_LOCK_STATUS    0x00420134 /* Lock Status */
+#define BCHP_CLKGEN_PLL_SC_PLL_RESET             0x00420138 /* Resets */
+#define BCHP_CLKGEN_PLL_SC_PLL_PWRDN             0x0042013c /* Powerdowns */
+#define BCHP_CLKGEN_PLL_SC_PLL_CONTROL           0x00420140 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_SC_PLL_DIV               0x00420144 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_SC_PLL_MDIV0_2           0x00420148 /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_SC_PLL_POSTDIVIDER_CTRL  0x0042014c /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_SC_PLL_GAIN              0x00420150 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_LOW 0x00420154 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_HIGH 0x00420158 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SC_PLL_MISC              0x0042015c /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_SC_PLL_LOCK_STATUS       0x00420160 /* Lock Status */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_RESET           0x00420164 /* Resets */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_PWRDN           0x00420168 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_CONTROL         0x0042016c /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_DIV             0x00420170 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_MDIV0_2         0x00420174 /* Post divider Channels 0 to 2 */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_FRAC            0x00420178 /* Fractional */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_POSTDIVIDER_CTRL 0x0042017c /* PLL Post Divider Control */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_GAIN            0x00420180 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_LOW 0x00420184 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_HIGH 0x00420188 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_MISC            0x0042018c /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_LOCK_STATUS     0x00420190 /* Lock Status */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_RESET         0x00420194 /* Resets */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_PWRDN         0x00420198 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_CONTROL       0x0042019c /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_DIV           0x004201a0 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_GAIN          0x004201a4 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_LOW 0x004201a8 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_HIGH 0x004201ac /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_LOCK_STATUS   0x004201b0 /* Lock Status */
+#define BCHP_CLKGEN_MOCA_TOP_MEMORY_STANDBY_ENABLE 0x004201b4 /* Moca top memory standby enable */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_DISABLE   0x004201b8 /* Disable BCM_MIPS_TOP's clocks */
+#define BCHP_CLKGEN_USB0_MEMORY_STANDBY_ENABLE   0x004201bc /* Usb0 memory standby enable */
+#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE         0x004201c0 /* Disable CLKGEN's clocks */
+#define BCHP_CLKGEN_MULTI_CLOCK_DISABLE          0x004201c4 /* Disable MULTI's clocks */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT         0x004201c8 /* Mux selects for Smartcard clocks */
+#define BCHP_CLKGEN_USB0_CLOCK_ENABLE            0x004201cc /* Usb0 clock enable */
+#define BCHP_CLKGEN_INTERNAL_MUX_SELECT          0x004201d0 /* Mux selects for Internal clocks */
+#define BCHP_CLKGEN_SVD0_TOP_POWER_SWITCH_MEMORY 0x004201d4 /* Svd0 top power switch memory */
+#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_DISABLE    0x004201d8 /* Disable VEC_AIO_TOP's clocks */
+#define BCHP_CLKGEN_USB1_CLOCK_DISABLE           0x004201dc /* Disable USB1's clocks */
+#define BCHP_CLKGEN_USB0_POWER_SWITCH_MEMORY     0x004201e0 /* Usb0 power switch memory */
+#define BCHP_CLKGEN_DVP_HT_MEMORY_STANDBY_ENABLE 0x004201e4 /* Dvp ht memory standby enable */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_CLOCK_ENABLE    0x004201e8 /* Sds afec top clock enable */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_CLOCK_ENABLE    0x004201ec /* Sds tfec top clock enable */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE    0x004201f0 /* Bcm mips top clock enable */
+#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_DISABLE   0x004201f4 /* Disable SDS_RECEIVER's clocks */
+#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_B 0x004201f8 /* Vec aio top memory standby enable b */
+#define BCHP_CLKGEN_MEMSYS_32_CLOCK_ENABLE       0x004201fc /* Memsys 32 clock enable */
+#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_B 0x00420200 /* Vec aio top power switch memory b */
+#define BCHP_CLKGEN_PAD_MUX_SELECT               0x00420204 /* Mux selects for Pad clocks */
+#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_POWER_SWITCH_MEMORY_A 0x00420208 /* Dual genet top rgmii power switch memory a */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE        0x0042020c /* Core xpt clock enable */
+#define BCHP_CLKGEN_GRAPHICS_CLOCK_DISABLE       0x00420210 /* Disable GRAPHICS's clocks */
+#define BCHP_CLKGEN_GRAPHICS_POWER_SWITCH_MEMORY 0x00420214 /* Graphics power switch memory */
+#define BCHP_CLKGEN_RAAGA_DSP_TOP_CLOCK_ENABLE   0x00420218 /* Raaga dsp top clock enable */
+#define BCHP_CLKGEN_SDS_RECEIVER_OBSERVE_CLOCK   0x0042021c /* Sds receiver observe clock */
+#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE 0x00420220 /* Core xpt memory standby enable */
+#define BCHP_CLKGEN_PM_PLL_LOCK_WAIT             0x00420224 /* Power management PLL Lock Wait */
+#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY 0x00420228 /* Core xpt power switch memory */
+#define BCHP_CLKGEN_HIF_CLOCK_DISABLE            0x0042022c /* Disable HIF's clocks */
+#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_CLOCK_DISABLE 0x00420230 /* Disable DUAL_GENET_TOP_RGMII's clocks */
+#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_A 0x00420234 /* Vec aio top memory standby enable a */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_DISABLE       0x00420238 /* Disable CORE_XPT's clocks */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE            0x0042023c /* Disable PAD's clocks */
+#define BCHP_CLKGEN_USB0_CLOCK_DISABLE           0x00420240 /* Disable USB0's clocks */
+#define BCHP_CLKGEN_RAAGA_DSP_TOP_POWER_SWITCH_MEMORY 0x00420244 /* Raaga dsp top power switch memory */
+#define BCHP_CLKGEN_SYS_AON_CLOCK_DISABLE        0x00420248 /* Disable SYS_AON's clocks */
+#define BCHP_CLKGEN_DVP_HT_CLOCK_DISABLE         0x0042024c /* Disable DVP_HT's clocks */
+#define BCHP_CLKGEN_UHFR_TOP_CLOCK_DISABLE       0x00420250 /* Disable UHFR_TOP's clocks */
+#define BCHP_CLKGEN_SYS_CTRL_CLOCK_DISABLE       0x00420254 /* Disable SYS_CTRL's clocks */
+#define BCHP_CLKGEN_ANA_XTAL_LOW_CUR_40G_M7FC_GISB_CONTROL 0x00420258 /* Ana xtal low cur 40g m7fc gisb control */
+#define BCHP_CLKGEN_PM_DDR_PLL_PWRDN             0x0042025c /* Power management DDR PLL powerdown */
+#define BCHP_CLKGEN_GRAPHICS_MEMORY_STANDBY_ENABLE 0x00420260 /* Graphics memory standby enable */
+#define BCHP_CLKGEN_SYS_CTRL_MEMORY_STANDBY_ENABLE 0x00420264 /* Sys ctrl memory standby enable */
+#define BCHP_CLKGEN_SVD0_TOP_CLOCK_ENABLE        0x00420268 /* Svd0 top clock enable */
+#define BCHP_CLKGEN_UHFR_TOP_CLOCK_ENABLE        0x0042026c /* Uhfr top clock enable */
+#define BCHP_CLKGEN_SVD0_TOP_MEMORY_STANDBY_ENABLE 0x00420270 /* Svd0 top memory standby enable */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_MEMORY_STANDBY_ENABLE 0x00420274 /* Sds afec top memory standby enable */
+#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_MEMORY_STANDBY_ENABLE_A 0x00420278 /* Dual genet top rgmii memory standby enable a */
+#define BCHP_CLKGEN_DVP_HT_ENABLE                0x0042027c /* Dvp ht enable */
+#define BCHP_CLKGEN_CLKGEN_CLOCK_ENABLE          0x00420280 /* Clkgen clock enable */
+#define BCHP_CLKGEN_MOCA_TOP_POWER_SWITCH_MEMORY 0x00420284 /* Moca top power switch memory */
+#define BCHP_CLKGEN_USB1_POWER_SWITCH_MEMORY     0x00420288 /* Usb1 power switch memory */
+#define BCHP_CLKGEN_SYS_CTRL_CLOCK_ENABLE        0x0042028c /* Sys ctrl clock enable */
+#define BCHP_CLKGEN_MOCA_TOP_CLOCK_ENABLE        0x00420290 /* Moca top clock enable */
+#define BCHP_CLKGEN_HIF_CLOCK_ENABLE             0x00420294 /* Hif clock enable */
+#define BCHP_CLKGEN_MEMSYS_32_MEMORY_STANDBY_ENABLE 0x00420298 /* Memsys 32 memory standby enable */
+#define BCHP_CLKGEN_USB1_CLOCK_ENABLE            0x0042029c /* Usb1 clock enable */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_POWER_SWITCH_MEMORY 0x004202a0 /* Sds afec top power switch memory */
+#define BCHP_CLKGEN_DVP_HT_POWER_SWITCH_MEMORY   0x004202a4 /* Dvp ht power switch memory */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_MEMORY_STANDBY_ENABLE 0x004202a8 /* Sds tfec top memory standby enable */
+#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_ENABLE    0x004202ac /* Sds receiver clock enable */
+#define BCHP_CLKGEN_SECTOP_CLOCK_ENABLE          0x004202b0 /* Sectop clock enable */
+#define BCHP_CLKGEN_BVN_TOP_MEMORY_STANDBY_ENABLE 0x004202b4 /* Bvn top memory standby enable */
+#define BCHP_CLKGEN_SECTOP_MEMORY_STANDBY_ENABLE 0x004202b8 /* Sectop memory standby enable */
+#define BCHP_CLKGEN_BVN_TOP_CLOCK_ENABLE         0x004202bc /* Bvn top clock enable */
+#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_ENABLE     0x004202c0 /* Vec aio top clock enable */
+#define BCHP_CLKGEN_FTM_TOP_MEMORY_STANDBY_ENABLE 0x004202c4 /* Ftm top memory standby enable */
+#define BCHP_CLKGEN_RAAGA_DSP_TOP_MEMORY_STANDBY_ENABLE 0x004202c8 /* Raaga dsp top memory standby enable */
+#define BCHP_CLKGEN_USB1_MEMORY_STANDBY_ENABLE   0x004202cc /* Usb1 memory standby enable */
+#define BCHP_CLKGEN_UHFR_TOP_MEMORY_STANDBY_ENABLE 0x004202d0 /* Uhfr top memory standby enable */
+#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_A 0x004202d4 /* Vec aio top power switch memory a */
+#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_POWER_SWITCH_MEMORY_B 0x004202d8 /* Dual genet top rgmii power switch memory b */
+#define BCHP_CLKGEN_GRAPHICS_CLOCK_ENABLE        0x004202dc /* Graphics clock enable */
+#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_CLOCK_ENABLE 0x004202e0 /* Dual genet top rgmii clock enable */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_MEMORY_STANDBY_ENABLE 0x004202e4 /* Bcm mips top memory standby enable */
+#define BCHP_CLKGEN_UHFR_TOP_POWER_SWITCH_MEMORY 0x004202e8 /* Uhfr top power switch memory */
+#define BCHP_CLKGEN_SDS_RECEIVER_MEMORY_STANDBY_ENABLE 0x004202ec /* Sds receiver memory standby enable */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_POWER_SWITCH_MEMORY 0x004202f0 /* Sds tfec top power switch memory */
+#define BCHP_CLKGEN_BVN_TOP_POWER_SWITCH_MEMORY  0x004202f4 /* Bvn top power switch memory */
+#define BCHP_CLKGEN_DVP_HT_CLOCK_ENABLE          0x004202f8 /* Dvp ht clock enable */
+#define BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_CLOCK_SELECT 0x004202fc /* Dual genet top rgmii clock select */
+#define BCHP_CLKGEN_FTM_TOP_CLOCK_ENABLE         0x00420300 /* Ftm top clock enable */
+#define BCHP_CLKGEN_FTM_TOP_POWER_SWITCH_MEMORY  0x00420304 /* Ftm top power switch memory */
+#define BCHP_CLKGEN_SDS_RECEIVER_POWER_SWITCH_MEMORY 0x00420308 /* Sds receiver power switch memory */
 
 /***************************************************************************
  *PLL_MIPS_PLL_PWRDN - Powerdowns

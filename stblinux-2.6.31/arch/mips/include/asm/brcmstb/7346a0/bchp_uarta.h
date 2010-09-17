@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 04:08:49 2010
- *                 MD5 Checksum         47fd0602d6c7abb64bf56c6d387b1fe1
+ * Date:           Generated on         Mon Aug  2 15:13:43 2010
+ *                 MD5 Checksum         616c5da46e7f2e811fb57b174083665d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7346/rdb/a0/bchp_uarta.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 7:58p pntruong
+ * SW7346-2: Initial version.
  *
  ***************************************************************************/
 
@@ -42,18 +45,18 @@
 /***************************************************************************
  *UARTA - UART A
  ***************************************************************************/
-#define BCHP_UARTA_RBR                           0x00405900 /* Receive Buffer Register */
-#define BCHP_UARTA_THR                           0x00405900 /* Transmit Holding Register */
-#define BCHP_UARTA_DLH                           0x00405904 /* Divisor Latch High */
-#define BCHP_UARTA_DLL                           0x00405900 /* Divisor Latch Low */
-#define BCHP_UARTA_IER                           0x00405904 /* Interrupt Enable Register */
-#define BCHP_UARTA_IIR                           0x00405908 /* Interrupt Identity Register */
-#define BCHP_UARTA_FCR                           0x00405908 /* FIFO Control Register */
-#define BCHP_UARTA_LCR                           0x0040590c /* Line Control Register */
-#define BCHP_UARTA_MCR                           0x00405910 /* Modem Control Register */
-#define BCHP_UARTA_LSR                           0x00405914 /* Line Status Register */
-#define BCHP_UARTA_MSR                           0x00405918 /* Modem Status Register */
-#define BCHP_UARTA_SCR                           0x0040591c /* Scratchpad Register */
+#define BCHP_UARTA_RBR                           0x00406900 /* Receive Buffer Register */
+#define BCHP_UARTA_THR                           0x00406900 /* Transmit Holding Register */
+#define BCHP_UARTA_DLH                           0x00406904 /* Divisor Latch High */
+#define BCHP_UARTA_DLL                           0x00406900 /* Divisor Latch Low */
+#define BCHP_UARTA_IER                           0x00406904 /* Interrupt Enable Register */
+#define BCHP_UARTA_IIR                           0x00406908 /* Interrupt Identity Register */
+#define BCHP_UARTA_FCR                           0x00406908 /* FIFO Control Register */
+#define BCHP_UARTA_LCR                           0x0040690c /* Line Control Register */
+#define BCHP_UARTA_MCR                           0x00406910 /* Modem Control Register */
+#define BCHP_UARTA_LSR                           0x00406914 /* Line Status Register */
+#define BCHP_UARTA_MSR                           0x00406918 /* Modem Status Register */
+#define BCHP_UARTA_SCR                           0x0040691c /* Scratchpad Register */
 
 /***************************************************************************
  *RBR - Receive Buffer Register

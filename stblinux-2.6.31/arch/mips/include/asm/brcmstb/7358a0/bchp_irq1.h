@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:26:12 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug 16 11:01:23 2010
+ *                 MD5 Checksum         442d8de773a92e76786307c9f37b5c82
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_irq1.h $
+ * 
+ * Hydra_Software_Devel/2   8/16/10 12:17p pntruong
+ * SW7358-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -42,8 +45,8 @@
 /***************************************************************************
  *IRQ1 - Level 2 PCI Interrupt Enable/Status
  ***************************************************************************/
-#define BCHP_IRQ1_IRQEN                          0x00405788 /* Interrupt Enable */
-#define BCHP_IRQ1_IRQSTAT                        0x0040578c /* Interrupt Status */
+#define BCHP_IRQ1_IRQEN                          0x00406640 /* Interrupt Enable */
+#define BCHP_IRQ1_IRQSTAT                        0x00406644 /* Interrupt Status */
 
 #endif /* #ifndef BCHP_IRQ1_H__ */
 

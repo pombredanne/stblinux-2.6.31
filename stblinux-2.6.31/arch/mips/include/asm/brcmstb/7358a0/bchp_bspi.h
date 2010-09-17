@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:19:52 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug  2 14:46:50 2010
+ *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_bspi.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 4:10p pntruong
+ * SW7358-2: Initial version of rdb header files.
  *
  ***************************************************************************/
 
@@ -42,26 +45,26 @@
 /***************************************************************************
  *BSPI - Public BSPI Control Registers
  ***************************************************************************/
-#define BCHP_BSPI_REVISION_ID                    0x00003000 /* Revision ID */
-#define BCHP_BSPI_SCRATCH                        0x00003004 /* Revision ID */
-#define BCHP_BSPI_MAST_N_BOOT_CTRL               0x00003008 /* Master/Boot SPI Control Register */
-#define BCHP_BSPI_BUSY_STATUS                    0x0000300c /* BSPI Busy Status Register */
-#define BCHP_BSPI_INTR_STATUS                    0x00003010 /* Interrupt Status Register */
-#define BCHP_BSPI_B0_STATUS                      0x00003014 /* Prefetch Buffer 0 Status Register */
-#define BCHP_BSPI_B0_CTRL                        0x00003018 /* Prefetch Buffer 0 Control Register */
-#define BCHP_BSPI_B1_STATUS                      0x0000301c /* Prefetch Buffer 1 Status Register */
-#define BCHP_BSPI_B1_CTRL                        0x00003020 /* Prefetch Buffer 1 Control Register */
-#define BCHP_BSPI_STRAP_OVERRIDE_CTRL            0x00003024 /* Dual/Single Receive Mode Control Register */
-#define BCHP_BSPI_FLEX_MODE_ENABLE               0x00003028 /* Flexible Control Mode Enable Register */
-#define BCHP_BSPI_BITS_PER_CYCLE                 0x0000302c /* Bits per cycle "b-p-c" Control Register */
-#define BCHP_BSPI_BITS_PER_PHASE                 0x00003030 /* Bits per Phase "b-p-p" Control Register */
-#define BCHP_BSPI_CMD_AND_MODE_BYTE              0x00003034 /* Command and Mode Data Register */
-#define BCHP_BSPI_BSPI_FLASH_UPPER_ADDR_BYTE     0x00003038 /* Bspi FLash upper address byte register */
-#define BCHP_BSPI_BSPI_XOR_VALUE                 0x0000303c /* BSPI FLASH XOR Value Register */
-#define BCHP_BSPI_BSPI_XOR_ENABLE                0x00003040 /* BSPI FLASH XOR Enable Register */
-#define BCHP_BSPI_BSPI_PIO_MODE_ENABLE           0x00003044 /* BSPI Pin  Programmed IO Mode Enable Register */
-#define BCHP_BSPI_BSPI_PIO_IODIR                 0x00003048 /* BSPI Pin  Programmed IO Mode Direction Register */
-#define BCHP_BSPI_BSPI_PIO_DATA                  0x0000304c /* BSPI Pin  Programmed IO Mode Data Register */
+#define BCHP_BSPI_REVISION_ID                    0x00413000 /* Revision ID */
+#define BCHP_BSPI_SCRATCH                        0x00413004 /* Revision ID */
+#define BCHP_BSPI_MAST_N_BOOT_CTRL               0x00413008 /* Master/Boot SPI Control Register */
+#define BCHP_BSPI_BUSY_STATUS                    0x0041300c /* BSPI Busy Status Register */
+#define BCHP_BSPI_INTR_STATUS                    0x00413010 /* Interrupt Status Register */
+#define BCHP_BSPI_B0_STATUS                      0x00413014 /* Prefetch Buffer 0 Status Register */
+#define BCHP_BSPI_B0_CTRL                        0x00413018 /* Prefetch Buffer 0 Control Register */
+#define BCHP_BSPI_B1_STATUS                      0x0041301c /* Prefetch Buffer 1 Status Register */
+#define BCHP_BSPI_B1_CTRL                        0x00413020 /* Prefetch Buffer 1 Control Register */
+#define BCHP_BSPI_STRAP_OVERRIDE_CTRL            0x00413024 /* Dual/Single Receive Mode Control Register */
+#define BCHP_BSPI_FLEX_MODE_ENABLE               0x00413028 /* Flexible Control Mode Enable Register */
+#define BCHP_BSPI_BITS_PER_CYCLE                 0x0041302c /* Bits per cycle "b-p-c" Control Register */
+#define BCHP_BSPI_BITS_PER_PHASE                 0x00413030 /* Bits per Phase "b-p-p" Control Register */
+#define BCHP_BSPI_CMD_AND_MODE_BYTE              0x00413034 /* Command and Mode Data Register */
+#define BCHP_BSPI_BSPI_FLASH_UPPER_ADDR_BYTE     0x00413038 /* Bspi FLash upper address byte register */
+#define BCHP_BSPI_BSPI_XOR_VALUE                 0x0041303c /* BSPI FLASH XOR Value Register */
+#define BCHP_BSPI_BSPI_XOR_ENABLE                0x00413040 /* BSPI FLASH XOR Enable Register */
+#define BCHP_BSPI_BSPI_PIO_MODE_ENABLE           0x00413044 /* BSPI Pin  Programmed IO Mode Enable Register */
+#define BCHP_BSPI_BSPI_PIO_IODIR                 0x00413048 /* BSPI Pin  Programmed IO Mode Direction Register */
+#define BCHP_BSPI_BSPI_PIO_DATA                  0x0041304c /* BSPI Pin  Programmed IO Mode Data Register */
 
 /***************************************************************************
  *REVISION_ID - Revision ID

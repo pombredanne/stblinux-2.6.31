@@ -503,6 +503,8 @@ static int bcmgenet_open(struct net_device * dev)
 
     clk_enable(pDevCtrl->clk);
 
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
+		pDevCtrl->ext->ext_pwr_mgmt |= EXT_ENERGY_DET_MASK;
     /* disable ethernet MAC while updating its registers */
     pDevCtrl->umac->cmd &= ~(CMD_TX_EN | CMD_RX_EN);
 
@@ -991,14 +993,19 @@ static int bcmgenet_xmit(struct sk_buff * skb, struct net_device * dev)
 	if(GENET_TBUF_CTRL(pDevCtrl) & RBUF_64B_EN)
 	{
 		if(likely(skb_headroom(skb) < 64)) {
-			/*TODO: does the kernel free the original SKB ? */
-			if((skb = skb_realloc_headroom(skb, 64)) == NULL)
+			struct sk_buff * new_skb;
+			if((new_skb = skb_realloc_headroom(skb, 64)) == NULL)
 			{
+				dev_kfree_skb(skb);
     			dev->stats.tx_errors++;
 				dev->stats.tx_dropped++;
     			spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 				return 0;
+			}else if (skb->sk) {
+				skb_set_owner_w(new_skb, skb->sk);
 			}
+			dev_kfree_skb(skb);
+			skb = new_skb;
 		}
 		skb_push(skb, 64);
 		Status = (StatusBlock *)skb->data;
@@ -2013,15 +2020,19 @@ static int init_umac(BcmEnet_devctrl *pDevCtrl)
 	{
 		intrl2->cpu_mask_clear |= UMAC_IRQ_PHY_DET_R | UMAC_IRQ_PHY_DET_F;
 		intrl2->cpu_mask_clear |= UMAC_IRQ_LINK_DOWN | UMAC_IRQ_LINK_UP ;
-		/*GENET bug */
-		pDevCtrl->ext->ext_pwr_mgmt |= EXT_ENERGY_DET_MASK;
+		/* Turn on ENERGY_DET interrupt in bcmgenet_open()
+		 * TODO: fix me for active standby.
+		 */
 	}else if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
 			pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII)
 	{
 		intrl2->cpu_mask_clear |= UMAC_IRQ_LINK_DOWN | UMAC_IRQ_LINK_UP ;
 
+	}else if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA) {
+		GENET_TBUF_BP_MC(pDevCtrl) |= (1 << 16); 	/* bp_in_en */
+		GENET_TBUF_BP_MC(pDevCtrl) &= 0xFFFF0000;	/* bp_mask */
 	}
-
+	
 	/* Enable rx/tx engine.*/
 
 	TRACE(("done init umac\n"));
@@ -2345,7 +2356,10 @@ static int bcmgenet_init_dev(BcmEnet_devctrl *pDevCtrl)
     void *ptxCbs, *prxCbs;
 	volatile DmaDesc * lastBd;
 
-	pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "enet");
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
+		pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "moca");
+	else 
+		pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "enet");
 	clk_enable(pDevCtrl->clk);
 
 	TRACE(("%s\n", __FUNCTION__));
@@ -2727,7 +2741,22 @@ static int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 static int bcmgenet_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	BcmEnet_devctrl * pDevCtrl = netdev_priv(dev);
-	return mii_ethtool_gset(&pDevCtrl->mii, cmd);
+	int rc=0;
+
+	/* override autoneg on MoCA interface to return link up/down */
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
+	{
+		cmd->autoneg = netif_carrier_ok(pDevCtrl->dev);
+		cmd->speed = SPEED_1000; 
+		cmd->duplex = DUPLEX_HALF;
+		cmd->port = PORT_BNC;
+	}
+	else
+	{
+		rc = mii_ethtool_gset(&pDevCtrl->mii, cmd);
+	}
+
+	return rc;
 }
 /*
  * ethtool function - set settings.
@@ -2737,12 +2766,27 @@ static int bcmgenet_set_settings(struct net_device *dev, struct ethtool_cmd *cmd
 	int err = 0;
 	BcmEnet_devctrl * pDevCtrl = netdev_priv(dev);
 
-	if((err = mii_ethtool_sset(&pDevCtrl->mii, cmd)) < 0)
-		return err;
-	mii_setup(dev);
-	
-	if(cmd->maxrxpkt != 0)
-		DmaDescThres = cmd->maxrxpkt;
+	/* override autoneg on MoCA interface to set link up/down */
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
+	{       
+		if ((cmd->autoneg == 0) && (netif_carrier_ok(pDevCtrl->dev))) {
+			pDevCtrl->dev->flags &= ~IFF_RUNNING;
+			netif_carrier_off(pDevCtrl->dev);
+			rtmsg_ifinfo(RTM_DELLINK, pDevCtrl->dev, IFF_RUNNING);
+		}
+		if ((cmd->autoneg != 0) && (!netif_carrier_ok(pDevCtrl->dev))) {
+			pDevCtrl->dev->flags |= IFF_RUNNING;
+			netif_carrier_on(pDevCtrl->dev);
+			rtmsg_ifinfo(RTM_NEWLINK, pDevCtrl->dev, IFF_RUNNING);
+		}
+	} else {
+		if((err = mii_ethtool_sset(&pDevCtrl->mii, cmd)) < 0)
+			return err;
+		mii_setup(dev);
+		
+		if(cmd->maxrxpkt != 0)
+			DmaDescThres = cmd->maxrxpkt;		 
+	}
 
 	return err;
 }
@@ -3244,7 +3288,7 @@ static int bcmgenet_drv_resume(struct platform_device *pdev)
 	if(pDevCtrl->dev_opened)
 		val = bcmgenet_open(pDevCtrl->dev);
 	else {
-		clk_enable(pDevCtrl->clk);
+		/*clk_enable(pDevCtrl->clk); */
 		val = 0;
 	}
 	if(pDevCtrl->dev_asleep)

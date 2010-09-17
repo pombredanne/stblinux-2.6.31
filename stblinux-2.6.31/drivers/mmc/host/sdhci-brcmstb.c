@@ -206,9 +206,34 @@ static int __devexit sdhci_brcm_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_PM
+
+static int sdhci_brcm_suspend(struct platform_device *dev, pm_message_t pm)
+{
+	struct sdhci_host *host = platform_get_drvdata(dev);
+
+	sdhci_suspend_host(host, pm);
+	return 0;
+}
+
+static int sdhci_brcm_resume(struct platform_device *dev)
+{
+	struct sdhci_host *host = platform_get_drvdata(dev);
+
+	sdhci_resume_host(host);
+	return 0;
+}
+
+#else
+#define sdhci_brcm_suspend NULL
+#define sdhci_brcm_resume NULL
+#endif
+
 static struct platform_driver sdhci_brcm_driver = {
 	.probe			= sdhci_brcm_probe,
 	.remove			= __devexit_p(sdhci_brcm_remove),
+	.suspend		= sdhci_brcm_suspend,
+	.resume			= sdhci_brcm_resume,
 	.driver = {
 		.name		= DRV_NAME,
 	}

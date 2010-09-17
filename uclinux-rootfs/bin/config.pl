@@ -344,6 +344,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 			$linux{"CONFIG_NETWORK_FILESYSTEMS"} = "n";
 			$linux{"CONFIG_INPUT"} = "n";
+			$linux{"CONFIG_VT"} = "n";
 		} elsif($mod eq "ikos") {
 
 			# IKOS pre-tapeout emulation (internal Broadcom use)

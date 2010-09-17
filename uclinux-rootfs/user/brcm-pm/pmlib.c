@@ -103,17 +103,20 @@ static int sysfs_get(char *path, unsigned int *out)
 {
 	FILE *f;
 	unsigned int tmp;
+	char buf[BUF_SIZE];
 
 	f = fopen(path, "r");
 	if(! f)
 		return(-1);
-	if(fscanf(f, "%u", &tmp) != 1 && fscanf(f, "0x%x", &tmp) != 1)
+	if(fgets(buf, BUF_SIZE, f) != buf)
 	{
 		fclose(f);
 		return(-1);
 	}
-	*out = tmp;
 	fclose(f);
+	if(sscanf(buf, "0x%x", &tmp) != 1 && sscanf(buf, "%u", &tmp) != 1)
+		return(-1);
+	*out = tmp;
 	return(0);
 }
 
@@ -126,7 +129,7 @@ static int sysfs_set(char *path, int in)
 	if(! f)
 		return(-1);
 	sprintf(buf, "%u", in);
-	if((fputs(buf, f) < 0) || (fflush(f) < 0))
+	if((fputs(buf, f) < 0))
 	{
 		fclose(f);
 		return(-1);
@@ -142,7 +145,7 @@ static int sysfs_set_string(char *path, const char *in)
 	f = fopen(path, "w");
 	if(! f)
 		return(-1);
-	if((fputs(in, f) < 0) || (fflush(f) < 0))
+	if((fputs(in, f) < 0))
 	{
 		fclose(f);
 		return(-1);

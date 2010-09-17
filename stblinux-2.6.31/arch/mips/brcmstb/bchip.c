@@ -179,13 +179,10 @@ void __init bchip_check_compat(void)
 	ALT_CHIP_ID(7409, c0);
 	ALT_CHIP_ID(7410, c0);
 	MAIN_CHIP_ID(7420, c0);
-#elif defined(CONFIG_BCM7422)
-	MAIN_CHIP_ID(7422, a0);
-#elif defined(CONFIG_BCM7425)
+#elif defined(CONFIG_BCM7422) || defined(CONFIG_BCM7425)
+	ALT_CHIP_ID(7422, a0);
 	MAIN_CHIP_ID(7425, a0);
-#elif defined(CONFIG_BCM7468A0)
-	MAIN_CHIP_ID(7468, a0);
-#elif defined(CONFIG_BCM7468B0)
+#elif defined(CONFIG_BCM7468)
 	MAIN_CHIP_ID(7468, b0);
 #elif defined(CONFIG_BCM7550)
 	MAIN_CHIP_ID(7550, a0);
@@ -367,9 +364,7 @@ void __init bchip_sdio_init(void)
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, FRAME_NHW, 1);
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, BUFFER_ABO, 0);
 #endif
-#if !defined(CONFIG_BCM7468A0)
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, SCB_SEQ_EN, 0);
-#endif
 #endif
 }
 #endif

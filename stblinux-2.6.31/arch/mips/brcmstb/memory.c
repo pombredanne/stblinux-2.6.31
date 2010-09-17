@@ -33,6 +33,8 @@
 #include <asm/r4kcache.h>
 #include <asm/brcmstb/brcmstb.h>
 
+#include <spaces.h>
+
 #if 0
 #define DBG printk
 #else
@@ -351,6 +353,20 @@ static int __init bmem_region_setup(void)
 }
 
 arch_initcall(bmem_region_setup);
+
+/*
+ * Override default behavior to allow cached access to all valid DRAM ranges
+ */
+int __uncached_access(struct file *file, unsigned long addr)
+{
+	if (file->f_flags & O_SYNC)
+		return 1;
+	if (addr >= BCHP_PHYSICAL_OFFSET && addr < UPPERMEM_START)
+		return 1;
+	if (addr >= PCIE_MEM_START)
+		return 1;
+	return 0;
+}
 
 /***********************************************************************
  * Wired TLB mappings for upper memory support

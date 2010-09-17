@@ -16,7 +16,7 @@ MAKE	?=	make
 
 UCLINUX_BUILD_USER=1
 -include $(LINUX_CONFIG)
--include $(CONFIG_CONFIG)
+#-include $(CONFIG_CONFIG)
 -include $(ARCH_CONFIG)
 -include $(MODULES_CONFIG)
 
@@ -28,7 +28,11 @@ VEND=$(ROOTDIR)/vendors
 # dir_v = $(VEND)/$(CONFIG_VENDOR)/$(CONFIG_PRODUCT)/.
 
 # -include $(dir_v)/config.vendor-2.6.x
+ifeq ($(BUILD_ROOT_SIGN), y)
+CONFIG_USER_ROOT_SIGN=y
+else
 -include $(ROOTDIR)/config/.config
+endif
 
 dir_v =
 
@@ -232,6 +236,7 @@ dir_$(CONFIG_USER_ROUTE_MIITOOL)            += route
 dir_$(CONFIG_USER_ROUTE_ROUTE)              += route
 dir_$(CONFIG_USER_ROUTE_NETSTAT)            += route
 dir_$(CONFIG_USER_ROUTED_ROUTED)            += routed
+dir_$(CONFIG_USER_ROOT_SIGN)				+= root_sign
 dir_$(CONFIG_USER_RP_PPPOE_PPPOE)           += rp-pppoe
 dir_$(CONFIG_USER_RTC_M41T11)               += rtc-m41t11
 dir_$(CONFIG_USER_RTC_DS1302)               += rtc-ds1302

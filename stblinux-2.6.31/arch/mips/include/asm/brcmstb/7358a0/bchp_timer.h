@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:18:16 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug 16 10:51:46 2010
+ *                 MD5 Checksum         442d8de773a92e76786307c9f37b5c82
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_timer.h $
+ * 
+ * Hydra_Software_Devel/2   8/16/10 12:21p pntruong
+ * SW7358-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -42,22 +45,22 @@
 /***************************************************************************
  *TIMER - Watchdog & Programmable Timers
  ***************************************************************************/
-#define BCHP_TIMER_TIMER_IS                      0x004057c0 /* TIMER INTERRUPT STATUS REGISTER */
-#define BCHP_TIMER_TIMER_IE0                     0x004057c4 /* TIMER CPU INTERRUPT ENABLE REGISTER */
-#define BCHP_TIMER_TIMER0_CTRL                   0x004057c8 /* TIMER0 CONTROL REGISTER */
-#define BCHP_TIMER_TIMER1_CTRL                   0x004057cc /* TIMER1 CONTROL REGISTER */
-#define BCHP_TIMER_TIMER2_CTRL                   0x004057d0 /* TIMER2 CONTROL REGISTER */
-#define BCHP_TIMER_TIMER3_CTRL                   0x004057d4 /* TIMER3 CONTROL REGISTER */
-#define BCHP_TIMER_TIMER0_STAT                   0x004057d8 /* TIMER0 STATUS REGISTER */
-#define BCHP_TIMER_TIMER1_STAT                   0x004057dc /* TIMER1 STATUS REGISTER */
-#define BCHP_TIMER_TIMER2_STAT                   0x004057e0 /* TIMER2 STATUS REGISTER */
-#define BCHP_TIMER_TIMER3_STAT                   0x004057e4 /* TIMER3 STATUS REGISTER */
-#define BCHP_TIMER_WDTIMEOUT                     0x004057e8 /* WATCHDOG TIMEOUT REGISTER */
-#define BCHP_TIMER_WDCMD                         0x004057ec /* WATCHDOG COMMAND REGISTER */
-#define BCHP_TIMER_WDCHIPRST_CNT                 0x004057f0 /* WATCHDOG CHIP RESET COUNT REGISTER */
-#define BCHP_TIMER_WDCRS                         0x004057f4 /* WATCHDOG CHIP RESET STATUS REGISTER */
-#define BCHP_TIMER_TIMER_IE1                     0x004057f8 /* TIMER PCI INTERRUPT ENABLE REGISTER */
-#define BCHP_TIMER_WDCTRL                        0x004057fc /* WATCHDOG CONTROL REGISTER */
+#define BCHP_TIMER_TIMER_IS                      0x00406680 /* TIMER INTERRUPT STATUS REGISTER */
+#define BCHP_TIMER_TIMER_IE0                     0x00406684 /* TIMER CPU INTERRUPT ENABLE REGISTER */
+#define BCHP_TIMER_TIMER0_CTRL                   0x00406688 /* TIMER0 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER1_CTRL                   0x0040668c /* TIMER1 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER2_CTRL                   0x00406690 /* TIMER2 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER3_CTRL                   0x00406694 /* TIMER3 CONTROL REGISTER */
+#define BCHP_TIMER_TIMER0_STAT                   0x00406698 /* TIMER0 STATUS REGISTER */
+#define BCHP_TIMER_TIMER1_STAT                   0x0040669c /* TIMER1 STATUS REGISTER */
+#define BCHP_TIMER_TIMER2_STAT                   0x004066a0 /* TIMER2 STATUS REGISTER */
+#define BCHP_TIMER_TIMER3_STAT                   0x004066a4 /* TIMER3 STATUS REGISTER */
+#define BCHP_TIMER_WDTIMEOUT                     0x004066a8 /* WATCHDOG TIMEOUT REGISTER */
+#define BCHP_TIMER_WDCMD                         0x004066ac /* WATCHDOG COMMAND REGISTER */
+#define BCHP_TIMER_WDCHIPRST_CNT                 0x004066b0 /* WATCHDOG CHIP RESET COUNT REGISTER */
+#define BCHP_TIMER_WDCRS                         0x004066b4 /* WATCHDOG CHIP RESET STATUS REGISTER */
+#define BCHP_TIMER_TIMER_IE1                     0x004066b8 /* TIMER PCI INTERRUPT ENABLE REGISTER */
+#define BCHP_TIMER_WDCTRL                        0x004066bc /* WATCHDOG CONTROL REGISTER */
 
 /***************************************************************************
  *TIMER_IS - TIMER INTERRUPT STATUS REGISTER
@@ -176,9 +179,9 @@
 /***************************************************************************
  *TIMER0_STAT - TIMER0 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER0_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER0_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER0_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER0_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER0_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER0_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER0_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER0_STAT_COUNTER_VAL_MASK                    0x3fffffff
@@ -187,9 +190,9 @@
 /***************************************************************************
  *TIMER1_STAT - TIMER1 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER1_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER1_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER1_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER1_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER1_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER1_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER1_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER1_STAT_COUNTER_VAL_MASK                    0x3fffffff
@@ -198,9 +201,9 @@
 /***************************************************************************
  *TIMER2_STAT - TIMER2 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER2_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER2_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER2_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER2_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER2_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER2_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER2_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER2_STAT_COUNTER_VAL_MASK                    0x3fffffff
@@ -209,9 +212,9 @@
 /***************************************************************************
  *TIMER3_STAT - TIMER3 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER3_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER3_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER3_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER3_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER3_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER3_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER3_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER3_STAT_COUNTER_VAL_MASK                    0x3fffffff

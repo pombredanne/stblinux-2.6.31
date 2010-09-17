@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Jul  8 03:49:36 2010
- *                 MD5 Checksum         b644e23769d1b756250db802f694b032
+ * Date:           Generated on         Sat Aug 21 02:39:02 2010
+ *                 MD5 Checksum         a95e35eb18efda724ef4e779d00f7fc8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -195,9 +195,13 @@
 /***************************************************************************
  *PM_STATUS - Status register for Power Controller
  ***************************************************************************/
-/* AON_CTRL :: PM_STATUS :: pm_wait_count_upper_bits [31:25] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_MASK      0xfe000000
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_SHIFT     25
+/* AON_CTRL :: PM_STATUS :: pm_wait_count_upper_bits [31:26] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_MASK      0xfc000000
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_SHIFT     26
+
+/* AON_CTRL :: PM_STATUS :: pm_wait_counter_active [25:25] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_MASK        0x02000000
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_SHIFT       25
 
 /* AON_CTRL :: PM_STATUS :: pm_s3_wakeup_reset_ [24:24] */
 #define BCHP_AON_CTRL_PM_STATUS_pm_s3_wakeup_reset__MASK           0x01000000
@@ -211,17 +215,17 @@
 #define BCHP_AON_CTRL_PM_STATUS_pm_fast_pd_precharge_valid_MASK    0x00400000
 #define BCHP_AON_CTRL_PM_STATUS_pm_fast_pd_precharge_valid_SHIFT   22
 
-/* AON_CTRL :: PM_STATUS :: pm_wait_counter_active [21:21] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_MASK        0x00200000
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_SHIFT       21
+/* AON_CTRL :: PM_STATUS :: pm_led_out [21:21] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_led_out_MASK                    0x00200000
+#define BCHP_AON_CTRL_PM_STATUS_pm_led_out_SHIFT                   21
 
-/* AON_CTRL :: PM_STATUS :: pm_led_out [20:20] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_led_out_MASK                    0x00100000
-#define BCHP_AON_CTRL_PM_STATUS_pm_led_out_SHIFT                   20
+/* AON_CTRL :: PM_STATUS :: pm_standby_b [20:20] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_standby_b_MASK                  0x00100000
+#define BCHP_AON_CTRL_PM_STATUS_pm_standby_b_SHIFT                 20
 
-/* AON_CTRL :: PM_STATUS :: pm_standby [19:19] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_standby_MASK                    0x00080000
-#define BCHP_AON_CTRL_PM_STATUS_pm_standby_SHIFT                   19
+/* AON_CTRL :: PM_STATUS :: pm_ignore_inputs_ng [19:19] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_ignore_inputs_ng_MASK           0x00080000
+#define BCHP_AON_CTRL_PM_STATUS_pm_ignore_inputs_ng_SHIFT          19
 
 /* AON_CTRL :: PM_STATUS :: pm_ignore_inputs [18:18] */
 #define BCHP_AON_CTRL_PM_STATUS_pm_ignore_inputs_MASK              0x00040000

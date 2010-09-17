@@ -145,6 +145,7 @@
 #define SAMSUNG_K9F2G08U1A      0xF1
 #define SAMSUNG_K9F2G08U0A      0xDA
 #define SAMSUNG_K9K8G08U0A      0xD3
+#define SAMSUNG_K9F8G08U0M	0xD3
 
 
 //K9F5608(R/U/D)0D
@@ -171,7 +172,7 @@
 // Low level MLC test as compared to the high level test in mtd-abi.h
 #define NAND_IS_MLC(chip) ((chip)->cellinfo & NAND_CI_CELLTYPE_MSK)
 
-#define SAMSUNG_3RDID_MASK			0x30
+#define SAMSUNG_3RDID_NOP_MASK		0x30
 #define SAMSUNG_3RDID_NOP_1			0x00
 #define SAMSUNG_3RDID_NOP_2			0x10
 #define SAMSUNG_3RDID_NOP_4			0x20
@@ -260,7 +261,9 @@
 #define HYNIX_HY27UF081G2A      0xF1
 
 #define HYNIX_HY27UF082G2A      0xDA
-#define HYNIX_HY27UF084G2M     0xDC
+
+// #define HYNIX_HY27UF084G2M     0xDC /* replaced by the next one */
+#define HYNIX_HY27U4G8F2D		0xDC
 
 /* Hynix MLC flashes, same infos as Samsung, except the 5th Byte */
 #define HYNIX_HY27UT088G2A	0xD3
@@ -270,7 +273,7 @@
 
 /* Number of Planes, same as Samsung */
 
-/* Plane Size */
+/* Plane Size Type 2 */
 #define HYNIX_5THID_PLANESZ_MASK	0x70
 #define HYNIX_5THID_PLANESZ_512Mb	0x00
 #define HYNIX_5THID_PLANESZ_1Gb	0x10
@@ -281,6 +284,18 @@
 #define HYNIX_5THID_PLANESZ_RSVD2	0x60
 #define HYNIX_5THID_PLANESZ_RSVD3	0x70
 
+/* Legacy Hynix on H27U4G8F2D */
+/* Plane Size */
+#define HYNIX_5THID_LEG_PLANESZ_MASK		0x70
+#define HYNIX_5THID_LEG_PLANESZ_64Mb		0x00
+#define HYNIX_5THID_LEG_PLANESZ_128Mb	0x10
+#define HYNIX_5THID_LEG_PLANESZ_256Mb	0x20
+#define HYNIX_5THID_LEG_PLANESZ_512Mb	0x30
+#define HYNIX_5THID_LEG_PLANESZ_1Gb		0x40
+#define HYNIX_5THID_LEG_PLANESZ_2Gb		0x50
+#define HYNIX_5THID_LEG_PLANESZ_4Gb		0x60
+#define HYNIX_5THID_LEG_PLANESZ_8Gb		0x70
+
 
 /*--------- END Hynix MLC NAND flashes -----------------------*/
 
@@ -289,6 +304,109 @@
 //MT29F2G(08/16)AAB
 #define MICRON_MT29F2G08AAB     0xDA
 #define MICRON_MT29F2G16AAB     0xCA
+
+#define MICRON_MT29F1G08ABA	0xF1
+#define MICRON_MT29F4G08ABA	0xDC
+
+#define MICRON_MT29F8G08ABA	0x38
+#define MICRON_MT29F16G08CBA	0x48
+
+/*
+ * Micron M60A & M68A ID encoding are similar to Samsung Type 1.
+ */
+
+#define MICRON_3RDID_INT_CHIPNO_MASK	NAND_CI_CHIPNR_MSK
+
+#define MICRON_3RDID_CELLTYPE_MASK	NAND_CI_CELLTYPE_MSK
+#define MICRON_3RDID_CELLTYPE_SLC	0x00
+#define MICRON_3RDID_CELLTYPE_4LV	0x04
+//#define MICRON_3RDID_CELLTYPE_8LV	0x08
+//#define MICRON_3RDID_CELLTYPE_16LV	0x0C
+
+
+/* Nbr of simultaneously programmed pages */
+#define MICRON_3RDID_SIMPG_MASK		0x30
+#define MICRON_3RDID_SIMPG_1			0x00
+#define MICRON_3RDID_SIMPG_2			0x10
+//#define MICRON_3RDID_SIM_4			0x20
+//#define MICRON_3RDID_SIM_8			0x30
+
+#define MICRON_3RDID_INTERLEAVE		0x40
+
+#define MICRON_3RDID_CACHE_PROG		0x80
+
+#define MICRON_4THID_PAGESIZE_MASK	0x03
+#define MICRON_4THID_PAGESIZE_1KB		0x00
+#define MICRON_4THID_PAGESIZE_2KB		0x01
+#define MICRON_4THID_PAGESIZE_4KB		0x02
+#define MICRON_4THID_PAGESIZE_8KB		0x03
+
+#define MICRON_4THID_OOBSIZE_MASK	0x04
+#define MICRON_4THID_OOBSIZE_8B		0x00
+#define MICRON_4THID_OOBSIZE_16B		0x04
+
+#define MICRON_4THID_BLKSIZE_MASK		0x30
+#define MICRON_4THID_BLKSIZE_64KB		0x00
+#define MICRON_4THID_BLKSIZE_128KB	0x10
+#define MICRON_4THID_BLKSIZE_256KB	0x20
+#define MICRON_4THID_BLKSIZE_512KB	0x30
+
+/* Required ECC level */
+#define MICRON_5THID_ECCLVL_MASK		0x03
+#define MICRON_5THID_ECCLVL_4BITS		0x02
+
+#define MICRON_5THID_NRPLANE_MASK	0x0C
+#define MICRON_5THID_NRPLANE_1		0x00
+#define MICRON_5THID_NRPLANE_2		0x04
+#define MICRON_5THID_NRPLANE_4		0x08
+//#define SAMSUNG_5THID_NRPLANE_8		0x0C
+
+#define MICRON_5THID_PLANESZ_MASK	0x70
+#define MICRON_5THID_PLANESZ_64Mb	0x00
+#define MICRON_5THID_PLANESZ_128Mb	0x10
+#define MICRON_5THID_PLANESZ_256Mb	0x20
+#define MICRON_5THID_PLANESZ_512Mb	0x30
+#define MICRON_5THID_PLANESZ_1Gb		0x40
+#define MICRON_5THID_PLANESZ_2Gb		0x50
+#define MICRON_5THID_PLANESZ_4Gb		0x60
+#define MICRON_5THID_PLANESZ_8Gb		0x70
+
+#define MICRON_5THID_INT_ECC_MASK	0x80
+#define MICRON_5THID_INT_ECC_ENA		0x80
+
+
+/*
+ * Micron M61A ID encoding will be phased out in favor of ONFI
+ */
+ #define MICRON_M61A_2NDID_VOLTAGE_MASK		0x0F
+ #define MICRON_M61A_2NDID_3_3V				0x08
+
+/* Not strictly followed, must rely on 5th ID byte for density */
+#define MICRON_M61A_2NDID_DENSITY_MASK		0xF0
+#define MICRON_M61A_2NDID_2Gb					0x10
+#define MICRON_M61A_2NDID_4Gb					0x20 
+#define MICRON_M61A_2NDID_8Gb					0x30 
+#define MICRON_M61A_2NDID_16Gb				0x40 
+
+/* M61A_3RDID_SLC is same as standard Samsung Type 1 */
+/* M61A_4THID_PAGESIZE same as standard Samsung Type 1 */
+
+#define MICRON_M61A_4THID_OOBSIZE_MASK		0x0C
+#define MICRON_M61A_4THID_OOBSIZE_28B		0x04	/* 224 per 4KB page */
+
+/* Pages per block ==> Block Size */
+#define MICRON_M61A_4THID_PGPBLK_MASK		0x70
+#define MICRON_M61A_4THID_128PG_PERBLK		0x20	/* 128 pages per block =512KB blkSize*/
+
+#define MICRON_M61A_4THID_MULTI_LUN_MASK	0x80
+#define MICRON_M61A_4THID_MLUN_SUPPORTED	0x80	/* 128 pages per block */
+
+
+#define MICRON_M61A_5THID_PLN_PER_LUN_MASK	0x03
+#define MICRON_M61A_5THID_2PLN				0x01	/* 2 planes per LUN */
+
+#define MICRON_M61A_5THID_BLK_PER_LUN_MASK	0x1C
+#define MICRON_M61A_5THID_2048BLKS			0x04	/* 2048 blks per LUN */
 
 //Spansion flashes
 #ifndef FLASHTYPE_SPANSION
@@ -315,6 +433,12 @@
 #define FLASHTYPE_TOSHIBA		0x98
 
 #define TOSHIBA_TC58NVG0S3ETA00	0xD1
+
+/*---------------------------------------------------------------------------------------*/
+
+// Low level MLC test as compared to the high level test in mtd-abi.h
+#define NAND_IS_MLC(chip) ((chip)->cellinfo & NAND_CI_CELLTYPE_MSK)
+
 
 //Command Opcode
 #define OP_PAGE_READ                0x01000000
@@ -445,7 +569,35 @@ static const unsigned int brcmnand_eccbytes[16] = {
  * @param bbm		[REPLACEABLE] pointer to Bad Block Management
  * @param priv		[OPTIONAL] pointer to private chip date
  */
+
+/*
+ * Global members, shared by all ChipSelect, one per controller
+ */
+struct brcmnand_ctrl {
+	spinlock_t			chip_lock;
+	//atomic_t			semCount; // Used to lock out NAND access for NOR, TBD
+	wait_queue_head_t		wq;
+	brcmnand_state_t		state;
+	
+	struct nand_buffers* 	buffers; // THT 2.6.18-5.3: Changed to pointer to accomodate EDU
+#define BRCMNAND_OOBBUF(pbuf) (&((pbuf)->databuf[NAND_MAX_PAGESIZE]))
+
+	unsigned int		numchips; // Always 1 in v0.0 and 0.1, up to 8 in v1.0+
+	int 				CS[MAX_NAND_CS];	// Value of CS selected one per chip, in ascending order of chip Select (enforced)..
+										// Say, user uses CS0, CS2, and CS5 for NAND, then the first 3 entries
+										// have the values 0, 2 and 5, and numchips=3.
+};
+
 struct brcmnand_chip {
+
+	
+	/* Shared by all Chip select */
+	struct brcmnand_ctrl* ctrl;
+
+	/*
+	 *	Private members, 
+	 *
+	  */
 	//unsigned long		regs;	/* Register page */
 	unsigned char __iomem		*vbase; /* Virtual address of start of flash */
 	unsigned long 		pbase; // Physical address of vbase
@@ -499,20 +651,12 @@ struct brcmnand_chip {
 	int (*write_oob) (struct mtd_info *mtd, loff_t to,
 			 struct mtd_oob_ops *ops);
 
-
-	spinlock_t			chip_lock;
-	//atomic_t			semCount; // Used to lock out NAND access for NOR, TBD
-	wait_queue_head_t	wq;
-	brcmnand_state_t	state;
-
 	uint64_t			chipSize;
-	unsigned int		numchips; // Always 1 in v0.0 and 0.1, up to 8 in v1.0+
+	
 	int 				directAccess;		// For v1,0+, use directAccess or EBI address	
-	int				xor_disable[MAX_NAND_CS];	// Value of  !NAND_CS_NAND_XOR:00
+	int				xor_disable;	// Value of  !NAND_CS_NAND_XOR:00
 	int				csi; /* index into the CS array.  chip->CS[chip->csi] yield the value of HW ChipSelect */
-	int 				CS[MAX_NAND_CS];	// Value of CS selected one per chip, in ascending order of chip Select (enforced)..
-										// Say, user uses CS0, CS2, and CS5 for NAND, then the first 3 entries
-										// have the values 0, 2 and 5, and numchips=3.
+
 	unsigned int		chip_shift; // How many bits shold be shifted.
 	uint64_t			mtdSize;	// Total size of NAND flash, 64 bit integer for V1.0.  This supercedes mtd->size which is
 								// currently defined as a uint32_t.
@@ -555,8 +699,7 @@ struct brcmnand_chip {
 	int			eccsteps; // How many ECC block per page (4 for 2K page, 1 for 512B page, 8 for 4K page etc...
 	int			eccOobSize; // # of oob byte per ECC step, mostly 16, 27 for BCH-8
 	
-	struct nand_buffers* buffers; // THT 2.6.18-5.3: Changed to pointer to accomodate EDU
-#define BRCMNAND_OOBBUF(pbuf) (&((pbuf)->databuf[NAND_MAX_PAGESIZE]))
+
 	//struct nand_hw_control hwcontrol;
 
 	struct mtd_oob_ops ops;

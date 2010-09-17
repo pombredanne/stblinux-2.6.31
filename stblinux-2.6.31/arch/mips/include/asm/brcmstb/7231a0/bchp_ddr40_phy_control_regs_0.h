@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Jul  8 03:39:31 2010
- *                 MD5 Checksum         b644e23769d1b756250db802f694b032
+ * Date:           Generated on         Sat Aug 21 02:28:44 2010
+ *                 MD5 Checksum         a95e35eb18efda724ef4e779d00f7fc8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -1032,9 +1032,13 @@
 /***************************************************************************
  *STANDBY_CONTROL - Standby Control register
  ***************************************************************************/
-/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: reserved0 [31:18] */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_MASK 0xfffc0000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_SHIFT 18
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: reserved0 [31:19] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_MASK 0xfff80000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_SHIFT 19
+
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_ready [18:18] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_ready_MASK 0x00040000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_ready_SHIFT 18
 
 /* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_exit_pin_en [17:17] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_exit_pin_en_MASK 0x00020000

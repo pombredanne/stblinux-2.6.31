@@ -39,9 +39,8 @@ CHKPATH		:= perl -w bin/checkpath.pl
 
 SHELL		:= /bin/bash
 PATH		:= $(shell $(CHKPATH) -a)
-
 export ROOTDIR LINUXDIR LINUX_CONFIG CONFIG_CONFIG ARCH_CONFIG ROMFSDIR \
-	ROMFSINST MAKEARCH LIBCDIR SHELL PATH
+	ROMFSINST MAKEARCH LIBCDIR SHELL PATH 
 
 TFTPHOST	:= $(shell hostname)
 TFTPDIR		:= $$USER
@@ -156,6 +155,22 @@ kernel: .target chkpath
 	gzip -9 < $(LINUXDIR)/vmlinux > \
 		images/vmlinuz-$(PLAT)
 
+.PHONY: kernel_sign
+kernel_sign: .target chkpath
+	@if [ -z "$(SIGLIST)" ]; then \
+		echo "!!!No signature list file is specified!!!"; exit 1;\
+	fi; \
+	#Generate initram fs skeleton
+	rm -rf $(ROOTDIR)/initramfs; \
+	mkdir -p initramfs/{bin,dev,etc,proc,root,sbin,tmp};\
+	chmod -R a+x initramfs/{bin,sbin}
+	#build rootfs signing app.
+	$(MAKE) -C user all romfs BUILD_ROOT_SIGN=y SIGLIST=$(SIGLIST) ROOTFSDIR=$(ROOTFSDIR)
+	#build kernel.
+	$(CFG) initramfs-sign 
+	$(MAKE) -C $(LINUXDIR) vmlinux SUBDIRS= 
+	gzip -9 < $(LINUXDIR)/vmlinux > \
+	images/vmlinuz-sign-$(PLAT)
 #############################################################################
 # PRIMARY BUILD TARGETS
 #############################################################################
@@ -346,6 +361,9 @@ clean:
 		elif [[ "$(SUBDIRS)" = "linux*" ]]; then \
 			$(MAKE) -C $(LINUXDIR) clean ; \
 		fi ; \
+		if [ -d user/root_sign ]; then \
+			$(MAKE) -C user/root_sign clean; \
+		fi ;\
 	fi
 
 .PHONY: distclean

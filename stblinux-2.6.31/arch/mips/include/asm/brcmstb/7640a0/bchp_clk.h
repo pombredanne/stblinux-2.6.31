@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:42:00 2010
- *                 MD5 Checksum         c66913b3206030e05b6b1cb6bfd13b6a
+ * Date:           Generated on         Sat Aug 21 02:53:14 2010
+ *                 MD5 Checksum         7503bcc37fa293871cc40ba51c24c24f
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -62,14 +62,23 @@
 #define BCHP_CLK_SDIO_PAD_CTRL                   0x00070184 /* SDIO pad control */
 #define BCHP_CLK_DVO_PAD_CTRL                    0x00070188 /* DVO pad control */
 #define BCHP_CLK_I2C_PAD_CTRL                    0x0007018c /* I2C pad control */
+#define BCHP_CLK_SYS0_CTRL                       0x00070200 /* SYS0 PLL control */
+#define BCHP_CLK_SYS0_GAIN                       0x00070204 /* SYS0 PLL gain */
+#define BCHP_CLK_SYS0_TEST                       0x00070208 /* SYS0 PLL test control */
 #define BCHP_CLK_SYS0_STATUS                     0x00070218 /* SYS0 PLL Status */
 #define BCHP_CLK_SYS0_LOCK_CNT                   0x0007021c /* SYS0 PLL Lock Counter */
-#define BCHP_CLK_SYS1_CTRL                       0x00070240 /* SYS1 PLL powerdown and reset */
+#define BCHP_CLK_SYS0_216_DIV                    0x00070220 /* SYS0 PLL channel 0 (216 MHz) clock divider settings */
+#define BCHP_CLK_SYS0_162_DIV                    0x00070224 /* SYS0 PLL channel 1 (162/81 MHz) clock divider settings */
+#define BCHP_CLK_SYS0_48_DIV                     0x00070228 /* SYS0 PLL channel 2 (48 MHz) clock divider settings */
+#define BCHP_CLK_SYS0_259P2_DIV                  0x00070230 /* SYS0 PLL channel 4 (259.2 MHz) clock divider settings */
+#define BCHP_CLK_SYS0_9_DIV                      0x00070234 /* SYS0 PLL channel 5 (9/4.5 MHz) clock divider settings */
+#define BCHP_CLK_SYS1_CTRL                       0x00070240 /* SYS1 PLL control */
 #define BCHP_CLK_SYS1_GAIN                       0x00070244 /* SYS1 PLL gain */
 #define BCHP_CLK_SYS1_TEST                       0x00070248 /* SYS1 PLL test control */
 #define BCHP_CLK_SYS1_STATUS                     0x00070258 /* SYS1 PLL Status */
 #define BCHP_CLK_SYS1_LOCK_CNT                   0x0007025c /* SYS1 PLL Lock Counter */
 #define BCHP_CLK_SYS1_VC4_DIV                    0x00070260 /* SYS1 PLL channel 0 VC4 clock divider settings */
+#define BCHP_CLK_SYS1_ENET_DIV                   0x00070264 /* SYS1 PLL channel 1 ENET clock divider settings */
 #define BCHP_CLK_SYS1_OFE_DIV                    0x00070268 /* SYS1 PLL channel 2 OFE clock divider settings */
 #define BCHP_CLK_SYS1_SDIO_DIV                   0x0007026c /* SYS1 PLL channel 3 SDIO clock divider settings */
 #define BCHP_CLK_MIP_CTRL                        0x00070280 /* MIPS PLL control */
@@ -260,135 +269,133 @@
 /***************************************************************************
  *PM_CTRL_1 - Software power management control to turn off various clocks
  ***************************************************************************/
-/* CLK :: PM_CTRL_1 :: reserved0 [31:22] */
-#define BCHP_CLK_PM_CTRL_1_reserved0_MASK                          0xffc00000
-#define BCHP_CLK_PM_CTRL_1_reserved0_SHIFT                         22
+/* CLK :: PM_CTRL_1 :: reserved0 [31:21] */
+#define BCHP_CLK_PM_CTRL_1_reserved0_MASK                          0xffe00000
+#define BCHP_CLK_PM_CTRL_1_reserved0_SHIFT                         21
 
-/* CLK :: PM_CTRL_1 :: DIS_XPT_81M_CLK [21:21] */
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_81M_CLK_MASK                    0x00200000
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_81M_CLK_SHIFT                   21
+/* CLK :: PM_CTRL_1 :: DIS_XPT_81M_CLK [20:20] */
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_81M_CLK_MASK                    0x00100000
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_81M_CLK_SHIFT                   20
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_81M_CLK_Enable                  0
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_81M_CLK_Disable                 1
 
-/* CLK :: PM_CTRL_1 :: DIS_XPT_54M_CLK [20:20] */
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_54M_CLK_MASK                    0x00100000
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_54M_CLK_SHIFT                   20
+/* CLK :: PM_CTRL_1 :: DIS_XPT_54M_CLK [19:19] */
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_54M_CLK_MASK                    0x00080000
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_54M_CLK_SHIFT                   19
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_54M_CLK_Enable                  0
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_54M_CLK_Disable                 1
 
-/* CLK :: PM_CTRL_1 :: DIS_XPT_27M_CLK [19:19] */
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_27M_CLK_MASK                    0x00080000
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_27M_CLK_SHIFT                   19
+/* CLK :: PM_CTRL_1 :: DIS_XPT_27M_CLK [18:18] */
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_27M_CLK_MASK                    0x00040000
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_27M_CLK_SHIFT                   18
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_27M_CLK_Enable                  0
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_27M_CLK_Disable                 1
 
-/* CLK :: PM_CTRL_1 :: DIS_XPT_40P5M_CLK [18:18] */
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_40P5M_CLK_MASK                  0x00040000
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_40P5M_CLK_SHIFT                 18
+/* CLK :: PM_CTRL_1 :: DIS_XPT_40P5M_CLK [17:17] */
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_40P5M_CLK_MASK                  0x00020000
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_40P5M_CLK_SHIFT                 17
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_40P5M_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_40P5M_CLK_Disable               1
 
-/* CLK :: PM_CTRL_1 :: DIS_XPT_20P25M_CLK [17:17] */
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_20P25M_CLK_MASK                 0x00020000
-#define BCHP_CLK_PM_CTRL_1_DIS_XPT_20P25M_CLK_SHIFT                17
+/* CLK :: PM_CTRL_1 :: DIS_XPT_20P25M_CLK [16:16] */
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_20P25M_CLK_MASK                 0x00010000
+#define BCHP_CLK_PM_CTRL_1_DIS_XPT_20P25M_CLK_SHIFT                16
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_20P25M_CLK_Enable               0
 #define BCHP_CLK_PM_CTRL_1_DIS_XPT_20P25M_CLK_Disable              1
 
-/* CLK :: PM_CTRL_1 :: DIS_VEC_4P5M_CLK [16:16] */
-#define BCHP_CLK_PM_CTRL_1_DIS_VEC_4P5M_CLK_MASK                   0x00010000
-#define BCHP_CLK_PM_CTRL_1_DIS_VEC_4P5M_CLK_SHIFT                  16
+/* CLK :: PM_CTRL_1 :: DIS_VEC_4P5M_CLK [15:15] */
+#define BCHP_CLK_PM_CTRL_1_DIS_VEC_4P5M_CLK_MASK                   0x00008000
+#define BCHP_CLK_PM_CTRL_1_DIS_VEC_4P5M_CLK_SHIFT                  15
 #define BCHP_CLK_PM_CTRL_1_DIS_VEC_4P5M_CLK_Enable                 0
 #define BCHP_CLK_PM_CTRL_1_DIS_VEC_4P5M_CLK_Disable                1
 
-/* CLK :: PM_CTRL_1 :: DIS_USB_MDIO_54M_CLK [15:15] */
-#define BCHP_CLK_PM_CTRL_1_DIS_USB_MDIO_54M_CLK_MASK               0x00008000
-#define BCHP_CLK_PM_CTRL_1_DIS_USB_MDIO_54M_CLK_SHIFT              15
+/* CLK :: PM_CTRL_1 :: DIS_USB_MDIO_54M_CLK [14:14] */
+#define BCHP_CLK_PM_CTRL_1_DIS_USB_MDIO_54M_CLK_MASK               0x00004000
+#define BCHP_CLK_PM_CTRL_1_DIS_USB_MDIO_54M_CLK_SHIFT              14
 #define BCHP_CLK_PM_CTRL_1_DIS_USB_MDIO_54M_CLK_Enable             0
 #define BCHP_CLK_PM_CTRL_1_DIS_USB_MDIO_54M_CLK_Disable            1
 
-/* CLK :: PM_CTRL_1 :: DIS_SUN_108M_LOW_PWR [14:14] */
-#define BCHP_CLK_PM_CTRL_1_DIS_SUN_108M_LOW_PWR_MASK               0x00004000
-#define BCHP_CLK_PM_CTRL_1_DIS_SUN_108M_LOW_PWR_SHIFT              14
-
-/* CLK :: PM_CTRL_1 :: DIS_SUN_27M_LOW_PWR [13:13] */
-#define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_LOW_PWR_MASK                0x00002000
-#define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_LOW_PWR_SHIFT               13
-
-/* CLK :: PM_CTRL_1 :: DIS_SUN_27M_CLK [12:12] */
-#define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_CLK_MASK                    0x00001000
-#define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_CLK_SHIFT                   12
+/* CLK :: PM_CTRL_1 :: DIS_SUN_27M_CLK [13:13] */
+#define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_CLK_MASK                    0x00002000
+#define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_CLK_SHIFT                   13
 #define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_CLK_Enable                  0
 #define BCHP_CLK_PM_CTRL_1_DIS_SUN_27M_CLK_Disable                 1
 
-/* CLK :: PM_CTRL_1 :: DIS_JTAG_9M_CLK [11:11] */
-#define BCHP_CLK_PM_CTRL_1_DIS_JTAG_9M_CLK_MASK                    0x00000800
-#define BCHP_CLK_PM_CTRL_1_DIS_JTAG_9M_CLK_SHIFT                   11
+/* CLK :: PM_CTRL_1 :: DIS_JTAG_9M_CLK [12:12] */
+#define BCHP_CLK_PM_CTRL_1_DIS_JTAG_9M_CLK_MASK                    0x00001000
+#define BCHP_CLK_PM_CTRL_1_DIS_JTAG_9M_CLK_SHIFT                   12
 #define BCHP_CLK_PM_CTRL_1_DIS_JTAG_9M_CLK_Enable                  0
 #define BCHP_CLK_PM_CTRL_1_DIS_JTAG_9M_CLK_Disable                 1
 
-/* CLK :: PM_CTRL_1 :: ENA_HDMI_LOW_PWR [10:10] */
-#define BCHP_CLK_PM_CTRL_1_ENA_HDMI_LOW_PWR_MASK                   0x00000400
-#define BCHP_CLK_PM_CTRL_1_ENA_HDMI_LOW_PWR_SHIFT                  10
+/* CLK :: PM_CTRL_1 :: ENA_HDMI_LOW_PWR [11:11] */
+#define BCHP_CLK_PM_CTRL_1_ENA_HDMI_LOW_PWR_MASK                   0x00000800
+#define BCHP_CLK_PM_CTRL_1_ENA_HDMI_LOW_PWR_SHIFT                  11
 
-/* CLK :: PM_CTRL_1 :: DIS_HDMI_CEC_27M_CLK [09:09] */
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_CEC_27M_CLK_MASK               0x00000200
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_CEC_27M_CLK_SHIFT              9
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_CEC_27M_CLK_Enable             0
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_CEC_27M_CLK_Disable            1
+/* CLK :: PM_CTRL_1 :: DIS_DVP_HT_IIC_27M_CLK [10:10] */
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HT_IIC_27M_CLK_MASK             0x00000400
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HT_IIC_27M_CLK_SHIFT            10
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HT_IIC_27M_CLK_Enable           0
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HT_IIC_27M_CLK_Disable          1
 
-/* CLK :: PM_CTRL_1 :: DIS_HDMI_27M_CLK [08:08] */
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_27M_CLK_MASK                   0x00000100
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_27M_CLK_SHIFT                  8
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_27M_CLK_Enable                 0
-#define BCHP_CLK_PM_CTRL_1_DIS_HDMI_27M_CLK_Disable                1
+/* CLK :: PM_CTRL_1 :: DIS_DVP_HR_27M_CLK [09:09] */
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HR_27M_CLK_MASK                 0x00000200
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HR_27M_CLK_SHIFT                9
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HR_27M_CLK_Enable               0
+#define BCHP_CLK_PM_CTRL_1_DIS_DVP_HR_27M_CLK_Disable              1
 
-/* CLK :: PM_CTRL_1 :: DIS_ENET_FAST_54M_CLK [07:07] */
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_FAST_54M_CLK_MASK              0x00000080
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_FAST_54M_CLK_SHIFT             7
+/* CLK :: PM_CTRL_1 :: DIS_ENET_FAST_54M_CLK [08:08] */
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_FAST_54M_CLK_MASK              0x00000100
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_FAST_54M_CLK_SHIFT             8
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_FAST_54M_CLK_Enable            0
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_FAST_54M_CLK_Disable           1
 
-/* CLK :: PM_CTRL_1 :: DIS_ENET_PM_27M_CLK [06:06] */
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_PM_27M_CLK_MASK                0x00000040
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_PM_27M_CLK_SHIFT               6
+/* CLK :: PM_CTRL_1 :: DIS_ENET_PM_27M_CLK [07:07] */
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_PM_27M_CLK_MASK                0x00000080
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_PM_27M_CLK_SHIFT               7
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_PM_27M_CLK_Enable              0
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_PM_27M_CLK_Disable             1
 
-/* CLK :: PM_CTRL_1 :: DIS_ENET_ALWAYSON_27M_CLK [05:05] */
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_ALWAYSON_27M_CLK_MASK          0x00000020
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_ALWAYSON_27M_CLK_SHIFT         5
+/* CLK :: PM_CTRL_1 :: DIS_ENET_ALWAYSON_27M_CLK [06:06] */
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_ALWAYSON_27M_CLK_MASK          0x00000040
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_ALWAYSON_27M_CLK_SHIFT         6
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_ALWAYSON_27M_CLK_Enable        0
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_ALWAYSON_27M_CLK_Disable       1
 
-/* CLK :: PM_CTRL_1 :: DIS_ENET_SLOW_27M_CLK [04:04] */
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_SLOW_27M_CLK_MASK              0x00000010
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_SLOW_27M_CLK_SHIFT             4
+/* CLK :: PM_CTRL_1 :: DIS_ENET_SLOW_27M_CLK [05:05] */
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_SLOW_27M_CLK_MASK              0x00000020
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_SLOW_27M_CLK_SHIFT             5
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_SLOW_27M_CLK_Enable            0
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_SLOW_27M_CLK_Disable           1
 
-/* CLK :: PM_CTRL_1 :: DIS_ENET_25M_CLK [03:03] */
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_MASK                   0x00000008
-#define BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_SHIFT                  3
+/* CLK :: PM_CTRL_1 :: DIS_ENET_25M_CLK [04:04] */
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_MASK                   0x00000010
+#define BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_SHIFT                  4
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_Enable                 0
 #define BCHP_CLK_PM_CTRL_1_DIS_ENET_25M_CLK_Disable                1
 
-/* CLK :: PM_CTRL_1 :: DIS_EBI_54M_CLK [02:02] */
-#define BCHP_CLK_PM_CTRL_1_DIS_EBI_54M_CLK_MASK                    0x00000004
-#define BCHP_CLK_PM_CTRL_1_DIS_EBI_54M_CLK_SHIFT                   2
+/* CLK :: PM_CTRL_1 :: DIS_EBI_54M_CLK [03:03] */
+#define BCHP_CLK_PM_CTRL_1_DIS_EBI_54M_CLK_MASK                    0x00000008
+#define BCHP_CLK_PM_CTRL_1_DIS_EBI_54M_CLK_SHIFT                   3
 #define BCHP_CLK_PM_CTRL_1_DIS_EBI_54M_CLK_Enable                  0
 #define BCHP_CLK_PM_CTRL_1_DIS_EBI_54M_CLK_Disable                 1
 
-/* CLK :: PM_CTRL_1 :: DIS_CKG_4P5M_CLK [01:01] */
-#define BCHP_CLK_PM_CTRL_1_DIS_CKG_4P5M_CLK_MASK                   0x00000002
-#define BCHP_CLK_PM_CTRL_1_DIS_CKG_4P5M_CLK_SHIFT                  1
+/* CLK :: PM_CTRL_1 :: DIS_CKG_4P5M_CLK [02:02] */
+#define BCHP_CLK_PM_CTRL_1_DIS_CKG_4P5M_CLK_MASK                   0x00000004
+#define BCHP_CLK_PM_CTRL_1_DIS_CKG_4P5M_CLK_SHIFT                  2
 #define BCHP_CLK_PM_CTRL_1_DIS_CKG_4P5M_CLK_Enable                 0
 #define BCHP_CLK_PM_CTRL_1_DIS_CKG_4P5M_CLK_Disable                1
 
-/* CLK :: PM_CTRL_1 :: DIS_BSP_9M_CLK [00:00] */
-#define BCHP_CLK_PM_CTRL_1_DIS_BSP_9M_CLK_MASK                     0x00000001
-#define BCHP_CLK_PM_CTRL_1_DIS_BSP_9M_CLK_SHIFT                    0
+/* CLK :: PM_CTRL_1 :: DIS_BSP_9M_CLK [01:01] */
+#define BCHP_CLK_PM_CTRL_1_DIS_BSP_9M_CLK_MASK                     0x00000002
+#define BCHP_CLK_PM_CTRL_1_DIS_BSP_9M_CLK_SHIFT                    1
 #define BCHP_CLK_PM_CTRL_1_DIS_BSP_9M_CLK_Enable                   0
 #define BCHP_CLK_PM_CTRL_1_DIS_BSP_9M_CLK_Disable                  1
+
+/* CLK :: PM_CTRL_1 :: DIS_AUDIO_DAC_54M_CLK [00:00] */
+#define BCHP_CLK_PM_CTRL_1_DIS_AUDIO_DAC_54M_CLK_MASK              0x00000001
+#define BCHP_CLK_PM_CTRL_1_DIS_AUDIO_DAC_54M_CLK_SHIFT             0
+#define BCHP_CLK_PM_CTRL_1_DIS_AUDIO_DAC_54M_CLK_Enable            0
+#define BCHP_CLK_PM_CTRL_1_DIS_AUDIO_DAC_54M_CLK_Disable           1
 
 /***************************************************************************
  *PM_CTRL_2 - Software power management control to turn off or select various clocks
@@ -476,105 +483,111 @@
 /***************************************************************************
  *PM_CTRL_216 - Software power management control to turn off 216 MHz clocks
  ***************************************************************************/
-/* CLK :: PM_CTRL_216 :: reserved0 [31:25] */
-#define BCHP_CLK_PM_CTRL_216_reserved0_MASK                        0xfe000000
-#define BCHP_CLK_PM_CTRL_216_reserved0_SHIFT                       25
+/* CLK :: PM_CTRL_216 :: reserved0 [31:26] */
+#define BCHP_CLK_PM_CTRL_216_reserved0_MASK                        0xfc000000
+#define BCHP_CLK_PM_CTRL_216_reserved0_SHIFT                       26
 
-/* CLK :: PM_CTRL_216 :: DIS_XPT_216_CLK [24:24] */
-#define BCHP_CLK_PM_CTRL_216_DIS_XPT_216_CLK_MASK                  0x01000000
-#define BCHP_CLK_PM_CTRL_216_DIS_XPT_216_CLK_SHIFT                 24
+/* CLK :: PM_CTRL_216 :: DIS_XPT_216_CLK [25:25] */
+#define BCHP_CLK_PM_CTRL_216_DIS_XPT_216_CLK_MASK                  0x02000000
+#define BCHP_CLK_PM_CTRL_216_DIS_XPT_216_CLK_SHIFT                 25
 #define BCHP_CLK_PM_CTRL_216_DIS_XPT_216_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_216_DIS_XPT_216_CLK_Disable               1
 
-/* CLK :: PM_CTRL_216 :: DIS_VEC_ALT_216_CLK [23:23] */
-#define BCHP_CLK_PM_CTRL_216_DIS_VEC_ALT_216_CLK_MASK              0x00800000
-#define BCHP_CLK_PM_CTRL_216_DIS_VEC_ALT_216_CLK_SHIFT             23
+/* CLK :: PM_CTRL_216 :: DIS_VEC_ALT_216_CLK [24:24] */
+#define BCHP_CLK_PM_CTRL_216_DIS_VEC_ALT_216_CLK_MASK              0x01000000
+#define BCHP_CLK_PM_CTRL_216_DIS_VEC_ALT_216_CLK_SHIFT             24
 #define BCHP_CLK_PM_CTRL_216_DIS_VEC_ALT_216_CLK_Enable            0
 #define BCHP_CLK_PM_CTRL_216_DIS_VEC_ALT_216_CLK_Disable           1
 
-/* CLK :: PM_CTRL_216 :: DIS_VEC_216_CLK [22:22] */
-#define BCHP_CLK_PM_CTRL_216_DIS_VEC_216_CLK_MASK                  0x00400000
-#define BCHP_CLK_PM_CTRL_216_DIS_VEC_216_CLK_SHIFT                 22
+/* CLK :: PM_CTRL_216 :: DIS_VEC_216_CLK [23:23] */
+#define BCHP_CLK_PM_CTRL_216_DIS_VEC_216_CLK_MASK                  0x00800000
+#define BCHP_CLK_PM_CTRL_216_DIS_VEC_216_CLK_SHIFT                 23
 #define BCHP_CLK_PM_CTRL_216_DIS_VEC_216_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_216_DIS_VEC_216_CLK_Disable               1
 
-/* CLK :: PM_CTRL_216 :: DIS_USB_216_CLK [21:21] */
-#define BCHP_CLK_PM_CTRL_216_DIS_USB_216_CLK_MASK                  0x00200000
-#define BCHP_CLK_PM_CTRL_216_DIS_USB_216_CLK_SHIFT                 21
+/* CLK :: PM_CTRL_216 :: DIS_USB_216_CLK [22:22] */
+#define BCHP_CLK_PM_CTRL_216_DIS_USB_216_CLK_MASK                  0x00400000
+#define BCHP_CLK_PM_CTRL_216_DIS_USB_216_CLK_SHIFT                 22
 #define BCHP_CLK_PM_CTRL_216_DIS_USB_216_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_216_DIS_USB_216_CLK_Disable               1
 
-/* CLK :: PM_CTRL_216 :: DIS_SUN_216_CLK [20:20] */
-#define BCHP_CLK_PM_CTRL_216_DIS_SUN_216_CLK_MASK                  0x00100000
-#define BCHP_CLK_PM_CTRL_216_DIS_SUN_216_CLK_SHIFT                 20
+/* CLK :: PM_CTRL_216 :: DIS_SUN_216_CLK [21:21] */
+#define BCHP_CLK_PM_CTRL_216_DIS_SUN_216_CLK_MASK                  0x00200000
+#define BCHP_CLK_PM_CTRL_216_DIS_SUN_216_CLK_SHIFT                 21
 #define BCHP_CLK_PM_CTRL_216_DIS_SUN_216_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_216_DIS_SUN_216_CLK_Disable               1
 
-/* CLK :: PM_CTRL_216 :: DIS_RPTD1_216_CLK [19:19] */
-#define BCHP_CLK_PM_CTRL_216_DIS_RPTD1_216_CLK_MASK                0x00080000
-#define BCHP_CLK_PM_CTRL_216_DIS_RPTD1_216_CLK_SHIFT               19
+/* CLK :: PM_CTRL_216 :: DIS_RPTD1_216_CLK [20:20] */
+#define BCHP_CLK_PM_CTRL_216_DIS_RPTD1_216_CLK_MASK                0x00100000
+#define BCHP_CLK_PM_CTRL_216_DIS_RPTD1_216_CLK_SHIFT               20
 #define BCHP_CLK_PM_CTRL_216_DIS_RPTD1_216_CLK_Enable              0
 #define BCHP_CLK_PM_CTRL_216_DIS_RPTD1_216_CLK_Disable             1
 
-/* CLK :: PM_CTRL_216 :: DIS_RPTD0_216_CLK [18:18] */
-#define BCHP_CLK_PM_CTRL_216_DIS_RPTD0_216_CLK_MASK                0x00040000
-#define BCHP_CLK_PM_CTRL_216_DIS_RPTD0_216_CLK_SHIFT               18
+/* CLK :: PM_CTRL_216 :: DIS_RPTD0_216_CLK [19:19] */
+#define BCHP_CLK_PM_CTRL_216_DIS_RPTD0_216_CLK_MASK                0x00080000
+#define BCHP_CLK_PM_CTRL_216_DIS_RPTD0_216_CLK_SHIFT               19
 #define BCHP_CLK_PM_CTRL_216_DIS_RPTD0_216_CLK_Enable              0
 #define BCHP_CLK_PM_CTRL_216_DIS_RPTD0_216_CLK_Disable             1
 
-/* CLK :: PM_CTRL_216 :: DIS_OFE_DISCCTRL_216_CLK [17:17] */
-#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DISCCTRL_216_CLK_MASK         0x00020000
-#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DISCCTRL_216_CLK_SHIFT        17
+/* CLK :: PM_CTRL_216 :: DIS_OFE_DISCCTRL_216_CLK [18:18] */
+#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DISCCTRL_216_CLK_MASK         0x00040000
+#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DISCCTRL_216_CLK_SHIFT        18
 #define BCHP_CLK_PM_CTRL_216_DIS_OFE_DISCCTRL_216_CLK_Enable       0
 #define BCHP_CLK_PM_CTRL_216_DIS_OFE_DISCCTRL_216_CLK_Disable      1
 
-/* CLK :: PM_CTRL_216 :: DIS_OFE_DATAPATH_216_CLK [16:16] */
-#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DATAPATH_216_CLK_MASK         0x00010000
-#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DATAPATH_216_CLK_SHIFT        16
+/* CLK :: PM_CTRL_216 :: DIS_OFE_DATAPATH_216_CLK [17:17] */
+#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DATAPATH_216_CLK_MASK         0x00020000
+#define BCHP_CLK_PM_CTRL_216_DIS_OFE_DATAPATH_216_CLK_SHIFT        17
 #define BCHP_CLK_PM_CTRL_216_DIS_OFE_DATAPATH_216_CLK_Enable       0
 #define BCHP_CLK_PM_CTRL_216_DIS_OFE_DATAPATH_216_CLK_Disable      1
 
-/* CLK :: PM_CTRL_216 :: DIS_HIF_216_CLK [15:15] */
-#define BCHP_CLK_PM_CTRL_216_DIS_HIF_216_CLK_MASK                  0x00008000
-#define BCHP_CLK_PM_CTRL_216_DIS_HIF_216_CLK_SHIFT                 15
+/* CLK :: PM_CTRL_216 :: DIS_HIF_216_CLK [16:16] */
+#define BCHP_CLK_PM_CTRL_216_DIS_HIF_216_CLK_MASK                  0x00010000
+#define BCHP_CLK_PM_CTRL_216_DIS_HIF_216_CLK_SHIFT                 16
 #define BCHP_CLK_PM_CTRL_216_DIS_HIF_216_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_216_DIS_HIF_216_CLK_Disable               1
 
-/* CLK :: PM_CTRL_216 :: DIS_HD_DVI_216_CLK [14:14] */
-#define BCHP_CLK_PM_CTRL_216_DIS_HD_DVI_216_CLK_MASK               0x00004000
-#define BCHP_CLK_PM_CTRL_216_DIS_HD_DVI_216_CLK_SHIFT              14
+/* CLK :: PM_CTRL_216 :: DIS_HD_DVI_216_CLK [15:15] */
+#define BCHP_CLK_PM_CTRL_216_DIS_HD_DVI_216_CLK_MASK               0x00008000
+#define BCHP_CLK_PM_CTRL_216_DIS_HD_DVI_216_CLK_SHIFT              15
 #define BCHP_CLK_PM_CTRL_216_DIS_HD_DVI_216_CLK_Enable             0
 #define BCHP_CLK_PM_CTRL_216_DIS_HD_DVI_216_CLK_Disable            1
 
-/* CLK :: PM_CTRL_216 :: DIS_HDMI_216_CLK [13:13] */
-#define BCHP_CLK_PM_CTRL_216_DIS_HDMI_216_CLK_MASK                 0x00002000
-#define BCHP_CLK_PM_CTRL_216_DIS_HDMI_216_CLK_SHIFT                13
+/* CLK :: PM_CTRL_216 :: DIS_HDMI_216_CLK [14:14] */
+#define BCHP_CLK_PM_CTRL_216_DIS_HDMI_216_CLK_MASK                 0x00004000
+#define BCHP_CLK_PM_CTRL_216_DIS_HDMI_216_CLK_SHIFT                14
 #define BCHP_CLK_PM_CTRL_216_DIS_HDMI_216_CLK_Enable               0
 #define BCHP_CLK_PM_CTRL_216_DIS_HDMI_216_CLK_Disable              1
 
-/* CLK :: PM_CTRL_216 :: DIS_GFX_216_CLK [12:12] */
-#define BCHP_CLK_PM_CTRL_216_DIS_GFX_216_CLK_MASK                  0x00001000
-#define BCHP_CLK_PM_CTRL_216_DIS_GFX_216_CLK_SHIFT                 12
+/* CLK :: PM_CTRL_216 :: DIS_GFX_216_CLK [13:13] */
+#define BCHP_CLK_PM_CTRL_216_DIS_GFX_216_CLK_MASK                  0x00002000
+#define BCHP_CLK_PM_CTRL_216_DIS_GFX_216_CLK_SHIFT                 13
 #define BCHP_CLK_PM_CTRL_216_DIS_GFX_216_CLK_Enable                0
 #define BCHP_CLK_PM_CTRL_216_DIS_GFX_216_CLK_Disable               1
 
-/* CLK :: PM_CTRL_216 :: DIS_ENET_216_CLK [11:11] */
-#define BCHP_CLK_PM_CTRL_216_DIS_ENET_216_CLK_MASK                 0x00000800
-#define BCHP_CLK_PM_CTRL_216_DIS_ENET_216_CLK_SHIFT                11
+/* CLK :: PM_CTRL_216 :: DIS_ENET_216_CLK [12:12] */
+#define BCHP_CLK_PM_CTRL_216_DIS_ENET_216_CLK_MASK                 0x00001000
+#define BCHP_CLK_PM_CTRL_216_DIS_ENET_216_CLK_SHIFT                12
 #define BCHP_CLK_PM_CTRL_216_DIS_ENET_216_CLK_Enable               0
 #define BCHP_CLK_PM_CTRL_216_DIS_ENET_216_CLK_Disable              1
 
-/* CLK :: PM_CTRL_216 :: DIS_DVP_HT_ALT_216_CLK [10:10] */
-#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_ALT_216_CLK_MASK           0x00000400
-#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_ALT_216_CLK_SHIFT          10
+/* CLK :: PM_CTRL_216 :: DIS_DVP_HT_ALT_216_CLK [11:11] */
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_ALT_216_CLK_MASK           0x00000800
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_ALT_216_CLK_SHIFT          11
 #define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_ALT_216_CLK_Enable         0
 #define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_ALT_216_CLK_Disable        1
 
-/* CLK :: PM_CTRL_216 :: DIS_DVP_HT_216_CLK [09:09] */
-#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_216_CLK_MASK               0x00000200
-#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_216_CLK_SHIFT              9
+/* CLK :: PM_CTRL_216 :: DIS_DVP_HT_216_CLK [10:10] */
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_216_CLK_MASK               0x00000400
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_216_CLK_SHIFT              10
 #define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_216_CLK_Enable             0
 #define BCHP_CLK_PM_CTRL_216_DIS_DVP_HT_216_CLK_Disable            1
+
+/* CLK :: PM_CTRL_216 :: DIS_DVP_HR_ALT_216_CLK [09:09] */
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HR_ALT_216_CLK_MASK           0x00000200
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HR_ALT_216_CLK_SHIFT          9
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HR_ALT_216_CLK_Enable         0
+#define BCHP_CLK_PM_CTRL_216_DIS_DVP_HR_ALT_216_CLK_Disable        1
 
 /* CLK :: PM_CTRL_216 :: DIS_DVP_HR_216_CLK [08:08] */
 #define BCHP_CLK_PM_CTRL_216_DIS_DVP_HR_216_CLK_MASK               0x00000100
@@ -749,22 +762,22 @@
 /***************************************************************************
  *REGULATOR_2P5_VOLTS - 2.5V Regulator Voltage Adjustment
  ***************************************************************************/
-/* CLK :: REGULATOR_2P5_VOLTS :: reserved0 [31:13] */
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_reserved0_MASK                0xffffe000
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_reserved0_SHIFT               13
+/* CLK :: REGULATOR_2P5_VOLTS :: reserved0 [31:15] */
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_reserved0_MASK                0xffff8000
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_reserved0_SHIFT               15
 
-/* CLK :: REGULATOR_2P5_VOLTS :: PWRDN [12:12] */
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_PWRDN_MASK                    0x00001000
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_PWRDN_SHIFT                   12
+/* CLK :: REGULATOR_2P5_VOLTS :: PWRDN [14:14] */
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_PWRDN_MASK                    0x00004000
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_PWRDN_SHIFT                   14
 #define BCHP_CLK_REGULATOR_2P5_VOLTS_PWRDN_Normal                  0
 #define BCHP_CLK_REGULATOR_2P5_VOLTS_PWRDN_Power_Down              1
 
-/* CLK :: REGULATOR_2P5_VOLTS :: CNTL_EN [11:11] */
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_EN_MASK                  0x00000800
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_EN_SHIFT                 11
+/* CLK :: REGULATOR_2P5_VOLTS :: CNTL_EN [13:13] */
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_EN_MASK                  0x00002000
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_EN_SHIFT                 13
 
-/* CLK :: REGULATOR_2P5_VOLTS :: CNTL [10:00] */
-#define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_MASK                     0x000007ff
+/* CLK :: REGULATOR_2P5_VOLTS :: CNTL [12:00] */
+#define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_MASK                     0x00001fff
 #define BCHP_CLK_REGULATOR_2P5_VOLTS_CNTL_SHIFT                    0
 
 /***************************************************************************
@@ -874,6 +887,8 @@
 #define BCHP_CLK_CLOCK_OBSERVE_CTRL_BLOCK_SEL_AIO                  5
 #define BCHP_CLK_CLOCK_OBSERVE_CTRL_BLOCK_SEL_USB                  6
 #define BCHP_CLK_CLOCK_OBSERVE_CTRL_BLOCK_SEL_AEGIS                7
+#define BCHP_CLK_CLOCK_OBSERVE_CTRL_BLOCK_SEL_SYS_CTRL             8
+#define BCHP_CLK_CLOCK_OBSERVE_CTRL_BLOCK_SEL_SYS_AON              9
 
 /* CLK :: CLOCK_OBSERVE_CTRL :: BLOCK_CTRL [03:00] */
 #define BCHP_CLK_CLOCK_OBSERVE_CTRL_BLOCK_CTRL_MASK                0x0000000f
@@ -1054,6 +1069,149 @@
 #define BCHP_CLK_I2C_PAD_CTRL_SGPIO_0_Mode_5V                      1
 
 /***************************************************************************
+ *SYS0_CTRL - SYS0 PLL control
+ ***************************************************************************/
+/* CLK :: SYS0_CTRL :: reserved0 [31:29] */
+#define BCHP_CLK_SYS0_CTRL_reserved0_MASK                          0xe0000000
+#define BCHP_CLK_SYS0_CTRL_reserved0_SHIFT                         29
+
+/* CLK :: SYS0_CTRL :: pdiv [28:26] */
+#define BCHP_CLK_SYS0_CTRL_pdiv_MASK                               0x1c000000
+#define BCHP_CLK_SYS0_CTRL_pdiv_SHIFT                              26
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_8                        0
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_1                        1
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_2                        2
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_3                        3
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_4                        4
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_5                        5
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_6                        6
+#define BCHP_CLK_SYS0_CTRL_pdiv_Divide_by_7                        7
+
+/* CLK :: SYS0_CTRL :: ndiv [25:16] */
+#define BCHP_CLK_SYS0_CTRL_ndiv_MASK                               0x03ff0000
+#define BCHP_CLK_SYS0_CTRL_ndiv_SHIFT                              16
+#define BCHP_CLK_SYS0_CTRL_ndiv_Divide_by_1024                     0
+#define BCHP_CLK_SYS0_CTRL_ndiv_Unused_1                           1
+#define BCHP_CLK_SYS0_CTRL_ndiv_Unused_7                           7
+#define BCHP_CLK_SYS0_CTRL_ndiv_Divide_by_8                        8
+#define BCHP_CLK_SYS0_CTRL_ndiv_Divide_by_9                        9
+#define BCHP_CLK_SYS0_CTRL_ndiv_Divide_by_10                       10
+#define BCHP_CLK_SYS0_CTRL_ndiv_Divide_by_1022                     1022
+#define BCHP_CLK_SYS0_CTRL_ndiv_Divide_by_1023                     1023
+
+/* CLK :: SYS0_CTRL :: reserved1 [15:00] */
+#define BCHP_CLK_SYS0_CTRL_reserved1_MASK                          0x0000ffff
+#define BCHP_CLK_SYS0_CTRL_reserved1_SHIFT                         0
+
+/***************************************************************************
+ *SYS0_GAIN - SYS0 PLL gain
+ ***************************************************************************/
+/* CLK :: SYS0_GAIN :: reserved0 [31:10] */
+#define BCHP_CLK_SYS0_GAIN_reserved0_MASK                          0xfffffc00
+#define BCHP_CLK_SYS0_GAIN_reserved0_SHIFT                         10
+
+/* CLK :: SYS0_GAIN :: kp [09:06] */
+#define BCHP_CLK_SYS0_GAIN_kp_MASK                                 0x000003c0
+#define BCHP_CLK_SYS0_GAIN_kp_SHIFT                                6
+
+/* CLK :: SYS0_GAIN :: ki [05:03] */
+#define BCHP_CLK_SYS0_GAIN_ki_MASK                                 0x00000038
+#define BCHP_CLK_SYS0_GAIN_ki_SHIFT                                3
+
+/* CLK :: SYS0_GAIN :: ka [02:00] */
+#define BCHP_CLK_SYS0_GAIN_ka_MASK                                 0x00000007
+#define BCHP_CLK_SYS0_GAIN_ka_SHIFT                                0
+
+/***************************************************************************
+ *SYS0_TEST - SYS0 PLL test control
+ ***************************************************************************/
+/* CLK :: SYS0_TEST :: reserved0 [31:30] */
+#define BCHP_CLK_SYS0_TEST_reserved0_MASK                          0xc0000000
+#define BCHP_CLK_SYS0_TEST_reserved0_SHIFT                         30
+
+/* CLK :: SYS0_TEST :: ndiv_relock [29:29] */
+#define BCHP_CLK_SYS0_TEST_ndiv_relock_MASK                        0x20000000
+#define BCHP_CLK_SYS0_TEST_ndiv_relock_SHIFT                       29
+
+/* CLK :: SYS0_TEST :: fast_lock [28:28] */
+#define BCHP_CLK_SYS0_TEST_fast_lock_MASK                          0x10000000
+#define BCHP_CLK_SYS0_TEST_fast_lock_SHIFT                         28
+#define BCHP_CLK_SYS0_TEST_fast_lock_Refclk_Delay_256              0
+#define BCHP_CLK_SYS0_TEST_fast_lock_Refclk_Delay_32               1
+
+/* CLK :: SYS0_TEST :: vcodiv2 [27:27] */
+#define BCHP_CLK_SYS0_TEST_vcodiv2_MASK                            0x08000000
+#define BCHP_CLK_SYS0_TEST_vcodiv2_SHIFT                           27
+
+/* CLK :: SYS0_TEST :: vco_dly [26:25] */
+#define BCHP_CLK_SYS0_TEST_vco_dly_MASK                            0x06000000
+#define BCHP_CLK_SYS0_TEST_vco_dly_SHIFT                           25
+
+/* CLK :: SYS0_TEST :: pwm_rate [24:23] */
+#define BCHP_CLK_SYS0_TEST_pwm_rate_MASK                           0x01800000
+#define BCHP_CLK_SYS0_TEST_pwm_rate_SHIFT                          23
+
+/* CLK :: SYS0_TEST :: stat_mode [22:21] */
+#define BCHP_CLK_SYS0_TEST_stat_mode_MASK                          0x00600000
+#define BCHP_CLK_SYS0_TEST_stat_mode_SHIFT                         21
+#define BCHP_CLK_SYS0_TEST_stat_mode_Disabled                      0
+#define BCHP_CLK_SYS0_TEST_stat_mode_Phase_Error_Stats             1
+#define BCHP_CLK_SYS0_TEST_stat_mode_Period_Stats                  2
+#define BCHP_CLK_SYS0_TEST_stat_mode_Feedback_Phase_Error_Stats    3
+
+/* CLK :: SYS0_TEST :: vcodiv2_post [20:20] */
+#define BCHP_CLK_SYS0_TEST_vcodiv2_post_MASK                       0x00100000
+#define BCHP_CLK_SYS0_TEST_vcodiv2_post_SHIFT                      20
+#define BCHP_CLK_SYS0_TEST_vcodiv2_post_Divide_by_1                0
+#define BCHP_CLK_SYS0_TEST_vcodiv2_post_Divide_by_2                1
+
+/* CLK :: SYS0_TEST :: aux_ctrl [19:19] */
+#define BCHP_CLK_SYS0_TEST_aux_ctrl_MASK                           0x00080000
+#define BCHP_CLK_SYS0_TEST_aux_ctrl_SHIFT                          19
+#define BCHP_CLK_SYS0_TEST_aux_ctrl_Normal_Mode                    0
+#define BCHP_CLK_SYS0_TEST_aux_ctrl_Ivco_Increased_By_130_uA       1
+
+/* CLK :: SYS0_TEST :: refclkout [18:18] */
+#define BCHP_CLK_SYS0_TEST_refclkout_MASK                          0x00040000
+#define BCHP_CLK_SYS0_TEST_refclkout_SHIFT                         18
+#define BCHP_CLK_SYS0_TEST_refclkout_Disable                       0
+#define BCHP_CLK_SYS0_TEST_refclkout_Enable                        1
+
+/* CLK :: SYS0_TEST :: stat_update [17:17] */
+#define BCHP_CLK_SYS0_TEST_stat_update_MASK                        0x00020000
+#define BCHP_CLK_SYS0_TEST_stat_update_SHIFT                       17
+
+/* CLK :: SYS0_TEST :: stat_select [16:14] */
+#define BCHP_CLK_SYS0_TEST_stat_select_MASK                        0x0001c000
+#define BCHP_CLK_SYS0_TEST_stat_select_SHIFT                       14
+#define BCHP_CLK_SYS0_TEST_stat_select_Zero_0                      0
+#define BCHP_CLK_SYS0_TEST_stat_select_Minimum_Phase_Error         1
+#define BCHP_CLK_SYS0_TEST_stat_select_Maximum_Phase_Error         2
+#define BCHP_CLK_SYS0_TEST_stat_select_Mean_Square_Phase_Error     3
+#define BCHP_CLK_SYS0_TEST_stat_select_DAC_Control_Word            4
+#define BCHP_CLK_SYS0_TEST_stat_select_Zero_5                      5
+#define BCHP_CLK_SYS0_TEST_stat_select_Zero_6                      6
+#define BCHP_CLK_SYS0_TEST_stat_select_Zero_7                      7
+
+/* CLK :: SYS0_TEST :: stat_reset [13:13] */
+#define BCHP_CLK_SYS0_TEST_stat_reset_MASK                         0x00002000
+#define BCHP_CLK_SYS0_TEST_stat_reset_SHIFT                        13
+#define BCHP_CLK_SYS0_TEST_stat_reset_Normal_Mode                  0
+#define BCHP_CLK_SYS0_TEST_stat_reset_Reset                        1
+
+/* CLK :: SYS0_TEST :: dco_ctrl_bypass_enable [12:12] */
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_enable_MASK             0x00001000
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_enable_SHIFT            12
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_enable_Normal_Mode      0
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_enable_Direct_Programming_Mode 1
+
+/* CLK :: SYS0_TEST :: dco_ctrl_bypass [11:00] */
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_MASK                    0x00000fff
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_SHIFT                   0
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_Min_VCO_Frequency       0
+#define BCHP_CLK_SYS0_TEST_dco_ctrl_bypass_Max_VCO_Frequency       4095
+
+/***************************************************************************
  *SYS0_STATUS - SYS0 PLL Status
  ***************************************************************************/
 /* CLK :: SYS0_STATUS :: reserved0 [31:12] */
@@ -1076,7 +1234,132 @@
 #define BCHP_CLK_SYS0_LOCK_CNT_COUNT_SHIFT                         0
 
 /***************************************************************************
- *SYS1_CTRL - SYS1 PLL powerdown and reset
+ *SYS0_216_DIV - SYS0 PLL channel 0 (216 MHz) clock divider settings
+ ***************************************************************************/
+/* CLK :: SYS0_216_DIV :: enableb_ch0 [31:31] */
+#define BCHP_CLK_SYS0_216_DIV_enableb_ch0_MASK                     0x80000000
+#define BCHP_CLK_SYS0_216_DIV_enableb_ch0_SHIFT                    31
+#define BCHP_CLK_SYS0_216_DIV_enableb_ch0_Enable                   0
+#define BCHP_CLK_SYS0_216_DIV_enableb_ch0_Disable                  1
+
+/* CLK :: SYS0_216_DIV :: reserved0 [30:08] */
+#define BCHP_CLK_SYS0_216_DIV_reserved0_MASK                       0x7fffff00
+#define BCHP_CLK_SYS0_216_DIV_reserved0_SHIFT                      8
+
+/* CLK :: SYS0_216_DIV :: ch0_mdiv [07:00] */
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_MASK                        0x000000ff
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_SHIFT                       0
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_256               0
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_1                 1
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_2                 2
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_3                 3
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_4                 4
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_253               253
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_254               254
+#define BCHP_CLK_SYS0_216_DIV_ch0_mdiv_Divide_by_255               255
+
+/***************************************************************************
+ *SYS0_162_DIV - SYS0 PLL channel 1 (162/81 MHz) clock divider settings
+ ***************************************************************************/
+/* CLK :: SYS0_162_DIV :: enableb_ch1 [31:31] */
+#define BCHP_CLK_SYS0_162_DIV_enableb_ch1_MASK                     0x80000000
+#define BCHP_CLK_SYS0_162_DIV_enableb_ch1_SHIFT                    31
+#define BCHP_CLK_SYS0_162_DIV_enableb_ch1_Enable                   0
+#define BCHP_CLK_SYS0_162_DIV_enableb_ch1_Disable                  1
+
+/* CLK :: SYS0_162_DIV :: reserved0 [30:08] */
+#define BCHP_CLK_SYS0_162_DIV_reserved0_MASK                       0x7fffff00
+#define BCHP_CLK_SYS0_162_DIV_reserved0_SHIFT                      8
+
+/* CLK :: SYS0_162_DIV :: ch1_mdiv [07:00] */
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_MASK                        0x000000ff
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_SHIFT                       0
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_256               0
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_1                 1
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_2                 2
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_3                 3
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_4                 4
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_253               253
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_254               254
+#define BCHP_CLK_SYS0_162_DIV_ch1_mdiv_Divide_by_255               255
+
+/***************************************************************************
+ *SYS0_48_DIV - SYS0 PLL channel 2 (48 MHz) clock divider settings
+ ***************************************************************************/
+/* CLK :: SYS0_48_DIV :: enableb_ch2 [31:31] */
+#define BCHP_CLK_SYS0_48_DIV_enableb_ch2_MASK                      0x80000000
+#define BCHP_CLK_SYS0_48_DIV_enableb_ch2_SHIFT                     31
+#define BCHP_CLK_SYS0_48_DIV_enableb_ch2_Enable                    0
+#define BCHP_CLK_SYS0_48_DIV_enableb_ch2_Disable                   1
+
+/* CLK :: SYS0_48_DIV :: reserved0 [30:08] */
+#define BCHP_CLK_SYS0_48_DIV_reserved0_MASK                        0x7fffff00
+#define BCHP_CLK_SYS0_48_DIV_reserved0_SHIFT                       8
+
+/* CLK :: SYS0_48_DIV :: ch2_mdiv [07:00] */
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_MASK                         0x000000ff
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_SHIFT                        0
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_256                0
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_1                  1
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_2                  2
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_3                  3
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_4                  4
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_253                253
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_254                254
+#define BCHP_CLK_SYS0_48_DIV_ch2_mdiv_Divide_by_255                255
+
+/***************************************************************************
+ *SYS0_259P2_DIV - SYS0 PLL channel 4 (259.2 MHz) clock divider settings
+ ***************************************************************************/
+/* CLK :: SYS0_259P2_DIV :: enableb_ch4 [31:31] */
+#define BCHP_CLK_SYS0_259P2_DIV_enableb_ch4_MASK                   0x80000000
+#define BCHP_CLK_SYS0_259P2_DIV_enableb_ch4_SHIFT                  31
+#define BCHP_CLK_SYS0_259P2_DIV_enableb_ch4_Enable                 0
+#define BCHP_CLK_SYS0_259P2_DIV_enableb_ch4_Disable                1
+
+/* CLK :: SYS0_259P2_DIV :: reserved0 [30:08] */
+#define BCHP_CLK_SYS0_259P2_DIV_reserved0_MASK                     0x7fffff00
+#define BCHP_CLK_SYS0_259P2_DIV_reserved0_SHIFT                    8
+
+/* CLK :: SYS0_259P2_DIV :: ch4_mdiv [07:00] */
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_MASK                      0x000000ff
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_SHIFT                     0
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_256             0
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_1               1
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_2               2
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_3               3
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_4               4
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_253             253
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_254             254
+#define BCHP_CLK_SYS0_259P2_DIV_ch4_mdiv_Divide_by_255             255
+
+/***************************************************************************
+ *SYS0_9_DIV - SYS0 PLL channel 5 (9/4.5 MHz) clock divider settings
+ ***************************************************************************/
+/* CLK :: SYS0_9_DIV :: enableb_ch5 [31:31] */
+#define BCHP_CLK_SYS0_9_DIV_enableb_ch5_MASK                       0x80000000
+#define BCHP_CLK_SYS0_9_DIV_enableb_ch5_SHIFT                      31
+#define BCHP_CLK_SYS0_9_DIV_enableb_ch5_Enable                     0
+#define BCHP_CLK_SYS0_9_DIV_enableb_ch5_Disable                    1
+
+/* CLK :: SYS0_9_DIV :: reserved0 [30:08] */
+#define BCHP_CLK_SYS0_9_DIV_reserved0_MASK                         0x7fffff00
+#define BCHP_CLK_SYS0_9_DIV_reserved0_SHIFT                        8
+
+/* CLK :: SYS0_9_DIV :: ch5_mdiv [07:00] */
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_MASK                          0x000000ff
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_SHIFT                         0
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_256                 0
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_1                   1
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_2                   2
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_3                   3
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_4                   4
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_253                 253
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_254                 254
+#define BCHP_CLK_SYS0_9_DIV_ch5_mdiv_Divide_by_255                 255
+
+/***************************************************************************
+ *SYS1_CTRL - SYS1 PLL control
  ***************************************************************************/
 /* CLK :: SYS1_CTRL :: pwrdwn [31:31] */
 #define BCHP_CLK_SYS1_CTRL_pwrdwn_MASK                             0x80000000
@@ -1096,8 +1379,32 @@
 #define BCHP_CLK_SYS1_CTRL_post_resetb_Reset                       0
 #define BCHP_CLK_SYS1_CTRL_post_resetb_Normal                      1
 
-/* CLK :: SYS1_CTRL :: reserved0 [28:00] */
-#define BCHP_CLK_SYS1_CTRL_reserved0_MASK                          0x1fffffff
+/* CLK :: SYS1_CTRL :: pdiv [28:26] */
+#define BCHP_CLK_SYS1_CTRL_pdiv_MASK                               0x1c000000
+#define BCHP_CLK_SYS1_CTRL_pdiv_SHIFT                              26
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_8                        0
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_1                        1
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_2                        2
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_3                        3
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_4                        4
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_5                        5
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_6                        6
+#define BCHP_CLK_SYS1_CTRL_pdiv_Divide_by_7                        7
+
+/* CLK :: SYS1_CTRL :: ndiv [25:16] */
+#define BCHP_CLK_SYS1_CTRL_ndiv_MASK                               0x03ff0000
+#define BCHP_CLK_SYS1_CTRL_ndiv_SHIFT                              16
+#define BCHP_CLK_SYS1_CTRL_ndiv_Divide_by_1024                     0
+#define BCHP_CLK_SYS1_CTRL_ndiv_Unused_1                           1
+#define BCHP_CLK_SYS1_CTRL_ndiv_Unused_7                           7
+#define BCHP_CLK_SYS1_CTRL_ndiv_Divide_by_8                        8
+#define BCHP_CLK_SYS1_CTRL_ndiv_Divide_by_9                        9
+#define BCHP_CLK_SYS1_CTRL_ndiv_Divide_by_10                       10
+#define BCHP_CLK_SYS1_CTRL_ndiv_Divide_by_1022                     1022
+#define BCHP_CLK_SYS1_CTRL_ndiv_Divide_by_1023                     1023
+
+/* CLK :: SYS1_CTRL :: reserved0 [15:00] */
+#define BCHP_CLK_SYS1_CTRL_reserved0_MASK                          0x0000ffff
 #define BCHP_CLK_SYS1_CTRL_reserved0_SHIFT                         0
 
 /***************************************************************************
@@ -1256,6 +1563,31 @@
 #define BCHP_CLK_SYS1_VC4_DIV_ch0_mdiv_Divide_by_255               255
 
 /***************************************************************************
+ *SYS1_ENET_DIV - SYS1 PLL channel 1 ENET clock divider settings
+ ***************************************************************************/
+/* CLK :: SYS1_ENET_DIV :: enableb_ch1 [31:31] */
+#define BCHP_CLK_SYS1_ENET_DIV_enableb_ch1_MASK                    0x80000000
+#define BCHP_CLK_SYS1_ENET_DIV_enableb_ch1_SHIFT                   31
+#define BCHP_CLK_SYS1_ENET_DIV_enableb_ch1_Enable                  0
+#define BCHP_CLK_SYS1_ENET_DIV_enableb_ch1_Disable                 1
+
+/* CLK :: SYS1_ENET_DIV :: reserved0 [30:08] */
+#define BCHP_CLK_SYS1_ENET_DIV_reserved0_MASK                      0x7fffff00
+#define BCHP_CLK_SYS1_ENET_DIV_reserved0_SHIFT                     8
+
+/* CLK :: SYS1_ENET_DIV :: ch1_mdiv [07:00] */
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_MASK                       0x000000ff
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_SHIFT                      0
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_256              0
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_1                1
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_2                2
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_3                3
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_4                4
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_253              253
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_254              254
+#define BCHP_CLK_SYS1_ENET_DIV_ch1_mdiv_Divide_by_255              255
+
+/***************************************************************************
  *SYS1_OFE_DIV - SYS1 PLL channel 2 OFE clock divider settings
  ***************************************************************************/
 /* CLK :: SYS1_OFE_DIV :: enableb_ch2 [31:31] */
@@ -1376,45 +1708,49 @@
 /***************************************************************************
  *MIP_TEST - MIPS PLL test control
  ***************************************************************************/
-/* CLK :: MIP_TEST :: reserved0 [31:30] */
-#define BCHP_CLK_MIP_TEST_reserved0_MASK                           0xc0000000
-#define BCHP_CLK_MIP_TEST_reserved0_SHIFT                          30
+/* CLK :: MIP_TEST :: spare [31:31] */
+#define BCHP_CLK_MIP_TEST_spare_MASK                               0x80000000
+#define BCHP_CLK_MIP_TEST_spare_SHIFT                              31
 
-/* CLK :: MIP_TEST :: ndiv_relock [29:29] */
-#define BCHP_CLK_MIP_TEST_ndiv_relock_MASK                         0x20000000
-#define BCHP_CLK_MIP_TEST_ndiv_relock_SHIFT                        29
+/* CLK :: MIP_TEST :: ldo_ref_sel [30:30] */
+#define BCHP_CLK_MIP_TEST_ldo_ref_sel_MASK                         0x40000000
+#define BCHP_CLK_MIP_TEST_ldo_ref_sel_SHIFT                        30
 
-/* CLK :: MIP_TEST :: fast_lock [28:28] */
-#define BCHP_CLK_MIP_TEST_fast_lock_MASK                           0x10000000
-#define BCHP_CLK_MIP_TEST_fast_lock_SHIFT                          28
+/* CLK :: MIP_TEST :: por_bypass [29:29] */
+#define BCHP_CLK_MIP_TEST_por_bypass_MASK                          0x20000000
+#define BCHP_CLK_MIP_TEST_por_bypass_SHIFT                         29
+#define BCHP_CLK_MIP_TEST_por_bypass_POR_active                    0
+#define BCHP_CLK_MIP_TEST_por_bypass_POR_bypassed                  1
+
+/* CLK :: MIP_TEST :: ndiv_relock [28:28] */
+#define BCHP_CLK_MIP_TEST_ndiv_relock_MASK                         0x10000000
+#define BCHP_CLK_MIP_TEST_ndiv_relock_SHIFT                        28
+
+/* CLK :: MIP_TEST :: fast_lock [27:27] */
+#define BCHP_CLK_MIP_TEST_fast_lock_MASK                           0x08000000
+#define BCHP_CLK_MIP_TEST_fast_lock_SHIFT                          27
 #define BCHP_CLK_MIP_TEST_fast_lock_Refclk_Delay_256               0
 #define BCHP_CLK_MIP_TEST_fast_lock_Refclk_Delay_32                1
 
-/* CLK :: MIP_TEST :: vcodiv2 [27:27] */
-#define BCHP_CLK_MIP_TEST_vcodiv2_MASK                             0x08000000
-#define BCHP_CLK_MIP_TEST_vcodiv2_SHIFT                            27
+/* CLK :: MIP_TEST :: vcodiv2 [26:26] */
+#define BCHP_CLK_MIP_TEST_vcodiv2_MASK                             0x04000000
+#define BCHP_CLK_MIP_TEST_vcodiv2_SHIFT                            26
 
-/* CLK :: MIP_TEST :: vco_dly [26:25] */
-#define BCHP_CLK_MIP_TEST_vco_dly_MASK                             0x06000000
-#define BCHP_CLK_MIP_TEST_vco_dly_SHIFT                            25
+/* CLK :: MIP_TEST :: vco_dly [25:24] */
+#define BCHP_CLK_MIP_TEST_vco_dly_MASK                             0x03000000
+#define BCHP_CLK_MIP_TEST_vco_dly_SHIFT                            24
 
-/* CLK :: MIP_TEST :: pwm_rate [24:23] */
-#define BCHP_CLK_MIP_TEST_pwm_rate_MASK                            0x01800000
-#define BCHP_CLK_MIP_TEST_pwm_rate_SHIFT                           23
+/* CLK :: MIP_TEST :: pwm_rate [23:22] */
+#define BCHP_CLK_MIP_TEST_pwm_rate_MASK                            0x00c00000
+#define BCHP_CLK_MIP_TEST_pwm_rate_SHIFT                           22
 
-/* CLK :: MIP_TEST :: stat_mode [22:21] */
-#define BCHP_CLK_MIP_TEST_stat_mode_MASK                           0x00600000
-#define BCHP_CLK_MIP_TEST_stat_mode_SHIFT                          21
+/* CLK :: MIP_TEST :: stat_mode [21:20] */
+#define BCHP_CLK_MIP_TEST_stat_mode_MASK                           0x00300000
+#define BCHP_CLK_MIP_TEST_stat_mode_SHIFT                          20
 #define BCHP_CLK_MIP_TEST_stat_mode_Disabled                       0
 #define BCHP_CLK_MIP_TEST_stat_mode_Phase_Error_Stats              1
-#define BCHP_CLK_MIP_TEST_stat_mode_Period_Stats                   2
+#define BCHP_CLK_MIP_TEST_stat_mode_Period_Error_Stats             2
 #define BCHP_CLK_MIP_TEST_stat_mode_Feedback_Phase_Error_Stats     3
-
-/* CLK :: MIP_TEST :: vcodiv2_post [20:20] */
-#define BCHP_CLK_MIP_TEST_vcodiv2_post_MASK                        0x00100000
-#define BCHP_CLK_MIP_TEST_vcodiv2_post_SHIFT                       20
-#define BCHP_CLK_MIP_TEST_vcodiv2_post_Divide_by_1                 0
-#define BCHP_CLK_MIP_TEST_vcodiv2_post_Divide_by_2                 1
 
 /* CLK :: MIP_TEST :: aux_ctrl [19:19] */
 #define BCHP_CLK_MIP_TEST_aux_ctrl_MASK                            0x00080000
@@ -1435,13 +1771,13 @@
 /* CLK :: MIP_TEST :: stat_select [16:14] */
 #define BCHP_CLK_MIP_TEST_stat_select_MASK                         0x0001c000
 #define BCHP_CLK_MIP_TEST_stat_select_SHIFT                        14
-#define BCHP_CLK_MIP_TEST_stat_select_Zero_0                       0
-#define BCHP_CLK_MIP_TEST_stat_select_Minimum_Phase_Error          1
-#define BCHP_CLK_MIP_TEST_stat_select_Maximum_Phase_Error          2
-#define BCHP_CLK_MIP_TEST_stat_select_Mean_Square_Phase_Error      3
+#define BCHP_CLK_MIP_TEST_stat_select_Wdt_latch_Lock_lost_Lock_state 0
+#define BCHP_CLK_MIP_TEST_stat_select_Minimum_Selected_Statmode_Error 1
+#define BCHP_CLK_MIP_TEST_stat_select_Maximum_Selected_Statmode_Error 2
+#define BCHP_CLK_MIP_TEST_stat_select_Zero_3                       3
 #define BCHP_CLK_MIP_TEST_stat_select_DAC_Control_Word             4
-#define BCHP_CLK_MIP_TEST_stat_select_Zero_5                       5
-#define BCHP_CLK_MIP_TEST_stat_select_Zero_6                       6
+#define BCHP_CLK_MIP_TEST_stat_select_K_Filt                       5
+#define BCHP_CLK_MIP_TEST_stat_select_Exp_Phase                    6
 #define BCHP_CLK_MIP_TEST_stat_select_Zero_7                       7
 
 /* CLK :: MIP_TEST :: stat_reset [13:13] */

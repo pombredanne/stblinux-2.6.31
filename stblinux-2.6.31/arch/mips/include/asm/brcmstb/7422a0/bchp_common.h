@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Jun 28 18:39:20 2010
- *                 MD5 Checksum         2e12e9c7735691062d23de8e3e69b7a8
+ * Date:           Generated on         Fri Jul 23 15:18:13 2010
+ *                 MD5 Checksum         4438f28f1dca03f7590368a04a9665d0
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,7 +34,7 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/6   6/29/10 9:26p albertl
+ * Hydra_Software_Devel/8   7/23/10 5:00p albertl
  * SW7422-1: Updated to match RDB.
  *
  ***************************************************************************/
@@ -736,7 +736,7 @@
 #define BCHP_MDI_FCN_1_REG_START                           0x00672c00
 #define BCHP_MDI_FCN_1_REG_END                             0x00672ffc
 #define BCHP_MISC_REG_START                                0x00680000
-#define BCHP_MISC_REG_END                                  0x00680090
+#define BCHP_MISC_REG_END                                  0x00680084
 #define BCHP_IT_0_REG_START                                0x00681000
 #define BCHP_IT_0_REG_END                                  0x006817fc
 #define BCHP_IT_1_REG_START                                0x00682000
@@ -790,15 +790,17 @@
 #define BCHP_ITU656_1_REG_START                            0x00685000
 #define BCHP_ITU656_1_REG_END                              0x00685020
 #define BCHP_VEC_CFG_REG_START                             0x00685400
-#define BCHP_VEC_CFG_REG_END                               0x00685528
+#define BCHP_VEC_CFG_REG_END                               0x00685538
 #define BCHP_VIDEO_ENC_INTR2_REG_START                     0x00685800
 #define BCHP_VIDEO_ENC_INTR2_REG_END                       0x0068582c
 #define BCHP_VIDEO_ENC_TPG_0_REG_START                     0x00685900
 #define BCHP_VIDEO_ENC_TPG_0_REG_END                       0x00685918
-#define BCHP_VIDEO_ENC_DECIM_0_REG_START                   0x00685a00
-#define BCHP_VIDEO_ENC_DECIM_0_REG_END                     0x00685a08
-#define BCHP_DVP_DGEN_0_REG_START                          0x00685b00
-#define BCHP_DVP_DGEN_0_REG_END                            0x00685b38
+#define BCHP_VIDEO_ENC_STG_0_REG_START                     0x00685a00
+#define BCHP_VIDEO_ENC_STG_0_REG_END                       0x00685a38
+#define BCHP_VIDEO_ENC_DECIM_0_REG_START                   0x00685b00
+#define BCHP_VIDEO_ENC_DECIM_0_REG_END                     0x00685b08
+#define BCHP_DVP_DGEN_0_REG_START                          0x00685c00
+#define BCHP_DVP_DGEN_0_REG_END                            0x00685c38
 #define BCHP_VBI_ENC_REG_START                             0x00686000
 #define BCHP_VBI_ENC_REG_END                               0x00686094
 #define BCHP_CCE_0_REG_START                               0x00686400
@@ -878,7 +880,7 @@
 #define BCHP_HDMI_RX_INTR2_0_REG_START                     0x006a4f00
 #define BCHP_HDMI_RX_INTR2_0_REG_END                       0x006a4f2c
 #define BCHP_HD_DVI_0_REG_START                            0x006a5800
-#define BCHP_HD_DVI_0_REG_END                              0x006a59c4
+#define BCHP_HD_DVI_0_REG_END                              0x006a59fc
 #define BCHP_DVP_HR_TMR_REG_START                          0x006a5fc0
 #define BCHP_DVP_HR_TMR_REG_END                            0x006a5ffc
 #define BCHP_BVN_RGR_REG_START                             0x006a8000

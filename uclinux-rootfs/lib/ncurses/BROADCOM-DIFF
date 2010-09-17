@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-07-25
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
 #
 # Original package: ncurses-5.6.6.tar.bz2
 #
 diff -ruNp ncurses.orig/makefile ncurses/makefile
 --- ncurses.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ ncurses/makefile	2010-07-25 20:51:23.000000000 -0700
++++ ncurses/makefile	2010-08-28 20:10:03.000000000 -0700
 @@ -0,0 +1,29 @@
 +include $(ROOTDIR)/config.arch
 +

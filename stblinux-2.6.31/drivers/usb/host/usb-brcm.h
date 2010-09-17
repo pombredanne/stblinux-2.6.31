@@ -40,5 +40,8 @@
 extern int brcm_usb_probe(struct platform_device *, const char *,
 	const struct hc_driver *);
 extern int brcm_usb_remove(struct platform_device *pdev);
+extern void brcm_usb_suspend(struct usb_hcd *hcd);
+extern void brcm_usb_resume(struct usb_hcd *hcd);
+extern int brcm_usb_is_inactive(void);
 
 #endif /* _USB_BRCM_H */

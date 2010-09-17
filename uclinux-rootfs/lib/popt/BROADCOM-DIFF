@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-07-25
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
 #
 # Original package: popt-1.15.tar.bz2
 #
 diff -ruNp popt.orig/makefile popt/makefile
 --- popt.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ popt/makefile	2010-07-25 20:51:23.000000000 -0700
++++ popt/makefile	2010-08-28 20:10:04.000000000 -0700
 @@ -0,0 +1,29 @@
 +include $(ROOTDIR)/config.arch
 +
@@ -38,7 +38,7 @@ diff -ruNp popt.orig/makefile popt/makefile
 +	$(MAKE) -f Makefile $@
 diff -ruNp popt.orig/poptconfig.c popt/poptconfig.c
 --- popt.orig/poptconfig.c	2009-04-12 11:14:38.000000000 -0700
-+++ popt/poptconfig.c	2010-07-25 20:51:23.000000000 -0700
++++ popt/poptconfig.c	2010-08-28 20:10:04.000000000 -0700
 @@ -42,7 +42,7 @@ extern int glob_pattern_p (const char *_
  /*@=declundef =exportheader =incondefs =protoparammatch =redecl =type @*/
  #endif	/* __LCLINT__ */

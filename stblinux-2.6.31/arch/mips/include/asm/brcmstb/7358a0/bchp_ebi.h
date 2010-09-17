@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:19:29 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug  2 14:46:25 2010
+ *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_ebi.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 4:49p pntruong
+ * SW7358-2: Initial version of rdb header files.
  *
  ***************************************************************************/
 
@@ -42,29 +45,29 @@
 /***************************************************************************
  *EBI - EBI Registers
  ***************************************************************************/
-#define BCHP_EBI_CS_BASE_0                       0x00000800 /* EBI CS Base 0 Register */
-#define BCHP_EBI_CS_CONFIG_0                     0x00000804 /* EBI CS Config 0 Register */
-#define BCHP_EBI_CS_BASE_1                       0x00000808 /* EBI CS Base 1 Register */
-#define BCHP_EBI_CS_CONFIG_1                     0x0000080c /* EBI CS Config 1 Register */
-#define BCHP_EBI_CS_BASE_2                       0x00000810 /* EBI CS Base 2 Register */
-#define BCHP_EBI_CS_CONFIG_2                     0x00000814 /* EBI CS Config 2 Register */
-#define BCHP_EBI_CS_BASE_3                       0x00000818 /* EBI CS Base 3 Register */
-#define BCHP_EBI_CS_CONFIG_3                     0x0000081c /* EBI CS Config 3 Register */
-#define BCHP_EBI_CS_BASE_4                       0x00000820 /* EBI CS Base 4 Register */
-#define BCHP_EBI_CS_CONFIG_4                     0x00000824 /* EBI CS Config 4 Register */
-#define BCHP_EBI_CS_BASE_5                       0x00000828 /* EBI CS Base 5 Register */
-#define BCHP_EBI_CS_CONFIG_5                     0x0000082c /* EBI CS Config 5 Register */
-#define BCHP_EBI_BURST_CFG_0                     0x00000840 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_1                     0x00000844 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_2                     0x00000848 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_3                     0x0000084c /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_4                     0x00000850 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_5                     0x00000854 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_ECR                             0x00000900 /* EBI Configuration Register */
-#define BCHP_EBI_CS_TRISTATE_CFG                 0x00000918 /* EBI CS Tristate Configuration Register */
-#define BCHP_EBI_TA_CFG                          0x0000091c /* EBI TA Configuration Register */
-#define BCHP_EBI_CS_SPI_SELECT                   0x00000920 /* SPI CS Select */
-#define BCHP_EBI_ARRAY_ADDRESS                   0x000009f0 /* EBI Data Array Address */
+#define BCHP_EBI_CS_BASE_0                       0x00410800 /* EBI CS Base 0 Register */
+#define BCHP_EBI_CS_CONFIG_0                     0x00410804 /* EBI CS Config 0 Register */
+#define BCHP_EBI_CS_BASE_1                       0x00410808 /* EBI CS Base 1 Register */
+#define BCHP_EBI_CS_CONFIG_1                     0x0041080c /* EBI CS Config 1 Register */
+#define BCHP_EBI_CS_BASE_2                       0x00410810 /* EBI CS Base 2 Register */
+#define BCHP_EBI_CS_CONFIG_2                     0x00410814 /* EBI CS Config 2 Register */
+#define BCHP_EBI_CS_BASE_3                       0x00410818 /* EBI CS Base 3 Register */
+#define BCHP_EBI_CS_CONFIG_3                     0x0041081c /* EBI CS Config 3 Register */
+#define BCHP_EBI_CS_BASE_4                       0x00410820 /* EBI CS Base 4 Register */
+#define BCHP_EBI_CS_CONFIG_4                     0x00410824 /* EBI CS Config 4 Register */
+#define BCHP_EBI_CS_BASE_5                       0x00410828 /* EBI CS Base 5 Register */
+#define BCHP_EBI_CS_CONFIG_5                     0x0041082c /* EBI CS Config 5 Register */
+#define BCHP_EBI_BURST_CFG_0                     0x00410840 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_1                     0x00410844 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_2                     0x00410848 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_3                     0x0041084c /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_4                     0x00410850 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_5                     0x00410854 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_ECR                             0x00410900 /* EBI Configuration Register */
+#define BCHP_EBI_CS_TRISTATE_CFG                 0x00410918 /* EBI CS Tristate Configuration Register */
+#define BCHP_EBI_TA_CFG                          0x0041091c /* EBI TA Configuration Register */
+#define BCHP_EBI_CS_SPI_SELECT                   0x00410920 /* SPI CS Select */
+#define BCHP_EBI_ARRAY_ADDRESS                   0x004109f0 /* EBI Data Array Address */
 
 /***************************************************************************
  *CS_BASE_0 - EBI CS Base 0 Register
@@ -1356,9 +1359,41 @@
 /***************************************************************************
  *CS_SPI_SELECT - SPI CS Select
  ***************************************************************************/
-/* EBI :: CS_SPI_SELECT :: reserved0 [31:08] */
-#define BCHP_EBI_CS_SPI_SELECT_reserved0_MASK                      0xffffff00
-#define BCHP_EBI_CS_SPI_SELECT_reserved0_SHIFT                     8
+/* EBI :: CS_SPI_SELECT :: reserved0 [31:16] */
+#define BCHP_EBI_CS_SPI_SELECT_reserved0_MASK                      0xffff0000
+#define BCHP_EBI_CS_SPI_SELECT_reserved0_SHIFT                     16
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_7_USES_SPI [15:15] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_7_USES_SPI_MASK              0x00008000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_7_USES_SPI_SHIFT             15
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_6_USES_SPI [14:14] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_6_USES_SPI_MASK              0x00004000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_6_USES_SPI_SHIFT             14
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_5_USES_SPI [13:13] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_5_USES_SPI_MASK              0x00002000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_5_USES_SPI_SHIFT             13
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_4_USES_SPI [12:12] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_4_USES_SPI_MASK              0x00001000
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_4_USES_SPI_SHIFT             12
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_3_USES_SPI [11:11] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_3_USES_SPI_MASK              0x00000800
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_3_USES_SPI_SHIFT             11
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_2_USES_SPI [10:10] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_2_USES_SPI_MASK              0x00000400
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_2_USES_SPI_SHIFT             10
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_1_USES_SPI [09:09] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_1_USES_SPI_MASK              0x00000200
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_1_USES_SPI_SHIFT             9
+
+/* EBI :: CS_SPI_SELECT :: EBI_CS_0_USES_SPI [08:08] */
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_0_USES_SPI_MASK              0x00000100
+#define BCHP_EBI_CS_SPI_SELECT_EBI_CS_0_USES_SPI_SHIFT             8
 
 /* EBI :: CS_SPI_SELECT :: SPI_EBI_CS_7_SEL [07:07] */
 #define BCHP_EBI_CS_SPI_SELECT_SPI_EBI_CS_7_SEL_MASK               0x00000080
@@ -1410,7 +1445,7 @@
 /***************************************************************************
  *DATA_ARRAY%i - EBI Data Array Read/Write Access
  ***************************************************************************/
-#define BCHP_EBI_DATA_ARRAYi_ARRAY_BASE                            0x00000a00
+#define BCHP_EBI_DATA_ARRAYi_ARRAY_BASE                            0x00410a00
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_START                           0
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_END                             127
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_ELEMENT_SIZE                    32

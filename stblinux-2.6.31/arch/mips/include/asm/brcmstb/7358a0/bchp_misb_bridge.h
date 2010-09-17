@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:27:46 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug  2 14:56:15 2010
+ *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_misb_bridge.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 5:34p pntruong
+ * SW7358-2: Initial version of rdb header files.
  *
  ***************************************************************************/
 
@@ -42,9 +45,9 @@
 /***************************************************************************
  *MISB_BRIDGE - MISB_BRIDGE Registers
  ***************************************************************************/
-#define BCHP_MISB_BRIDGE_CORE_REV_ID             0x00000400 /* MISB Bridge Revision ID Register. */
-#define BCHP_MISB_BRIDGE_EXCEPTION_VECTOR_OFFSET 0x00000404 /* "Exception Vector Offset Address" */
-#define BCHP_MISB_BRIDGE_PROCESSOR_ID            0x00000408 /* Processor ID Register. */
+#define BCHP_MISB_BRIDGE_CORE_REV_ID             0x00410400 /* MISB Bridge Revision ID Register. */
+#define BCHP_MISB_BRIDGE_EXCEPTION_VECTOR_OFFSET 0x00410404 /* "Exception Vector Offset Address" */
+#define BCHP_MISB_BRIDGE_PROCESSOR_ID            0x00410408 /* Processor ID Register. */
 
 /***************************************************************************
  *CORE_REV_ID - MISB Bridge Revision ID Register.

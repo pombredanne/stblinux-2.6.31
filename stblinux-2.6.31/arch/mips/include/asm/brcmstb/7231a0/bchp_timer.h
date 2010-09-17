@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 03:27:30 2010
- *                 MD5 Checksum         48de0819069cffb1a27afe66f66cd920
+ * Date:           Generated on         Sat Aug 21 02:26:32 2010
+ *                 MD5 Checksum         a95e35eb18efda724ef4e779d00f7fc8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -176,9 +176,9 @@
 /***************************************************************************
  *TIMER0_STAT - TIMER0 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER0_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER0_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER0_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER0_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER0_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER0_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER0_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER0_STAT_COUNTER_VAL_MASK                    0x3fffffff
@@ -187,9 +187,9 @@
 /***************************************************************************
  *TIMER1_STAT - TIMER1 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER1_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER1_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER1_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER1_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER1_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER1_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER1_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER1_STAT_COUNTER_VAL_MASK                    0x3fffffff
@@ -198,9 +198,9 @@
 /***************************************************************************
  *TIMER2_STAT - TIMER2 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER2_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER2_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER2_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER2_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER2_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER2_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER2_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER2_STAT_COUNTER_VAL_MASK                    0x3fffffff
@@ -209,9 +209,9 @@
 /***************************************************************************
  *TIMER3_STAT - TIMER3 STATUS REGISTER
  ***************************************************************************/
-/* TIMER :: TIMER3_STAT :: RESERVED [31:30] */
-#define BCHP_TIMER_TIMER3_STAT_RESERVED_MASK                       0xc0000000
-#define BCHP_TIMER_TIMER3_STAT_RESERVED_SHIFT                      30
+/* TIMER :: TIMER3_STAT :: SPARE [31:30] */
+#define BCHP_TIMER_TIMER3_STAT_SPARE_MASK                          0xc0000000
+#define BCHP_TIMER_TIMER3_STAT_SPARE_SHIFT                         30
 
 /* TIMER :: TIMER3_STAT :: COUNTER_VAL [29:00] */
 #define BCHP_TIMER_TIMER3_STAT_COUNTER_VAL_MASK                    0x3fffffff

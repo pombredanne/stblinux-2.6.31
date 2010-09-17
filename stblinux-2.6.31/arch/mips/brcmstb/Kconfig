@@ -152,6 +152,7 @@ config BCM7125C0
 	select BRCM_SATA_75MHZ_PLL
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_STANDBY
+	select BRCM_PWR_HANDSHAKE_V0
 	select BRCM_HAS_ANALOG_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
@@ -460,6 +461,8 @@ config BCM7408A0
 	select BRCM_HAS_NAND_MINOR_4
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_HAS_DIGITAL_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -477,6 +480,8 @@ config BCM7408B0
 	select BRCM_HAS_NAND_MINOR_4
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_HAS_DIGITAL_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -502,6 +507,7 @@ config BCM7420C0
 	select BRCM_SATA_75MHZ_PLL
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_STANDBY
+	select BRCM_PWR_HANDSHAKE_V0
 	select BRCM_HAS_ANALOG_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
@@ -577,23 +583,6 @@ config BCM7440B0
 	select BRCM_HAS_DVD
 	select BRCM_HAS_1GB_MEMC0
 
-config BCM7468A0
-	bool "7468 Ax"
-	select BRCM_PLATFORM_DEFAULTS
-	select BCM7468
-	select BMIPS3300
-	select BRCM_UARTA_IS_16550
-	select BRCM_UARTB_IS_16550
-	select BRCM_HAS_GENET_0
-	select BRCM_GENET_V2
-	select BRCM_HAS_NAND_MAJOR_3
-	select BRCM_HAS_NAND_MINOR_4
-	select BRCM_HAS_EDU
-	select BRCM_HAS_BSPI_V3
-	select BRCM_HAS_SDIO_V0
-	select BRCM_HAS_WKTMR
-	select BRCM_HAS_1GB_MEMC0
-
 config BCM7468B0
 	bool "7468 Bx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -609,6 +598,9 @@ config BCM7468B0
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_PWR_HANDSHAKE_V0
+	select BRCM_HAS_DIGITAL_DDR_PHY
 	select BRCM_HAS_1GB_MEMC0
 
 config BCM7550A0
@@ -1564,8 +1556,25 @@ config BRCM_HAS_1GB_MEMC1
 config BRCM_HAS_ANALOG_DDR_PHY
 	bool
 
+config BRCM_HAS_DIGITAL_DDR_PHY
+	bool
+
 config BRCM_HAS_STANDBY
 	bool
+
+# no handshake (no bsp_rdy signal) means the SW has to manually set SSPD
+config BRCM_PWR_HANDSHAKE
+	bool
+
+# designs older than 7135
+config BRCM_PWR_HANDSHAKE_V0
+	bool
+	select BRCM_PWR_HANDSHAKE
+
+# 7135 and newer: simplified interface
+config BRCM_PWR_HANDSHAKE_V1
+	bool
+	select BRCM_PWR_HANDSHAKE
 
 config BRCM_PLATFORM_DEFAULTS
 	bool

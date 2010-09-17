@@ -199,6 +199,7 @@
 #include <asm/brcmstb/7125c0/bchp_nand.h>
 #include <asm/brcmstb/7125c0/bchp_pci_cfg.h>
 #include <asm/brcmstb/7125c0/bchp_pcix_bridge.h>
+#include <asm/brcmstb/7125c0/bchp_pm_l2.h>
 #include <asm/brcmstb/7125c0/bchp_sata_mdio.h>
 #include <asm/brcmstb/7125c0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7125c0/bchp_timer.h>
@@ -214,6 +215,7 @@
 
 #elif defined(CONFIG_BCM7135A0)
 #include <asm/brcmstb/7135a0/bchp_aon_ctrl.h>
+#include <asm/brcmstb/7135a0/bchp_aon_pm_l2.h>
 #include <asm/brcmstb/7135a0/bchp_bspi.h>
 #include <asm/brcmstb/7135a0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7135a0/bchp_clkgen.h>
@@ -348,6 +350,7 @@
 #include <asm/brcmstb/7340b0/bchp_moca_hostmisc.h>
 #include <asm/brcmstb/7340b0/bchp_nand.h>
 #include <asm/brcmstb/7340b0/bchp_pci_cfg.h>
+#include <asm/brcmstb/7340b0/bchp_pm_l2.h>
 #include <asm/brcmstb/7340b0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7340b0/bchp_timer.h>
 #include <asm/brcmstb/7340b0/bchp_uarta.h>
@@ -382,6 +385,7 @@
 #include <asm/brcmstb/7342b0/bchp_nand.h>
 #include <asm/brcmstb/7342b0/bchp_pci_cfg.h>
 #include <asm/brcmstb/7342b0/bchp_pcix_bridge.h>
+#include <asm/brcmstb/7342b0/bchp_pm_l2.h>
 #include <asm/brcmstb/7342b0/bchp_sata_mdio.h>
 #include <asm/brcmstb/7342b0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7342b0/bchp_timer.h>
@@ -401,6 +405,7 @@
 
 #elif defined(CONFIG_BCM7344A0)
 #include <asm/brcmstb/7344a0/bchp_aon_ctrl.h>
+#include <asm/brcmstb/7344a0/bchp_aon_pm_l2.h>
 #include <asm/brcmstb/7344a0/bchp_bspi.h>
 #include <asm/brcmstb/7344a0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7344a0/bchp_clkgen.h>
@@ -430,6 +435,7 @@
 
 #elif defined(CONFIG_BCM7346A0)
 #include <asm/brcmstb/7346a0/bchp_aon_ctrl.h>
+#include <asm/brcmstb/7346a0/bchp_aon_pm_l2.h>
 #include <asm/brcmstb/7346a0/bchp_bspi.h>
 #include <asm/brcmstb/7346a0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7346a0/bchp_clkgen.h>
@@ -632,6 +638,7 @@
 #include <asm/brcmstb/7408a0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7408a0/bchp_clk.h>
 #include <asm/brcmstb/7408a0/bchp_common.h>
+#include <asm/brcmstb/7408a0/bchp_ddr23_phy_control_regs_0.h>
 #include <asm/brcmstb/7408a0/bchp_ebi.h>
 #include <asm/brcmstb/7408a0/bchp_hif_cpu_intr1.h>
 #include <asm/brcmstb/7408a0/bchp_hif_cpu_tp1_intr1.h>
@@ -644,6 +651,7 @@
 #include <asm/brcmstb/7408a0/bchp_memc_ddr_0.h>
 #include <asm/brcmstb/7408a0/bchp_moca_hostmisc.h>
 #include <asm/brcmstb/7408a0/bchp_nand.h>
+#include <asm/brcmstb/7408a0/bchp_pm_l2.h>
 #include <asm/brcmstb/7408a0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7408a0/bchp_timer.h>
 #include <asm/brcmstb/7408a0/bchp_uarta.h>
@@ -660,6 +668,7 @@
 #include <asm/brcmstb/7408b0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7408b0/bchp_clk.h>
 #include <asm/brcmstb/7408b0/bchp_common.h>
+#include <asm/brcmstb/7408b0/bchp_ddr23_phy_control_regs_0.h>
 #include <asm/brcmstb/7408b0/bchp_ebi.h>
 #include <asm/brcmstb/7408b0/bchp_hif_cpu_intr1.h>
 #include <asm/brcmstb/7408b0/bchp_hif_cpu_tp1_intr1.h>
@@ -672,6 +681,7 @@
 #include <asm/brcmstb/7408b0/bchp_memc_ddr_0.h>
 #include <asm/brcmstb/7408b0/bchp_moca_hostmisc.h>
 #include <asm/brcmstb/7408b0/bchp_nand.h>
+#include <asm/brcmstb/7408b0/bchp_pm_l2.h>
 #include <asm/brcmstb/7408b0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7408b0/bchp_timer.h>
 #include <asm/brcmstb/7408b0/bchp_uarta.h>
@@ -700,8 +710,11 @@
 #include <asm/brcmstb/7420c0/bchp_irq0.h>
 #include <asm/brcmstb/7420c0/bchp_irq1.h>
 #include <asm/brcmstb/7420c0/bchp_memc_ddr23_aphy_ac_0.h>
+#include <asm/brcmstb/7420c0/bchp_memc_ddr23_aphy_ac_1.h>
 #include <asm/brcmstb/7420c0/bchp_memc_ddr23_aphy_wl0_0.h>
+#include <asm/brcmstb/7420c0/bchp_memc_ddr23_aphy_wl0_1.h>
 #include <asm/brcmstb/7420c0/bchp_memc_ddr23_aphy_wl1_0.h>
+#include <asm/brcmstb/7420c0/bchp_memc_ddr23_aphy_wl1_1.h>
 #include <asm/brcmstb/7420c0/bchp_memc_ddr_0.h>
 #include <asm/brcmstb/7420c0/bchp_memc_gen_0.h>
 #include <asm/brcmstb/7420c0/bchp_memc_misc_0.h>
@@ -716,6 +729,7 @@
 #include <asm/brcmstb/7420c0/bchp_pcie_rc_cfg_type1.h>
 #include <asm/brcmstb/7420c0/bchp_pcie_rc_cfg_vendor.h>
 #include <asm/brcmstb/7420c0/bchp_pcix_bridge.h>
+#include <asm/brcmstb/7420c0/bchp_pm_l2.h>
 #include <asm/brcmstb/7420c0/bchp_sata_mdio.h>
 #include <asm/brcmstb/7420c0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7420c0/bchp_timer.h>
@@ -771,39 +785,53 @@
 #include <asm/brcmstb/7422a0/bchp_wktmr.h>
 #include <asm/brcmstb/7422a0/brcmirq.h>
 
-#elif defined(CONFIG_BCM7468A0)
-#include <asm/brcmstb/7468a0/bchp_bspi.h>
-#include <asm/brcmstb/7468a0/bchp_bspi_raf.h>
-#include <asm/brcmstb/7468a0/bchp_clk.h>
-#include <asm/brcmstb/7468a0/bchp_common.h>
-#include <asm/brcmstb/7468a0/bchp_ebi.h>
-#include <asm/brcmstb/7468a0/bchp_edu.h>
-#include <asm/brcmstb/7468a0/bchp_hif_cpu_intr1.h>
-#include <asm/brcmstb/7468a0/bchp_hif_intr2.h>
-#include <asm/brcmstb/7468a0/bchp_hif_mspi.h>
-#include <asm/brcmstb/7468a0/bchp_hif_spi_intr2.h>
-#include <asm/brcmstb/7468a0/bchp_hif_top_ctrl.h>
-#include <asm/brcmstb/7468a0/bchp_irq0.h>
-#include <asm/brcmstb/7468a0/bchp_irq1.h>
-#include <asm/brcmstb/7468a0/bchp_memc_ddr_0.h>
-#include <asm/brcmstb/7468a0/bchp_nand.h>
-#include <asm/brcmstb/7468a0/bchp_pm_l2.h>
-#include <asm/brcmstb/7468a0/bchp_sun_top_ctrl.h>
-#include <asm/brcmstb/7468a0/bchp_timer.h>
-#include <asm/brcmstb/7468a0/bchp_uarta.h>
-#include <asm/brcmstb/7468a0/bchp_uartb.h>
-#include <asm/brcmstb/7468a0/bchp_uartc.h>
-#include <asm/brcmstb/7468a0/bchp_usb_ctrl.h>
-#include <asm/brcmstb/7468a0/bchp_usb_ehci.h>
-#include <asm/brcmstb/7468a0/bchp_usb_ohci.h>
-#include <asm/brcmstb/7468a0/bchp_wktmr.h>
-#include <asm/brcmstb/7468a0/brcmirq.h>
+#elif defined(CONFIG_BCM7425A0)
+#include <asm/brcmstb/7425a0/bchp_aon_ctrl.h>
+#include <asm/brcmstb/7425a0/bchp_aon_pm_l2.h>
+#include <asm/brcmstb/7425a0/bchp_bspi.h>
+#include <asm/brcmstb/7425a0/bchp_bspi_raf.h>
+#include <asm/brcmstb/7425a0/bchp_clkgen.h>
+#include <asm/brcmstb/7425a0/bchp_common.h>
+#include <asm/brcmstb/7425a0/bchp_ddr40_phy_control_regs_0.h>
+#include <asm/brcmstb/7425a0/bchp_ddr40_phy_word_lane_0_0.h>
+#include <asm/brcmstb/7425a0/bchp_ddr40_phy_word_lane_1_0.h>
+#include <asm/brcmstb/7425a0/bchp_ebi.h>
+#include <asm/brcmstb/7425a0/bchp_edu.h>
+#include <asm/brcmstb/7425a0/bchp_hif_cpu_intr1.h>
+#include <asm/brcmstb/7425a0/bchp_hif_cpu_tp1_intr1.h>
+#include <asm/brcmstb/7425a0/bchp_hif_intr2.h>
+#include <asm/brcmstb/7425a0/bchp_hif_mspi.h>
+#include <asm/brcmstb/7425a0/bchp_hif_rgr1.h>
+#include <asm/brcmstb/7425a0/bchp_hif_spi_intr2.h>
+#include <asm/brcmstb/7425a0/bchp_hif_top_ctrl.h>
+#include <asm/brcmstb/7425a0/bchp_irq0.h>
+#include <asm/brcmstb/7425a0/bchp_irq1.h>
+#include <asm/brcmstb/7425a0/bchp_memc_ddr_0.h>
+#include <asm/brcmstb/7425a0/bchp_moca_hostmisc.h>
+#include <asm/brcmstb/7425a0/bchp_nand.h>
+#include <asm/brcmstb/7425a0/bchp_pcie_dma.h>
+#include <asm/brcmstb/7425a0/bchp_pcie_intr2.h>
+#include <asm/brcmstb/7425a0/bchp_pcie_misc.h>
+#include <asm/brcmstb/7425a0/bchp_pcie_misc_perst.h>
+#include <asm/brcmstb/7425a0/bchp_pcie_rc_cfg_type1.h>
+#include <asm/brcmstb/7425a0/bchp_pcie_rc_cfg_vendor.h>
+#include <asm/brcmstb/7425a0/bchp_sata_top_ctrl.h>
+#include <asm/brcmstb/7425a0/bchp_sdio_0_cfg.h>
+#include <asm/brcmstb/7425a0/bchp_sun_top_ctrl.h>
+#include <asm/brcmstb/7425a0/bchp_timer.h>
+#include <asm/brcmstb/7425a0/bchp_uarta.h>
+#include <asm/brcmstb/7425a0/bchp_uartb.h>
+#include <asm/brcmstb/7425a0/bchp_uartc.h>
+#include <asm/brcmstb/7425a0/bchp_usb_ctrl.h>
+#include <asm/brcmstb/7425a0/bchp_wktmr.h>
+#include <asm/brcmstb/7425a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7468B0)
 #include <asm/brcmstb/7468b0/bchp_bspi.h>
 #include <asm/brcmstb/7468b0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7468b0/bchp_clk.h>
 #include <asm/brcmstb/7468b0/bchp_common.h>
+#include <asm/brcmstb/7468b0/bchp_ddr23_phy_control_regs_0.h>
 #include <asm/brcmstb/7468b0/bchp_ebi.h>
 #include <asm/brcmstb/7468b0/bchp_edu.h>
 #include <asm/brcmstb/7468b0/bchp_hif_cpu_intr1.h>
@@ -821,6 +849,7 @@
 #include <asm/brcmstb/7468b0/bchp_uarta.h>
 #include <asm/brcmstb/7468b0/bchp_uartb.h>
 #include <asm/brcmstb/7468b0/bchp_usb_ctrl.h>
+#include <asm/brcmstb/7468b0/bchp_vcxo_ctl_misc.h>
 #include <asm/brcmstb/7468b0/bchp_wktmr.h>
 #include <asm/brcmstb/7468b0/brcmirq.h>
 
@@ -964,12 +993,14 @@
 #define BRCM_NMI_VEC		0x80000000
 #define BRCM_WARM_RESTART_VEC	0x80000380
 
-/* Don't enter standby - just delay for 5s then return */
-#define BRCM_STANDBY_NO_SLEEP	0x01
+/* Kernel will program WKTMR to expire in 1 second */
+#define BRCM_STANDBY_TEST	0x01
 /* Wait 120s before entering standby, to allow registers to be read */
 #define BRCM_STANDBY_DELAY	0x02
 /* Show UART output at each step */
 #define BRCM_STANDBY_VERBOSE	0x04
+/* Don't enter standby - just delay for 5s then return */
+#define BRCM_STANDBY_NO_SLEEP	0x08
 
 #if !defined(__ASSEMBLY__)
 

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:20:51 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug 16 10:54:53 2010
+ *                 MD5 Checksum         442d8de773a92e76786307c9f37b5c82
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_uartc.h $
+ * 
+ * Hydra_Software_Devel/2   8/16/10 12:22p pntruong
+ * SW7358-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -42,18 +45,18 @@
 /***************************************************************************
  *UARTC - UART C
  ***************************************************************************/
-#define BCHP_UARTC_RBR                           0x00405980 /* Receive Buffer Register */
-#define BCHP_UARTC_THR                           0x00405980 /* Transmit Holding Register */
-#define BCHP_UARTC_DLH                           0x00405984 /* Divisor Latch High */
-#define BCHP_UARTC_DLL                           0x00405980 /* Divisor Latch Low */
-#define BCHP_UARTC_IER                           0x00405984 /* Interrupt Enable Register */
-#define BCHP_UARTC_IIR                           0x00405988 /* Interrupt Identity Register */
-#define BCHP_UARTC_FCR                           0x00405988 /* FIFO Control Register */
-#define BCHP_UARTC_LCR                           0x0040598c /* Line Control Register */
-#define BCHP_UARTC_MCR                           0x00405990 /* Modem Control Register */
-#define BCHP_UARTC_LSR                           0x00405994 /* Line Status Register */
-#define BCHP_UARTC_MSR                           0x00405998 /* Modem Status Register */
-#define BCHP_UARTC_SCR                           0x0040599c /* Scratchpad Register */
+#define BCHP_UARTC_RBR                           0x00406880 /* Receive Buffer Register */
+#define BCHP_UARTC_THR                           0x00406880 /* Transmit Holding Register */
+#define BCHP_UARTC_DLH                           0x00406884 /* Divisor Latch High */
+#define BCHP_UARTC_DLL                           0x00406880 /* Divisor Latch Low */
+#define BCHP_UARTC_IER                           0x00406884 /* Interrupt Enable Register */
+#define BCHP_UARTC_IIR                           0x00406888 /* Interrupt Identity Register */
+#define BCHP_UARTC_FCR                           0x00406888 /* FIFO Control Register */
+#define BCHP_UARTC_LCR                           0x0040688c /* Line Control Register */
+#define BCHP_UARTC_MCR                           0x00406890 /* Modem Control Register */
+#define BCHP_UARTC_LSR                           0x00406894 /* Line Status Register */
+#define BCHP_UARTC_MSR                           0x00406898 /* Modem Status Register */
+#define BCHP_UARTC_SCR                           0x0040689c /* Scratchpad Register */
 
 #endif /* #ifndef BCHP_UARTC_H__ */
 

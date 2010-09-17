@@ -165,11 +165,10 @@ brcm_reset_nmi_vec_end:
 	.previous
 
 /***********************************************************************
- * TP1 warm restart vector (used for second and subsequent boots)
+ * TP1 warm restart vector (used for second and subsequent boots).
+ * Also used for passive standby recovery (PM).
  * This entire function gets copied to (BRCM_WARM_RESTART_VEC)
  ***********************************************************************/
-
-	__CPUINIT
 
 LEAF(brcm_tp1_int_vec)
 
@@ -185,8 +184,6 @@ LEAF(brcm_tp1_int_vec)
 brcm_tp1_int_vec_end:
 
 	END(brcm_tp1_int_vec)
-
-	.previous
 
 /***********************************************************************
  * XKS01 support

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 02:53:54 2010
- *                 MD5 Checksum         a0700768d4086f941486843f18d579d3
+ * Date:           Generated on         Sat Aug 21 02:12:55 2010
+ *                 MD5 Checksum         6ce61dbe62eaee9d1391b906c64ecb91
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -385,9 +385,13 @@
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_MASK        0x04000000
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_SHIFT       26
 
-/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:00] */
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03ffffff
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                0
+/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:01] */
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03fffffe
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                1
+
+/* USB_CTRL :: USB_SIMCTL :: fs_dly_en [00:00] */
+#define BCHP_USB_CTRL_USB_SIMCTL_fs_dly_en_MASK                    0x00000001
+#define BCHP_USB_CTRL_USB_SIMCTL_fs_dly_en_SHIFT                   0
 
 /***************************************************************************
  *USB_TESTCTL - Throutput Test Control

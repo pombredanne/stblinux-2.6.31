@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-07-25
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
 #
 # Original package: utillinux-2.13-pre7.tar.bz2
 #
 diff -ruNp utillinux.orig/makefile utillinux/makefile
 --- utillinux.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ utillinux/makefile	2010-07-25 20:51:34.000000000 -0700
++++ utillinux/makefile	2010-08-28 20:10:16.000000000 -0700
 @@ -0,0 +1,34 @@
 +include $(ROOTDIR)/config.arch
 +

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Jun 28 18:44:02 2010
- *                 MD5 Checksum         2e12e9c7735691062d23de8e3e69b7a8
+ * Date:           Generated on         Thu Jul  8 13:43:58 2010
+ *                 MD5 Checksum         0a02a8be9dac445f07a51682e3a70c55
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_ddr40_phy_control_regs_0.h $
  * 
- * Hydra_Software_Devel/4   6/29/10 9:26p albertl
- * SW7422-1: Updated to match RDB.
+ * Hydra_Software_Devel/5   7/8/10 3:27p pntruong
+ * SW7422-1: Updated to reflect for central rdb chagnes.
  *
  ***************************************************************************/
 
@@ -1035,9 +1035,13 @@
 /***************************************************************************
  *STANDBY_CONTROL - Standby Control register
  ***************************************************************************/
-/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: reserved0 [31:18] */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_MASK 0xfffc0000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_SHIFT 18
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: reserved0 [31:19] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_MASK 0xfff80000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_SHIFT 19
+
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_ready [18:18] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_ready_MASK 0x00040000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_ready_SHIFT 18
 
 /* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_exit_pin_en [17:17] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_exit_pin_en_MASK 0x00020000

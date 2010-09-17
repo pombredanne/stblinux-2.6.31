@@ -289,11 +289,11 @@ static int brcmnand_read_abs_bbt (struct mtd_info *mtd, uint8_t *buf, struct nan
 	int res = 0, i;
 	int bits;
 
-PRINTK("-->%s, numchips=%d, chip=%d\n", __FUNCTION__, this->numchips, chip);
+PRINTK("-->%s, numchips=%d, chip=%d\n", __FUNCTION__, this->ctrl->numchips, chip);
 	bits = td->options & NAND_BBT_NRBITS_MSK;
 	if (td->options & NAND_BBT_PERCHIP) {
 		int offs = 0;
-		for (i = 0; i < this->numchips; i++) {
+		for (i = 0; i < this->ctrl->numchips; i++) {
 			if (chip == -1 || chip == i)
 				res = brcmnand_read_bbt (mtd, buf, td->pages[i], this->chipSize >> this->bbt_erase_shift, bits, offs, td->reserved_block_code);
 			if (res) {
@@ -446,7 +446,16 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 	int dir;
 	struct brcmnand_chip *this = mtd->priv; 
 
-	if (!MTD_IS_MLC(mtd)) { // SLC: First and 2nd page
+	/*
+	 * THT 8/23/2010 Changed to use low level test.  
+	 * Apparently new Micron chips are SLC, but behaves like an MLC flash (requires BCH-4).
+	 * The old high level test would look for the BI indicator at the wrong page.
+	 *
+	 * if (!MTD_IS_MLC(mtd)) { // SLC: First and 2nd page
+	 *	dir = 1;
+	 * }
+	*/
+	if (!NAND_IS_MLC(this)) { // SLC: First and 2nd page
 		dir = 1;
 	}
 	else { // MLC: Read last page (and next to last page).
@@ -464,23 +473,30 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 
 	for (j=0; j < len; j++) {
 		ret = mtd->read_oob(mtd, offs, &ops);
-		if (ret == -EBADMSG) {// Uncorrectable errors
+if (gdebug && ret!=0) printk("########## %s: read_oob returns %d\n", __FUNCTION__, ret);
+
+
+		if (ret == -EBADMSG ||ret==-EIO) {// Uncorrectable errors
 			uint32_t acc0;
-	
+
 			// Disable ECC
-			acc0 = brcmnand_disable_read_ecc(this->CS[this->csi]);
+			acc0 = brcmnand_disable_read_ecc(this->ctrl->CS[this->csi]);
 
 			// Re-read the OOB
 			ret = mtd->read_oob(mtd, offs, &ops);
 
 			// Enable ECC back
-			brcmnand_restore_ecc(this->CS[this->csi], acc0);
+			brcmnand_restore_ecc(this->ctrl->CS[this->csi], acc0);
 		}
-		if (ret)
+
+		if (ret) {
+PRINTK("%s: read_oob returns error %d\n", __FUNCTION__, ret);
 			return ret;
+		}
 
 		if (check_short_pattern(buf, bd))
 			return 1;
+
 
 		offs += ((int64_t)dir * mtd->writesize);
 	}
@@ -544,9 +560,9 @@ PRINTK("-->brcmnand_create_bbt, bbt_erase_shift=%d, this->page_shift=%d\n", this
 		startblock = 0ULL;
 		from = 0LL;
 	} else {
-		if (chip >= this->numchips) {
+		if (chip >= this->ctrl->numchips) {
 			printk (KERN_WARNING "brcmnand_create_bbt(): chipnr (%d) > available chips (%d)\n",
-				chip + 1, this->numchips);
+				chip + 1, this->ctrl->numchips);
 			return -EINVAL;
 		}
 		numblocks = this->chipSize >> (this->bbt_erase_shift - 1);
@@ -554,6 +570,8 @@ PRINTK("-->brcmnand_create_bbt, bbt_erase_shift=%d, this->page_shift=%d\n", this
 		numblocks += startblock;
 		from = startblock << (this->bbt_erase_shift - 1);
 	}
+
+//gdebug=4;
 if (gdebug > 3) { 
 PRINTK("Starting for loop: from=%0llx bd->options=%08x, startblock=%d numblocks=%d\n", 
 from, bd->options, mtd64_ll_low(startblock), mtd64_ll_low(numblocks));
@@ -567,19 +585,32 @@ from, bd->options, mtd64_ll_low(startblock), mtd64_ll_low(numblocks));
 		else
 			ret = brcmnand_scan_block_fast(mtd, bd, from, buf, len);
 
-		if (ret < 0)
-			return ret;
+		/* 
+		 * THT 8/24/10: Fall through and mark it as bad if -EBADMSG.
+		 * We want to mark it as bad if we can't read it, but we also
+		 * don't want to mark the block as bad due to a timeout for example
+		 */
+		if (ret < 0 && ret != (-EBADMSG) && ret != (-EIO)) {
+PRINTK("$$$$$$$$$$$$$$$$$$$$ brcmnand_scan_block_{fast/full} returns %d\n", ret);
+			// THT 8/24/10: Go to next block instead of returning
+			// return ret;
+		}
 
-		if (ret) {
+		// -EBADMSG,  -EIO and +1 (marked as bad) go here:
+		else if (ret) {
 			this->bbt[i >> 3] |= 0x03 << (i & 0x6);
 			printk(KERN_WARNING "Bad eraseblock %d at 0x%08x\n",
 			       i >> 1, (unsigned int)from);
+PRINTK("$$$$$$$$$$$$$$$ Bad eraseblock %d at 0x%08x, ret=%d\n",
+			       i >> 1, (unsigned int)from, ret);
 			mtd->ecc_stats.badblocks++;
 		}
 
 		i += 2;
 		from += (loff_t)(1 << this->bbt_erase_shift);
 	}
+
+//gdebug=0;
 	return 0;
 }
 
@@ -611,7 +642,7 @@ static int brcmnand_search_bbt (struct mtd_info *mtd, uint8_t *buf, struct nand_
 	int blocktopage = this->bbt_erase_shift - this->page_shift;
 	int ret = 0;
 
-PRINTK("-->%s, CS=%d numchips=%d, mtdSize=%llx, mtd->size=%llx\n", __FUNCTION__, this->CS[this->csi], this->numchips, this->mtdSize, mtd->size);
+PRINTK("-->%s, CS=%d numchips=%d, mtdSize=%llx, mtd->size=%llx\n", __FUNCTION__, this->ctrl->CS[this->csi], this->ctrl->numchips, this->mtdSize, mtd->size);
 
 	/* Search direction top -> down ? */
 	if (td->options & NAND_BBT_LASTBLOCK) {
@@ -624,7 +655,7 @@ PRINTK("-->%s, CS=%d numchips=%d, mtdSize=%llx, mtd->size=%llx\n", __FUNCTION__,
 
 	/* Do we have a bbt per chip ? */
 	if (td->options & NAND_BBT_PERCHIP) {
-		chips = this->numchips;
+		chips = this->ctrl->numchips;
 		bbtblocks = this->chipSize >> this->bbt_erase_shift;
 		startblock &= bbtblocks - 1;
 	} else {
@@ -704,17 +735,17 @@ PRINTK("%s: Found BBT at offset %0llx\n", __FUNCTION__, offs);
 	for (i = 0; i < chips; i++) {
 		if (td->pages[i] == BBT_NULL_PAGE) {
 			printk (KERN_WARNING "Bad block table %c%c%c%c not found for chip on CS%d\n", 
-				td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3], this->CS[this->csi]);
+				td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3], this->ctrl->CS[this->csi]);
 PRINTK ( "**************** Bad block table %c%c%c%c not found for chip on CS%d\n", 
-				td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3], this->CS[this->csi]);
+				td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3], this->ctrl->CS[this->csi]);
 		}
 		else {
 			printk(KERN_DEBUG "Bad block table %c%c%c%c found at page %08lx, version 0x%02X for chip on CS%d\n", 
 				td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3], 
-				(unsigned long) td->pages[i], td->version[i], this->CS[this->csi]);
+				(unsigned long) td->pages[i], td->version[i], this->ctrl->CS[this->csi]);
 PRINTK( "############# Bad block table %c%c%c%c found at page %08lx, version 0x%02X for chip on CS%d\n", 
 			      td->pattern[0], td->pattern[1], td->pattern[2], td->pattern[3], 
-			      (unsigned long) td->pages[i], td->version[i], this->CS[this->csi]);
+			      (unsigned long) td->pages[i], td->version[i], this->ctrl->CS[this->csi]);
 		}
 	}
 	return 0;
@@ -795,7 +826,7 @@ PRINTK("-->%s, chipsel=%d\n", __FUNCTION__, chipsel);
 		numblocks =  (this->chipSize >> this->bbt_erase_shift);
 		/* Full device write or specific chip ? */
 		if (chipsel == -1) {
-			nrchips = this->numchips;
+			nrchips = this->ctrl->numchips;
 		} else {
 			nrchips = chipsel + 1;
 			chip = chipsel;
@@ -1053,7 +1084,7 @@ static inline int brcmnand_memory_bbt (struct mtd_info *mtd, struct nand_bbt_des
 	struct brcmnand_chip *this = mtd->priv;
 
 	bd->options &= ~NAND_BBT_SCANEMPTY;
-	return brcmnand_create_bbt (mtd, this->buffers->databuf, bd, -1);
+	return brcmnand_create_bbt (mtd, this->ctrl->buffers->databuf, bd, -1);
 }
 
 /**
@@ -1079,7 +1110,7 @@ static int brcmnand_check_create (struct mtd_info *mtd, uint8_t *buf, struct nan
 PRINTK("-->%s, td=%p, md=%p\n", __FUNCTION__, td, md);
 	/* Do we have a bbt per chip ? */
 	if (td->options & NAND_BBT_PERCHIP)
-		chips = this->numchips;
+		chips = this->ctrl->numchips;
 	else
 		chips = 1;
 
@@ -1219,7 +1250,7 @@ static void mark_bbt_region (struct mtd_info *mtd, struct nand_bbt_descr *td)
 
 	/* Do we have a bbt per chip ? */
 	if (td->options & NAND_BBT_PERCHIP) {
-		chips = this->numchips;
+		chips = this->ctrl->numchips;
 		nrblocks = (int)(this->chipSize >> this->bbt_erase_shift);
 	} else {
 		chips = 1;
@@ -1681,7 +1712,7 @@ printk("%s: gClearBBT=clearbbt, start=%0llx, end=%0llx\n", __FUNCTION__,
 		 * Here during pre-processing, there is no BBT, so we cannot assume its existence.
 		 */
 		
-		printk("brcmnand flag=%d: Erasing block at %0llx\n", 
+		PRINTK("brcmnand flag=%d: Erasing block at %0llx\n", 
 			gClearBBT, bOffset);
 		this->ctrl_writeAddr(this, bOffset, 0);
 
@@ -1759,10 +1790,10 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 		int i;
 		int isBadBlock = 0;
 		int inCFE = 0;
-		int cs = this->CS[this->csi];
+		int cs = this->ctrl->CS[this->csi];
 
 		if (0 == cs) {
-			if (this->xor_disable[0]) {
+			if (this->xor_disable) {
 				inCFE = pAddr < 0x00300000;
 			}
 			else { // XOR enabled
@@ -1827,20 +1858,48 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 			
 			for (i=0; i<numpages; i++, page += i*dir) {
 				int res;
-				//int retlen = 0;
+				struct mtd_oob_ops ops;
+				uint64_t offs = page << this->page_shift;
+				
 
-				res = this->read_page_oob(mtd, oobbuf, page);
+				ops.len = mtd->oobsize;
+				ops.ooblen = mtd->oobsize;
+				ops.oobbuf = oobbuf;
+				ops.ooboffs = 0;
+				ops.datbuf = NULL;
+				ops.mode = MTD_OOB_PLACE;
+
+				
+				res = mtd->read_oob(mtd, offs, &ops);
+if (gdebug && ret!=0) printk("########## %s: read_oob returns %d\n", __FUNCTION__, ret);
+
+
+				if (res == -EBADMSG ||res == -EIO) {// Uncorrectable errors
+					uint32_t acc0;
+
+					// Disable ECC
+					acc0 = brcmnand_disable_read_ecc(this->ctrl->CS[this->csi]);
+
+					// Re-read the OOB
+					res = mtd->read_oob(mtd, offs, &ops);
+
+					// Enable ECC back
+					brcmnand_restore_ecc(this->ctrl->CS[this->csi], acc0);
+					// res should be zero here
+				}
+
 				if (!res) {
 					if (check_short_pattern (oobbuf, this->badblock_pattern)) {
 						isBadBlock = 1;
 
 						if (NANDCMD_RESCAN == gClearBBT) 
-							printk(KERN_INFO "Found bad block at offset %0llx\n", page);
+							printk(KERN_INFO "Found bad block at offset %0llx\n", offs);
+PRINTK("Found bad block at offset %0llx\n", offs);
 
 						break;
 					}
 				}
-				else {
+				else { // We don't want to mark a block as bad otherwise
 					printk(KERN_DEBUG "brcmnand_read_pageoob returns %d for page %0llx\n",
 						res, page);
 				}
@@ -1971,7 +2030,7 @@ printk("-->%s(offs=%llx\n", __FUNCTION__, offs);
 		numpages = 1;
 	}
 
-printk("%s: 20\n", __FUNCTION__);
+PRINTK("%s: 20\n", __FUNCTION__);
 
 	if (!NAND_IS_MLC(this)) { // SLC: First and 2nd page
 		dir = 1;
@@ -1984,14 +2043,18 @@ printk("%s: 20\n", __FUNCTION__);
 		page = blockPage + pagesPerBlock - 1; // last page of block
 	}
 
-printk("%s: 20\n", __FUNCTION__);
+PRINTK("%s: 30\n", __FUNCTION__);
 	
 	for (i=0; i<numpages; i++, page += i*dir) {
 		int res;
 		//int retlen = 0;
 
-printk("%s: 50 calling read_page_oob=%p\n", __FUNCTION__, this->read_page_oob);
+PRINTK("%s: 50 calling read_page_oob=%p, offset=%llx\n", __FUNCTION__, this->read_page_oob, 
+	page << this->page_shift);
+
+//gdebug=4;
 		res = this->read_page_oob(mtd, oobbuf, page);
+//gdebug = 0;
 		if (!res) {
 			if (check_short_pattern (oobbuf, this->badblock_pattern)) {
 				isBadBlock = 1;
@@ -2135,7 +2198,7 @@ printk("%s: bbt_td = bbt_bch8_16_main_descr\n", __FUNCTION__);
 				&largepage_memorybased : &smallpage_memorybased;
 		}
 	}
-	this->isbad_bbt = brcmnand_isbad_bbt;
+
 
 	/*
 	 * BBT partition occupies 1 MB at the end of the useable flash, so adjust maxblocks accordingly.
@@ -2159,6 +2222,11 @@ PRINTK("%s: gClearBBT = %d\n", __FUNCTION__, gClearBBT);
 	}
 	
 	res =  brcmnand_scan_bbt (mtd, this->badblock_pattern);
+
+	/*
+	 * Now that we have scanned the BBT, allow BBT-lookup
+	 */
+	this->isbad_bbt = brcmnand_isbad_bbt;
 
 	if (gClearBBT) {
 		(void) brcmnand_postprocessKernelArg(mtd);

@@ -655,6 +655,9 @@ static void brcm_pm_enet_disable(void)
 {
 #if defined(CONFIG_BCM7125) || defined(CONFIG_BCM7420)
 	brcm_pm_moca_genet_disable();
+#elif defined(CONFIG_BCM7468)
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_1_4, 1);
+	BDEV_SET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x767);
 #endif
 }
 
@@ -662,6 +665,9 @@ static void brcm_pm_enet_enable(void)
 {
 #if defined(CONFIG_BCM7125) || defined(CONFIG_BCM7420)
 	brcm_pm_moca_genet_enable();
+#elif defined(CONFIG_BCM7468)
+	BDEV_UNSET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x767);
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_1_4, 0);
 #endif
 }
 
@@ -690,6 +696,13 @@ static void brcm_pm_usb_disable(void)
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_216, 1);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_108, 1);
 	PLL_DIS(CLKGEN_PLL_MAIN_CH4_PM_CTRL);
+#elif defined(CONFIG_BCM7468)
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 1);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x00);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x00);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 0);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 0);
+	BDEV_SET_RB(BCHP_CLK_USB_CLK_PM_CTRL, 0x07);
 #endif
 }
 
@@ -699,6 +712,13 @@ static void brcm_pm_usb_enable(void)
 	PLL_ENA(CLKGEN_PLL_MAIN_CH4_PM_CTRL);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_108, 0);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_216, 0);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 1);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x0f);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x0f);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 0);
+#elif defined(CONFIG_BCM7468)
+	BDEV_UNSET_RB(BCHP_CLK_USB_CLK_PM_CTRL, 0x07);
 	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 1);
 	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x0f);
@@ -762,6 +782,22 @@ static void brcm_system_standby(void)
 	BDEV_SET_RB(BCHP_VCXO_CTL_MISC_RAP_AVD_PLL_CTRL, 0x07);
 	BDEV_WR_F_RB(CLKGEN_VCXO_CLK_PM_CTRL, DIS_CLK_216, 1);
 	BDEV_WR_F_RB(CLKGEN_VCXO_CLK_PM_CTRL, DIS_CLK_108, 1);
+
+	/* MEMC0 */
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+		DEVCLK_OFF_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_0_POWERDOWN,
+		PLLCLKS_OFF_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_WORDSLICE_CNTRL_1,
+		PWRDN_DLL_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_WORDSLICE_CNTRL_1,
+		PWRDN_DLL_ON_SELFREF, 1);
 #elif defined(CONFIG_BCM7420)
 	/* SATA */
 	PLL_DIS(CLK_GENET_NETWORK_PLL_4);
@@ -790,6 +826,53 @@ static void brcm_system_standby(void)
 	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, RESET, 1);
 	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_6, DIS_CH, 1);
 	BDEV_WR_F_RB(CLK_SCRATCH, CML_REPEATER_2_POWERDOWN, 1);
+
+	/* MEMC1 */
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
+		DEVCLK_OFF_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
+		HIZ_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_POWERDOWN,
+		PLLCLKS_OFF_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_WORDSLICE_CNTRL_1,
+		PWRDN_DLL_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_WORDSLICE_CNTRL_1,
+		PWRDN_DLL_ON_SELFREF, 1);
+
+	/* MEMC0 */
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+		DEVCLK_OFF_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_0_POWERDOWN,
+		PLLCLKS_OFF_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_WORDSLICE_CNTRL_1,
+		PWRDN_DLL_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_WORDSLICE_CNTRL_1,
+		PWRDN_DLL_ON_SELFREF, 1);
+#elif defined(CONFIG_BCM7468)
+	/* SDIO */
+	BDEV_WR_F_RB(CLK_HIF_SDIO_CLK_PM_CTRL, DIS_HIF_SDIO_48M_CLK, 1);
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_1_1, 1);
+
+	/* EBI */
+	BDEV_SET_RB(BCHP_HIF_TOP_CTRL_PM_CTRL, 0x2ff0);
+
+	/* system PLLs */
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_3, 0x02);
+	BDEV_SET_RB(BCHP_CLK_SYS_PLL_1_CTRL, 0x83);
+	BDEV_WR_RB(BCHP_VCXO_CTL_MISC_AC1_CTRL, 0x06);
+	BDEV_SET_RB(BCHP_VCXO_CTL_MISC_VC0_CTRL, 0x0b);
 #endif
 }
 
@@ -839,6 +922,19 @@ static void brcm_system_resume(void)
 
 	/* SATA */
 	PLL_ENA(CLK_GENET_NETWORK_PLL_4);
+#elif defined(CONFIG_BCM7468)
+	/* system PLLs */
+	BDEV_UNSET_RB(BCHP_VCXO_CTL_MISC_VC0_CTRL, 0x0b);
+	BDEV_WR_RB(BCHP_VCXO_CTL_MISC_AC1_CTRL, 0x00);
+	BDEV_UNSET_RB(BCHP_CLK_SYS_PLL_1_CTRL, 0x83);
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_3, 0x01);
+
+	/* EBI */
+	BDEV_UNSET_RB(BCHP_HIF_TOP_CTRL_PM_CTRL, 0x2ff0);
+
+	/* SDIO */
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_1_1, 0);
+	BDEV_WR_F_RB(CLK_HIF_SDIO_CLK_PM_CTRL, DIS_HIF_SDIO_48M_CLK, 0);
 #endif
 }
 
@@ -847,6 +943,54 @@ static void brcm_system_resume(void)
  ***********************************************************************/
 
 static suspend_state_t suspend_state;
+
+static void brcm_pm_handshake(void)
+{
+#ifdef CONFIG_BRCM_PWR_HANDSHAKE_V0
+	int i;
+	unsigned long base = BCHP_BSP_CMDBUF_REG_START & ~0xffff;
+	u32 tmp;
+
+	i = 0;
+	while (!(BDEV_RD(base + 0xb008) & 0x02)) {
+		if (i++ == 10) {
+			printk(KERN_WARNING "%s: CMD_IDRY2 timeout\n",
+				__func__);
+			break;
+		}
+		msleep(10);
+	}
+	BDEV_WR_RB(base + 0x7980, 0x00000010);
+	BDEV_WR_RB(base + 0x7984, 0x00000098);
+	BDEV_WR_RB(base + 0x7988, 0xabcdef00);
+	BDEV_WR_RB(base + 0x798c, 0xb055aa4f);
+	BDEV_WR_RB(base + 0x7990, 0x789a0004);
+	BDEV_WR_RB(base + 0x7994, 0x00000000);
+
+	BDEV_WR_RB(base + 0xb028, 1);
+
+	i = 0;
+	while (!(BDEV_RD(base + 0xb020) & 0x01)) {
+		if (i++ == 10) {
+			printk(KERN_WARNING "%s: CMD_OLOAD2 timeout\n",
+				__func__);
+			break;
+		}
+		mdelay(10);
+	}
+
+	BDEV_WR_RB(base + 0xb010, 0);
+	BDEV_WR_RB(base + 0xb020, 0);
+	tmp = BDEV_RD(base + 0x7c94);
+	if (tmp != 0 && tmp != 1) {
+		printk(KERN_WARNING "%s: command failed: %08lx\n",
+			__func__, (unsigned long)tmp);
+		mdelay(10);
+		return;
+	}
+	BDEV_UNSET_RB(base + 0xb038, 0xff00);
+#endif /* CONFIG_BRCM_PWR_HANDSHAKE_V0 */
+}
 
 static int brcm_pm_prepare(void)
 {
@@ -857,16 +1001,30 @@ static int brcm_pm_prepare(void)
 static int brcm_pm_standby(void)
 {
 	int ret = 0;
+	unsigned long restart_vec = BRCM_WARM_RESTART_VEC;
 
 	DBG("%s:%d\n", __func__, __LINE__);
 
 	brcm_irq_standby_enter(BRCM_IRQ_PM);
 
+#ifdef CONFIG_BCM7468
+	{
+	u32 oldvec[5];
+	const int vecsize = 0x14;
+	void *vec = (void *)ebase + 0x200;
+
+	restart_vec = (unsigned long)vec;
+
+	memcpy(oldvec, vec, vecsize);
+	memcpy(vec, brcm_tp1_int_vec, vecsize);
+	flush_icache_range(restart_vec, restart_vec + vecsize);
+#else
 	/* send all IRQs to BRCM_WARM_RESTART_VEC */
 	clear_c0_cause(CAUSEF_IV);
 	irq_disable_hazard();
 	set_c0_status(ST0_BEV);
 	irq_disable_hazard();
+#endif
 
 	brcm_system_standby();
 	if (brcm_pm_standby_flags & BRCM_STANDBY_NO_SLEEP) {
@@ -874,16 +1032,33 @@ static int brcm_pm_standby(void)
 			mdelay(120000);
 		else
 			mdelay(5000);
-	} else
+	} else {
+		if (brcm_pm_standby_flags & BRCM_STANDBY_TEST) {
+			BDEV_WR_RB(BCHP_PM_L2_CPU_MASK_SET, 0xffffffff);
+			BDEV_WR_RB(BCHP_PM_L2_CPU_CLEAR, 0xffffffff);
+			BDEV_WR_F_RB(PM_L2_CPU_MASK_CLEAR, TIMER_INTR, 1);
+
+			BDEV_WR_RB(BCHP_WKTMR_EVENT, 1);
+			BDEV_WR_RB(BCHP_WKTMR_ALARM,
+				BDEV_RD(BCHP_WKTMR_COUNTER) + 1);
+		}
+		brcm_pm_handshake();
 		ret = brcm_pm_standby_asm(current_cpu_data.icache.linesz,
-			BRCM_WARM_RESTART_VEC, brcm_pm_standby_flags);
+			restart_vec, brcm_pm_standby_flags);
+	}
 	brcm_system_resume();
 
+#ifdef CONFIG_BCM7468
+	memcpy(vec, oldvec, vecsize);
+	flush_icache_range(restart_vec, restart_vec + vecsize);
+	}
+#else
 	/* send IRQs back to the normal runtime vectors */
 	clear_c0_status(ST0_BEV);
 	irq_disable_hazard();
 	set_c0_cause(CAUSEF_IV);
 	irq_disable_hazard();
+#endif
 
 	brcm_irq_standby_exit();
 

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 18 03:23:52 2010
- *                 MD5 Checksum         ba9bf9538ba992289a7939c9b05863dd
+ * Date:           Generated on         Wed Jul 28 23:08:50 2010
+ *                 MD5 Checksum         03d89f69f47174d85e4889656b47d05e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35230/rdb/c0/bchp_sun_top_ctrl.h $
+ * 
+ * Hydra_Software_Devel/1   7/29/10 1:46p pntruong
+ * SW35230-803: Initial version.
  *
  ***************************************************************************/
 
@@ -2334,18 +2337,20 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_SHIFT              16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_GPIO_1             0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_T313_GPIO_1        1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_PM_GPIO_1          2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_TP_OUT_15          3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_RC_TP_OUT_15       4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_BSCCLKC            2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_PM_GPIO_1          3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_TP_OUT_15          4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_RC_TP_OUT_15       5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_8 :: gpio_0 [15:12] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_MASK               0x0000f000
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_SHIFT              12
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_GPIO_0             0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_T313_GPIO_0        1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_PM_GPIO_0          2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_TP_OUT_14          3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_RC_TP_OUT_14       4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_BSCDATAC           2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_PM_GPIO_0          3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_TP_OUT_14          4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_RC_TP_OUT_14       5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_8 :: poni_irrxda [11:08] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_poni_irrxda_MASK          0x00000f00
@@ -2579,7 +2584,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_SHIFT              16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_TCLKA              0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_GPIO_36            1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_MPOD_M_IN_CLK      2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_MPOD_S_IN_CLK      2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_TCLKAS1            3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_tclka_PM_TCLKA           4
 
@@ -2826,7 +2831,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_mpeg_clk_GPIO_58         1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_mpeg_clk_MPOD_M_OUT_CLK  2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_mpeg_clk_TCLKC           3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_mpeg_clk_MPEG_SER_CLK    4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_mpeg_clk_MPOD_S_OUT_CLK  4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_mpeg_clk_PM_MPEG_CLK     5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_14 :: tvldd [07:04] */

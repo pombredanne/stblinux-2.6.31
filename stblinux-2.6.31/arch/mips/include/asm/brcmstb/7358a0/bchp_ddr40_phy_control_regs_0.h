@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 04:19:46 2010
- *                 MD5 Checksum         d64f57a5d29c849edc7975f8f924dce4
+ * Date:           Generated on         Mon Aug  2 14:46:45 2010
+ *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_ddr40_phy_control_regs_0.h $
+ * 
+ * Hydra_Software_Devel/1   8/2/10 4:26p pntruong
+ * SW7358-2: Initial version of rdb header files.
  *
  ***************************************************************************/
 
@@ -42,45 +45,45 @@
 /***************************************************************************
  *DDR40_PHY_CONTROL_REGS_0 - DDR40 DDR40 physical interface control registers 0
  ***************************************************************************/
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_REVISION   0x00a06000 /* Address & Control revision register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_CLK_PM_CTRL 0x00a06004 /* PHY clock power management control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_STATUS 0x00a06010 /* PHY PLL status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG 0x00a06014 /* PHY PLL configuration register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONTROL 0x00a06018 /* PHY PLL control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS 0x00a0601c /* PHY PLL dividers control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_AUX_CONTROL 0x00a06020 /* Aux Control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_OVRIDE_BYTE_CTL 0x00a06030 /* Address & Control coarse VDL static override control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_OVRIDE_BIT_CTL 0x00a06034 /* Address & Control fine VDL static override control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_IDLE_PAD_CONTROL 0x00a06038 /* Idle mode SSTL pad control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_ZQ_PVT_COMP_CTL 0x00a0603c /* PVT Compensation control and status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL 0x00a06040 /* SSTL pad drive characteristics control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIBRATE 0x00a06048 /* PHY VDL calibration control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIB_STATUS 0x00a0604c /* PHY VDL calibration status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_DQ_CALIB_STATUS 0x00a06050 /* PHY DQ VDL calibration status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_WR_CHAN_CALIB_STATUS 0x00a06054 /* PHY Write Channel VDL calibration status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_EN_CALIB_STATUS 0x00a06058 /* PHY Read Enable VDL calibration status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_CONTROL 0x00a0605c /* Virtual VTT Control and Status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_STATUS 0x00a06060 /* Virtual VTT Control and Status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_CONNECTIONS 0x00a06064 /* Virtual VTT Connections register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_OVERRIDE 0x00a06068 /* Virtual VTT Override register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL 0x00a0606c /* VREF DAC Control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_CNTRL 0x00a06070 /* PhyBist Control Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_SEED 0x00a06074 /* PhyBist Seed Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_STATUS 0x00a06078 /* PhyBist General Status Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_CTL_STATUS 0x00a0607c /* PhyBist Per-Bit Control Pad Status Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_DQ_STATUS 0x00a06080 /* PhyBist Per-Bit DQ Pad Status Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_MISC_STATUS 0x00a06084 /* PhyBist Per-Bit DM and CK Pad Status Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_COMMAND_REG 0x00a06090 /* DRAM Command Register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG0  0x00a06094 /* Mode Register 0 */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG1  0x00a06098 /* Mode Register 1 */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG2  0x00a0609c /* Mode Register 2 */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG3  0x00a060a0 /* Mode Register 3 */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL 0x00a060a4 /* Standby Control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_CONTROL 0x00a060b0 /* Strap Control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_CONTROL2 0x00a060b4 /* Strap Control register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_STATUS 0x00a060b8 /* Strap Status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_STATUS2 0x00a060bc /* Strap Status register */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_DEBUG_FREEZE_ENABLE 0x00a060c0 /* Freeze-on-error enable register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_REVISION   0x003b6000 /* Address & Control revision register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_CLK_PM_CTRL 0x003b6004 /* PHY clock power management control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_STATUS 0x003b6010 /* PHY PLL status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG 0x003b6014 /* PHY PLL configuration register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONTROL 0x003b6018 /* PHY PLL control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS 0x003b601c /* PHY PLL dividers control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_AUX_CONTROL 0x003b6020 /* Aux Control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_OVRIDE_BYTE_CTL 0x003b6030 /* Address & Control coarse VDL static override control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_OVRIDE_BIT_CTL 0x003b6034 /* Address & Control fine VDL static override control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_IDLE_PAD_CONTROL 0x003b6038 /* Idle mode SSTL pad control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_ZQ_PVT_COMP_CTL 0x003b603c /* PVT Compensation control and status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL 0x003b6040 /* SSTL pad drive characteristics control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIBRATE 0x003b6048 /* PHY VDL calibration control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIB_STATUS 0x003b604c /* PHY VDL calibration status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_DQ_CALIB_STATUS 0x003b6050 /* PHY DQ VDL calibration status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_WR_CHAN_CALIB_STATUS 0x003b6054 /* PHY Write Channel VDL calibration status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_EN_CALIB_STATUS 0x003b6058 /* PHY Read Enable VDL calibration status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_CONTROL 0x003b605c /* Virtual VTT Control and Status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_STATUS 0x003b6060 /* Virtual VTT Control and Status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_CONNECTIONS 0x003b6064 /* Virtual VTT Connections register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VIRTUAL_VTT_OVERRIDE 0x003b6068 /* Virtual VTT Override register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL 0x003b606c /* VREF DAC Control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_CNTRL 0x003b6070 /* PhyBist Control Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_SEED 0x003b6074 /* PhyBist Seed Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_STATUS 0x003b6078 /* PhyBist General Status Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_CTL_STATUS 0x003b607c /* PhyBist Per-Bit Control Pad Status Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_DQ_STATUS 0x003b6080 /* PhyBist Per-Bit DQ Pad Status Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PHYBIST_MISC_STATUS 0x003b6084 /* PhyBist Per-Bit DM and CK Pad Status Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_COMMAND_REG 0x003b6090 /* DRAM Command Register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG0  0x003b6094 /* Mode Register 0 */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG1  0x003b6098 /* Mode Register 1 */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG2  0x003b609c /* Mode Register 2 */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_MODE_REG3  0x003b60a0 /* Mode Register 3 */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL 0x003b60a4 /* Standby Control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_CONTROL 0x003b60b0 /* Strap Control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_CONTROL2 0x003b60b4 /* Strap Control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_STATUS 0x003b60b8 /* Strap Status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STRAP_STATUS2 0x003b60bc /* Strap Status register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_DEBUG_FREEZE_ENABLE 0x003b60c0 /* Freeze-on-error enable register */
 
 /***************************************************************************
  *REVISION - Address & Control revision register

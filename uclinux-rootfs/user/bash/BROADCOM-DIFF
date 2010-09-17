@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-07-25
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
 #
 # Original package: bash-3.2.tar.bz2
 #
 diff -ruNp bash.orig/makefile bash/makefile
 --- bash.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ bash/makefile	2010-07-25 20:51:28.000000000 -0700
++++ bash/makefile	2010-08-28 20:10:09.000000000 -0700
 @@ -0,0 +1,33 @@
 +include $(ROOTDIR)/config.arch
 +

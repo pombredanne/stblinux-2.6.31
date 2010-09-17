@@ -36,6 +36,7 @@ struct brcm_hcd_status {
 
 static struct brcm_hcd_status brcm_hcd[MAX_HCD];
 static int brcm_hcd_count;
+static int brcm_usb_active = 1;
 
 static int brcm_usb_pwr(int event, void *arg)
 {
@@ -45,6 +46,7 @@ static int brcm_usb_pwr(int event, void *arg)
 
 	switch (event) {
 	case PM_EVENT_SUSPEND:
+		brcm_usb_active = 0;
 		for (i = brcm_hcd_count - 1; i >= 0; i--) {
 			usb_remove_hcd(brcm_hcd[i].hcd);
 			clk_disable(usb_clk);
@@ -61,6 +63,7 @@ static int brcm_usb_pwr(int event, void *arg)
 				clk_disable(usb_clk);
 			}
 		}
+		brcm_usb_active = 1;
 		break;
 	}
 
@@ -152,4 +155,28 @@ int brcm_usb_remove(struct platform_device *pdev)
 	usb_put_hcd(hcd);
 
 	return 0;
+}
+
+void brcm_usb_suspend(struct usb_hcd *hcd)
+{
+	clk_disable(usb_clk);
+}
+
+void brcm_usb_resume(struct usb_hcd *hcd)
+{
+	clk_enable(usb_clk);
+}
+
+/*
+ * If the USB interface has already been disabled through runtime PM, the
+ * suspend/resume functions should turn into no-ops.  USB will not be
+ * resumed until the application makes an explicit request through pmlib.
+ */
+int brcm_usb_is_inactive(void)
+{
+	int ret;
+	mutex_lock(&brcm_usb_mutex);
+	ret = !brcm_usb_active;
+	mutex_unlock(&brcm_usb_mutex);
+	return ret;
 }

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Jul  8 03:37:29 2010
- *                 MD5 Checksum         b644e23769d1b756250db802f694b032
+ * Date:           Generated on         Sat Aug 21 02:26:36 2010
+ *                 MD5 Checksum         a95e35eb18efda724ef4e779d00f7fc8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -42,11 +42,11 @@
 /***************************************************************************
  *WKTMR - Wakeup timer
  ***************************************************************************/
-#define BCHP_WKTMR_EVENT                         0x00408c80 /* Wakeup Timer Register */
-#define BCHP_WKTMR_COUNTER                       0x00408c84 /* Wakeup Counter */
-#define BCHP_WKTMR_ALARM                         0x00408c88 /* Wakeup Timer Alarm */
-#define BCHP_WKTMR_PRESCALER                     0x00408c8c /* Wakeup Timer Prescaler */
-#define BCHP_WKTMR_PRESCALER_VAL                 0x00408c90 /* Wakeup Timer Prescaler Value */
+#define BCHP_WKTMR_EVENT                         0x00408e80 /* Wakeup Timer Register */
+#define BCHP_WKTMR_COUNTER                       0x00408e84 /* Wakeup Counter */
+#define BCHP_WKTMR_ALARM                         0x00408e88 /* Wakeup Timer Alarm */
+#define BCHP_WKTMR_PRESCALER                     0x00408e8c /* Wakeup Timer Prescaler */
+#define BCHP_WKTMR_PRESCALER_VAL                 0x00408e90 /* Wakeup Timer Prescaler Value */
 
 /***************************************************************************
  *EVENT - Wakeup Timer Register

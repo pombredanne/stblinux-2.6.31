@@ -54,6 +54,12 @@ static int ohci_brcm_start(struct usb_hcd *hcd)
 	return 0;
 }
 
+static void ohci_brcm_shutdown(struct usb_hcd *hcd)
+{
+	if (!brcm_usb_is_inactive())
+		ohci_shutdown(hcd);
+}
+
 static const struct hc_driver ohci_brcm_hc_driver = {
 	.description =		hcd_name,
 	.product_desc =		"Broadcom STB OHCI",
@@ -71,7 +77,7 @@ static const struct hc_driver ohci_brcm_hc_driver = {
 	.reset =		ohci_brcm_reset,
 	.start =		ohci_brcm_start,
 	.stop =			ohci_stop,
-	.shutdown =		ohci_shutdown,
+	.shutdown =		ohci_brcm_shutdown,
 
 	/*
 	 * managing i/o requests and associated device resources
@@ -109,43 +115,48 @@ static int ohci_hcd_brcm_remove(struct platform_device *pdev)
 	return brcm_usb_remove(pdev);
 }
 
-#ifdef	CONFIG_PM
-
 static int ohci_brcm_suspend(struct platform_device *dev, pm_message_t message)
 {
-	struct ohci_hcd	*ohci = hcd_to_ohci(platform_get_drvdata(dev));
+#ifdef CONFIG_PM
+	struct usb_hcd *hcd = platform_get_drvdata(dev);
+	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
 
+	if (brcm_usb_is_inactive())
+		return 0;
 	if (time_before(jiffies, ohci->next_statechange))
 		msleep(5);
 	ohci->next_statechange = jiffies;
 
 	ohci_to_hcd(ohci)->state = HC_STATE_SUSPENDED;
+	brcm_usb_suspend(hcd);
+#endif
 	return 0;
 }
 
 static int ohci_brcm_resume(struct platform_device *dev)
 {
+#ifdef CONFIG_PM
 	struct usb_hcd	*hcd = platform_get_drvdata(dev);
 	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
 
+	if (brcm_usb_is_inactive())
+		return 0;
+	brcm_usb_resume(hcd);
 	if (time_before(jiffies, ohci->next_statechange))
 		msleep(5);
 	ohci->next_statechange = jiffies;
 
 	ohci_finish_controller_resume(hcd);
+#endif
 	return 0;
 }
-
-#endif
 
 static struct platform_driver ohci_hcd_brcm_driver = {
 	.probe		= ohci_hcd_brcm_probe,
 	.remove		= ohci_hcd_brcm_remove,
 	.shutdown	= usb_hcd_platform_shutdown,
-#ifdef	CONFIG_PM
 	.suspend	= ohci_brcm_suspend,
 	.resume		= ohci_brcm_resume,
-#endif
 	.driver		= {
 		.name	= "ohci-brcm",
 		.owner	= THIS_MODULE,

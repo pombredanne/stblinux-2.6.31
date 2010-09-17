@@ -115,6 +115,18 @@
 
 	sync
 
+#if !defined(CONFIG_BRCM_PWR_HANDSHAKE)
+	li	t0, REG(BCHP_MEMC_DDR_0_SSPD_CMD)
+	li	t1, 1
+	sw	t1, 0(t0)
+
+	li	t0, REG(BCHP_MEMC_DDR_0_POWER_DOWN_STATUS)
+1:	lw	t1, 0(t0)
+	andi	t1, 4
+	beqz	t1, 1b
+	nop
+#endif
+
 	/* delay if requested by the user: 4 * 30s */
 	li	t0, BRCM_STANDBY_DELAY
 	and	t0, FLAGREG
@@ -126,7 +138,7 @@
 
 	li	s1, 4
 1:	li	a0, (27000000 * 30)
-	bal	upg_sleep
+	bal	delay
 	addiu	s1, -1
 	bnez	s1, 1b
 	nop
@@ -139,9 +151,9 @@
 2:
 	li	t0, REG(BCHP_SUN_TOP_CTRL_PM_CTRL)
 #if defined(CONFIG_BMIPS5000) && !defined(CONFIG_BCM7420C0)
-	li	t1, 0x7
+	li	t1, 0x0f
 #else
-	li	t1, 0x3
+	li	t1, 0x0b
 #endif
 	sw	zero, 0(t0)
 	lw	zero, 0(t0)
@@ -196,6 +208,7 @@ wait_loop:
 	bal	dputc
 	li	a0, 'm'
 
+#ifdef CONFIG_BRCM_PWR_HANDSHAKE_V0
 # disarm the BSP
 	li	t0, REG(BCHP_BSP_GLB_CONTROL_REG_START + 0x38)
 	lw	t1, 0(t0)
@@ -204,14 +217,7 @@ wait_loop:
 	sw	t1, 0(t0)
 
 	bal	dputc
-	li	a0, '1'
-
-	li	t0, REG(BCHP_SUN_TOP_CTRL_PM_CTRL)
-	sw	zero, 0(t0)
-	lw	zero, 0(t0)
-
-	bal	dputc
-	li	a0, '2'
+	li	a0, 'B'
 
 	li	t2, BCHP_SUN_TOP_CTRL_PM_CTRL_pm_bsp_ready_for_pwrdn_MASK
 1:
@@ -221,7 +227,12 @@ wait_loop:
 	nop
 
 	bal	dputc
-	li	a0, '3'
+	li	a0, 'b'
+#endif /* CONFIG_BRCM_PWR_HANDSHAKE_V0 */
+
+	li	t0, REG(BCHP_SUN_TOP_CTRL_PM_CTRL)
+	sw	zero, 0(t0)
+	lw	zero, 0(t0)
 
 /***********************************************************************
  * Unlock I$ lines and resume execution
@@ -248,7 +259,11 @@ rtn_from_wait:
 	addu	t0, s0
 
 	bal	dputc
-	li	a0, '4'
+	li	a0, 'L'
+	bal	dputc
+	li	a0, 0x0d
+	bal	dputc
+	li	a0, 0x0a
 
 	li	v0, 0
 
@@ -936,6 +951,37 @@ LEAF(memc_settings_valid)
 END(memc_settings_valid)
 
 #endif /* CONFIG_BRCM_HAS_ANALOG_DDR_PHY */
+
+#ifdef CONFIG_BRCM_HAS_DIGITAL_DDR_PHY
+
+LEAF(memc_settings_valid)
+
+1:	jr	ra
+	li	v0, 0
+
+END(memc_settings_valid)
+
+LEAF(wake_up_memc_0)
+
+#if !defined(CONFIG_BRCM_PWR_HANDSHAKE)
+	li	t0, REG(BCHP_MEMC_DDR_0_SSPD_CMD)
+	li	t1, 0
+	sw	t1, 0(t0)
+#endif
+
+	li	t0, REG(BCHP_DDR23_PHY_CONTROL_REGS_0_PLL_STATUS)
+
+1:	lw	t1, 0(t0)
+	andi	t1, 1
+	beqz	t1, 1b
+	nop
+
+	jr	ra
+	nop
+
+END(wake_up_memc_0)
+
+#endif /* CONFIG_BRCM_HAS_DIGITAL_DDR_PHY */
 
 	.globl passiveIRQ_end
 passiveIRQ_end:
