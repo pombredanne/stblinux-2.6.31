@@ -129,7 +129,7 @@ static int sysfs_set(char *path, int in)
 	if(! f)
 		return(-1);
 	sprintf(buf, "%u", in);
-	if((fputs(buf, f) < 0))
+	if((fputs(buf, f) < 0) || (fflush(f) < 0))
 	{
 		fclose(f);
 		return(-1);
@@ -145,7 +145,7 @@ static int sysfs_set_string(char *path, const char *in)
 	f = fopen(path, "w");
 	if(! f)
 		return(-1);
-	if((fputs(in, f) < 0))
+	if((fputs(in, f) < 0) || (fflush(f) < 0))
 	{
 		fclose(f);
 		return(-1);

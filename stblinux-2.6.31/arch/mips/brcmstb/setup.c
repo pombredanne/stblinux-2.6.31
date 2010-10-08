@@ -31,18 +31,18 @@
 #include <linux/ioport.h>
 #include <linux/compiler.h>
 #include <linux/bmoca.h>
+#include <linux/io.h>
+#include <linux/delay.h>
+#include <linux/time.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/flash.h>
 
+#include <asm/serial.h>
+#include <asm/reboot.h>
 #include <asm/addrspace.h>
 #include <asm/irq.h>
-#include <asm/reboot.h>
-#include <asm/time.h>
-#include <asm/delay.h>
-#include <asm/serial.h>
 #include <asm/cpu-features.h>
 #include <asm/war.h>
-#include <asm/io.h>
 #include <asm/brcmstb/brcmstb.h>
 
 #ifndef CONFIG_MTD
@@ -159,7 +159,7 @@ static struct resource bcmemac_0_resources[] = {
 };
 
 struct bcmemac_platform_data bcmemac_0_plat_data = {
-#if ! defined(CONFIG_BCMEMAC_EXTMII)
+#if !defined(CONFIG_BCMEMAC_EXTMII)
 	.phy_type		= BRCM_PHY_TYPE_INT,
 #else
 	.phy_type		= BRCM_PHY_TYPE_EXT_MII,
@@ -504,7 +504,7 @@ static int __init platform_devices_setup(void)
 	platform_device_register(&sdio_plat_dev);
 #endif
 
-	return(0);
+	return 0;
 }
 
 arch_initcall(platform_devices_setup);
@@ -687,7 +687,7 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 	}
 }
 
-static int __initdata noflash = 0;
+static int __initdata noflash;
 static int __initdata nandcs[NUM_CS];
 
 static struct map_info brcm_dummy_map = {
@@ -732,13 +732,14 @@ static int __init brcmstb_mtd_setup(void)
 
 	/* scan each chip select to see what (if anything) lives there */
 	for (i = 0; i < NUM_CS; i++) {
-		u32 base, config __maybe_unused;
+		u32 base, size, config __maybe_unused;
 
 		cs_info[i].type = TYPE_NONE;
 
 		base = BDEV_RD(BCHP_EBI_CS_BASE_0 + (i * 8));
+		size = base & 0x0f;
 
-		cs_info[i].start = (base >> 13) << 13;
+		cs_info[i].start = (base >> (13 + size)) << (13 + size);
 		cs_info[i].len = 8192UL << (base & 0xf);
 
 #ifdef BCHP_EBI_CS_CONFIG_0
@@ -869,7 +870,8 @@ static void brcm_machine_restart(char *command)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_SW_MASTER_RESET, chip_master_reset, 1);
 #endif
 
-	while (1) { }
+	while (1)
+		;
 }
 
 static void brcm_machine_halt(void)
@@ -879,7 +881,8 @@ static void brcm_machine_halt(void)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 0);
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 1);
 #endif
-	while (1) { }
+	while (1)
+		;
 }
 
 char *__devinit brcmstb_pcibios_setup(char *str)
@@ -900,7 +903,7 @@ void __init plat_mem_setup(void)
 	_machine_halt = brcm_machine_halt;
 	pm_power_off = brcm_machine_halt;
 
- 	panic_timeout = 180;
+	panic_timeout = 180;
 
 #ifdef CONFIG_PCI
 	pcibios_plat_setup = brcmstb_pcibios_setup;

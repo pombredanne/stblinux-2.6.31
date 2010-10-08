@@ -87,7 +87,7 @@ static ssize_t show_bmem(struct device *dev,
 		name++;
 	}
 	bmem_region_info(idx, &addr, &size);
-	
+
 	return snprintf(buf, PAGE_SIZE, "0x%08lx 0x%08lx\n", addr, size);
 }
 
@@ -304,7 +304,7 @@ static int __init brcm_pdev_init(void)
 	brcmstb_pdev = platform_device_alloc("brcmstb", -1);
 	if (brcmstb_pdev == NULL) {
 		printk(KERN_WARNING "%s: can't allocate device\n",
-			__FUNCTION__);
+			__func__);
 		return -ENODEV;
 	}
 	platform_device_add(brcmstb_pdev);

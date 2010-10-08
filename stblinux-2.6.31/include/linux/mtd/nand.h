@@ -18,6 +18,7 @@
 #ifndef __LINUX_MTD_NAND_H
 #define __LINUX_MTD_NAND_H
 
+#include <linux/autoconf.h>
 #include <linux/wait.h>
 #include <linux/spinlock.h>
 #include <linux/mtd/mtd.h>
@@ -43,8 +44,21 @@ extern void nand_wait_ready(struct mtd_info *mtd);
  * is supported now. If you add a chip with bigger oobsize/page
  * adjust this accordingly.
  */
-#define NAND_MAX_OOBSIZE	256	/* 216+2, but align it on boundaries */
+
+#ifndef CONFIG_BRCMNAND_MTD_EXTENSION
+#define NAND_MAX_OOBSIZE	64	
+#define NAND_MAX_PAGESIZE	2048
+
+#else
+#define NAND_MAX_OOBSIZE	512		/* Support Micron 8KB page and 28B OOB/512B sector + alignment */
+#define NAND_MAX_PAGESIZE	8192
+
+/* Version 2631-2.4 and earlier
+#define NAND_MAX_OOBSIZE	256	
 #define NAND_MAX_PAGESIZE	4096
+*/
+
+#endif
 
 /*
  * Constants for hardware specific CLE/ALE/NCE function

@@ -24,12 +24,15 @@
 #include <linux/types.h>
 #include <linux/smp.h>
 #include <linux/bmoca.h>
+#include <linux/version.h>
+#include <linux/serial_8250.h>
+#include <linux/io.h>
+#include <linux/string.h>
 #include <linux/mtd/mtd.h>
 
 #include <asm/bootinfo.h>
 #include <asm/r4kcache.h>
 #include <asm/traps.h>
-#include <asm/io.h>
 #include <asm/cacheflush.h>
 #include <asm/mipsregs.h>
 #include <asm/hazards.h>
@@ -69,9 +72,9 @@ static int __init hex16(const char *b)
 
 	d0 = hex(b[0]);
 	d1 = hex(b[1]);
-	if((d0 == -1) || (d1 == -1))
-		return(-1);
-	return((d0 << 4) | d1);
+	if ((d0 == -1) || (d1 == -1))
+		return -1;
+	return (d0 << 4) | d1;
 }
 
 void __init cfe_die(char *fmt, ...)
@@ -79,7 +82,7 @@ void __init cfe_die(char *fmt, ...)
 	char msg[128];
 	va_list ap;
 	int handle;
-	volatile unsigned int count;
+	unsigned int count;
 
 	va_start(ap, fmt);
 	vsprintf(msg, fmt, ap);
@@ -94,13 +97,15 @@ void __init cfe_die(char *fmt, ...)
 
 	cfe_write(handle, msg, strlen(msg));
 
-	for (count = 0; count < 0x7fffffff; count++) { }
+	for (count = 0; count < 0x7fffffff; count++)
+		mb();
 	cfe_exit(0, 1);
-	while(1) { }
+	while (1)
+		;
 
 no_cfe:
 	/* probably won't print anywhere useful */
-	printk("%s", msg);
+	printk(KERN_ERR "%s", msg);
 	BUG();
 
 	va_end(ap);
@@ -111,16 +116,16 @@ static inline int __init parse_eth0_hwaddr(const char *buf, u8 *out)
 	int i, t;
 	u8 addr[6];
 
-	for(i = 0; i < 6; i++) {
+	for (i = 0; i < 6; i++) {
 		t = hex16(buf);
-		if(t == -1)
-			return(-1);
+		if (t == -1)
+			return -1;
 		addr[i] = t;
 		buf += 3;
 	}
 	memcpy(out, addr, 6);
 
-	return(0);
+	return 0;
 }
 
 static inline int __init parse_ulong(const char *buf, unsigned long *val)
@@ -129,11 +134,11 @@ static inline int __init parse_ulong(const char *buf, unsigned long *val)
 	unsigned long tmp;
 
 	tmp = simple_strtoul(buf, &endp, 0);
-	if(*endp == 0) {
+	if (*endp == 0) {
 		*val = tmp;
-		return(0);
+		return 0;
 	}
-	return(-1);
+	return -1;
 }
 
 static inline int __init parse_hex(const char *buf, unsigned long *val)
@@ -142,11 +147,11 @@ static inline int __init parse_hex(const char *buf, unsigned long *val)
 	unsigned long tmp;
 
 	tmp = simple_strtoul(buf, &endp, 16);
-	if(*endp == 0) {
+	if (*endp == 0) {
 		*val = tmp;
-		return(0);
+		return 0;
 	}
-	return(-1);
+	return -1;
 }
 
 static inline int __init parse_boardname(const char *buf, void *slop)
@@ -156,7 +161,7 @@ static inline int __init parse_boardname(const char *buf, void *slop)
 #if defined(CONFIG_BCM7401) || defined(CONFIG_BCM7400) || \
 	defined(CONFIG_BCM7403) || defined(CONFIG_BCM7405)
 	/* autodetect 97455, 97456, 97458, 97459 DOCSIS boards */
-	if(strncmp("BCM9745", buf, 7) == 0)
+	if (strncmp("BCM9745", buf, 7) == 0)
 		brcm_docsis_platform = 1;
 #endif
 
@@ -182,30 +187,36 @@ static inline int __init parse_boardname(const char *buf, void *slop)
 	 * 7453, 7454 disable the second USB PHY (no SW impact)
 	 * 7454 disables the ENET PHY (no SW impact)
 	 */
-	if(strcmp("BCM97402", buf) == 0)
+	if (strcmp("BCM97402", buf) == 0)
 		brcm_sata_enabled = 0;
 #endif
 
 #if defined(CONFIG_BCM7403)
 	/* 7404, 7452 - no SATA */
-	if(strcmp("BCM97404", buf) == 0)
+	if (strcmp("BCM97404", buf) == 0)
 		brcm_sata_enabled = 0;
 #endif
 
 #if defined(CONFIG_BCM7405)
 	/* autodetect 97405-MSG board (special MII configuration) */
-	if(strstr(buf, "_MSG") != NULL)
+	if (strstr(buf, "_MSG") != NULL)
 		brcm_enet_no_mdio = 1;
 #endif
 
 	strcpy(brcm_cfe_boardname, buf);
-	return(0);
+	return 0;
+}
+
+static inline int __init parse_cmdline(const char *buf, char *dst)
+{
+	strlcpy(dst, buf, COMMAND_LINE_SIZE);
+	return 0;
 }
 
 static inline int __init parse_string(const char *buf, char *dst)
 {
-	strcpy(dst, buf);
-	return(0);
+	strlcpy(dst, buf, CFE_STRING_SIZE);
+	return 0;
 }
 
 static char __initdata cfe_buf[COMMAND_LINE_SIZE];
@@ -216,12 +227,12 @@ static void __init cfe_read_configuration(void)
 
 	printk(KERN_INFO "Fetching vars from bootloader... ");
 	if (cfe_seal != CFE_EPTSEAL) {
-		printk("none present, using defaults.\n");
+		printk(KERN_CONT "none present, using defaults.\n");
 		return;
 	}
 
-#define DPRINTK(...) do { } while(0)
-//#define DPRINTK(...) printk(__VA_ARGS__)
+#define DPRINTK(...) do { } while (0)
+/* #define DPRINTK(...) printk(__VA_ARGS__) */
 
 #define FETCH(name, fn, arg) do { \
 	if (cfe_getenv(name, cfe_buf, COMMAND_LINE_SIZE) == CFE_OK) { \
@@ -231,13 +242,13 @@ static void __init cfe_read_configuration(void)
 	} else { \
 		DPRINTK("Could not fetch var '%s'\n", name); \
 	} \
-	} while(0)
+	} while (0)
 
 	FETCH("ETH0_HWADDR", parse_eth0_hwaddr, brcm_primary_macaddr);
 	FETCH("DRAM0_SIZE", parse_ulong, &brcm_dram0_size_mb);
 	FETCH("DRAM1_SIZE", parse_ulong, &brcm_dram1_size_mb);
 	FETCH("CFE_BOARDNAME", parse_boardname, NULL);
-	FETCH("BOOT_FLAGS", parse_string, arcs_cmdline);
+	FETCH("BOOT_FLAGS", parse_cmdline, arcs_cmdline);
 
 	FETCH("LINUX_FFS_STARTAD", parse_hex, &brcm_mtd_rootfs_start);
 	FETCH("LINUX_FFS_SIZE", parse_hex, &brcm_mtd_rootfs_len);
@@ -248,7 +259,7 @@ static void __init cfe_read_configuration(void)
 	FETCH("FLASH_SIZE", parse_ulong, &brcm_mtd_flash_size_mb);
 	FETCH("FLASH_TYPE", parse_string, brcm_mtd_flash_type);
 
-	printk("found %d vars.\n", fetched);
+	printk(KERN_CONT "found %d vars.\n", fetched);
 }
 
 /***********************************************************************
@@ -270,9 +281,12 @@ static inline void __init setup_early_3250(unsigned long base_pa)
 static inline void __init setup_early_16550(unsigned long base_pa)
 {
 	char args[64];
-	extern int __init setup_early_serial8250_console(char *);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+	sprintf(args, "uart,mmio32,0x%08lx,115200n8", base_pa);
+#else
 	sprintf(args, "uart,mmio,0x%08lx,115200n8", base_pa);
+#endif
 	setup_early_serial8250_console(args);
 }
 
@@ -343,7 +357,7 @@ void __init prom_init(void)
 
 #if defined(CONFIG_BRCM_IKOS_DEBUG)
 	strcpy(arcs_cmdline, "debug initcall_debug");
-#elif ! defined(CONFIG_BRCM_IKOS)
+#elif !defined(CONFIG_BRCM_IKOS)
 	cfe_read_configuration();
 #endif
 	brcm_setup_early_printk();
@@ -353,8 +367,8 @@ void __init prom_init(void)
 		strcat(arcs_cmdline, " ubi.mtd=rootfs rootfstype=ubifs "
 			"root=ubi0:rootfs");
 
-	printk("Options: sata=%d enet=%d emac_1=%d no_mdio=%d docsis=%d "
-		"pci=%d smp=%d moca=%d usb=%d\n",
+	printk(KERN_INFO "Options: sata=%d enet=%d emac_1=%d no_mdio=%d "
+		"docsis=%d pci=%d smp=%d moca=%d usb=%d\n",
 		brcm_sata_enabled, brcm_enet_enabled, brcm_emac_1_enabled,
 		brcm_enet_no_mdio, brcm_docsis_platform,
 		brcm_pci_enabled, brcm_smp_enabled, brcm_moca_enabled,
@@ -501,7 +515,7 @@ const char *get_system_type(void)
 		class == 0x35 ? "DTV" :
 		(class == 0x76 ? "DVD" : "STB"));
 
-        return((const char *)brcm_system_type);
+	return (const char *)brcm_system_type;
 }
 
 void __init prom_free_prom_memory(void) {}

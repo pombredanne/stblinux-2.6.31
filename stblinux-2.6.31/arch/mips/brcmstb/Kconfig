@@ -621,6 +621,23 @@ config BCM7550A0
 	select BRCM_CPU_PLL
 	select BRCM_HAS_1GB_MEMC0
 
+config BCM7552A0
+	bool "7552 Ax"
+	select BRCM_PLATFORM_DEFAULTS
+	select BCM7552
+	select BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_WKTMR
+
 config BCM7601B0
 	bool "7601 Bx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -1236,8 +1253,8 @@ config BMIPS5000
 	select BRCM_ZSCM_L2
 	select SYS_SUPPORTS_SMP
 	select SYS_SUPPORTS_HOTPLUG_CPU
-	select SYS_SUPPORTS_HIGHMEM if !BCM7420 # XXX
-	select CPU_SUPPORTS_HIGHMEM if !BCM7420 # XXX
+	select SYS_SUPPORTS_HIGHMEM
+	select CPU_SUPPORTS_HIGHMEM
 
 config MTI_R5K
 	bool
@@ -1681,6 +1698,9 @@ config BCM7468
 	bool
 
 config BCM7550
+	bool
+
+config BCM7552
 	bool
 
 config BCM7601

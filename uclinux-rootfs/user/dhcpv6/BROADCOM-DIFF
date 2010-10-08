@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-09-28
 #
 # Original package: dhcpv6.tar.bz2
 #
 diff -ruNp dhcpv6.orig/Makefile dhcpv6/Makefile
 --- dhcpv6.orig/Makefile	2007-02-08 11:56:59.000000000 -0800
-+++ dhcpv6/Makefile	2010-08-28 20:10:10.000000000 -0700
++++ dhcpv6/Makefile	2010-09-28 17:05:23.000000000 -0700
 @@ -3,7 +3,7 @@
  #
  
@@ -17,7 +17,7 @@ diff -ruNp dhcpv6.orig/Makefile dhcpv6/Makefile
  LIBS=	
 diff -ruNp dhcpv6.orig/ns_name.c dhcpv6/ns_name.c
 --- dhcpv6.orig/ns_name.c	2007-02-08 11:56:58.000000000 -0800
-+++ dhcpv6/ns_name.c	2010-08-28 20:10:10.000000000 -0700
++++ dhcpv6/ns_name.c	2010-09-28 17:05:23.000000000 -0700
 @@ -24,9 +24,7 @@ static const char rcsid[] = "$BINDId: ns
  #include <netinet/in.h>
  #include <arpa/nameser.h>

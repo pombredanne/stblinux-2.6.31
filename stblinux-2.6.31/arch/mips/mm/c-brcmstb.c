@@ -22,6 +22,7 @@
 #include <linux/bitops.h>
 #include <linux/module.h>
 #include <linux/seq_file.h>
+#include <linux/highmem.h>
 
 #include <asm/bcache.h>
 #include <asm/bootinfo.h>
@@ -404,11 +405,53 @@ void plat_unmap_dma_mem(struct device *dev, dma_addr_t dma_addr,
 		brcm_inv_prefetch(va, size);
 }
 
-void brcm_sync_for_cpu(unsigned long addr, size_t size,
+void brcm_sync_for_cpu(struct device *dev, dma_addr_t dma_handle, size_t size,
 	enum dma_data_direction dir)
 {
-	if(dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL)
-		brcm_inv_prefetch(addr, size);
+	if (dir == DMA_TO_DEVICE)
+		return;
+	brcm_inv_prefetch((unsigned long)phys_to_virt(
+		plat_dma_addr_to_phys(dev, dma_handle)), size);
+}
+
+void brcm_sync_for_cpu_sg(struct scatterlist *sg, enum dma_data_direction dir)
+{
+	void *addr;
+	struct page *page = sg_page(sg);
+	unsigned long offset = sg->offset;
+	size_t left = sg->length;
+
+	if (dir == DMA_TO_DEVICE)
+		return;
+	if (likely(!PageHighMem(page))) {
+		addr = page_address(page) + sg->offset;
+		brcm_inv_prefetch((unsigned long)addr, sg->length);
+		return;
+	}
+
+	/* use temporary mappings to handle HIGHMEM pages */
+	do {
+		size_t len = left;
+		unsigned long flags;
+
+		if (offset + len > PAGE_SIZE) {
+			if (offset >= PAGE_SIZE) {
+				page += offset >> PAGE_SHIFT;
+				offset &= ~PAGE_MASK;
+			}
+			len = PAGE_SIZE - offset;
+		}
+
+		local_irq_save(flags);
+		addr = kmap_atomic(page, KM_SYNC_DCACHE);
+		brcm_inv_prefetch((unsigned long)addr + offset, len);
+		kunmap_atomic(addr, KM_SYNC_DCACHE);
+		local_irq_restore(flags);
+
+		offset = 0;
+		page++;
+		left -= len;
+	} while (left);
 }
 
 /*

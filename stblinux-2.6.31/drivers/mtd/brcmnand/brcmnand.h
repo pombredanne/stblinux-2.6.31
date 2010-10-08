@@ -158,7 +158,9 @@
 #define SAMSUNG_K9F1208U0B      0x76
 
 /*--------- Chip ID decoding for Samsung MLC NAND flashes -----------------------*/
-#define SAMSUNG_K9LBG08U0M	0xD7
+#define SAMSUNG_K9LBG08U0M	0xD7	/* 55h, B6h, 78h */
+#define SAMSUNG_K9LBG08U0D	0xD7	/* D5h, 29h, 41h */
+
 #define SAMSUNG_K9GA08U0D		0xD5
 
 #define SAMSUNG_3RDID_INT_CHIPNO_MASK	NAND_CI_CHIPNR_MSK
@@ -236,6 +238,15 @@
 #define SAMSUNG_5THID_PLANESZ_4Gb	0x60
 #define SAMSUNG_5THID_PLANESZ_8Gb	0x70
 
+#define SAMSUNG2_5THID_ECCLVL_MASK	0x70
+#define SAMSUNG2_5THID_ECCLVL_1BIT	0x00
+#define SAMSUNG2_5THID_ECCLVL_2BIT	0x10
+#define SAMSUNG2_5THID_ECCLVL_4BIT	0x20
+#define SAMSUNG2_5THID_ECCLVL_8BIT	0x30
+#define SAMSUNG2_5THID_ECCLVL_16BIT	0x40
+
+
+
 
 /*--------- END Samsung MLC NAND flashes -----------------------*/
 
@@ -306,10 +317,14 @@
 #define MICRON_MT29F2G16AAB     0xCA
 
 #define MICRON_MT29F1G08ABA	0xF1
+#define MICRON_MT29F2G08ABA	0xDA
 #define MICRON_MT29F4G08ABA	0xDC
 
 #define MICRON_MT29F8G08ABA	0x38
-#define MICRON_MT29F16G08CBA	0x48
+#define MICRON_MT29F16G08ABA	0x48 /* SLC, 2Ch, 48h, 00h, 26h, 89h */
+
+#define MICRON_MT29F16G08CBA	0x48 /* MLC, 2Ch, 48h, 04h, 46h, 85h
+										have same dev ID as the SLC part, bytes 3,4,5 are different however */
 
 /*
  * Micron M60A & M68A ID encoding are similar to Samsung Type 1.
@@ -462,7 +477,11 @@
 #define BCHP_NAND_LAST_REG		BCHP_NAND_BLK_WR_PROTECT
 
 #elif CONFIG_MTD_BRCMNAND_VERSION <=  CONFIG_MTD_BRCMNAND_VERS_3_3
+  #ifdef BCHP_NAND_TIMING_2_CS3
 #define BCHP_NAND_LAST_REG		BCHP_NAND_TIMING_2_CS3
+  #else
+#define BCHP_NAND_LAST_REG		BCHP_NAND_TIMING_2_CS2
+  #endif
 
 #else
 #define BCHP_NAND_LAST_REG		BCHP_NAND_SPARE_AREA_READ_OFS_1C 
@@ -672,6 +691,7 @@ struct brcmnand_chip {
 	unsigned int		page_mask;
 	//int				subpagesize;
 	uint8_t			cellinfo;
+	uint8_t			nop;
 
 	//u_char*		data_buf;	// Replaced by buffers
 	//u_char*		oob_buf;
@@ -691,8 +711,12 @@ struct brcmnand_chip {
 				
 	struct nand_ecclayout	*ecclayout;
 
+	
+	int			reqEccLevel;	/* Required ECC level, from chipID string (Samsung Type 2, Micron) 
+								 * or from datasheet otherwise */
+
 	// THT Used in lieu of struct nand_ecc_ctrl ecc;
-	brcmnand_ecc_level_t ecclevel;	// ECC scheme
+	brcmnand_ecc_level_t ecclevel;	// Actual ECC scheme used, must be >= reqEccLevel
 	int			ecctotal; // total number of ECC bytes per page, 3 for Small pages, 12 for large pages.
 	int			eccsize; // Size of the ECC block, always 512 for Brcm Nand Controller
 	int			eccbytes; // How many bytes are used for ECC per eccsize (3 for Hamming)

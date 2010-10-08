@@ -185,6 +185,28 @@ static struct nand_ecclayout brcmnand_oob_bch4_2k = {
 #if 1
 
 /*
+ * 2K page SLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and only have 16B OOB
+ * Rely on the fact that the UBI/UBIFS layer does not store anything in the OOB
+ */
+static struct nand_ecclayout brcmnand_oob_bch8_16_2k = {
+	.eccbytes	= 13*4,  /* 13*4 = 52 bytes */
+	.eccpos		= { 
+		3,4,5,6,7,8,9,10,11,12,13,14,15,
+		19,20,21,22,23,24,25,26,27,28,29,30,31,
+		35,36,37,38,39,40,41,42,43,44,45,46,47,
+		51,52,53,54,55,56,57,58,59,60,61,62,63,
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=2}, 		/* 1st slice loses byte 0 */
+				{.offset=16,.length=3}, 		/* 2nd slice  */
+				{.offset=32, .length=3},		/* 3rd slice  */
+				{.offset=48, .length=3},		/* 4th slice */
+	            		//{.offset=0, .length=0}			/* End marker */
+			}
+};
+
+/*
  * 4K page SLC/MLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and only have 16B OOB
  * Rely on the fact that the UBI/UBIFS layer does not store anything in the OOB
  */
@@ -192,14 +214,14 @@ static struct nand_ecclayout brcmnand_oob_bch8_16_4k = {
 	.eccbytes	= 13*8,  /* 13*8 = 104 bytes */
 	.eccpos		= { 
 		3,4,5,6,7,8,9,10,11,12,13,14,15,
-		41,42,43,44,45,46,47,48,49,50,51,52,53,
-		68,69,70,71,72,73,74,75,76,77,78,79,80,
-		95,96,97,98,99,100,101,102,103,104,105,106,107,
+		19,20,21,22,23,24,25,26,27,28,29,30,31,
+		35,36,37,38,39,40,41,42,43,44,45,46,47,
+		51,52,53,54,55,56,57,58,59,60,61,62,63,
 #if ! defined(UNDERSIZED_ECCPOS_API)
-		122,123,124,125,126,127,128,129,130,131,132,133,134,
-		149,150,151,152,153,154,155,156,157,158,159,160,161,
-		176,177,178,179,180,181,182,183,184,185,186,187,188,
-		203,204,205,206,207,208,209,210,211,212,213,214,215
+		67,68,69,70,71,72,73,74,75,76,77,78,79,
+		83,84,85,86,87,88,89,90,91,92,93,94,95,
+		99,100,101,102,103,104,105,106,107,108,109,110,111,
+		115,116,117,118,119,120,121,122,123,124,125,126,127,
 #endif
 		},
 	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 

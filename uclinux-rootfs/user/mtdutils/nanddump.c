@@ -209,7 +209,13 @@ int main(int argc, char * const argv[])
 	}
 
 	/* Make sure device page sizes are valid */
-	if (!(meminfo.oobsize == 128 && meminfo.writesize == 4096) &&
+	if (
+#ifdef CONFIG_BRCMNAND_MTD_EXTENSION
+			!(meminfo.oobsize == 448 && meminfo.writesize == 8192) && /* Micron 1080B sector */ 
+			!(meminfo.oobsize == 224 && meminfo.writesize == 4096) && /* Micron 28B OOB */
+			!(meminfo.oobsize == 216 && meminfo.writesize == 4096) && /* 27.25B OOB */
+#endif
+			!(meminfo.oobsize == 128 && meminfo.writesize == 4096) &&
 			!(meminfo.oobsize == 64 && meminfo.writesize == 2048) &&
 			!(meminfo.oobsize == 32 && meminfo.writesize == 1024) &&
 			!(meminfo.oobsize == 16 && meminfo.writesize == 512) &&

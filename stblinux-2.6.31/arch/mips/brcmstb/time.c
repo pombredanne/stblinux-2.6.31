@@ -128,7 +128,8 @@ static __init unsigned long brcm_mips_freq(void)
 	wktmr_read(&start);
 	write_c0_count(0);
 
-	while (wktmr_elapsed(&start) < (WKTMR_FREQ / SAMPLE_PERIOD)) { }
+	while (wktmr_elapsed(&start) < (WKTMR_FREQ / SAMPLE_PERIOD))
+		;
 
 	return read_c0_count() * SAMPLE_PERIOD;
 }
@@ -152,12 +153,13 @@ static __init unsigned long brcm_mips_freq(void)
 		(27000000 / SAMPLE_PERIOD));
 	write_c0_count(0);
 
-	while ((BDEV_RD(BCHP_TIMER_TIMER_IS) & 1) == 0) { }
+	while ((BDEV_RD(BCHP_TIMER_TIMER_IS) & 1) == 0)
+		;
 
 	ret = read_c0_count();
 	BDEV_WR(BCHP_TIMER_TIMER0_CTRL, 0);
 
-	return(ret * SAMPLE_PERIOD);
+	return ret * SAMPLE_PERIOD;
 }
 
 #endif /* CONFIG_BRCM_HAS_WKTMR */

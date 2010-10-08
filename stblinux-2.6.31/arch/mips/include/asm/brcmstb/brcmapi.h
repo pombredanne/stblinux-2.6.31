@@ -28,6 +28,8 @@
 #include <linux/cache.h>
 #include <linux/slab_def.h>
 #include <linux/mm_types.h>
+#include <linux/scatterlist.h>
+
 #include <net/sock.h>
 #include <asm/ptrace.h>
 #include <asm/inst.h>
@@ -51,8 +53,9 @@ int brcm_unaligned_fp(void __user *addr, union mips_instruction *insn,
 extern int (*brcm_netif_rx_hook[BRCM_RX_NUM_HOOKS])(struct sk_buff *);
 int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 	unsigned int cache);
-void brcm_sync_for_cpu(unsigned long addr, size_t size,
+void brcm_sync_for_cpu(struct device *dev, dma_addr_t dma_handle, size_t size,
 	enum dma_data_direction dir);
+void brcm_sync_for_cpu_sg(struct scatterlist *sg, enum dma_data_direction dir);
 unsigned long brcm_fixup_ticks(unsigned long delta);
 extern unsigned long brcm_adj_cpu_khz;
 int brcm_map_coherent(dma_addr_t dma_handle, void *cac_va, size_t size,

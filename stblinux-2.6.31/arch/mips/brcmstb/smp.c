@@ -24,17 +24,16 @@
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
 #include <linux/init.h>
+#include <linux/cpu.h>
+#include <linux/reboot.h>
+#include <linux/io.h>
 
-#include <asm/io.h>
+#include <asm/time.h>
 #include <asm/pgtable.h>
 #include <asm/processor.h>
-#include <asm/reboot.h>
 #include <asm/system.h>
 #include <asm/bootinfo.h>
 #include <asm/pmon.h>
-#include <asm/time.h>
-#include <asm/cpu.h>
-#include <asm/smp.h>
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm/mipsregs.h>
@@ -122,7 +121,7 @@ static void brcmstb_boot_secondary(int cpu, struct task_struct *idle)
 	 *   eret to play_dead ->
 	 *   brcmstb_tp1_reentry ->
 	 *   start_secondary
-	 * 
+	 *
 	 * Vector relocation code is in arch/mips/brcmstb/prom.c
 	 * Actual boot vectors are in arch/mips/brcmstb/vector.S
 	 */

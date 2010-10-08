@@ -476,7 +476,6 @@
 #include <asm/brcmstb/7358a0/bchp_ddr40_phy_word_lane_1_0.h>
 #include <asm/brcmstb/7358a0/bchp_ebi.h>
 #include <asm/brcmstb/7358a0/bchp_hif_cpu_intr1.h>
-#include <asm/brcmstb/7358a0/bchp_hif_cpu_tp1_intr1.h>
 #include <asm/brcmstb/7358a0/bchp_hif_intr2.h>
 #include <asm/brcmstb/7358a0/bchp_hif_mspi.h>
 #include <asm/brcmstb/7358a0/bchp_hif_spi_intr2.h>
@@ -877,6 +876,37 @@
 #include <asm/brcmstb/7550a0/bchp_wktmr.h>
 #include <asm/brcmstb/7550a0/brcmirq.h>
 
+#elif defined(CONFIG_BCM7552A0)
+#include <asm/brcmstb/7552a0/bchp_aon_ctrl.h>
+#include <asm/brcmstb/7552a0/bchp_aon_pm_l2.h>
+#include <asm/brcmstb/7552a0/bchp_bspi.h>
+#include <asm/brcmstb/7552a0/bchp_bspi_raf.h>
+#include <asm/brcmstb/7552a0/bchp_clkgen.h>
+#include <asm/brcmstb/7552a0/bchp_common.h>
+#include <asm/brcmstb/7552a0/bchp_ddr40_phy_control_regs_0.h>
+#include <asm/brcmstb/7552a0/bchp_ddr40_phy_word_lane_0_0.h>
+#include <asm/brcmstb/7552a0/bchp_ddr40_phy_word_lane_1_0.h>
+#include <asm/brcmstb/7552a0/bchp_ebi.h>
+#include <asm/brcmstb/7552a0/bchp_hif_cpu_intr1.h>
+#include <asm/brcmstb/7552a0/bchp_hif_intr2.h>
+#include <asm/brcmstb/7552a0/bchp_hif_mspi.h>
+#include <asm/brcmstb/7552a0/bchp_hif_spi_intr2.h>
+#include <asm/brcmstb/7552a0/bchp_hif_top_ctrl.h>
+#include <asm/brcmstb/7552a0/bchp_irq0.h>
+#include <asm/brcmstb/7552a0/bchp_irq1.h>
+#include <asm/brcmstb/7552a0/bchp_memc_ddr_0.h>
+#include <asm/brcmstb/7552a0/bchp_misb_bridge.h>
+#include <asm/brcmstb/7552a0/bchp_nand.h>
+#include <asm/brcmstb/7552a0/bchp_sdio_0_cfg.h>
+#include <asm/brcmstb/7552a0/bchp_sun_top_ctrl.h>
+#include <asm/brcmstb/7552a0/bchp_timer.h>
+#include <asm/brcmstb/7552a0/bchp_uarta.h>
+#include <asm/brcmstb/7552a0/bchp_uartb.h>
+#include <asm/brcmstb/7552a0/bchp_uartc.h>
+#include <asm/brcmstb/7552a0/bchp_usb_ctrl.h>
+#include <asm/brcmstb/7552a0/bchp_wktmr.h>
+#include <asm/brcmstb/7552a0/brcmirq.h>
+
 #elif defined(CONFIG_BCM7601B0)
 #include <asm/brcmstb/7601b0/bchp_clk.h>
 #include <asm/brcmstb/7601b0/bchp_common.h>
@@ -1076,12 +1106,20 @@ extern unsigned long brcm_mtd_ocap_start;
 extern unsigned long brcm_mtd_ocap_len;
 extern unsigned long brcm_mtd_flash_size_mb;
 
-extern char brcm_mtd_flash_type[COMMAND_LINE_SIZE];
-extern char brcm_cfe_boardname[COMMAND_LINE_SIZE];
+#define CFE_STRING_SIZE		64
+
+extern char brcm_mtd_flash_type[CFE_STRING_SIZE];
+extern char brcm_cfe_boardname[CFE_STRING_SIZE];
 
 extern unsigned long brcm_moca_i2c_base;
 extern unsigned long brcm_moca_rf_band;
 extern unsigned long brcm_ext_mii_mode;
+
+#define BRCM_PCI_SLOTS		16
+
+/* board-specific definitions are in arch/mips/brcmstb/board.c */
+extern char irq_tab_brcmstb[BRCM_PCI_SLOTS][4] __initdata;
+extern char irq_tab_brcmstb_docsis[BRCM_PCI_SLOTS][4] __initdata;
 
 struct bcmemac_platform_data {
 	int			phy_type;

@@ -1,21 +1,19 @@
 /*
-<:copyright-gpl
- Copyright 2007 Broadcom Corp. All Rights Reserved.
-
- This program is free software; you can distribute it and/or modify it
- under the terms of the GNU General Public License (Version 2) as
- published by the Free Software Foundation.
-
- This program is distributed in the hope it will be useful, but WITHOUT
- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- for more details.
-
- You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc.,
- 59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
-:>
-*/
+ * Copyright (C) 2010 Broadcom Corporation
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 
 #ifndef _BMOCA_H_
 #define _BMOCA_H_
@@ -33,11 +31,40 @@
 
 #define MOCA_IOC_MAGIC		'M'
 
-#define MOCA_IOCTL_GET_DRV_INFO	_IOR(MOCA_IOC_MAGIC, 0, struct moca_kdrv_info)
+#define MOCA_IOCTL_GET_DRV_INFO_V1	_IOR(MOCA_IOC_MAGIC, 0, \
+	struct moca_kdrv_info_v1)
+
 #define MOCA_IOCTL_START	_IOW(MOCA_IOC_MAGIC, 1, struct moca_start)
 #define MOCA_IOCTL_STOP		_IO(MOCA_IOC_MAGIC, 2)
 #define MOCA_IOCTL_READMEM	_IOR(MOCA_IOC_MAGIC, 3, struct moca_xfer)
+#define MOCA_IOCTL_WRITEMEM	_IOR(MOCA_IOC_MAGIC, 4, struct moca_xfer)
 
+#define MOCA_IOCTL_GET_DRV_INFO	_IOR(MOCA_IOC_MAGIC, 0, struct moca_kdrv_info)
+
+/* this must match MoCAOS_IFNAMSIZE */
+#define MOCA_IFNAMSIZ		16
+
+/* Legacy version of moca_kdrv_info */
+struct moca_kdrv_info_v1 {
+	__u32			version;
+	__u32			build_number;
+	__u32			builtin_fw;
+
+	__u32			hw_rev;
+	__u32			rf_band;
+
+	__u32			uptime;
+	__s32			refcount;
+	__u32			gp1;
+
+	__s8			enet_name[MOCA_IFNAMSIZ];
+	__u32			enet_id;
+
+	__u32			macaddr_hi;
+	__u32			macaddr_lo;
+};
+
+/* this must match MoCAOS_DrvInfo */
 struct moca_kdrv_info {
 	__u32			version;
 	__u32			build_number;
@@ -50,11 +77,14 @@ struct moca_kdrv_info {
 	__s32			refcount;
 	__u32			gp1;
 
-	__s8			enet_name[IFNAMSIZ];
+	__s8			enet_name[MOCA_IFNAMSIZ];
 	__u32			enet_id;
 
 	__u32			macaddr_hi;
 	__u32			macaddr_lo;
+
+	__u32			phy_freq;
+	__u32			cpu_freq;
 };
 
 struct moca_xfer {
@@ -98,6 +128,9 @@ struct moca_platform_data {
 
 	u32			hw_rev;
 	u32			rf_band;
+
+	int			useDma;
+	int			useSpi;
 };
 
 #endif /* __KERNEL__ */

@@ -55,12 +55,12 @@ struct bmem_region {
 };
 
 static struct bmem_region bmem_regions[MAX_BMEM_REGIONS];
-static unsigned int n_bmem_regions = 0;
+static unsigned int n_bmem_regions;
 
 #if defined(CONFIG_BRCM_IKOS)
 static unsigned int bmem_disabled = 1;
 #else
-static unsigned int bmem_disabled = 0;
+static unsigned int bmem_disabled;
 #endif
 
 /*
@@ -378,6 +378,9 @@ int __uncached_access(struct file *file, unsigned long addr)
 #define ENTRYLO_CACHED(paddr)	(((paddr) >> 6) | (0x07) | (0x03 << 3))
 #define ENTRYLO_UNCACHED(paddr)	(((paddr) >> 6) | (0x07) | (0x02 << 3))
 
+/* GLOBAL | !VALID */
+#define ENTRYLO_INVALID()	(0x01)
+
 struct tlb_entry {
 	unsigned long entrylo0;
 	unsigned long entrylo1;
@@ -394,7 +397,7 @@ static struct tlb_entry __maybe_unused uppermem_mappings[] = {
 	.pagemask		= PM_256M,
 #elif defined(CONFIG_BRCM_UPPER_768MB)
 	.entrylo0		= ENTRYLO_CACHED(TLB_UPPERMEM_PA),
-	.entrylo1		= 0,
+	.entrylo1		= ENTRYLO_INVALID(),
 	.entryhi		= TLB_UPPERMEM_VA,
 	.pagemask		= PM_256M,
 #endif

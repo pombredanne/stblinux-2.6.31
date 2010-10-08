@@ -35,11 +35,6 @@
 #define VERSION     "2.0"
 #define VER_STR     "v" VERSION " " __DATE__ " " __TIME__
 
-#if defined(CONFIG_MODVERSIONS) && ! defined(MODVERSIONS)
-   #include <config/modversions.h> 
-   #define MODVERSIONS
-#endif  
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/sched.h>
@@ -54,6 +49,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/pm.h>
 #include <linux/clk.h>
+#include <linux/version.h>
 
 #include <linux/mii.h>
 #include <linux/ethtool.h>
@@ -541,6 +537,8 @@ static int bcmgenet_open(struct net_device * dev)
 	pDevCtrl->umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
 	pDevCtrl->dev_opened = 1;
 
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
+		bcmgenet_power_up(pDevCtrl, GENET_POWER_PASSIVE);
     return 0;
 }
 
@@ -597,6 +595,8 @@ static int bcmgenet_close(struct net_device * dev)
 		cancel_work_sync(&pDevCtrl->bcmgenet_link_work);
 	}
 	pDevCtrl->dev_opened = 0;
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
+		bcmgenet_power_down(pDevCtrl, GENET_POWER_PASSIVE);
 	clk_disable(pDevCtrl->clk);
 	return 0;
 }
@@ -624,7 +624,11 @@ static void bcmgenet_timeout(struct net_device * dev)
 static void bcmgenet_set_multicast_list(struct net_device * dev)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+	struct netdev_hw_addr *ha;
+#else
 	struct dev_mc_list * dmi;
+#endif
 	int i, mc;
 #define MAX_MC_COUNT	16	
 
@@ -658,9 +662,21 @@ static void bcmgenet_set_multicast_list(struct net_device * dev)
 	pDevCtrl->umac->mdf_ctrl |= (1 << (MAX_MC_COUNT - mc));
 	i += 2;
 	mc++;
-	if (dev->mc_count == 0 || dev->mc_count > (MAX_MC_COUNT - 1)) {
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+	if (netdev_mc_empty(dev) || netdev_mc_count(dev) >= MAX_MC_COUNT)
 		return;
+	netdev_for_each_mc_addr(ha, dev) {
+		pDevCtrl->umac->mdf_addr[i] = ha->addr[0] << 8 | ha->addr[1];
+		pDevCtrl->umac->mdf_addr[i+1] = ha->addr[2] << 24 |
+			ha->addr[3] << 16 | ha->addr[4] << 8 | ha->addr[5];
+		pDevCtrl->umac->mdf_ctrl |= (1 << (MAX_MC_COUNT - mc));
+		i += 2;
+		mc++;
 	}
+#else
+	if (dev->mc_count == 0 || dev->mc_count > (MAX_MC_COUNT - 1))
+		return;
 	/* Multicast */
 	for(dmi = dev->mc_list; dmi; dmi = dmi->next) {
 		pDevCtrl->umac->mdf_addr[i] = dmi->dmi_addr[0] << 8 | dmi->dmi_addr[1];
@@ -669,6 +685,7 @@ static void bcmgenet_set_multicast_list(struct net_device * dev)
 		i += 2;
 		mc++;
 	}
+#endif
 }
 /*
  * Set the hardware MAC address.
@@ -822,37 +839,40 @@ static Enet_CB * bcmgenet_get_txcb(struct net_device *dev, int * write_ptr, int 
 static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 {
     BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
-	unsigned int read_ptr = 0, write_ptr = 0;
+	//unsigned int read_ptr = 0, write_ptr = 0;
+	unsigned int p_index, c_index;
 	Enet_CB * txCBPtr;
 	int lastTxedCnt = 0, lastCIndex = 0, nrTxBds= 0;
 	
 	/* Compute how many buffers are transmited since last xmit call */
-	read_ptr =  (DMA_RW_POINTER_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_read_pointer) >> 1;
-	write_ptr = (DMA_RW_POINTER_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer) >> 1;
+	p_index = (DMA_PRODUCER_INDEX_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_producer_index);
+	c_index = (DMA_PRODUCER_INDEX_MASK & pDevCtrl->txDma->tDmaRings[index].tdma_consumer_index);
+	
 
 #if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
 	if(index == DMA_RING_DESC_INDEX) {
 		lastCIndex = pDevCtrl->txLastCIndex;
 		nrTxBds = GENET_TX_DEFAULT_BD_COUNT;
-		read_ptr -= GENET_TX_MULTIQ_COUNT * GENET_TX_MULTIQ_BD_COUNT;
 	}else {
 		lastCIndex = pDevCtrl->txRingCIndex[index];
 		nrTxBds = GENET_TX_MULTIQ_BD_COUNT;
-		read_ptr -= index * GENET_TX_MULTIQ_BD_COUNT;
 	}
 
 #else
 	lastCIndex = pDevCtrl->txLastCIndex;
 	nrTxBds = TOTAL_DESC;
 #endif
-	if(read_ptr >= lastCIndex) {
-		lastTxedCnt = read_ptr - lastCIndex;
-	}else {
-		lastTxedCnt = nrTxBds - lastCIndex + read_ptr;
-	}
+	p_index &= (nrTxBds - 1);
+	c_index &= (nrTxBds - 1);
 	
-	TRACE(("%s: index=%d read_ptr=%d write_ptr=%d lastTxedCnt=%d txLastCIndex=%d\n", __FUNCTION__,
-				index, read_ptr, write_ptr, lastTxedCnt, lastCIndex));
+	if(c_index >= lastCIndex)
+		lastTxedCnt = c_index - lastCIndex;
+	else
+		lastTxedCnt = nrTxBds - lastCIndex + c_index;
+		
+	
+	TRACE(("%s: index=%d c_index=%d p_index=%d lastTxedCnt=%d txLastCIndex=%d\n", __FUNCTION__,
+				index, c_index, p_index, lastTxedCnt, lastCIndex));
 
 	/* Recalaim transmitted buffers */
 	while(lastTxedCnt-- > 0)
@@ -892,14 +912,14 @@ static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 		{
 			netif_wake_subqueue(dev, 0);
 		}
-		pDevCtrl->txLastCIndex = read_ptr;
+		pDevCtrl->txLastCIndex = c_index;
 	}else{
 		if(pDevCtrl->txRingFreeBds[index] > (MAX_SKB_FRAGS + 1)
 			&& __netif_subqueue_stopped(dev, index))
 		{
 			netif_wake_subqueue(dev, index);
 		}
-		pDevCtrl->txRingCIndex[index] = read_ptr;
+		pDevCtrl->txRingCIndex[index] = c_index;
 	}
 	/* Disable txdma bdone/pdone interrupt only if all subqueues are active */
 	if(!netif_any_subqueue_stopped(dev))
@@ -912,7 +932,7 @@ static void bcmgenet_tx_reclaim(struct net_device * dev, int index)
 		pDevCtrl->intrl2_0->cpu_mask_set |= UMAC_IRQ_TXDMA_BDONE | UMAC_IRQ_TXDMA_PDONE;
 		netif_wake_queue(dev);
 	}
-	pDevCtrl->txLastCIndex = read_ptr;
+	pDevCtrl->txLastCIndex = c_index;
 #endif
 }
 /* --------------------------------------------------------------------------
@@ -2886,20 +2906,6 @@ static struct ethtool_ops bcmgenet_ethtool_ops = {
 	.get_link			= ethtool_op_get_link,
 };
 /*
- * disable clocks according to mode, cable sense/WoL
- */
-static void bcmgenet_disable_clocks(BcmEnet_devctrl * pDevCtrl, int mode)
-{
-	/*TODO: move it to global PM lib */
-}
-/*
- * Enable clocks.
- */
-static void bcmgenet_enable_clocks(BcmEnet_devctrl * pDevCtrl, int mode)
-{
-	/*TODO: move it to global PM lib */
-}
-/*
  * Power down the unimac, based on mode.
  */
 static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
@@ -2908,10 +2914,11 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 
 	switch(mode) {
 		case GENET_POWER_CABLE_SENSE:
-			/* EPHY bug, leave ext_pwr_down_dll ext_pwr_down_phy on */
-			//pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DOWN_PHY;
+			/* 
+			 * EPHY bug, setting ext_pwr_down_dll and ext_pwr_down_phy cause
+			 * link IRQ bouncing.
+			 */
 			GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~RGMII_MODE_EN;
-			bcmgenet_disable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_MAGIC:
 			/* ENable CRC forward */
@@ -2927,7 +2934,6 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 				udelay(100);
 			}
 			/* Service Rx BD untill empty */
-			bcmgenet_disable_clocks(pDevCtrl, mode);
 			pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_MPD_R;
 			pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_HFB_MM | UMAC_IRQ_HFB_SM;
 			break;
@@ -2943,8 +2949,10 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 				udelay(100);
 			}
 			/* Service RX BD untill empty */
-			bcmgenet_disable_clocks(pDevCtrl, mode);
 			pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_HFB_MM | UMAC_IRQ_HFB_SM;
+			break;
+		case GENET_POWER_PASSIVE:
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DOWN_PHY | EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS;
 			break;
 		default:
 			break;
@@ -2968,7 +2976,6 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			/* enable 64 clock MDIO */
 			pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
 			pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d);
-			//bcmgenet_enable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_MAGIC:
 			pDevCtrl->umac->mpd_ctrl &= ~MPD_EN;
@@ -2979,12 +2986,10 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			if( !(GENET_HFB_CTRL(pDevCtrl) & RBUF_ACPI_EN))
 			{
 				GENET_HFB_CTRL(pDevCtrl) &= RBUF_ACPI_EN;
-				bcmgenet_enable_clocks(pDevCtrl, GENET_POWER_WOL_ACPI);
 				/* Stop monitoring ACPI interrupts */
 				pDevCtrl->intrl2_0->cpu_mask_set |= (UMAC_IRQ_HFB_SM | UMAC_IRQ_HFB_MM);
 			}
 			bcmgenet_clear_hfb(pDevCtrl, CLEAR_ALL_HFB);
-			//bcmgenet_enable_clocks(pDevCtrl, mode);
 			break;
 		case GENET_POWER_WOL_ACPI:
 			GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_ACPI_EN;
@@ -2994,14 +2999,25 @@ static void bcmgenet_power_up(BcmEnet_devctrl *pDevCtrl, int mode)
 			if(!(pDevCtrl->umac->mpd_ctrl & MPD_EN))
 			{
 				pDevCtrl->umac->mpd_ctrl &= ~MPD_EN;
-				bcmgenet_enable_clocks(pDevCtrl, GENET_POWER_WOL_ACPI);
 				/* stop monitoring magic packet interrupt and disable crc forward */
 				pDevCtrl->intrl2_0->cpu_mask_set |= UMAC_IRQ_MPD_R;
 				pDevCtrl->umac->cmd &= ~CMD_CRC_FWD;
 			}
 			bcmgenet_clear_hfb(pDevCtrl, CLEAR_ALL_HFB);
-			//bcmgenet_enable_clocks(pDevCtrl,mode); 
 			break;
+		case GENET_POWER_PASSIVE:
+
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_DLL;
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_PHY;
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_BIAS;
+			/* enable APD */
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
+			udelay(5);
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+			/* enable 64 clock MDIO */
+			pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
+			pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d);
 		default:
 			break;
 	}
@@ -3288,7 +3304,6 @@ static int bcmgenet_drv_resume(struct platform_device *pdev)
 	if(pDevCtrl->dev_opened)
 		val = bcmgenet_open(pDevCtrl->dev);
 	else {
-		/*clk_enable(pDevCtrl->clk); */
 		val = 0;
 	}
 	if(pDevCtrl->dev_asleep)

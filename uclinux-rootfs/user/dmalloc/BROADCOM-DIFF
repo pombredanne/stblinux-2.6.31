@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-09-28
 #
 # Original package: dmalloc-5.5.2.tar.bz2
 #
 diff -ruNp dmalloc.orig/configure dmalloc/configure
 --- dmalloc.orig/configure	2007-05-14 10:26:14.000000000 -0700
-+++ dmalloc/configure	2010-08-28 20:10:12.000000000 -0700
++++ dmalloc/configure	2010-09-28 17:05:23.000000000 -0700
 @@ -5306,7 +5306,7 @@ done
  
  echo "$as_me:$LINENO: checking basic-block size" >&5
@@ -17,7 +17,7 @@ diff -ruNp dmalloc.orig/configure dmalloc/configure
    { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 diff -ruNp dmalloc.orig/makefile dmalloc/makefile
 --- dmalloc.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ dmalloc/makefile	2010-08-28 20:10:12.000000000 -0700
++++ dmalloc/makefile	2010-09-28 17:05:23.000000000 -0700
 @@ -0,0 +1,38 @@
 +TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
 +

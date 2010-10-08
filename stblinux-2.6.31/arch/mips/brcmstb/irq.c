@@ -22,18 +22,14 @@
 #include <linux/irq.h>
 #include <linux/cpumask.h>
 #include <linux/smp.h>
-#include <asm/io.h>
+#include <linux/io.h>
+#include <linux/bitops.h>
+
 #include <asm/irq.h>
 #include <asm/mipsregs.h>
 #include <asm/addrspace.h>
 #include <asm/irq_cpu.h>
-#include <asm/bitops.h>
 #include <asm/brcmstb/brcmstb.h>
-
-#ifdef CONFIG_REMOTE_DEBUG
-#include <asm/gdb-stub.h>
-extern void breakpoint(void);
-#endif
 
 #ifdef CONFIG_SMP
 static int next_cpu[NR_IRQS] = { [0 ... NR_IRQS-1] = 0 };
@@ -45,7 +41,7 @@ static int next_cpu[NR_IRQS] = { [0 ... NR_IRQS-1] = 0 };
 	L1_WR_##word(TP0_BASE, reg, val); \
 	if (cpu_online(1)) \
 		L1_WR_##word(TP1_BASE, reg, val); \
-	} while(0)
+	} while (0)
 
 #else
 
@@ -53,7 +49,7 @@ static int next_cpu[NR_IRQS] = { [0 ... NR_IRQS-1] = 0 };
 #define TP1_BASE TP0_BASE
 #define L1_WR_ALL(word, reg, val) do { \
 	L1_WR_##word(TP0_BASE, reg, val); \
-	} while(0)
+	} while (0)
 
 #define NEXT_CPU(irq) 0
 #endif
@@ -80,7 +76,7 @@ static int next_cpu[NR_IRQS] = { [0 ... NR_IRQS-1] = 0 };
 #else
 /* nop on chips with only 64 L1 interrupts */
 #define L1_RD_W2(base, reg)	0
-#define L1_WR_W2(base, reg, val) do { } while(0)
+#define L1_WR_W2(base, reg, val) do { } while (0)
 #endif
 
 /*
@@ -102,12 +98,10 @@ static void brcm_intc_enable(unsigned int irq)
 	} else if (irq > 32 && irq <= 32+32) {
 		shift = irq - 32 - 1;
 		L1_WR_W1(base, MASK_CLEAR, (1UL << shift));
-	}
-	else if (irq > 64 && irq <= 32+32+32) {
+	} else if (irq > 64 && irq <= 32+32+32) {
 		shift = irq - 64 - 1;
 		L1_WR_W2(base, MASK_CLEAR, (1UL << shift));
-	}
-	else
+	} else
 		BUG();
 }
 
@@ -119,14 +113,12 @@ static void brcm_intc_disable(unsigned int irq)
 		shift = irq - 1;
 		L1_WR_ALL(W0, MASK_SET, (1UL << shift));
 	} else if (irq > 32 && irq <= 32+32) {
-		shift = irq - 32 -1;
+		shift = irq - 32 - 1;
 		L1_WR_ALL(W1, MASK_SET, (1UL << shift));
-	}
-	else if (irq > 64 && irq <= 32+32+32) {
-		shift = irq - 64 -1;
+	} else if (irq > 64 && irq <= 32+32+32) {
+		shift = irq - 64 - 1;
 		L1_WR_ALL(W2, MASK_SET, (1UL << shift));
-	}
-	else
+	} else
 		BUG();
 }
 
@@ -140,7 +132,7 @@ static int brcm_intc_set_affinity(unsigned int irq, const struct cpumask *dest)
 	if (irq > 0 && irq <= 32) {
 		shift = irq - 1;
 
-		if(cpu_isset(0, *dest)) {
+		if (cpu_isset(0, *dest)) {
 			L1_WR_W0(TP1_BASE, MASK_SET, (1UL << shift));
 			L1_WR_W0(TP0_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 0;
@@ -153,7 +145,7 @@ static int brcm_intc_set_affinity(unsigned int irq, const struct cpumask *dest)
 		shift = irq - 32 - 1;
 		next_cpu[irq] = 0;
 
-		if(cpu_isset(0, *dest)) {
+		if (cpu_isset(0, *dest)) {
 			L1_WR_W1(TP1_BASE, MASK_SET, (1UL << shift));
 			L1_WR_W1(TP0_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 0;
@@ -162,12 +154,11 @@ static int brcm_intc_set_affinity(unsigned int irq, const struct cpumask *dest)
 			L1_WR_W1(TP1_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 1;
 		}
-	}
-	else if (irq > 64 && irq <= 96) {
+	} else if (irq > 64 && irq <= 96) {
 		shift = irq - 64 - 1;
 		next_cpu[irq] = 0;
 
-		if(cpu_isset(0, *dest)) {
+		if (cpu_isset(0, *dest)) {
 			L1_WR_W2(TP1_BASE, MASK_SET, (1UL << shift));
 			L1_WR_W2(TP0_BASE, MASK_CLEAR, (1UL << shift));
 			next_cpu[irq] = 0;
@@ -207,7 +198,7 @@ static void flip_tp(int irq)
 	unsigned long local_lev1, remote_lev1;
 	unsigned long mask = 1 << ((irq - 1) & 0x1f);
 
-	if(tp == 0) {
+	if (tp == 0) {
 		local_lev1 = TP0_BASE;
 		remote_lev1 = TP1_BASE;
 	} else {
@@ -215,17 +206,17 @@ static void flip_tp(int irq)
 		remote_lev1 = TP0_BASE;
 	}
 
-	if(cpumask_test_cpu(tp ^ 1, irq_desc[irq].affinity)) {
+	if (cpumask_test_cpu(tp ^ 1, irq_desc[irq].affinity)) {
 		next_cpu[irq] = tp ^ 1;
-		if(irq >= 1 && irq <= 32) {
+		if (irq >= 1 && irq <= 32) {
 			L1_WR_W0(local_lev1, MASK_SET, mask);
 			L1_WR_W0(remote_lev1, MASK_CLEAR, mask);
 		}
-		if(irq >= 33 && irq <= 64) {
+		if (irq >= 33 && irq <= 64) {
 			L1_WR_W1(local_lev1, MASK_SET, mask);
 			L1_WR_W1(remote_lev1, MASK_CLEAR, mask);
 		}
-		if(irq >= 65 && irq <= 96) {
+		if (irq >= 65 && irq <= 96) {
 			L1_WR_W2(local_lev1, MASK_SET, mask);
 			L1_WR_W2(remote_lev1, MASK_CLEAR, mask);
 		}
@@ -238,21 +229,21 @@ static void brcm_intc_dispatch(struct pt_regs *regs, unsigned long base)
 	u32 pend, shift;
 
 	pend = L1_RD_W0(base, STATUS) & ~L1_RD_W0(base, MASK_STATUS);
-	while((shift = ffs(pend)) != 0) {
+	while ((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		do_IRQ(shift);
 		flip_tp(shift);
 	}
 
 	pend = L1_RD_W1(base, STATUS) & ~L1_RD_W1(base, MASK_STATUS);
-	while((shift = ffs(pend)) != 0) {
+	while ((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		shift += 32;
 		do_IRQ(shift);
 		flip_tp(shift);
 	}
 	pend = L1_RD_W2(base, STATUS) & ~L1_RD_W2(base, MASK_STATUS);
-	while((shift = ffs(pend)) != 0) {
+	while ((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		shift += 64;
 		do_IRQ(shift);
@@ -292,11 +283,11 @@ static irqreturn_t brcm_upg_interrupt(int irq, void *dev_id)
 	unsigned long pend, shift;
 
 	pend = BDEV_RD(BCHP_IRQ0_IRQSTAT) & BDEV_RD(BCHP_IRQ0_IRQEN);
-	while((shift = ffs(pend)) != 0) {
+	while ((shift = ffs(pend)) != 0) {
 		pend ^= (1 << (shift - 1));
 		do_IRQ(shift + BRCM_UPG_L2_BASE - 1);
 	}
-	return(IRQ_HANDLED);
+	return IRQ_HANDLED;
 }
 
 static void brcm_upg_enable(unsigned int irq)
@@ -341,7 +332,7 @@ void __init arch_init_irq(void)
 	L1_WR_ALL(W0, MASK_SET, 0xffffffff);
 	L1_WR_ALL(W1, MASK_SET, 0xffffffff);
 	L1_WR_ALL(W2, MASK_SET, 0xffffffff);
-	
+
 	clear_c0_status(ST0_IE | ST0_IM);
 
 	/* Set up all L1 IRQs */
@@ -358,7 +349,7 @@ void __init arch_init_irq(void)
 	/* enable IRQ2 (this runs on TP0).  IRQ3 enabled during TP1 boot. */
 	set_c0_status(STATUSF_IP2);
 
-#if ! defined(CONFIG_BRCM_SHARED_UART_IRQ)
+#if !defined(CONFIG_BRCM_SHARED_UART_IRQ)
 
 	/* enable non-shared UART interrupts in the L2 */
 
@@ -407,9 +398,9 @@ static int brcm_setup_upg_irq(void)
 
 	ret = request_irq(BRCM_IRQ_UPG, brcm_upg_interrupt,
 		0, "brcm_shared_upg", NULL);
-	if(ret)
-		printk("error: can't request UPG interrupt\n");
-	return(ret);
+	if (ret)
+		printk(KERN_ERR "error: can't request UPG interrupt\n");
+	return ret;
 }
 core_initcall(brcm_setup_upg_irq);
 #endif

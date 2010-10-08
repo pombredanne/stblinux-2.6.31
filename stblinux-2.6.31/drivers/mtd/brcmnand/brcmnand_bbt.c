@@ -476,7 +476,7 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 if (gdebug && ret!=0) printk("########## %s: read_oob returns %d\n", __FUNCTION__, ret);
 
 
-		if (ret == -EBADMSG ||ret==-EIO) {// Uncorrectable errors
+		if (ret == -EBADMSG ||ret == -EIO || ret == -ETIMEDOUT) {// Uncorrectable errors
 			uint32_t acc0;
 
 			// Disable ECC
@@ -1625,10 +1625,7 @@ static int brcmnand_displayBBT(struct mtd_info* mtd)
 {
 	struct brcmnand_chip *this = mtd->priv;
 	loff_t bOffset, bOffsetStart, bOffsetEnd;
-	//unsigned char oobbuf[64];
-	//struct nand_oobinfo oobsel;
 	int res;
-	// Size of BBT is 1MB if total flash is less than 512MB, 4MB otherwise
 	int bbtSize = brcmnand_get_bbt_size(mtd);
 
 	bOffsetStart = 0;
@@ -1742,7 +1739,7 @@ static void brcmnand_postprocessKernelArg(struct mtd_info *mtd)
 {
 	struct brcmnand_chip *this = mtd->priv;
 
-	int ret, needBBT; 
+	int ret=0, needBBT; 
 	//uint64_t bOffset, bOffsetStart=0, bOffsetEnd=0;
 	uint64_t bOffset, bOffsetStart = 0, bOffsetEnd = 0;
 	int bbtSize = brcmnand_get_bbt_size(mtd); 
@@ -1821,7 +1818,7 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 		 * The exception are the blocks in the BBT area, which are reserved
 		  */
 		else {
-			unsigned char oobbuf[64];
+			unsigned char oobbuf[NAND_MAX_OOBSIZE];
 			//int autoplace = 0;
 			//int raw = 1;
 			//struct nand_oobinfo oobsel;
@@ -1871,10 +1868,10 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 
 				
 				res = mtd->read_oob(mtd, offs, &ops);
-if (gdebug && ret!=0) printk("########## %s: read_oob returns %d\n", __FUNCTION__, ret);
+if (gdebug && res!=0) printk("########## %s: read_oob returns %d\n", __FUNCTION__, res);
 
 
-				if (res == -EBADMSG ||res == -EIO) {// Uncorrectable errors
+				if (res == -EBADMSG ||res == -EIO || res == -ETIMEDOUT) {// Uncorrectable errors
 					uint32_t acc0;
 
 					// Disable ECC
@@ -2007,7 +2004,7 @@ int brcmnand_isbad_raw (struct mtd_info *mtd, loff_t offs)
 	uint8_t	isBadBlock = 0;
 	int i;
 
-	unsigned char oobbuf[64];
+	unsigned char oobbuf[NAND_MAX_OOBSIZE];
 	int numpages;
 	/* THT: This __can__ be a 36bit integer (NAND controller address space is 48bit wide, minus
 	 * page size of 2*12, therefore 36bit max
@@ -2133,7 +2130,9 @@ printk("-->%s\n", __FUNCTION__);
 			}
 printk("%s: bbt_td = bbt_main_descr\n", __FUNCTION__);
 		}
-		else if (NAND_IS_MLC(this)) { // MLC 
+#if 1
+/* Nowadays, both SLC and MLC can have 4KB page, and more than 16 OOB size */
+		else  if (NAND_IS_MLC(this))  { // MLC
 			if (this->ecclevel == BRCMNAND_ECC_BCH_8 && this->eccOobSize == 16) {
 				/* Use the default pattern descriptors */
 				if (!this->bbt_td) {
@@ -2159,10 +2158,10 @@ printk("%s: bbt_td = bbt_bch8_16_main_descr\n", __FUNCTION__);
 			}
 printk("%s: bbt_td = bbt_bch4_main_descr\n", __FUNCTION__);
 		}
+#endif
 		else {/* SLC flashes using BCH-4 or higher ECC */
 			/* Small & Large SLC NAND use the same template */
 			if (this->ecclevel == BRCMNAND_ECC_BCH_4) {
-
 				if (!this->bbt_td) {
 					this->bbt_td = brcmnand_bbt_desc_init(&bbt_slc_bch4_main_descr);
 					this->bbt_md = brcmnand_bbt_desc_init(&bbt_slc_bch4_mirror_descr);
@@ -2172,7 +2171,9 @@ printk("%s: bbt_td = bbt_bch4_main_descr\n", __FUNCTION__);
 				}
 printk("%s: bbt_td = bbt_slc_bch4_main_descr\n", __FUNCTION__);	
 			}
-			else if (this->ecclevel == BRCMNAND_ECC_BCH_8) {
+
+			/* Special case for BCH-8 with only 16B OOB */
+			else if (this->ecclevel == BRCMNAND_ECC_BCH_8 && this->eccOobSize == 16) {
 				if (!this->bbt_td) {
 					this->bbt_td = brcmnand_bbt_desc_init(&bbt_bch8_16_main_descr);
 					this->bbt_md = brcmnand_bbt_desc_init(&bbt_bch8_16_mirror_descr);
@@ -2183,6 +2184,20 @@ printk("%s: bbt_td = bbt_slc_bch4_main_descr\n", __FUNCTION__);
 				}
 printk("%s: bbt_td = bbt_bch8_16_main_descr\n", __FUNCTION__);	
 			}
+			else if (this->ecclevel >= BRCMNAND_ECC_BCH_8 && this->ecclevel < BRCMNAND_ECC_HAMMING 
+					&& this->eccOobSize > 16) {
+				/* Use the default pattern descriptors */
+				if (!this->bbt_td) {
+					this->bbt_td = brcmnand_bbt_desc_init(&bbt_slc_bch4_main_descr);
+					this->bbt_md = brcmnand_bbt_desc_init(&bbt_slc_bch4_mirror_descr);
+				}
+				if (!this->badblock_pattern) {
+					this->badblock_pattern =  &bch4_flashbased ;
+				}
+printk("%s: bbt_td = bbt_slc_bch4_main_descr\n", __FUNCTION__);	
+			}
+
+			/* TBD: Use Internal ECC */
 			else {
 				printk(KERN_ERR "***** %s: Unsupported ECC level %d\n", 
 					__FUNCTION__, this->ecclevel);

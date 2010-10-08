@@ -20,8 +20,14 @@
 #include <linux/mutex.h>
 #include <linux/pm.h>
 #include <linux/clk.h>
+#include <linux/version.h>
 #include <asm/brcmstb/brcmstb.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+#include <linux/usb/hcd.h>
+#else
 #include "../core/hcd.h"
+#endif
 
 #define MAX_HCD			8
 

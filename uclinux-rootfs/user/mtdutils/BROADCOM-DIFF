@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-08-28
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-09-28
 #
 # Original package: mtdutils-20090511.tar.bz2
 #
 diff -ruNp mtdutils.orig/makefile mtdutils/makefile
 --- mtdutils.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ mtdutils/makefile	2010-08-28 20:10:14.000000000 -0700
++++ mtdutils/makefile	2010-09-28 17:05:24.000000000 -0700
 @@ -0,0 +1,66 @@
 +#
 +# General settings
@@ -73,3 +73,44 @@ diff -ruNp mtdutils.orig/makefile mtdutils/makefile
 +# Everything else (maybe including clean, distclean) does get passed through
 +%:: FORCE
 +	$(MAKE) -f Makefile $@
+diff -ruNp mtdutils.orig/nanddump.c mtdutils/nanddump.c
+--- mtdutils.orig/nanddump.c	2009-03-17 12:12:09.000000000 -0700
++++ mtdutils/nanddump.c	2010-09-28 17:05:24.000000000 -0700
+@@ -209,7 +209,13 @@ int main(int argc, char * const argv[])
+ 	}
+ 
+ 	/* Make sure device page sizes are valid */
+-	if (!(meminfo.oobsize == 128 && meminfo.writesize == 4096) &&
++	if (
++#ifdef CONFIG_BRCMNAND_MTD_EXTENSION
++			!(meminfo.oobsize == 448 && meminfo.writesize == 8192) && /* Micron 1080B sector */ 
++			!(meminfo.oobsize == 224 && meminfo.writesize == 4096) && /* Micron 28B OOB */
++			!(meminfo.oobsize == 216 && meminfo.writesize == 4096) && /* 27.25B OOB */
++#endif
++			!(meminfo.oobsize == 128 && meminfo.writesize == 4096) &&
+ 			!(meminfo.oobsize == 64 && meminfo.writesize == 2048) &&
+ 			!(meminfo.oobsize == 32 && meminfo.writesize == 1024) &&
+ 			!(meminfo.oobsize == 16 && meminfo.writesize == 512) &&
+diff -ruNp mtdutils.orig/nandwrite.c mtdutils/nandwrite.c
+--- mtdutils.orig/nandwrite.c	2009-03-17 12:12:09.000000000 -0700
++++ mtdutils/nandwrite.c	2010-09-28 17:05:24.000000000 -0700
+@@ -289,10 +289,16 @@ int main(int argc, char * const argv[])
+ 	meminfo.erasesize *= blockalign;
+ 
+ 	/* Make sure device page sizes are valid */
+-	if (!(meminfo.oobsize == 16 && meminfo.writesize == 512) &&
+-			!(meminfo.oobsize == 8 && meminfo.writesize == 256) &&
++	if (
++#ifdef CONFIG_BRCMNAND_MTD_EXTENSION
++			!(meminfo.oobsize == 448 && meminfo.writesize == 8192) && /* Micron 1080B sector */ 
++			!(meminfo.oobsize == 224 && meminfo.writesize == 4096) && /* Micron 28B OOB */
++			!(meminfo.oobsize == 216 && meminfo.writesize == 4096) && /* 27.25B OOB */
++#endif
++			!(meminfo.oobsize == 128 && meminfo.writesize == 4096) &&
+ 			!(meminfo.oobsize == 64 && meminfo.writesize == 2048) &&
+-			!(meminfo.oobsize == 128 && meminfo.writesize == 4096)) {
++			!(meminfo.oobsize == 16 && meminfo.writesize == 512) &&
++			!(meminfo.oobsize == 8 && meminfo.writesize == 256)) {
+ 		fprintf(stderr, "Unknown flash (not normal NAND)\n");
+ 		close(fd);
+ 		exit (EXIT_FAILURE);

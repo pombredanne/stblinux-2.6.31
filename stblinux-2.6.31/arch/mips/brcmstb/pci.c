@@ -21,9 +21,9 @@
 #include <linux/kernel.h>
 #include <linux/ioport.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
+#include <linux/io.h>
 
-#include <asm/delay.h>
-#include <asm/io.h>
 #include <asm/debug.h>
 #include <asm/brcmstb/brcmstb.h>
 
@@ -163,22 +163,22 @@ static struct resource pcie_io_resource = {
 /* Definitions for each controller */
 
 static struct pci_controller brcmstb_pci_controller = {
-	.pci_ops		= &brcmstb_pci_ops, 
-	.io_resource		= &pci23_io_resource, 
+	.pci_ops		= &brcmstb_pci_ops,
+	.io_resource		= &pci23_io_resource,
 	.mem_resource		= &pci23_mem_resource,
 	.get_busno		= &get_busno_pci23,
 };
 
 static struct pci_controller brcmstb_sata_controller = {
-	.pci_ops		= &brcmstb_pci_ops, 
-	.io_resource		= &sata_io_resource, 
+	.pci_ops		= &brcmstb_pci_ops,
+	.io_resource		= &sata_io_resource,
 	.mem_resource		= &sata_mem_resource,
 	.get_busno		= &get_busno_sata,
 	.io_map_base		= BOGUS_IO_MAP_BASE,
 };
 
 static struct pci_controller brcmstb_pcie_controller = {
-	.pci_ops		= &brcmstb_pci_ops, 
+	.pci_ops		= &brcmstb_pci_ops,
 	.io_resource		= &pcie_io_resource,
 	.mem_resource		= &pcie_mem_resource,
 	.get_busno		= &get_busno_pcie,
@@ -198,12 +198,12 @@ struct brcm_pci_bus {
 };
 
 static struct brcm_pci_bus brcm_buses[] = {
-	[BRCM_BUSNO_PCI23] =
-		{ &brcmstb_pci_controller,  "PCI2.3",  0, 0,  11, 8,  0 },
-	[BRCM_BUSNO_SATA] = 
-		{ &brcmstb_sata_controller, "SATA",    0, 0,  15, 12, 1 },
-	[BRCM_BUSNO_PCIE] =
-		{ &brcmstb_pcie_controller, "PCIe",    1, 20, 15, 12, 0 },
+	[BRCM_BUSNO_PCI23] = {
+		&brcmstb_pci_controller,  "PCI2.3",  0, 0,  11, 8,  0 },
+	[BRCM_BUSNO_SATA] = {
+		&brcmstb_sata_controller, "SATA",    0, 0,  15, 12, 1 },
+	[BRCM_BUSNO_PCIE] = {
+		&brcmstb_pcie_controller, "PCIe",    1, 20, 15, 12, 0 },
 };
 
 
@@ -299,9 +299,9 @@ static inline void brcm_setup_pci_bridge(void)
 
 	BDEV_WR(BCHP_PCI_CFG_MEMORY_BASE_W0, 0xfffffff0);
 	win_size_mb = (~(BDEV_RD(BCHP_PCI_CFG_MEMORY_BASE_W0) & ~0xfUL) +
-	                 1UL) >> 20;
+			 1UL) >> 20;
 	printk(KERN_INFO "PCI2.3->SDRAM window: %lu MB\n", win_size_mb);
-	if(win_size_mb < brcm_dram0_size_mb)
+	if (win_size_mb < brcm_dram0_size_mb)
 		printk(KERN_WARNING
 			"WARNING: PCI2.3 window size is smaller than "
 			"system memory\n");
@@ -350,7 +350,8 @@ void brcm_early_pcie_setup(void)
 
 	/* delay 100us */
 	wktmr_read(&tmp);
-	while (wktmr_elapsed(&tmp) < (100 * WKTMR_1US)) { }
+	while (wktmr_elapsed(&tmp) < (100 * WKTMR_1US))
+		;
 
 	/* take the bridge out of reset */
 	SET_BRIDGE_RESET(0);
@@ -414,9 +415,10 @@ static inline void brcm_setup_pcie_bridge(void)
 #if defined(CONFIG_BRCM_HAS_PCIE)
 
 	/* give the RC/EP time to wake up, before trying to configure RC */
-	while (wktmr_elapsed(&pcie_reset_started) < (100 * WKTMR_1MS)) { }
+	while (wktmr_elapsed(&pcie_reset_started) < (100 * WKTMR_1MS))
+		;
 
-	if (! PCIE_LINK_UP()) {
+	if (!PCIE_LINK_UP()) {
 		printk(KERN_INFO "PCI: PCIe link down\n");
 		return;
 	}
@@ -476,7 +478,7 @@ static int __init brcmstb_pci_init(void)
 		 * These are (intentionally) located in the ioremap() guard
 		 * pages so that they cause an exception on access.
 		 */
-		set_io_port_base(brcmstb_pci_controller.io_map_base - 
+		set_io_port_base(brcmstb_pci_controller.io_map_base -
 			IO_ADDR_PCI23);
 
 		register_pci_controller(&brcmstb_pci_controller);
@@ -537,7 +539,7 @@ static int devfn_ok(struct pci_bus *bus, unsigned int devfn)
 
 	/* PCIe: check for link down or invalid slot number */
 	if (bus->number == BRCM_BUSNO_PCIE &&
-	    (! PCIE_LINK_UP() || PCI_SLOT(devfn) != 0))
+	    (!PCIE_LINK_UP() || PCI_SLOT(devfn) != 0))
 		return 0;
 
 	return 1;	/* OK */
@@ -548,7 +550,7 @@ static int brcm_pci_write_config(struct pci_bus *bus, unsigned int devfn,
 {
 	u32 val = 0, mask, shift;
 
-	if (! devfn_ok(bus, devfn))
+	if (!devfn_ok(bus, devfn))
 		return PCIBIOS_FUNC_NOT_SUPPORTED;
 
 	BUG_ON(((where & 3) + size) > 4);
@@ -576,7 +578,7 @@ static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 {
 	u32 val, mask, shift;
 
-	if (! devfn_ok(bus, devfn))
+	if (!devfn_ok(bus, devfn))
 		return PCIBIOS_FUNC_NOT_SUPPORTED;
 
 	BUG_ON(((where & 3) + size) > 4);
@@ -596,12 +598,6 @@ static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
  * PCI slot to IRQ mappings (aka "fixup")
  ***********************************************************************/
 
-#define NUM_SLOTS	16
-
-/* board-specific definitions are in arch/mips/brcmstb/board.c */
-extern char irq_tab_brcmstb[NUM_SLOTS][4] __initdata;
-extern char irq_tab_brcmstb_docsis[NUM_SLOTS][4] __initdata;
-
 int __devinit pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 {
 #if defined(CONFIG_BRCM_HAS_SATA)
@@ -620,7 +616,7 @@ int __devinit pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 	}
 #endif
 #if defined(CONFIG_BRCM_HAS_PCI23)
-	if ((slot >= NUM_SLOTS) || ((pin - 1) > 3))
+	if ((slot >= BRCM_PCI_SLOTS) || ((pin - 1) > 3))
 		return 0;
 	return brcm_docsis_platform ?
 		irq_tab_brcmstb_docsis[slot][pin - 1] :
@@ -640,7 +636,7 @@ int pcibios_plat_dev_init(struct pci_dev *dev)
  * Per-device initialization
  ***********************************************************************/
 
-static void __devinit brcm_pcibios_fixup(struct pci_dev *dev) 
+static void __devinit brcm_pcibios_fixup(struct pci_dev *dev)
 {
 	int slot = PCI_SLOT(dev->devfn);
 

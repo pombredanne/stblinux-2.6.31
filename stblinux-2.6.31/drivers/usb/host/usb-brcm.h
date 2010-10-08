@@ -22,9 +22,15 @@
 #include <linux/platform_device.h>
 #include <linux/mmdebug.h>
 #include <linux/io.h>
+#include <linux/version.h>
 #include <asm/irq.h>
 #include <asm/brcmstb/brcmstb.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+#include <linux/usb/hcd.h>
+#else
 #include "../core/hcd.h"
+#endif
 
 /* force non-byteswapping reads/writes on LE and BE alike */
 #define CONFIG_USB_EHCI_BIG_ENDIAN_MMIO		1

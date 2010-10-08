@@ -34,15 +34,15 @@
 #include <dma-coherence.h>
 
 /* chip features */
-int brcm_sata_enabled = 0;
-int brcm_enet_enabled = 0;
-int brcm_pci_enabled = 0;
-int brcm_pcie_enabled = 0;
-int brcm_smp_enabled = 0;
-int brcm_emac_1_enabled = 0;
-int brcm_moca_enabled = 0;
-int brcm_usb_enabled = 0;
-int brcm_pm_enabled = 0;
+int brcm_sata_enabled;
+int brcm_enet_enabled;
+int brcm_pci_enabled;
+int brcm_pcie_enabled;
+int brcm_smp_enabled;
+int brcm_emac_1_enabled;
+int brcm_moca_enabled;
+int brcm_usb_enabled;
+int brcm_pm_enabled;
 
 /* synchronize writes to shared registers */
 DEFINE_SPINLOCK(brcm_magnum_spinlock);
@@ -58,23 +58,23 @@ int __init bchip_strap_ram_size(void)
 #if   defined(CONFIG_BCM3563)
 	const unsigned int mc[] = { 0, 16, 32, 64 };
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE_0, strap_ddr_mem0_config);
-	return(mc[reg & 3] * ((reg >> 2) ? 2 : 4));
+	return mc[reg & 3] * ((reg >> 2) ? 2 : 4);
 #elif defined(CONFIG_BCM7038)
 	const unsigned int mc[] = { 0, 16, 32, 64 };
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE, strap_ddr_configuration);
-	return(mc[reg & 3] * ((reg >> 2) ? 2 : 4));
+	return mc[reg & 3] * ((reg >> 2) ? 2 : 4);
 #elif defined(CONFIG_BCM7118)
 	const unsigned int mc[] = { 256, 32, 64, 128 };
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE, strap_ddr_configuration);
-	return(mc[reg & 3]);
+	return mc[reg & 3];
 #elif defined(CONFIG_BCM7400)
 	const unsigned int mc[] = { 64, 128, 256, 512 };
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE_0, strap_ddr_configuration);
-	return(mc[reg & 3]);
+	return mc[reg & 3];
 #elif defined(CONFIG_BCM7401) || defined(CONFIG_BCM7403)
 	const unsigned int mc[] = { 128, 16, 32, 64 };
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE, strap_ddr_configuration);
-	return(mc[reg & 3] * ((reg >> 2) ? 2 : 4));
+	return mc[reg & 3] * ((reg >> 2) ? 2 : 4);
 #elif defined(CONFIG_BCM7405) || defined(CONFIG_BCM7335)
 	const unsigned int mc[] = { 32, 64, 128, 256 };
 	const unsigned int mode[] = { 4, 2, 1, 0, 2, 1, 0, 0 };
@@ -82,14 +82,14 @@ int __init bchip_strap_ram_size(void)
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE_0, strap_ddr0_device_config);
 	tmp = mc[reg & 3];
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE_0, strap_ddr_configuration);
-	return(tmp * mode[reg]);
+	return tmp * mode[reg];
 #elif defined(CONFIG_BCM7325)
 	const unsigned int mc[] = { 32, 64, 128, 256 };
 	reg = BDEV_RD_F(SUN_TOP_CTRL_STRAP_VALUE_0, strap_ddr0_device_config);
-	return(mc[reg] * 2);
+	return mc[reg] * 2;
 #else
 	reg = 0;
-	return(reg);
+	return reg;
 #endif
 }
 
@@ -101,7 +101,7 @@ int __init bchip_strap_ram_size(void)
 		kernel_chip_id = arg_id; \
 		kernel_chip_rev = arg_rev; \
 	} \
-	} while(0)
+	} while (0)
 
 #define MAIN_CHIP_ID(chip, rev) do { \
 	u32 arg_id = 0x ## chip; \
@@ -111,7 +111,7 @@ int __init bchip_strap_ram_size(void)
 		kernel_chip_id = arg_id; \
 		kernel_chip_rev = arg_rev; \
 	} \
-	} while(0)
+	} while (0)
 
 /*
  * NOTE: This is a quick sanity test to catch known incompatibilities and
@@ -165,9 +165,9 @@ void __init bchip_check_compat(void)
 #elif defined(CONFIG_BCM7400)
 	MAIN_CHIP_ID(7400, d0);
 #elif defined(CONFIG_BCM7401)
-	MAIN_CHIP_ID(7401, c1);			// for EBI bugfix
+	MAIN_CHIP_ID(7401, c1);			/* for EBI bugfix */
 #elif defined(CONFIG_BCM7403)
-	MAIN_CHIP_ID(7403, a1);			// for EBI bugfix
+	MAIN_CHIP_ID(7403, a1);			/* for EBI bugfix */
 #elif defined(CONFIG_BCM7405)
 	ALT_CHIP_ID(7413, a0);
 	MAIN_CHIP_ID(7405, b0);
@@ -220,45 +220,46 @@ void __init bchip_mips_setup(void)
 
 	unsigned long cbr = BMIPS_GET_CBR();
 
-	// Set BIU to async mode
+	/* Set BIU to async mode */
 	set_c0_brcm_bus_pll(1 << 22);
 	__sync();
 
 #ifdef BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT
-	// Enable write gathering
+	/* Enable write gathering */
 	BDEV_WR_RB(BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT, 0x264);
 
-	// Enable split mode
+	/* Enable split mode */
 	BDEV_WR_RB(BCHP_MISB_BRIDGE_MISB_SPLIT_MODE, 0x1);
 	__sync();
 #endif
 
-	// put the BIU back in sync mode
+	/* put the BIU back in sync mode */
 	clear_c0_brcm_bus_pll(1 << 22);
 
-	// clear BHTD to enable branch history table
+	/* clear BHTD to enable branch history table */
 	clear_c0_brcm_reset(1 << 16);
 
-	// Flush and enable RAC
+	/* Flush and enable RAC */
 	DEV_WR_RB(cbr + BMIPS_RAC_CONFIG, 0x100);
 	DEV_WR_RB(cbr + BMIPS_RAC_CONFIG, 0xf);
 	DEV_WR_RB(cbr + BMIPS_RAC_ADDRESS_RANGE, 0x0fff0000);
 
 #elif defined(CONFIG_BMIPS4380)
 
-	// clear BHTD to enable branch history table
+	/* clear BHTD to enable branch history table */
 	clear_c0_brcm_config_0(1 << 21);
 
 #elif defined(CONFIG_BMIPS5000)
 
-	// enable RDHWR, BRDHWR
+	/* enable RDHWR, BRDHWR */
 	set_c0_brcm_config((1 << 17) | (1 << 21));
 
 #elif defined(CONFIG_MTI_R5K)
 
-	// Flush and enable RAC
+	/* Flush and enable RAC */
 	BDEV_WR(BCHP_RAC_COMMAND, 0x01);
-	while(BDEV_RD(BCHP_RAC_VALID_FWD_STATUS) & 0xffff) { }
+	while (BDEV_RD(BCHP_RAC_VALID_FWD_STATUS) & 0xffff)
+		;
 	BDEV_WR_RB(BCHP_RAC_COMMAND, 0x00);
 
 	BDEV_WR_RB(BCHP_RAC_CACHEABLE_SPACE, 0x0fff0000);
@@ -339,11 +340,11 @@ void __init bchip_moca_init(void)
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
 #elif defined(CONFIG_BCM7342)
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
-#elif defined(CONFIG_BCM7125)
+#elif defined(CONFIG_BCM7125) || defined(CONFIG_BCM7340)
 	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_ENET_CG_MOCA, 0);
 	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_GMII_CG_MOCA, 0);
-#elif defined(CONFIG_BCM7408)
-	BDEV_WR_F_RB(CLK_MOCA_PHY_DIV, M3DIV, 8);
+#elif defined(CONFIG_BCM7408A0)
+	BDEV_WR_F_RB(CLK_MOCA_PHY_DIV, M3DIV, 11);
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
 #endif
 }
@@ -506,7 +507,8 @@ void __init bchip_early_setup(void)
 
 	/* wait for first tick so we know the counter is ready to use */
 	wktmr_read(&t);
-	while (wktmr_elapsed(&t) == 0) { }
+	while (wktmr_elapsed(&t) == 0)
+		;
 #endif
 
 #ifdef CONFIG_PCI
@@ -574,7 +576,7 @@ int brcm_unaligned_fp(void __user *addr, union mips_instruction *insn,
 	u8 *fprptr = (u8 *)current + THREAD_FPR0 + (rt >> 1) *
 		(THREAD_FPR2 - THREAD_FPR0);
 
-	if(op == lwc1_op || op == swc1_op) {
+	if (op == lwc1_op || op == swc1_op) {
 		wordlen = 4;
 #ifdef __LITTLE_ENDIAN
 		/* LE: LSW ($f0) precedes MSW ($f1) */
@@ -591,7 +593,7 @@ int brcm_unaligned_fp(void __user *addr, union mips_instruction *insn,
 	else
 		own_fpu(1);
 
-	if(op == lwc1_op || op == ldc1_op) {
+	if (op == lwc1_op || op == ldc1_op) {
 		if (!access_ok(VERIFY_READ, addr, wordlen))
 			goto sigbus;
 		/*

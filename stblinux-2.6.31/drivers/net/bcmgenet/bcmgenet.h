@@ -56,6 +56,7 @@ typedef struct Enet_CB {
 #define GENET_POWER_CABLE_SENSE	0
 #define GENET_POWER_WOL_MAGIC	1
 #define GENET_POWER_WOL_ACPI	2
+#define GENET_POWER_PASSIVE		3
 
 /*
  * device context

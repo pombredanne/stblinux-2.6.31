@@ -9,6 +9,7 @@ using namespace std;
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bonnie.h"
 #ifdef HAVE_VECTOR
 #include <vector>

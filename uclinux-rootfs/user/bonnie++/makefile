@@ -12,4 +12,4 @@ distclean: clean
 
 romfs:
 	$(ROMFSINST) -e CONFIG_USER_BONNIEXX_BONNIEXX bonnie++ /bin/bonnie++
-	$(ROMFSINST) -e CONFIG_USER_BONNIEXX_BONNIEXX zcav /bin/bonnie++
+	$(ROMFSINST) -e CONFIG_USER_BONNIEXX_BONNIEXX zcav /bin/zcav
