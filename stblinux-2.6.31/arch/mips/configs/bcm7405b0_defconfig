@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.31-2.5
-# Sat Sep  4 11:46:00 2010
+# Linux kernel version: 2.6.31-2.6
+# Wed Oct 13 12:02:03 2010
 #
 CONFIG_MIPS=y
 
@@ -85,6 +85,7 @@ CONFIG_BCM7405B0=y
 # CONFIG_BCM7440B0 is not set
 # CONFIG_BCM7468B0 is not set
 # CONFIG_BCM7550A0 is not set
+# CONFIG_BCM7550B0 is not set
 # CONFIG_BCM7552A0 is not set
 # CONFIG_BCM7601B0 is not set
 # CONFIG_BCM7630B0 is not set

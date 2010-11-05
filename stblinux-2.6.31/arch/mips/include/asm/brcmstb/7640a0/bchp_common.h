@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Aug 21 02:39:57 2010
- *                 MD5 Checksum         7503bcc37fa293871cc40ba51c24c24f
+ * Date:           Generated on         Wed Sep  8 11:43:36 2010
+ *                 MD5 Checksum         729d3b7e2ea2ad01024ee45efb75a6bf
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7640/rdb/a0/bchp_common.h $
+ * 
+ * Hydra_Software_Devel/1   9/8/10 2:47p pntruong
+ * SWBLURAY-22428: Initial version.
  *
  ***************************************************************************/
 
@@ -446,8 +449,8 @@
 #define BCHP_UARTB_REG_END                                 0x00406b5c
 #define BCHP_UARTC_REG_START                               0x00406b80
 #define BCHP_UARTC_REG_END                                 0x00406b9c
-#define BCHP_INTR_CTRL_REG_START                           0x00406c40
-#define BCHP_INTR_CTRL_REG_END                             0x00406c6c
+#define BCHP_UPG_AUX_INTR2_REG_START                       0x00406c00
+#define BCHP_UPG_AUX_INTR2_REG_END                         0x00406c2c
 #define BCHP_AON_CTRL_REG_START                            0x00408000
 #define BCHP_AON_CTRL_REG_END                              0x004081bc
 #define BCHP_AON_L2_REG_START                              0x00408200
@@ -468,8 +471,6 @@
 #define BCHP_KBD1_REG_END                                  0x004090fc
 #define BCHP_KBD2_REG_START                                0x00409100
 #define BCHP_KBD2_REG_END                                  0x0040913c
-#define BCHP_KBD3_REG_START                                0x00409140
-#define BCHP_KBD3_REG_END                                  0x0040917c
 #define BCHP_UART_REG_START                                0x00409180
 #define BCHP_UART_REG_END                                  0x0040919c
 #define BCHP_BSCD_REG_START                                0x00409380
@@ -477,15 +478,15 @@
 #define BCHP_MSPI_REG_START                                0x00409400
 #define BCHP_MSPI_REG_END                                  0x0040957c
 #define BCHP_GIO_AON_REG_START                             0x00409700
-#define BCHP_GIO_AON_REG_END                               0x0040973c
+#define BCHP_GIO_AON_REG_END                               0x0040975c
 #define BCHP_IRQ0_AON_REG_START                            0x00409780
 #define BCHP_IRQ0_AON_REG_END                              0x00409784
 #define BCHP_IRQ1_AON_REG_START                            0x00409788
 #define BCHP_IRQ1_AON_REG_END                              0x0040978c
 #define BCHP_BICAP_REG_START                               0x00409800
 #define BCHP_BICAP_REG_END                                 0x0040982c
-#define BCHP_INTR_CTRL_AON_REG_START                       0x00409840
-#define BCHP_INTR_CTRL_AON_REG_END                         0x0040986c
+#define BCHP_UPG_AUX_AON_INTR2_REG_START                   0x00409840
+#define BCHP_UPG_AUX_AON_INTR2_REG_END                     0x0040986c
 #define BCHP_WKTMR_REG_START                               0x00409880
 #define BCHP_WKTMR_REG_END                                 0x00409890
 #define BCHP_PRI_CLIENT_REGS_REG_START                     0x0040c000
@@ -1130,7 +1131,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1149,7 +1150,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1168,7 +1169,7 @@
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_AUD_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

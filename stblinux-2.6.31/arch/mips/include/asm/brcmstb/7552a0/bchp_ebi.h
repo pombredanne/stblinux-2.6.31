@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Sep  4 11:22:16 2010
- *                 MD5 Checksum         5c793fc92372a5588d6af292f0d1b0c0
+ * Date:           Generated on         Sat Oct  9 13:33:38 2010
+ *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -52,14 +52,11 @@
 #define BCHP_EBI_CS_CONFIG_3                     0x0041081c /* EBI CS Config 3 Register */
 #define BCHP_EBI_CS_BASE_4                       0x00410820 /* EBI CS Base 4 Register */
 #define BCHP_EBI_CS_CONFIG_4                     0x00410824 /* EBI CS Config 4 Register */
-#define BCHP_EBI_CS_BASE_5                       0x00410828 /* EBI CS Base 5 Register */
-#define BCHP_EBI_CS_CONFIG_5                     0x0041082c /* EBI CS Config 5 Register */
 #define BCHP_EBI_BURST_CFG_0                     0x00410840 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
 #define BCHP_EBI_BURST_CFG_1                     0x00410844 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
 #define BCHP_EBI_BURST_CFG_2                     0x00410848 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
 #define BCHP_EBI_BURST_CFG_3                     0x0041084c /* EBI Synchronous Intel StrataFlash Burst Configure Register */
 #define BCHP_EBI_BURST_CFG_4                     0x00410850 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_5                     0x00410854 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
 #define BCHP_EBI_ECR                             0x00410900 /* EBI Configuration Register */
 #define BCHP_EBI_CS_TRISTATE_CFG                 0x00410918 /* EBI CS Tristate Configuration Register */
 #define BCHP_EBI_TA_CFG                          0x0041091c /* EBI TA Configuration Register */
@@ -687,130 +684,6 @@
 #define BCHP_EBI_CS_CONFIG_4_enable_SHIFT                          0
 
 /***************************************************************************
- *CS_BASE_5 - EBI CS Base 5 Register
- ***************************************************************************/
-/* EBI :: CS_BASE_5 :: base_addr [31:13] */
-#define BCHP_EBI_CS_BASE_5_base_addr_MASK                          0xffffe000
-#define BCHP_EBI_CS_BASE_5_base_addr_SHIFT                         13
-
-/* EBI :: CS_BASE_5 :: reserved0 [12:04] */
-#define BCHP_EBI_CS_BASE_5_reserved0_MASK                          0x00001ff0
-#define BCHP_EBI_CS_BASE_5_reserved0_SHIFT                         4
-
-/* EBI :: CS_BASE_5 :: size [03:00] */
-#define BCHP_EBI_CS_BASE_5_size_MASK                               0x0000000f
-#define BCHP_EBI_CS_BASE_5_size_SHIFT                              0
-#define BCHP_EBI_CS_BASE_5_size_SIZE_8KB                           0
-#define BCHP_EBI_CS_BASE_5_size_SIZE_16KB                          1
-#define BCHP_EBI_CS_BASE_5_size_SIZE_32KB                          2
-#define BCHP_EBI_CS_BASE_5_size_SIZE_64KB                          3
-#define BCHP_EBI_CS_BASE_5_size_SIZE_128KB                         4
-#define BCHP_EBI_CS_BASE_5_size_SIZE_256KB                         5
-#define BCHP_EBI_CS_BASE_5_size_SIZE_512KB                         6
-#define BCHP_EBI_CS_BASE_5_size_SIZE_1MB                           7
-#define BCHP_EBI_CS_BASE_5_size_SIZE_2MB                           8
-#define BCHP_EBI_CS_BASE_5_size_SIZE_4MB                           9
-#define BCHP_EBI_CS_BASE_5_size_SIZE_8MB                           10
-#define BCHP_EBI_CS_BASE_5_size_SIZE_16MB                          11
-#define BCHP_EBI_CS_BASE_5_size_SIZE_32MB                          12
-#define BCHP_EBI_CS_BASE_5_size_SIZE_64MB                          13
-#define BCHP_EBI_CS_BASE_5_size_SIZE_128MB                         14
-#define BCHP_EBI_CS_BASE_5_size_SIZE_256MB                         15
-
-/***************************************************************************
- *CS_CONFIG_5 - EBI CS Config 5 Register
- ***************************************************************************/
-/* EBI :: CS_CONFIG_5 :: mem_io [31:31] */
-#define BCHP_EBI_CS_CONFIG_5_mem_io_MASK                           0x80000000
-#define BCHP_EBI_CS_CONFIG_5_mem_io_SHIFT                          31
-
-/* EBI :: CS_CONFIG_5 :: ta_wait [30:30] */
-#define BCHP_EBI_CS_CONFIG_5_ta_wait_MASK                          0x40000000
-#define BCHP_EBI_CS_CONFIG_5_ta_wait_SHIFT                         30
-
-/* EBI :: CS_CONFIG_5 :: wp [29:29] */
-#define BCHP_EBI_CS_CONFIG_5_wp_MASK                               0x20000000
-#define BCHP_EBI_CS_CONFIG_5_wp_SHIFT                              29
-
-/* EBI :: CS_CONFIG_5 :: wait_count [28:24] */
-#define BCHP_EBI_CS_CONFIG_5_wait_count_MASK                       0x1f000000
-#define BCHP_EBI_CS_CONFIG_5_wait_count_SHIFT                      24
-
-/* EBI :: CS_CONFIG_5 :: t_hold [23:20] */
-#define BCHP_EBI_CS_CONFIG_5_t_hold_MASK                           0x00f00000
-#define BCHP_EBI_CS_CONFIG_5_t_hold_SHIFT                          20
-
-/* EBI :: CS_CONFIG_5 :: t_setup [19:16] */
-#define BCHP_EBI_CS_CONFIG_5_t_setup_MASK                          0x000f0000
-#define BCHP_EBI_CS_CONFIG_5_t_setup_SHIFT                         16
-
-/* EBI :: CS_CONFIG_5 :: cs_hold [15:15] */
-#define BCHP_EBI_CS_CONFIG_5_cs_hold_MASK                          0x00008000
-#define BCHP_EBI_CS_CONFIG_5_cs_hold_SHIFT                         15
-
-/* EBI :: CS_CONFIG_5 :: split_cs [14:14] */
-#define BCHP_EBI_CS_CONFIG_5_split_cs_MASK                         0x00004000
-#define BCHP_EBI_CS_CONFIG_5_split_cs_SHIFT                        14
-
-/* EBI :: CS_CONFIG_5 :: mask_en [13:13] */
-#define BCHP_EBI_CS_CONFIG_5_mask_en_MASK                          0x00002000
-#define BCHP_EBI_CS_CONFIG_5_mask_en_SHIFT                         13
-
-/* EBI :: CS_CONFIG_5 :: ne_sample [12:12] */
-#define BCHP_EBI_CS_CONFIG_5_ne_sample_MASK                        0x00001000
-#define BCHP_EBI_CS_CONFIG_5_ne_sample_SHIFT                       12
-
-/* EBI :: CS_CONFIG_5 :: m68k [11:11] */
-#define BCHP_EBI_CS_CONFIG_5_m68k_MASK                             0x00000800
-#define BCHP_EBI_CS_CONFIG_5_m68k_SHIFT                            11
-
-/* EBI :: CS_CONFIG_5 :: le [10:10] */
-#define BCHP_EBI_CS_CONFIG_5_le_MASK                               0x00000400
-#define BCHP_EBI_CS_CONFIG_5_le_SHIFT                              10
-
-/* EBI :: CS_CONFIG_5 :: fast_read [09:09] */
-#define BCHP_EBI_CS_CONFIG_5_fast_read_MASK                        0x00000200
-#define BCHP_EBI_CS_CONFIG_5_fast_read_SHIFT                       9
-#define BCHP_EBI_CS_CONFIG_5_fast_read_Normal                      0
-#define BCHP_EBI_CS_CONFIG_5_fast_read_Fast_Read_Enable            1
-
-/* EBI :: CS_CONFIG_5 :: size_sel [08:08] */
-#define BCHP_EBI_CS_CONFIG_5_size_sel_MASK                         0x00000100
-#define BCHP_EBI_CS_CONFIG_5_size_sel_SHIFT                        8
-
-/* EBI :: CS_CONFIG_5 :: sync [07:07] */
-#define BCHP_EBI_CS_CONFIG_5_sync_MASK                             0x00000080
-#define BCHP_EBI_CS_CONFIG_5_sync_SHIFT                            7
-
-/* EBI :: CS_CONFIG_5 :: polarity [06:06] */
-#define BCHP_EBI_CS_CONFIG_5_polarity_MASK                         0x00000040
-#define BCHP_EBI_CS_CONFIG_5_polarity_SHIFT                        6
-
-/* EBI :: CS_CONFIG_5 :: we_ctl [05:05] */
-#define BCHP_EBI_CS_CONFIG_5_we_ctl_MASK                           0x00000020
-#define BCHP_EBI_CS_CONFIG_5_we_ctl_SHIFT                          5
-
-/* EBI :: CS_CONFIG_5 :: dest_size [04:04] */
-#define BCHP_EBI_CS_CONFIG_5_dest_size_MASK                        0x00000010
-#define BCHP_EBI_CS_CONFIG_5_dest_size_SHIFT                       4
-
-/* EBI :: CS_CONFIG_5 :: ms_inh [03:03] */
-#define BCHP_EBI_CS_CONFIG_5_ms_inh_MASK                           0x00000008
-#define BCHP_EBI_CS_CONFIG_5_ms_inh_SHIFT                          3
-
-/* EBI :: CS_CONFIG_5 :: ls_inh [02:02] */
-#define BCHP_EBI_CS_CONFIG_5_ls_inh_MASK                           0x00000004
-#define BCHP_EBI_CS_CONFIG_5_ls_inh_SHIFT                          2
-
-/* EBI :: CS_CONFIG_5 :: bcachen [01:01] */
-#define BCHP_EBI_CS_CONFIG_5_bcachen_MASK                          0x00000002
-#define BCHP_EBI_CS_CONFIG_5_bcachen_SHIFT                         1
-
-/* EBI :: CS_CONFIG_5 :: enable [00:00] */
-#define BCHP_EBI_CS_CONFIG_5_enable_MASK                           0x00000001
-#define BCHP_EBI_CS_CONFIG_5_enable_SHIFT                          0
-
-/***************************************************************************
  *BURST_CFG_0 - EBI Synchronous Intel StrataFlash Burst Configure Register
  ***************************************************************************/
 /* EBI :: BURST_CFG_0 :: prefetch_enable [31:31] */
@@ -1166,77 +1039,6 @@
 #define BCHP_EBI_BURST_CFG_4_burst_16_SHIFT                        0
 
 /***************************************************************************
- *BURST_CFG_5 - EBI Synchronous Intel StrataFlash Burst Configure Register
- ***************************************************************************/
-/* EBI :: BURST_CFG_5 :: prefetch_enable [31:31] */
-#define BCHP_EBI_BURST_CFG_5_prefetch_enable_MASK                  0x80000000
-#define BCHP_EBI_BURST_CFG_5_prefetch_enable_SHIFT                 31
-
-/* EBI :: BURST_CFG_5 :: page_enable [30:30] */
-#define BCHP_EBI_BURST_CFG_5_page_enable_MASK                      0x40000000
-#define BCHP_EBI_BURST_CFG_5_page_enable_SHIFT                     30
-
-/* EBI :: BURST_CFG_5 :: pfetch_abort_enable [29:29] */
-#define BCHP_EBI_BURST_CFG_5_pfetch_abort_enable_MASK              0x20000000
-#define BCHP_EBI_BURST_CFG_5_pfetch_abort_enable_SHIFT             29
-
-/* EBI :: BURST_CFG_5 :: page_latch_enable [28:28] */
-#define BCHP_EBI_BURST_CFG_5_page_latch_enable_MASK                0x10000000
-#define BCHP_EBI_BURST_CFG_5_page_latch_enable_SHIFT               28
-
-/* EBI :: BURST_CFG_5 :: pfetch_wrap_enable [27:27] */
-#define BCHP_EBI_BURST_CFG_5_pfetch_wrap_enable_MASK               0x08000000
-#define BCHP_EBI_BURST_CFG_5_pfetch_wrap_enable_SHIFT              27
-
-/* EBI :: BURST_CFG_5 :: reserved0 [26:24] */
-#define BCHP_EBI_BURST_CFG_5_reserved0_MASK                        0x07000000
-#define BCHP_EBI_BURST_CFG_5_reserved0_SHIFT                       24
-
-/* EBI :: BURST_CFG_5 :: prefetch_size [23:22] */
-#define BCHP_EBI_BURST_CFG_5_prefetch_size_MASK                    0x00c00000
-#define BCHP_EBI_BURST_CFG_5_prefetch_size_SHIFT                   22
-#define BCHP_EBI_BURST_CFG_5_prefetch_size_SIZE_4_BYTES            0
-#define BCHP_EBI_BURST_CFG_5_prefetch_size_SIZE_8_BYTES            1
-#define BCHP_EBI_BURST_CFG_5_prefetch_size_SIZE_16_BYTES           2
-#define BCHP_EBI_BURST_CFG_5_prefetch_size_SIZE_32_BYTES           3
-
-/* EBI :: BURST_CFG_5 :: page_size [21:20] */
-#define BCHP_EBI_BURST_CFG_5_page_size_MASK                        0x00300000
-#define BCHP_EBI_BURST_CFG_5_page_size_SHIFT                       20
-#define BCHP_EBI_BURST_CFG_5_page_size_SIZE_4_BYTES                0
-#define BCHP_EBI_BURST_CFG_5_page_size_SIZE_8_BYTES                1
-#define BCHP_EBI_BURST_CFG_5_page_size_SIZE_16_BYTES               2
-#define BCHP_EBI_BURST_CFG_5_page_size_SIZE_32_BYTES               3
-
-/* EBI :: BURST_CFG_5 :: page_wait_count [19:16] */
-#define BCHP_EBI_BURST_CFG_5_page_wait_count_MASK                  0x000f0000
-#define BCHP_EBI_BURST_CFG_5_page_wait_count_SHIFT                 16
-
-/* EBI :: BURST_CFG_5 :: burst_cyc_disable [15:15] */
-#define BCHP_EBI_BURST_CFG_5_burst_cyc_disable_MASK                0x00008000
-#define BCHP_EBI_BURST_CFG_5_burst_cyc_disable_SHIFT               15
-
-/* EBI :: BURST_CFG_5 :: reserved1 [14:08] */
-#define BCHP_EBI_BURST_CFG_5_reserved1_MASK                        0x00007f00
-#define BCHP_EBI_BURST_CFG_5_reserved1_SHIFT                       8
-
-/* EBI :: BURST_CFG_5 :: burst_latency [07:04] */
-#define BCHP_EBI_BURST_CFG_5_burst_latency_MASK                    0x000000f0
-#define BCHP_EBI_BURST_CFG_5_burst_latency_SHIFT                   4
-
-/* EBI :: BURST_CFG_5 :: reserved2 [03:02] */
-#define BCHP_EBI_BURST_CFG_5_reserved2_MASK                        0x0000000c
-#define BCHP_EBI_BURST_CFG_5_reserved2_SHIFT                       2
-
-/* EBI :: BURST_CFG_5 :: data_hold [01:01] */
-#define BCHP_EBI_BURST_CFG_5_data_hold_MASK                        0x00000002
-#define BCHP_EBI_BURST_CFG_5_data_hold_SHIFT                       1
-
-/* EBI :: BURST_CFG_5 :: burst_16 [00:00] */
-#define BCHP_EBI_BURST_CFG_5_burst_16_MASK                         0x00000001
-#define BCHP_EBI_BURST_CFG_5_burst_16_SHIFT                        0
-
-/***************************************************************************
  *ECR - EBI Configuration Register
  ***************************************************************************/
 /* EBI :: ECR :: reserved0 [31:28] */
@@ -1302,13 +1104,9 @@
 #define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_tsize0b_MASK         0x01000000
 #define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_tsize0b_SHIFT        24
 
-/* EBI :: CS_TRISTATE_CFG :: reserved0 [23:06] */
-#define BCHP_EBI_CS_TRISTATE_CFG_reserved0_MASK                    0x00ffffc0
-#define BCHP_EBI_CS_TRISTATE_CFG_reserved0_SHIFT                   6
-
-/* EBI :: CS_TRISTATE_CFG :: tristate_ebi_cs5 [05:05] */
-#define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_cs5_MASK             0x00000020
-#define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_cs5_SHIFT            5
+/* EBI :: CS_TRISTATE_CFG :: reserved0 [23:05] */
+#define BCHP_EBI_CS_TRISTATE_CFG_reserved0_MASK                    0x00ffffe0
+#define BCHP_EBI_CS_TRISTATE_CFG_reserved0_SHIFT                   5
 
 /* EBI :: CS_TRISTATE_CFG :: tristate_ebi_cs4 [04:04] */
 #define BCHP_EBI_CS_TRISTATE_CFG_tristate_ebi_cs4_MASK             0x00000010

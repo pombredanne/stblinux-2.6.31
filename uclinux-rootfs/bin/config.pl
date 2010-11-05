@@ -437,6 +437,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$busybox{"CONFIG_MKSWAP"} = "n";
 			$busybox{"CONFIG_SWAPONOFF"} = "n";
 			$vendor{"CONFIG_USER_FDISK_FDISK"} = "n";
+			$vendor{"CONFIG_USER_GDISK_GDISK"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_E2FSCK_E2FSCK"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_MISC_MKE2FS"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_MISC_TUNE2FS"} = "n";

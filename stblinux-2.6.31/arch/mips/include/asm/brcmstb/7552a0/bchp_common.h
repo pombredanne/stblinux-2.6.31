@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Sep  4 11:19:42 2010
- *                 MD5 Checksum         5c793fc92372a5588d6af292f0d1b0c0
+ * Date:           Generated on         Sat Oct  9 13:31:03 2010
+ *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -277,7 +277,7 @@
 #define BCHP_SDIO_0_CFG_REG_START                          0x00410100
 #define BCHP_SDIO_0_CFG_REG_END                            0x004101fc
 #define BCHP_MISB_BRIDGE_REG_START                         0x00410400
-#define BCHP_MISB_BRIDGE_REG_END                           0x00410408
+#define BCHP_MISB_BRIDGE_REG_END                           0x00410410
 #define BCHP_EBI_REG_START                                 0x00410800
 #define BCHP_EBI_REG_END                                   0x00410bfc
 #define BCHP_HIF_INTR2_REG_START                           0x00411000
@@ -378,6 +378,8 @@
 #define BCHP_USB_OHCI_REG_END                              0x00480458
 #define BCHP_BOOTROM_REG_START                             0x00500000
 #define BCHP_BOOTROM_REG_END                               0x00503ffc
+#define BCHP_BESTROM_REG_START                             0x00580000
+#define BCHP_BESTROM_REG_END                               0x00583ffc
 #define BCHP_MFD_0_REG_START                               0x00600000
 #define BCHP_MFD_0_REG_END                                 0x006001fc
 #define BCHP_VFD_0_REG_START                               0x00601000

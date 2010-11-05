@@ -1,11 +1,70 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-09-28
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-10-22
 #
 # Original package: bash-3.2.tar.bz2
 #
+diff -ruNp bash.orig/.gitignore bash/.gitignore
+--- bash.orig/.gitignore	1969-12-31 16:00:00.000000000 -0800
++++ bash/.gitignore	2010-10-22 14:51:04.000000000 -0700
+@@ -0,0 +1,55 @@
++*.so
++*.[ao]
++.build
++.made
++Makefile
++autom4te.cache/
++bash
++bashbug
++bashversion
++builtins/Makefile
++builtins/builtext.h
++builtins/builtins.c
++builtins/libbuiltins.a
++builtins/mkbuiltins
++builtins/pipesize.h
++builtins/psize.aux
++config.h
++config.log
++config.status
++doc/Makefile
++examples/loadables/Makefile
++examples/loadables/perl/Makefile
++lib/glob/Makefile
++lib/glob/libglob.a
++lib/intl/Makefile
++lib/intl/charset.alias
++lib/intl/libgnuintl.h
++lib/intl/libintl.a
++lib/intl/libintl.h
++lib/intl/ref-add.sed
++lib/intl/ref-del.sed
++lib/malloc/Makefile
++lib/malloc/libmalloc.a
++lib/readline/Makefile
++lib/readline/libhistory.a
++lib/readline/libreadline.a
++lib/sh/Makefile
++lib/sh/libsh.a
++lib/termcap/Makefile
++lib/termcap/libtermcap.a
++lib/tilde/Makefile
++lib/tilde/libtilde.a
++lsignames.h
++mksignames
++mksyntax
++parser-built
++pathnames.h
++po/Makefile
++po/Makefile.in
++po/POTFILES
++signames.h
++stamp-h
++support/Makefile
++syntax.c
++version.h
 diff -ruNp bash.orig/makefile bash/makefile
 --- bash.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ bash/makefile	2010-09-28 17:05:22.000000000 -0700
++++ bash/makefile	2010-10-22 14:51:04.000000000 -0700
 @@ -0,0 +1,33 @@
 +include $(ROOTDIR)/config.arch
 +

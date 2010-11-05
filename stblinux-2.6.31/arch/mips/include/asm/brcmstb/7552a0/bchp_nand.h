@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Sep  4 11:23:31 2010
- *                 MD5 Checksum         5c793fc92372a5588d6af292f0d1b0c0
+ * Date:           Generated on         Sat Oct  9 13:34:52 2010
+ *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -101,10 +101,6 @@
 #define BCHP_NAND_CONFIG_CS4                     0x00412904 /* Nand Flash Config */
 #define BCHP_NAND_TIMING_1_CS4                   0x00412908 /* Nand Flash Timing Parameters 1 */
 #define BCHP_NAND_TIMING_2_CS4                   0x0041290c /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS5                0x00412910 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS5                     0x00412914 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS5                   0x00412918 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS5                   0x0041291c /* Nand Flash Timing Parameters 2 */
 #define BCHP_NAND_SPARE_AREA_READ_OFS_10         0x00412930 /* Nand Flash Spare Area Read Bytes 16-19 */
 #define BCHP_NAND_SPARE_AREA_READ_OFS_14         0x00412934 /* Nand Flash Spare Area Read Bytes 20-23 */
 #define BCHP_NAND_SPARE_AREA_READ_OFS_18         0x00412938 /* Nand Flash Spare Area Read Bytes 24-27 */
@@ -1796,205 +1792,6 @@
 /* NAND :: TIMING_2_CS4 :: tREAD [03:00] */
 #define BCHP_NAND_TIMING_2_CS4_tREAD_MASK                          0x0000000f
 #define BCHP_NAND_TIMING_2_CS4_tREAD_SHIFT                         0
-
-/***************************************************************************
- *ACC_CONTROL_CS5 - Nand Flash Access Control
- ***************************************************************************/
-/* NAND :: ACC_CONTROL_CS5 :: RD_ECC_EN [31:31] */
-#define BCHP_NAND_ACC_CONTROL_CS5_RD_ECC_EN_MASK                   0x80000000
-#define BCHP_NAND_ACC_CONTROL_CS5_RD_ECC_EN_SHIFT                  31
-
-/* NAND :: ACC_CONTROL_CS5 :: WR_ECC_EN [30:30] */
-#define BCHP_NAND_ACC_CONTROL_CS5_WR_ECC_EN_MASK                   0x40000000
-#define BCHP_NAND_ACC_CONTROL_CS5_WR_ECC_EN_SHIFT                  30
-
-/* NAND :: ACC_CONTROL_CS5 :: reserved0 [29:29] */
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved0_MASK                   0x20000000
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved0_SHIFT                  29
-
-/* NAND :: ACC_CONTROL_CS5 :: FAST_PGM_RDIN [28:28] */
-#define BCHP_NAND_ACC_CONTROL_CS5_FAST_PGM_RDIN_MASK               0x10000000
-#define BCHP_NAND_ACC_CONTROL_CS5_FAST_PGM_RDIN_SHIFT              28
-
-/* NAND :: ACC_CONTROL_CS5 :: RD_ERASED_ECC_EN [27:27] */
-#define BCHP_NAND_ACC_CONTROL_CS5_RD_ERASED_ECC_EN_MASK            0x08000000
-#define BCHP_NAND_ACC_CONTROL_CS5_RD_ERASED_ECC_EN_SHIFT           27
-
-/* NAND :: ACC_CONTROL_CS5 :: PARTIAL_PAGE_EN [26:26] */
-#define BCHP_NAND_ACC_CONTROL_CS5_PARTIAL_PAGE_EN_MASK             0x04000000
-#define BCHP_NAND_ACC_CONTROL_CS5_PARTIAL_PAGE_EN_SHIFT            26
-
-/* NAND :: ACC_CONTROL_CS5 :: WR_PREEMPT_EN [25:25] */
-#define BCHP_NAND_ACC_CONTROL_CS5_WR_PREEMPT_EN_MASK               0x02000000
-#define BCHP_NAND_ACC_CONTROL_CS5_WR_PREEMPT_EN_SHIFT              25
-
-/* NAND :: ACC_CONTROL_CS5 :: PAGE_HIT_EN [24:24] */
-#define BCHP_NAND_ACC_CONTROL_CS5_PAGE_HIT_EN_MASK                 0x01000000
-#define BCHP_NAND_ACC_CONTROL_CS5_PAGE_HIT_EN_SHIFT                24
-
-/* NAND :: ACC_CONTROL_CS5 :: reserved1 [23:20] */
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved1_MASK                   0x00f00000
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved1_SHIFT                  20
-
-/* NAND :: ACC_CONTROL_CS5 :: ECC_LEVEL [19:16] */
-#define BCHP_NAND_ACC_CONTROL_CS5_ECC_LEVEL_MASK                   0x000f0000
-#define BCHP_NAND_ACC_CONTROL_CS5_ECC_LEVEL_SHIFT                  16
-
-/* NAND :: ACC_CONTROL_CS5 :: reserved2 [15:07] */
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved2_MASK                   0x0000ff80
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved2_SHIFT                  7
-
-/* NAND :: ACC_CONTROL_CS5 :: SECTOR_SIZE_1K [06:06] */
-#define BCHP_NAND_ACC_CONTROL_CS5_SECTOR_SIZE_1K_MASK              0x00000040
-#define BCHP_NAND_ACC_CONTROL_CS5_SECTOR_SIZE_1K_SHIFT             6
-
-/* NAND :: ACC_CONTROL_CS5 :: SPARE_AREA_SIZE [05:00] */
-#define BCHP_NAND_ACC_CONTROL_CS5_SPARE_AREA_SIZE_MASK             0x0000003f
-#define BCHP_NAND_ACC_CONTROL_CS5_SPARE_AREA_SIZE_SHIFT            0
-
-/***************************************************************************
- *CONFIG_CS5 - Nand Flash Config
- ***************************************************************************/
-/* NAND :: CONFIG_CS5 :: CONFIG_LOCK [31:31] */
-#define BCHP_NAND_CONFIG_CS5_CONFIG_LOCK_MASK                      0x80000000
-#define BCHP_NAND_CONFIG_CS5_CONFIG_LOCK_SHIFT                     31
-
-/* NAND :: CONFIG_CS5 :: BLOCK_SIZE [30:28] */
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_MASK                       0x70000000
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_SHIFT                      28
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_2048KB             6
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_1024KB             5
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_512KB              3
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_128KB              1
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_16KB               0
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_8KB                2
-#define BCHP_NAND_CONFIG_CS5_BLOCK_SIZE_BK_SIZE_256KB              4
-
-/* NAND :: CONFIG_CS5 :: DEVICE_SIZE [27:24] */
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_MASK                      0x0f000000
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_SHIFT                     24
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_4MB              0
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_8MB              1
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_16MB             2
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_32MB             3
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_64MB             4
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_128MB            5
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_256MB            6
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_512MB            7
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_1GB              8
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_2GB              9
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_4GB              10
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_8GB              11
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_16GB             12
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_32GB             13
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_64GB             14
-#define BCHP_NAND_CONFIG_CS5_DEVICE_SIZE_DVC_SIZE_128GB            15
-
-/* NAND :: CONFIG_CS5 :: DEVICE_WIDTH [23:23] */
-#define BCHP_NAND_CONFIG_CS5_DEVICE_WIDTH_MASK                     0x00800000
-#define BCHP_NAND_CONFIG_CS5_DEVICE_WIDTH_SHIFT                    23
-#define BCHP_NAND_CONFIG_CS5_DEVICE_WIDTH_DVC_WIDTH_8              0
-#define BCHP_NAND_CONFIG_CS5_DEVICE_WIDTH_DVC_WIDTH_16             1
-
-/* NAND :: CONFIG_CS5 :: reserved0 [22:22] */
-#define BCHP_NAND_CONFIG_CS5_reserved0_MASK                        0x00400000
-#define BCHP_NAND_CONFIG_CS5_reserved0_SHIFT                       22
-
-/* NAND :: CONFIG_CS5 :: PAGE_SIZE [21:20] */
-#define BCHP_NAND_CONFIG_CS5_PAGE_SIZE_MASK                        0x00300000
-#define BCHP_NAND_CONFIG_CS5_PAGE_SIZE_SHIFT                       20
-#define BCHP_NAND_CONFIG_CS5_PAGE_SIZE_PG_SIZE_512                 0
-#define BCHP_NAND_CONFIG_CS5_PAGE_SIZE_PG_SIZE_2KB                 1
-#define BCHP_NAND_CONFIG_CS5_PAGE_SIZE_PG_SIZE_4KB                 2
-#define BCHP_NAND_CONFIG_CS5_PAGE_SIZE_PG_SIZE_8KB                 3
-
-/* NAND :: CONFIG_CS5 :: reserved1 [19:19] */
-#define BCHP_NAND_CONFIG_CS5_reserved1_MASK                        0x00080000
-#define BCHP_NAND_CONFIG_CS5_reserved1_SHIFT                       19
-
-/* NAND :: CONFIG_CS5 :: FUL_ADR_BYTES [18:16] */
-#define BCHP_NAND_CONFIG_CS5_FUL_ADR_BYTES_MASK                    0x00070000
-#define BCHP_NAND_CONFIG_CS5_FUL_ADR_BYTES_SHIFT                   16
-
-/* NAND :: CONFIG_CS5 :: reserved2 [15:15] */
-#define BCHP_NAND_CONFIG_CS5_reserved2_MASK                        0x00008000
-#define BCHP_NAND_CONFIG_CS5_reserved2_SHIFT                       15
-
-/* NAND :: CONFIG_CS5 :: COL_ADR_BYTES [14:12] */
-#define BCHP_NAND_CONFIG_CS5_COL_ADR_BYTES_MASK                    0x00007000
-#define BCHP_NAND_CONFIG_CS5_COL_ADR_BYTES_SHIFT                   12
-
-/* NAND :: CONFIG_CS5 :: reserved3 [11:11] */
-#define BCHP_NAND_CONFIG_CS5_reserved3_MASK                        0x00000800
-#define BCHP_NAND_CONFIG_CS5_reserved3_SHIFT                       11
-
-/* NAND :: CONFIG_CS5 :: BLK_ADR_BYTES [10:08] */
-#define BCHP_NAND_CONFIG_CS5_BLK_ADR_BYTES_MASK                    0x00000700
-#define BCHP_NAND_CONFIG_CS5_BLK_ADR_BYTES_SHIFT                   8
-
-/* NAND :: CONFIG_CS5 :: reserved4 [07:00] */
-#define BCHP_NAND_CONFIG_CS5_reserved4_MASK                        0x000000ff
-#define BCHP_NAND_CONFIG_CS5_reserved4_SHIFT                       0
-
-/***************************************************************************
- *TIMING_1_CS5 - Nand Flash Timing Parameters 1
- ***************************************************************************/
-/* NAND :: TIMING_1_CS5 :: tWP [31:28] */
-#define BCHP_NAND_TIMING_1_CS5_tWP_MASK                            0xf0000000
-#define BCHP_NAND_TIMING_1_CS5_tWP_SHIFT                           28
-
-/* NAND :: TIMING_1_CS5 :: tWH [27:24] */
-#define BCHP_NAND_TIMING_1_CS5_tWH_MASK                            0x0f000000
-#define BCHP_NAND_TIMING_1_CS5_tWH_SHIFT                           24
-
-/* NAND :: TIMING_1_CS5 :: tRP [23:20] */
-#define BCHP_NAND_TIMING_1_CS5_tRP_MASK                            0x00f00000
-#define BCHP_NAND_TIMING_1_CS5_tRP_SHIFT                           20
-
-/* NAND :: TIMING_1_CS5 :: tREH [19:16] */
-#define BCHP_NAND_TIMING_1_CS5_tREH_MASK                           0x000f0000
-#define BCHP_NAND_TIMING_1_CS5_tREH_SHIFT                          16
-
-/* NAND :: TIMING_1_CS5 :: tCS [15:12] */
-#define BCHP_NAND_TIMING_1_CS5_tCS_MASK                            0x0000f000
-#define BCHP_NAND_TIMING_1_CS5_tCS_SHIFT                           12
-
-/* NAND :: TIMING_1_CS5 :: tCLH [11:08] */
-#define BCHP_NAND_TIMING_1_CS5_tCLH_MASK                           0x00000f00
-#define BCHP_NAND_TIMING_1_CS5_tCLH_SHIFT                          8
-
-/* NAND :: TIMING_1_CS5 :: tALH [07:04] */
-#define BCHP_NAND_TIMING_1_CS5_tALH_MASK                           0x000000f0
-#define BCHP_NAND_TIMING_1_CS5_tALH_SHIFT                          4
-
-/* NAND :: TIMING_1_CS5 :: tADL [03:00] */
-#define BCHP_NAND_TIMING_1_CS5_tADL_MASK                           0x0000000f
-#define BCHP_NAND_TIMING_1_CS5_tADL_SHIFT                          0
-
-/***************************************************************************
- *TIMING_2_CS5 - Nand Flash Timing Parameters 2
- ***************************************************************************/
-/* NAND :: TIMING_2_CS5 :: CLK_SELECT [31:31] */
-#define BCHP_NAND_TIMING_2_CS5_CLK_SELECT_MASK                     0x80000000
-#define BCHP_NAND_TIMING_2_CS5_CLK_SELECT_SHIFT                    31
-#define BCHP_NAND_TIMING_2_CS5_CLK_SELECT_CLK_108                  0
-#define BCHP_NAND_TIMING_2_CS5_CLK_SELECT_CLK_216                  1
-
-/* NAND :: TIMING_2_CS5 :: reserved0 [30:13] */
-#define BCHP_NAND_TIMING_2_CS5_reserved0_MASK                      0x7fffe000
-#define BCHP_NAND_TIMING_2_CS5_reserved0_SHIFT                     13
-
-/* NAND :: TIMING_2_CS5 :: tWB [12:09] */
-#define BCHP_NAND_TIMING_2_CS5_tWB_MASK                            0x00001e00
-#define BCHP_NAND_TIMING_2_CS5_tWB_SHIFT                           9
-
-/* NAND :: TIMING_2_CS5 :: tWHR [08:04] */
-#define BCHP_NAND_TIMING_2_CS5_tWHR_MASK                           0x000001f0
-#define BCHP_NAND_TIMING_2_CS5_tWHR_SHIFT                          4
-
-/* NAND :: TIMING_2_CS5 :: tREAD [03:00] */
-#define BCHP_NAND_TIMING_2_CS5_tREAD_MASK                          0x0000000f
-#define BCHP_NAND_TIMING_2_CS5_tREAD_SHIFT                         0
 
 /***************************************************************************
  *SPARE_AREA_READ_OFS_10 - Nand Flash Spare Area Read Bytes 16-19

@@ -8,7 +8,7 @@ romfs:
 	if [ ! -z "$$CONFIG_USER_NONFREE_MOCA" ]; then \
 		$(ROMFSINST) moca/bin /bin ; \
 		mkdir -p $(ROMFSDIR)/etc/moca ; \
-		$(ROMFSINST) moca/fw/mocacore.bin /etc/moca/mocacore.bin ; \
+		$(ROMFSINST) moca/fw/mocacore*.bin /etc/moca/ ; \
 	fi
 	if [ ! -z "$$CONFIG_USER_NONFREE_WLAN" ]; then \
 		if [ "$(CONFIG_USER_NONFREE_WLAN_PCI)" = "y" -o \

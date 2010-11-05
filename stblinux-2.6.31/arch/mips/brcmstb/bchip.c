@@ -336,24 +336,28 @@ void __init bchip_moca_init(void)
 	BDEV_WR_F_RB(MOCA_HOSTMISC_SW_RESET, moca_enet_reset, 0);
 #endif
 
-#if   defined(CONFIG_BCM7420)
-	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
-#elif defined(CONFIG_BCM7342)
-	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
-#elif defined(CONFIG_BCM7125) || defined(CONFIG_BCM7340)
+#if   defined(CONFIG_BCM7125)
 	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_ENET_CG_MOCA, 0);
 	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_GMII_CG_MOCA, 0);
+#elif defined(CONFIG_BCM7340)
+	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_ENET_CG_MOCA, 1);
+	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_GMII_CG_MOCA, 0);
+#elif defined(CONFIG_BCM7342)
+	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
 #elif defined(CONFIG_BCM7408A0)
 	BDEV_WR_F_RB(CLK_MOCA_PHY_DIV, M3DIV, 11);
+	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
+#elif defined(CONFIG_BCM7420)
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
 #endif
 }
 #endif
 
 #if defined(CONFIG_BRCM_HAS_SDIO)
-void __init bchip_sdio_init(void)
+int __init bchip_sdio_init(int id, uintptr_t cfg_base)
 {
 #ifdef BCHP_HIF_TOP_CTRL_SDIO_CTRL
+	/* HIF_TOP_CTRL_SDIO_CTRL only exists for V0 controllers */
 #ifdef CONFIG_CPU_LITTLE_ENDIAN
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, WORD_ABO, 0);
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, FRAME_NBO, 0);
@@ -366,7 +370,32 @@ void __init bchip_sdio_init(void)
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, BUFFER_ABO, 0);
 #endif
 	BDEV_WR_F_RB(HIF_TOP_CTRL_SDIO_CTRL, SCB_SEQ_EN, 0);
+#endif /* BCHP_HIF_TOP_CTRL_SDIO_CTRL */
+
+#ifdef CONFIG_BRCM_HAS_SDIO_V1
+
+#define SDIO_REG(x, y)		(x + BCHP_SDIO_0_CFG_##y - \
+				 BCHP_SDIO_0_CFG_REG_START)
+
+	if (BDEV_RD(SDIO_REG(cfg_base, SCRATCH)) & 0x01) {
+		printk(KERN_INFO "SDIO_%d: disabled by bootloader\n", id);
+		return -ENODEV;
+	}
+	printk(KERN_INFO "SDIO_%d: enabling controller\n", id);
+
+	BDEV_UNSET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0xf000);
+	BDEV_UNSET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL2), 0x00ff);
+#ifdef CONFIG_CPU_LITTLE_ENDIAN
+	/* FRAME_NHW | BUFFER_ABO */
+	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0x3000);
+#else
+	/* WORD_ABO | FRAME_NBO | FRAME_NHW */
+	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0xe000);
+	/* address + data swap on byte/halfword accesses */
+	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL2), 0x005f);
 #endif
+#endif /* CONFIG_BRCM_HAS_SDIO_V1 */
+	return 0;
 }
 #endif
 

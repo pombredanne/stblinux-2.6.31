@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-09-28
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-10-22
 #
 # Original package: openssl-0.9.8k.tar.bz2
 #
 diff -ruNp openssl.orig/makefile openssl/makefile
 --- openssl.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ openssl/makefile	2010-09-28 17:05:21.000000000 -0700
++++ openssl/makefile	2010-10-22 14:51:01.000000000 -0700
 @@ -0,0 +1,35 @@
 +include $(ROOTDIR)/config.arch
 +

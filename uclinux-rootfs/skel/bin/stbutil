@@ -285,21 +285,53 @@ function handle_opt_5()
 {
 	check_root ${hdd_dev##*/}
 	echo "Writing partition table..."
-	dd if=/dev/zero of=${hdd_dev} bs=1k count=40960 2> /dev/null
-	cat /etc/partition-lba48.map | sfdisk -fq ${hdd_dev}
 
-	mkfs.ext3 ${hdd_dev}1
-	mkfs.ext3 ${hdd_dev}3
-	mkfs.ext3 -N 16384 ${hdd_dev}4
+	if [ "${use_gpt}" = "1" ]; then
+		sgdisk -Z ${hdd_dev} || true
+		sgdisk ${hdd_dev} \
+			-n 1:2048:8390655 -t 1:0700 -c 1:"rootfs" \
+			-n 2:8390656:16779263 -t 2:8200 -c 2:"swap" \
+			-n 3:16779264:33556479 -t 3:0700 -c 3:"application" \
+			-N 4 -t 4:0700 -c 4:"video"
 
-	tune2fs -o journal_data_ordered -i 0 ${hdd_dev}1
-	tune2fs -o journal_data_ordered -i 0 ${hdd_dev}3
-	tune2fs -o journal_data_ordered -i 0 ${hdd_dev}4
+		# Give mdev time to create the device nodes
+		sleep 2
 
-	mkswap ${hdd_dev}2
+		# Enable swap; mke2fs on multi-terabyte drives can malloc
+		# upwards of 80MB
+		mkswap ${hdd_dev}2
+		swapon ${hdd_dev}2
+
+		mkfs.ext4 -E stripe-width=32 ${hdd_dev}1
+		mkfs.ext4 -E stripe-width=32 ${hdd_dev}3
+		mkfs.ext4 -E stripe-width=32 -i 262144 ${hdd_dev}4
+
+		tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}1
+		tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}3
+		tune2fs -c 0 -i 0 -o journal_data_writeback ${hdd_dev}4
+
+		swapoff ${hdd_dev}2
+
+		fstab=/etc/fstab-ext4
+	else
+		dd if=/dev/zero of=${hdd_dev} bs=1k count=40960 2> /dev/null
+		cat /etc/partition-lba48.map | sfdisk -fq ${hdd_dev}
+
+		mkfs.ext3 ${hdd_dev}1
+		mkfs.ext3 ${hdd_dev}3
+		mkfs.ext3 -N 16384 ${hdd_dev}4
+		mkswap ${hdd_dev}2
+
+		tune2fs -o journal_data_ordered -i 0 ${hdd_dev}1
+		tune2fs -o journal_data_ordered -i 0 ${hdd_dev}3
+		tune2fs -o journal_data_ordered -i 0 ${hdd_dev}4
+
+		fstab=/etc/fstab
+	fi
 
 	mount ${hdd_dev}1 /mnt/hd
 	write_rootfs -linux
+	cp -f $fstab /mnt/hd/etc/fstab
 	umount ${hdd_dev}1
 
 	echo ""
@@ -444,6 +476,7 @@ hdd_dev=/dev/sda
 local_dir=
 resp=
 auto_resp=0
+use_gpt=0
 
 if [ ! -e /etc/brcmstb.conf ]; then
 	echo "ERROR: missing /etc/brcmstb.conf"
@@ -471,7 +504,7 @@ find_mtd_partition kernel kernel_part || true
 
 # parse command line
 
-while getopts "a:d:H:h" opt; do
+while getopts "a:d:H:gh" opt; do
 	case $opt in
 		d)
 			local_dir=$OPTARG
@@ -486,6 +519,9 @@ while getopts "a:d:H:h" opt; do
 			else
 				echo "warning: /dev/$OPTARG does not exist"
 			fi
+			;;
+		g)
+			use_gpt=1
 			;;
 		h|?)
 			usage

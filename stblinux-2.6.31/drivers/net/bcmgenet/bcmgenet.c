@@ -187,6 +187,90 @@ static unsigned int hfb_arp[] =
 	0x00000000,	0x000F0000,	0x000F0000,	0x000F0000,	0x000F0000,
 	0x000F0000
 };
+#ifdef CONFIG_BCM35230A0
+static inline void bcmgenet_35230_100Tx_fixup(struct BcmEnet_devctrl * pDevCtrl)
+{
+	struct net_device *dev;
+
+	dev = pDevCtrl->dev;
+	/* PHY bug workaround - A0 only */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
+		BMCR_RESET);
+	mdelay(10);
+	/* Tx config (47:45) */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6000);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* classab_en/classab_mode for 100Tx */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x15, 0x5100);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* bias config */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x17, 0x0010);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1a, 0x36c0);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* rx config */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x11, 0x2958);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5555);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x14, 0x0c00);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* rise/fall time-> new step control = { 6,4,3,0,0} */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x04e3);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x00e3);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* 100BT Rx input impedence test --> "i_txconfig<43 == 1" */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6800);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+
+	/* restart autonegotiation */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
+		BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100);
+}
+static inline void bcmgenet_35230_10BT_fixup(struct BcmEnet_devctrl * pDevCtrl)
+{
+	struct net_device *dev;
+
+	dev = pDevCtrl->dev;
+	/* PHY bug workaround - A0 only */
+	/* Tx config (47:45) */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6000);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* classab_en/classab_mode for 10BT */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x15, 0x5900);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* bias config */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x17, 0x0010);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1a, 0x36c0);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* rx config */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x11, 0x2958);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5555);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x14, 0x0c00);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* rise/fall time-> new step control = { 6,4,3,0,0} */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x04e3);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x00e3);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+	/* 100BT Rx input impedence test --> "i_txconfig<43 == 1" */
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6800);
+	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
+}
+#else
+static inline void bcmgenet_35230_100Tx_fixup(struct BcmEnet_devctrl *pDevCtrl) {}
+static inline void bcmgenet_35230_10BT_fixup(struct BcmEnet_devctrl *pDevCtrl) {}
+#endif
 /* -------------------------------------------------------------------------
  *  The following bcmemac_xxxx() functions are legacy netaccel hook, will be 
  *  replaced!
@@ -1427,33 +1511,7 @@ static void bcmgenet_irq_task(struct work_struct * work)
 		pDevCtrl->irq0_stat &= ~UMAC_IRQ_PHY_DET_R;
 		printk(KERN_CRIT "%s cable plugged in, powering up\n", pDevCtrl->dev->name);
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_CABLE_SENSE);
-#ifdef CONFIG_BCM35230A0
-		/* PHY bug workaround - A0 only */
-
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
-			BMCR_RESET);
-		mdelay(10);
-
-		/* disable APD */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1b, 0x5001);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-		/* 2's complement for ADC */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5556);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-		/* signal detect CM control; disable PGA strobe mask */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-		/* restart autonegotiation */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
-			BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100);
-#endif
-
+		bcmgenet_35230_100Tx_fixup(pDevCtrl);
 	}else if (pDevCtrl->irq0_stat & UMAC_IRQ_PHY_DET_F) {
 		pDevCtrl->irq0_stat &= ~UMAC_IRQ_PHY_DET_F;
 		printk(KERN_CRIT "%s cable unplugged, powering down\n", pDevCtrl->dev->name);
@@ -1487,6 +1545,11 @@ static void bcmgenet_irq_task(struct work_struct * work)
 			printk(KERN_CRIT "Auto config phy\n");
 			mii_setup(pDevCtrl->dev);
 		}
+#ifdef CONFIG_BCM35230A0
+		/* 35230A0 fix up */
+		if(!(pDevCtrl->umac->mode & 0x3))
+			bcmgenet_35230_10BT_fixup(pDevCtrl);
+#endif
 		if(!netif_carrier_ok(pDevCtrl->dev))
 		{
 			pDevCtrl->dev->flags |= IFF_RUNNING;
@@ -2952,6 +3015,9 @@ static void bcmgenet_power_down(BcmEnet_devctrl *pDevCtrl, int mode)
 			pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_HFB_MM | UMAC_IRQ_HFB_SM;
 			break;
 		case GENET_POWER_PASSIVE:
+			/* POwer down LED */
+			pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, MII_BMCR,
+				BMCR_RESET);
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DOWN_PHY | EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS;
 			break;
 		default:
@@ -3199,32 +3265,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		pDevCtrl->timer.data = (unsigned long)pDevCtrl;
 		pDevCtrl->timer.function = bcmgenet_gphy_link_timer;
 	} else {
-#ifdef CONFIG_BCM35230A0
-		/* PHY bug workaround - A0 only */
-
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
-			BMCR_RESET);
-		mdelay(10);
-
-		/* disable APD */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1b, 0x5001);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-		/* 2's complement for ADC */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5556);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-		/* signal detect CM control; disable PGA strobe mask */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-		/* restart autonegotiation */
-		pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
-			BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100);
-#endif
+		bcmgenet_35230_100Tx_fixup(pDevCtrl);
 		/* check link status */
 		mii_setup(dev);
 	}
@@ -3284,6 +3325,7 @@ static int bcmgenet_drv_suspend(struct platform_device *pdev,
 	if(bcmgenet_set_wol(pDevCtrl->dev, &wolinfo) < 0)
 		printk(KERN_WARN "Device %s is not entering WoL mode\n", pDevCtrl->dev->name);
 #endif
+	cancel_work_sync(&pDevCtrl->bcmgenet_irq_work);
 	if(pDevCtrl->dev_opened && !pDevCtrl->dev_asleep) {
 		pDevCtrl->dev_asleep = 1;
 		val = bcmgenet_close(pDevCtrl->dev);

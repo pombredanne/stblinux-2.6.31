@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Aug 21 02:25:19 2010
- *                 MD5 Checksum         a95e35eb18efda724ef4e779d00f7fc8
+ * Date:           Generated on         Thu Oct  7 15:22:18 2010
+ *                 MD5 Checksum         d7b2024052b972742b19b58cc095db67
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7231/rdb/a0/bchp_common.h $
+ * 
+ * Hydra_Software_Devel/2   10/7/10 4:34p albertl
+ * SW7231-1: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -249,7 +252,7 @@
 #define BCHP_BSP_CMDBUF_REG_START                          0x00328800
 #define BCHP_BSP_CMDBUF_REG_END                            0x00328ffc
 #define BCHP_BSP_GLB_CONTROL_REG_START                     0x0032b000
-#define BCHP_BSP_GLB_CONTROL_REG_END                       0x0032b084
+#define BCHP_BSP_GLB_CONTROL_REG_END                       0x0032b08c
 #define BCHP_BSP_INST_PATCH_CTRL_REG_START                 0x0032b400
 #define BCHP_BSP_INST_PATCH_CTRL_REG_END                   0x0032b404
 #define BCHP_BSP_CONTROL_INTR2_REG_START                   0x0032b800
@@ -439,7 +442,7 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_START        0x00414800
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00414800
 #define BCHP_CLKGEN_REG_START                              0x00420000
-#define BCHP_CLKGEN_REG_END                                0x004202f8
+#define BCHP_CLKGEN_REG_END                                0x0042031c
 #define BCHP_PLL_VCXO_RM_REG_START                         0x00422800
 #define BCHP_PLL_VCXO_RM_REG_END                           0x0042282c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00423000
@@ -1523,7 +1526,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1542,7 +1545,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1561,7 +1564,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

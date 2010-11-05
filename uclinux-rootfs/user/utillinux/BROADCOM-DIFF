@@ -1,11 +1,65 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-09-28
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-10-22
 #
 # Original package: utillinux-2.13-pre7.tar.bz2
 #
+diff -ruNp utillinux.orig/.gitignore utillinux/.gitignore
+--- utillinux.orig/.gitignore	1969-12-31 16:00:00.000000000 -0800
++++ utillinux/.gitignore	2010-10-22 14:51:08.000000000 -0700
+@@ -0,0 +1,50 @@
++*.[oa]
++configure
++Makefile
++autom4te.cache/
++config.h
++config.h~
++config.h.in~
++config.log
++config.status
++disk-utils/.deps/
++disk-utils/Makefile
++fdisk/.deps/
++fdisk/Makefile
++fdisk/disksize.o
++fdisk/fdisk
++fdisk/fdisk.o
++fdisk/fdiskaixlabel.o
++fdisk/fdiskbsdlabel.o
++fdisk/fdisksgilabel.o
++fdisk/fdisksunlabel.o
++fdisk/i386_sys_types.o
++fdisk/partname.o
++fdisk/sfdisk
++fdisk/sfdisk.o
++getopt/.deps/
++getopt/Makefile
++hwclock/.deps/
++hwclock/Makefile
++include/Makefile.in
++lib/.deps/
++lib/Makefile
++login-utils/.deps/
++login-utils/Makefile
++m4/Makefile.in
++misc-utils/.deps/
++misc-utils/Makefile
++mount/.deps/
++mount/Makefile
++partx/.deps/
++partx/Makefile
++po/Makefile
++po/Makefile.in
++po/POTFILES
++schedutils/.deps/
++schedutils/Makefile
++stamp-h1
++sys-utils/.deps/
++sys-utils/Makefile
++text-utils/.deps/
++text-utils/Makefile
 diff -ruNp utillinux.orig/makefile utillinux/makefile
 --- utillinux.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ utillinux/makefile	2010-09-28 17:05:24.000000000 -0700
++++ utillinux/makefile	2010-10-22 14:51:08.000000000 -0700
 @@ -0,0 +1,34 @@
 +include $(ROOTDIR)/config.arch
 +

@@ -23,6 +23,7 @@ if [ "$CONFIG_USER_NONFREE_WLAN" = "y" ]; then
 fi
 bool 'Broadcom nonfree MoCA drivers'	CONFIG_USER_NONFREE_MOCA
 if [ "$CONFIG_USER_NONFREE_MOCA" = "y" ]; then
+	define_bool CONFIG_LIB_LIBGCC y
 	bool '  Build from source'	CONFIG_USER_NONFREE_MOCA_SRC
 fi
 if [ "$CONFIG_USER_NONFREE_WLAN_SRC" = "y" ]; then
@@ -192,6 +193,13 @@ fi
 bool 'mount'			CONFIG_USER_MOUNT_MOUNT
 bool 'umount'			CONFIG_USER_MOUNT_UMOUNT
 bool 'fdisk'			CONFIG_USER_FDISK_FDISK
+bool 'gdisk'			CONFIG_USER_GDISK_GDISK
+if [ "$CONFIG_USER_GDISK_GDISK" = "y" ]; then
+	define_bool	CONFIG_LIB_LIBSTDCXX y
+	define_bool	CONFIG_LIB_POPT y
+	define_bool	CONFIG_LIB_LIBGCC y
+	define_bool	CONFIG_USER_E2FSPROGS_MISC_LIBUUID y
+fi
 bool 'hdparm'			CONFIG_USER_HDPARM_HDPARM
 
 comment 'EXT2/EXT3/EXT4'

@@ -62,6 +62,7 @@ fi
 
 # rootfs on SATA hard disk (but not sda4-less thumbdrive)
 if [ -e /dev/root -a "`readlink /dev/root`" = "sda1" -a -e /dev/sda4 ]; then
+	mount -o remount,noatime,commit=1 /
 	mount -a
 	swapon -a
 fi

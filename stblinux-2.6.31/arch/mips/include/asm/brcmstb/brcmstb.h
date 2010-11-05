@@ -268,6 +268,7 @@
 #include <asm/brcmstb/7231a0/bchp_memc_ddr_0.h>
 #include <asm/brcmstb/7231a0/bchp_nand.h>
 #include <asm/brcmstb/7231a0/bchp_sata_top_ctrl.h>
+#include <asm/brcmstb/7231a0/bchp_sdio_0_cfg.h>
 #include <asm/brcmstb/7231a0/bchp_sun_top_ctrl.h>
 #include <asm/brcmstb/7231a0/bchp_timer.h>
 #include <asm/brcmstb/7231a0/bchp_uarta.h>
@@ -876,6 +877,30 @@
 #include <asm/brcmstb/7550a0/bchp_wktmr.h>
 #include <asm/brcmstb/7550a0/brcmirq.h>
 
+#elif defined(CONFIG_BCM7550B0)
+#include <asm/brcmstb/7550b0/bchp_bspi.h>
+#include <asm/brcmstb/7550b0/bchp_common.h>
+#include <asm/brcmstb/7550b0/bchp_ebi.h>
+#include <asm/brcmstb/7550b0/bchp_hif_cpu_intr1.h>
+#include <asm/brcmstb/7550b0/bchp_hif_intr2.h>
+#include <asm/brcmstb/7550b0/bchp_hif_mspi.h>
+#include <asm/brcmstb/7550b0/bchp_hif_spi_intr2.h>
+#include <asm/brcmstb/7550b0/bchp_irq0.h>
+#include <asm/brcmstb/7550b0/bchp_irq1.h>
+#include <asm/brcmstb/7550b0/bchp_memc_ddr_0.h>
+#include <asm/brcmstb/7550b0/bchp_nand.h>
+#include <asm/brcmstb/7550b0/bchp_sun_top_ctrl.h>
+#include <asm/brcmstb/7550b0/bchp_timer.h>
+#include <asm/brcmstb/7550b0/bchp_uarta.h>
+#include <asm/brcmstb/7550b0/bchp_uartb.h>
+#include <asm/brcmstb/7550b0/bchp_uartc.h>
+#include <asm/brcmstb/7550b0/bchp_usb_ctrl.h>
+#include <asm/brcmstb/7550b0/bchp_usb_ehci.h>
+#include <asm/brcmstb/7550b0/bchp_usb_ohci.h>
+#include <asm/brcmstb/7550b0/bchp_vcxo_ctl_config_fsm.h>
+#include <asm/brcmstb/7550b0/bchp_wktmr.h>
+#include <asm/brcmstb/7550b0/brcmirq.h>
+
 #elif defined(CONFIG_BCM7552A0)
 #include <asm/brcmstb/7552a0/bchp_aon_ctrl.h>
 #include <asm/brcmstb/7552a0/bchp_aon_pm_l2.h>
@@ -1250,7 +1275,7 @@ int __init bchip_strap_flash_type(void);
 void __init bchip_mips_setup(void);
 void __init bchip_usb_init(void);
 void __init bchip_moca_init(void);
-void __init bchip_sdio_init(void);
+int __init bchip_sdio_init(int id, uintptr_t cfg_base);
 void __init bchip_check_compat(void);
 void __init bchip_set_features(void);
 void __init bchip_early_setup(void);

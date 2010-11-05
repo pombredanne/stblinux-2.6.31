@@ -75,6 +75,7 @@ struct k2_host_priv {
 	int			sleep_flag;
 	struct clk		*clk;
 	void __iomem		*mmio_base;
+	unsigned long		hp_jif;
 };
 
 #define SLEEP_FLAG(host) ({ \
@@ -99,14 +100,10 @@ static int k2_power_on(void *arg);
 		k2_power_on(host); \
 	} while(0)
 
-// jipeng - if bcmsata2=1, but device only support SATA I, then downgrade to SATA I and reset SATA core
+/* jipeng - if bcmsata2=1, but device only support SATA I, then downgrade to SATA I and reset SATA core */
 #define	AUTO_NEG_SPEED			
 
 static unsigned int new_speed_mask = 0;
-
-struct k2_port_priv {
-	int do_port_srst;			/* already perform softreset? */
-};
 
 enum {
 	/* ap->flags bits */
@@ -809,14 +806,6 @@ static void k2_bmdma_start_mmio (struct ata_queued_cmd *qc)
 
 static int k2_sata_port_start(struct ata_port *ap)
 {
-	struct k2_port_priv *pp;
-	int rc = -ENOMEM;
-
-	pp = kzalloc(sizeof(*pp), GFP_KERNEL);
-	if (!pp)
-		goto err_out;
-
-	ap->private_data = pp;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
 	ata_bmdma_port_start(ap);
 #else
@@ -824,18 +813,10 @@ static int k2_sata_port_start(struct ata_port *ap)
 #endif
 	
 	return 0;
-err_out:
-	return rc;
 }
 
 static void k2_sata_error_handler(struct ata_port *ap)
 {
-#if 0
-	struct k2_port_priv *pp = ap->private_data;
-
-	K2_POWER_ON(ap->host);
-#endif
-
 		ata_sff_error_handler(ap);
 }
 
@@ -845,6 +826,7 @@ static irqreturn_t k2_sata_interrupt(int irq, void *dev_instance)
 	unsigned int i;
 	unsigned int handled = 0;
 	unsigned long flags;
+	struct k2_host_priv *hp = host->private_data;
 
 	spin_lock_irqsave(&host->lock, flags);
 
@@ -864,12 +846,27 @@ static irqreturn_t k2_sata_interrupt(int irq, void *dev_instance)
 			if(rc == 0)
 			if(serror & (SERR_PHYRDY_CHG | SERR_DEV_XCHG))
 			{
-				struct ata_eh_info *ehi = &ap->link.eh_info;
-				sata_scr_write(link, SCR_ERROR, serror);
-				ata_ehi_hotplugged(ehi);
-				ata_ehi_push_desc(ehi, "hotplug");
-				ata_port_freeze(ap);
-				handled |= IRQ_HANDLED;
+				if( time_after(jiffies, hp->hp_jif) )
+				{
+					struct ata_eh_info *ehi = &ap->link.eh_info;
+					unsigned long hp_flags;
+	
+					sata_scr_write(link, SCR_ERROR, serror);
+
+					spin_lock_irqsave(&hp->lock, hp_flags);
+					hp->hp_jif = jiffies + 2*HZ;
+					spin_unlock_irqrestore(&hp->lock, hp_flags);
+
+					ata_ehi_hotplugged(ehi);
+					ata_ehi_push_desc(ehi, "hotplug");
+					ata_port_freeze(ap);
+					handled |= IRQ_HANDLED;
+				}
+				else
+				{
+					sata_scr_write(link, SCR_ERROR, serror);
+					handled |= IRQ_HANDLED;
+				}
 			}
 		}
 	}
@@ -878,7 +875,11 @@ static irqreturn_t k2_sata_interrupt(int irq, void *dev_instance)
 	if(handled & IRQ_HANDLED)
 	return handled;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+	return ata_bmdma_interrupt(irq, dev_instance);
+#else
 	return	ata_sff_interrupt(irq, dev_instance);
+#endif	
 }
 
 /*
@@ -892,6 +893,7 @@ static int k2_power_off(void *arg)
 	struct k2_host_priv *hp = host->private_data;
 	int i, active = 0;
 	unsigned long flags;
+	unsigned int retries = 100;
 
 	spin_lock_irqsave(&hp->lock, flags);
 	if (SLEEP_FLAG(host) == K2_SLEEPING) {
@@ -899,25 +901,33 @@ static int k2_power_off(void *arg)
 		return 0;
 	}
 
-	for (i = 0; i < host->n_ports; i++) {
-		struct ata_port *ap;
-		struct ata_link *link;
-		struct ata_device *dev;
+	do {
+		for (i = 0; i < host->n_ports; i++) {
+			struct ata_port *ap;
+			struct ata_link *link;
+			struct ata_device *dev;
 
-		ap = host->ports[i];
+			ap = host->ports[i];
 
-		/*
-		 * dev->sdev is set to NULL in ata_scsi_slave_destroy()
-		 * upon hot or warm unplug.  If it is non-NULL, the device
-		 * is still enabled and it is unsafe to power off the core.
-		 */
-		ata_for_each_link(link, ap, EDGE) {
-			ata_for_each_dev(dev, link, ALL) {
-				if (dev->sdev)
-					active++;
+			/*
+			 * dev->sdev is set to NULL in ata_scsi_slave_destroy()
+			 * upon hot or warm unplug.  If it is non-NULL, the device
+			 * is still enabled and it is unsafe to power off the core.
+			 */
+			ata_for_each_link(link, ap, EDGE) {
+				ata_for_each_dev(dev, link, ALL) {
+					if (dev->sdev)
+						active++;
+				}
 			}
 		}
-	}
+
+		if(!active)
+			break;
+
+		active = 0;
+		msleep(100);
+	} while(retries--);
 
 	if (active) {
 		spin_unlock_irqrestore(&hp->lock, flags);
@@ -1217,6 +1227,7 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	pci_set_master(pdev);
 
         bcm97xxx_sata_init(pdev, mmio_base, n_ports, ppi[0]->flags & K2_FLAG_BRCM_SATA2);
+	hp->hp_jif = jiffies;
 
 	rc = ata_host_activate(host, pdev->irq, k2_sata_interrupt,
 		IRQF_SHARED, &k2_sata_sht);

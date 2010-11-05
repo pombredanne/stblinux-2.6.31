@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May 17 02:54:37 2010
- *                 MD5 Checksum         b742c675c94ab0a4246db427bf62a82c
+ * Date:           Generated on         Wed Sep 22 12:27:07 2010
+ *                 MD5 Checksum         433b49fdccc9b00f1a1975d22c36370a
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35230/rdb/c0/bchp_sdio_0_cfg.h $
+ * 
+ * Hydra_Software_Devel/2   9/22/10 2:35p jhaberf
+ * SW35230-1465: check in of updated 35230 c0 header files
  *
  ***************************************************************************/
 
@@ -226,28 +229,28 @@
 #define BCHP_SDIO_0_CFG_CAP_REG1_CAP_REG_OVERRIDE_MASK             0x80000000
 #define BCHP_SDIO_0_CFG_CAP_REG1_CAP_REG_OVERRIDE_SHIFT            31
 
-/* SDIO_0_CFG :: CAP_REG1 :: reserved0 [30:21] */
-#define BCHP_SDIO_0_CFG_CAP_REG1_reserved0_MASK                    0x7fe00000
-#define BCHP_SDIO_0_CFG_CAP_REG1_reserved0_SHIFT                   21
+/* SDIO_0_CFG :: CAP_REG1 :: reserved0 [30:20] */
+#define BCHP_SDIO_0_CFG_CAP_REG1_reserved0_MASK                    0x7ff00000
+#define BCHP_SDIO_0_CFG_CAP_REG1_reserved0_SHIFT                   20
 
-/* SDIO_0_CFG :: CAP_REG1 :: SPI_BLK_MODE [20:20] */
-#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_BLK_MODE_MASK                 0x00100000
-#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_BLK_MODE_SHIFT                20
+/* SDIO_0_CFG :: CAP_REG1 :: SPI_BLK_MODE [19:19] */
+#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_BLK_MODE_MASK                 0x00080000
+#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_BLK_MODE_SHIFT                19
 
-/* SDIO_0_CFG :: CAP_REG1 :: SPI_MODE [19:19] */
-#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_MODE_MASK                     0x00080000
-#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_MODE_SHIFT                    19
+/* SDIO_0_CFG :: CAP_REG1 :: SPI_MODE [18:18] */
+#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_MODE_MASK                     0x00040000
+#define BCHP_SDIO_0_CFG_CAP_REG1_SPI_MODE_SHIFT                    18
 
-/* SDIO_0_CFG :: CAP_REG1 :: CLK_MULT [18:11] */
-#define BCHP_SDIO_0_CFG_CAP_REG1_CLK_MULT_MASK                     0x0007f800
-#define BCHP_SDIO_0_CFG_CAP_REG1_CLK_MULT_SHIFT                    11
+/* SDIO_0_CFG :: CAP_REG1 :: CLK_MULT [17:10] */
+#define BCHP_SDIO_0_CFG_CAP_REG1_CLK_MULT_MASK                     0x0003fc00
+#define BCHP_SDIO_0_CFG_CAP_REG1_CLK_MULT_SHIFT                    10
 
-/* SDIO_0_CFG :: CAP_REG1 :: RETUNING_MODES [10:09] */
-#define BCHP_SDIO_0_CFG_CAP_REG1_RETUNING_MODES_MASK               0x00000600
-#define BCHP_SDIO_0_CFG_CAP_REG1_RETUNING_MODES_SHIFT              9
+/* SDIO_0_CFG :: CAP_REG1 :: RETUNING_MODES [09:08] */
+#define BCHP_SDIO_0_CFG_CAP_REG1_RETUNING_MODES_MASK               0x00000300
+#define BCHP_SDIO_0_CFG_CAP_REG1_RETUNING_MODES_SHIFT              8
 
-/* SDIO_0_CFG :: CAP_REG1 :: USE_TUNING [08:07] */
-#define BCHP_SDIO_0_CFG_CAP_REG1_USE_TUNING_MASK                   0x00000180
+/* SDIO_0_CFG :: CAP_REG1 :: USE_TUNING [07:07] */
+#define BCHP_SDIO_0_CFG_CAP_REG1_USE_TUNING_MASK                   0x00000080
 #define BCHP_SDIO_0_CFG_CAP_REG1_USE_TUNING_SHIFT                  7
 
 /* SDIO_0_CFG :: CAP_REG1 :: RETUNING_TIMER [06:03] */

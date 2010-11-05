@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Aug 21 02:23:02 2010
- *                 MD5 Checksum         6ce61dbe62eaee9d1391b906c64ecb91
+ * Date:           Generated on         Sat Oct  9 02:34:42 2010
+ *                 MD5 Checksum         402da29339d8fdd7f80ec3af000139ca
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -2341,7 +2341,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_SHIFT              16
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_GPIO_1             0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_T313_GPIO_1        1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_BSCDATAC           2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_BSCCLKC            2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_1_PM_GPIO_1          3
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_8 :: gpio_0 [15:12] */
@@ -2349,7 +2349,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_SHIFT              12
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_GPIO_0             0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_T313_GPIO_0        1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_BSCCLKC            2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_BSCDATAC           2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_8_gpio_0_PM_GPIO_0          3
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_8 :: poni_irrxda [11:08] */

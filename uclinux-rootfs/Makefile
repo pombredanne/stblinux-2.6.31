@@ -78,7 +78,7 @@ images: .target
 	@echo ""
 	@echo "Build complete.  Images are in images/"
 	@echo ""
-	@echo "To install under $(TFTPDIR), use \"make install\""
+	@echo "To install under $(TFTPBOOT), use \"make install\""
 	@echo ""
 
 .PHONY: initrd_kernel
@@ -329,7 +329,7 @@ xconfig-linux: .target
 .PHONY: install
 install:
 	mkdir -p $(TFTPBOOT)
-	cp -f images/* $(TFTPBOOT)/
+	cp -f -p images/* $(TFTPBOOT)/
 	@echo ""
 	@echo "Images have been copied to $(TFTPBOOT)"
 	@echo ""
@@ -407,7 +407,7 @@ help:
 	@echo "initrd_kernel              - Build initramfs kernel for current target"
 	@echo "kernel                     - Build non-initramfs kernel for current target"
 	@echo ""
-	@echo "install                    - Copy all kernels/images/tarballs to TFTPDIR"
+	@echo "install                    - Copy all kernels/images/tarballs to TFTPBOOT"
 	@echo ""
 	@echo "release                    - Create source tarballs, then build all targets"
 	@echo ""

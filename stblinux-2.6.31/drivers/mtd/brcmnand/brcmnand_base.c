@@ -6134,7 +6134,9 @@ if (gdebug>3) printk("++++++++++++++++++++++++ %s: buffer not 32B aligned, tryin
 uint8_t *
 brcmnand_fill_oob(struct brcmnand_chip *chip, uint8_t *oob, struct mtd_oob_ops *ops)
 {
-	size_t len = ops->ooblen;
+	// Already written in previous passes, relying on oob being intialized to ops->oobbuf
+	size_t writtenLen = oob - ops->oobbuf; 
+	size_t len = ops->ooblen - writtenLen;
 
 	
 	switch(ops->mode) {
@@ -6195,7 +6197,7 @@ static int brcmnand_do_write_ops(struct mtd_info *mtd, loff_t to,
 	int blockmask;
 	struct brcmnand_chip *chip = mtd->priv;
 	uint32_t writelen = ops->len;
-	uint8_t *oob = ops->oobbuf;
+	uint8_t *oob = ops->oobbuf; //brcmnand_fill_oob relies on this
 	uint8_t *buf = ops->datbuf;
 	int bytes = mtd->writesize;
 	int ret = 0;
@@ -6324,6 +6326,8 @@ DEBUG(MTD_DEBUG_LEVEL3, "-->%s, offset=%0llx\n", __FUNCTION__, to);
 
 
 	ops->retlen = ops->len - writelen;
+	if (unlikely(oob))
+		ops->oobretlen = ops->ooblen;
 	DEBUG(MTD_DEBUG_LEVEL3, "<-- %s\n", __FUNCTION__);
 	return ret;
 }
@@ -6426,8 +6430,10 @@ print_oobbuf(inp_oob, mtd->oobsize);}
 static int 
 brcmnand_do_write_oob(struct mtd_info *mtd, loff_t to, struct mtd_oob_ops *ops)
 {
-	int page, status;
+	int page, numPages;
+	int status = 0;
 	struct brcmnand_chip *chip = mtd->priv;
+	u_char* oob = ops->oobbuf;;
 
 	DEBUG(MTD_DEBUG_LEVEL3, "%s: to = 0x%08x, len = %i\n", __FUNCTION__,
 	      (unsigned int)to, (int)ops->len);
@@ -6449,37 +6455,36 @@ printk("-->%s, to=%08x, len=%d\n", __FUNCTION__, (uint32_t) to, (int)ops->len);}
 	/* Shift to get page */
 	page = to >> chip->page_shift;
 
-#if 0
-	/*
-	 * Reset the chip. Some chips (like the Toshiba TC5832DC found in one
-	 * of my DiskOnChip 2000 test units) will clear the whole data page too
-	 * if we don't do this. I have no clue why, but I seem to have 'fixed'
-	 * it in the doc2000 driver in August 1999.  dwmw2.
-	 */
-	chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
-#endif
-
-#if 0
-	/* Check, if it is write protected */
-	if (nand_check_wp(mtd))
-		return -EROFS;
-#endif
-
 	/* Invalidate the page cache, if we write to the cached page */
 	if ((int64_t) page == chip->pagebuf)
 		chip->pagebuf = -1LL;
-
-	chip->oob_poi = BRCMNAND_OOBBUF(chip->ctrl->buffers);
-	memset(chip->oob_poi, 0xff, mtd->oobsize);
-	brcmnand_fill_oob(chip, ops->oobbuf, ops);
 	
-	status = chip->write_page_oob(mtd, chip->oob_poi, page);
-	// memset(chip->oob_poi, 0xff, mtd->oobsize);
+	while(1) {
+		/* Submit one page at a time */
+		 
+		numPages = 1;
+		
+		if (unlikely(oob)) {
+			chip->oob_poi = BRCMNAND_OOBBUF(chip->ctrl->buffers);
+			memset(chip->oob_poi, 0xff, mtd->oobsize);
+			oob = brcmnand_fill_oob(chip, oob, ops);
+			/* THT: oob now points to where to read next, 
+			 * chip->oob_poi contains the OOB to be written
+			 */
+		}
 
+		status |= chip->write_page_oob(mtd, chip->oob_poi, page);
+
+		if (status)
+			break;
+		
+		page += numPages;
+	}// Write 1 page OOB
+	
 	if (status)
 		return status;
 
-	ops->retlen = ops->len;
+	ops->oobretlen = ops->ooblen;
 
 	return 0;
 }
@@ -6917,7 +6922,6 @@ PRINTK( "%s: start = 0x%08x, len = %08x\n", __FUNCTION__, (unsigned int) instr->
 
 
 	/* Start address must align on block boundary */
-
 	if (unlikely(instr->addr & (block_size - 1))) 
 	{
 		DEBUG(MTD_DEBUG_LEVEL0, "%s: Unaligned address\n", __FUNCTION__);
@@ -6954,7 +6958,7 @@ PRINTK(
 	}
 
 
-	instr->fail_addr = 0xffffffffffffffffULL;
+	instr->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
 
 	/*
 	 * Clear ECC registers 
@@ -6983,8 +6987,9 @@ PRINTK(
 		/* Check if we have a bad block, we do not erase bad blocks */
 		if (brcmnand_block_checkbad(mtd, addr, 0, allowbbt)) {
 			printk (KERN_ERR "%s: attempt to erase a bad block at addr 0x%08x\n", __FUNCTION__, (unsigned int) addr);
-			instr->state = MTD_ERASE_FAILED;
-dump_stack();
+			// THT I believe we should allow the erase to go on to the next block in this case.
+			// instr->state = MTD_ERASE_FAILED;
+//dump_stack();
 			goto erase_one_block;
 		}
 
@@ -7008,7 +7013,7 @@ dump_stack();
 
 				printk(KERN_WARNING "%s: Marking bad block @%08x\n", __FUNCTION__, (unsigned int) addr);
 				(void) chip->block_markbad(mtd, addr);
-				goto erase_one_block;
+				goto erase_exit;
 			}
 		}
 erase_one_block:
@@ -7019,7 +7024,7 @@ erase_one_block:
 
 	instr->state = MTD_ERASE_DONE;
 
-//erase_exit:
+erase_exit:
 
 	ret = instr->state == MTD_ERASE_DONE ? 0 : -EIO;
 	/* Do call back function */
@@ -7463,7 +7468,16 @@ brcmnand_decode_config(struct brcmnand_chip* chip, uint32_t nand_config)
 
   #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_4
   		case BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_8KB:
-			chip->pageSize = 8192;
+			{
+				uint32_t ctrlVersion = brcmnand_ctrl_read(BCHP_NAND_REVISION);
+				
+				/* Only if the controller supports it: */
+				chip->pageSize = 8192;
+				if (!(ctrlVersion & BCHP_NAND_REVISION_8KB_PAGE_SUPPORT_MASK)) {
+					printk(KERN_ERR "Un-supported page size 8KB\n");
+					BUG();
+				}
+  			}
 			break;
   #else /* Version 3.3 or earlier */
   		case 3:

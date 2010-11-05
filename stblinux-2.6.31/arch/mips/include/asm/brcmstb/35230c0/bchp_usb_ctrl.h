@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 03:30:35 2010
- *                 MD5 Checksum         8c090aa917c38117bf4037bfe433c122
+ * Date:           Generated on         Wed Sep 22 12:15:52 2010
+ *                 MD5 Checksum         433b49fdccc9b00f1a1975d22c36370a
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35230/rdb/c0/bchp_usb_ctrl.h $
+ * 
+ * Hydra_Software_Devel/2   9/22/10 2:37p jhaberf
+ * SW35230-1465: check in of updated 35230 c0 header files
  *
  ***************************************************************************/
 
@@ -385,9 +388,17 @@
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_MASK        0x04000000
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_SHIFT       26
 
-/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:00] */
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03ffffff
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                0
+/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:02] */
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03fffffc
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                2
+
+/* USB_CTRL :: USB_SIMCTL :: SCB_ARB_SEL [01:01] */
+#define BCHP_USB_CTRL_USB_SIMCTL_SCB_ARB_SEL_MASK                  0x00000002
+#define BCHP_USB_CTRL_USB_SIMCTL_SCB_ARB_SEL_SHIFT                 1
+
+/* USB_CTRL :: USB_SIMCTL :: FS_DLY_EN [00:00] */
+#define BCHP_USB_CTRL_USB_SIMCTL_FS_DLY_EN_MASK                    0x00000001
+#define BCHP_USB_CTRL_USB_SIMCTL_FS_DLY_EN_SHIFT                   0
 
 /***************************************************************************
  *USB_TESTCTL - Throutput Test Control

@@ -79,7 +79,8 @@ config BCM35230C0
 	select BRCM_HAS_GENET_0
 	select BRCM_GENET_V2
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_SDIO_V1
+	# 35230 has nonstandard SDIO_EMMC_CTRL registers
+	#select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -310,7 +311,7 @@ config BCM7344A0
 	select BRCM_HAS_MOCA_MIDRF
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
-	select BRCM_HAS_NAND_MAJOR_4
+	select BRCM_HAS_NAND_MAJOR_5
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_WKTMR
@@ -331,7 +332,7 @@ config BCM7346A0
 	select BRCM_HAS_MOCA_MIDRF
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
-	select BRCM_HAS_NAND_MAJOR_4
+	select BRCM_HAS_NAND_MAJOR_5
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_SATA3
@@ -621,6 +622,24 @@ config BCM7550A0
 	select BRCM_CPU_PLL
 	select BRCM_HAS_1GB_MEMC0
 
+config BCM7550B0
+	bool "7550 Bx"
+	select BRCM_PLATFORM_DEFAULTS
+	select BCM7550
+	select BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_EMAC_0
+	select BCMEMAC_EXTMII
+	select BRCM_HAS_NAND_MAJOR_3
+	select BRCM_HAS_NAND_MINOR_4
+	select BRCM_HAS_BSPI_V3
+	select BRCM_HAS_WKTMR
+	select BRCM_IRW_HALT
+	select BRCM_CPU_PLL
+	select BRCM_HAS_1GB_MEMC0
+
 config BCM7552A0
 	bool "7552 Ax"
 	select BRCM_PLATFORM_DEFAULTS
@@ -722,7 +741,7 @@ config BCM7640A0
 	select BRCM_HAS_NAND_MAJOR_5
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_EDU
-	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_SDIO_V0
 	select BRCM_HAS_DVD
 	select BRCM_HAS_1GB_MEMC0
 

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Aug 16 10:57:37 2010
- *                 MD5 Checksum         442d8de773a92e76786307c9f37b5c82
+ * Date:           Generated on         Thu Sep  2 17:38:23 2010
+ *                 MD5 Checksum         743c9d1d55675e3b172ee6f75bfcb73c
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,7 +34,7 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_hif_top_ctrl.h $
  * 
- * Hydra_Software_Devel/2   8/16/10 12:15p pntruong
+ * Hydra_Software_Devel/3   9/7/10 9:29a pntruong
  * SW7358-2: Synced up with central rdb.
  *
  ***************************************************************************/
@@ -52,6 +52,7 @@
 #define BCHP_HIF_TOP_CTRL_SCRATCH                0x0041240c /* HIF Scratch Register */
 #define BCHP_HIF_TOP_CTRL_FLASH_TYPE             0x00412410 /* HIF Decoded Flash Type */
 #define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x00412414 /* SPI test port select register */
+#define BCHP_HIF_TOP_CTRL_HIF_CTRL               0x0041241c /* HIF HIF_CTRL Register */
 
 /***************************************************************************
  *PM_CTRL2 - HIF Power Management Control Register:used to control SDIO_0 (CARD)
@@ -456,6 +457,17 @@
 /* HIF_TOP_CTRL :: SPI_DBG_SEL :: SPI_TP_SEL [00:00] */
 #define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_MASK              0x00000001
 #define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL_SPI_TP_SEL_SHIFT             0
+
+/***************************************************************************
+ *HIF_CTRL - HIF HIF_CTRL Register
+ ***************************************************************************/
+/* HIF_TOP_CTRL :: HIF_CTRL :: reserved0 [31:01] */
+#define BCHP_HIF_TOP_CTRL_HIF_CTRL_reserved0_MASK                  0xfffffffe
+#define BCHP_HIF_TOP_CTRL_HIF_CTRL_reserved0_SHIFT                 1
+
+/* HIF_TOP_CTRL :: HIF_CTRL :: ENABLE_FULL_USE_OF_EBI [00:00] */
+#define BCHP_HIF_TOP_CTRL_HIF_CTRL_ENABLE_FULL_USE_OF_EBI_MASK     0x00000001
+#define BCHP_HIF_TOP_CTRL_HIF_CTRL_ENABLE_FULL_USE_OF_EBI_SHIFT    0
 
 #endif /* #ifndef BCHP_HIF_TOP_CTRL_H__ */
 

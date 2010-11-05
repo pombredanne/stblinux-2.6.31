@@ -30,6 +30,7 @@
 #define BRCM_IRQ_OHCI0_1	59
 #define BRCM_IRQ_PCI_A0		50
 #define BRCM_IRQ_PCI_A1		51
+#define BRCM_IRQ_SDIO0		66
 #define BRCM_IRQ_UARTA		30
 #define BRCM_IRQ_UARTB		39
 #define BRCM_IRQ_UARTC		40

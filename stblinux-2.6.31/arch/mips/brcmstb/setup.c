@@ -236,6 +236,36 @@ static struct platform_device sdio_plat_dev = {
 
 #endif /* defined(CONFIG_BRCM_HAS_SDIO_V0) */
 
+#if defined(CONFIG_BRCM_HAS_SDIO_V1)
+
+static void brcm_add_sdio_host(int id, uintptr_t cfg_base, uintptr_t host_base,
+	int irq)
+{
+	struct resource res[2];
+	struct platform_device *pdev;
+
+	/*
+	 * CFE will disable EMMC (via CFG SCRATCH bit 0) if something else is
+	 * connected to the shared EMMC/EBI pins
+	 */
+	if (bchip_sdio_init(id, cfg_base) < 0)
+		return;
+
+	memset(&res, 0, sizeof(res));
+	res[0].start = BPHYSADDR(host_base);
+	res[0].end = BPHYSADDR(host_base + 0xff);
+	res[0].flags = IORESOURCE_MEM;
+
+	res[1].start = res[1].end = irq;
+	res[1].flags = IORESOURCE_IRQ;
+
+	pdev = platform_device_alloc("sdhci", id);
+	platform_device_add_resources(pdev, res, 2);
+	platform_device_add(pdev);
+}
+
+#endif /* defined(CONFIG_BRCM_HAS_SDIO_V1) */
+
 static struct platform_device *brcm_new_usb_host(char *name, int id,
 	uintptr_t base, int irq)
 {
@@ -500,9 +530,20 @@ static int __init platform_devices_setup(void)
 #endif /* defined(CONFIG_BRCM_HAS_GENET) */
 
 #if defined(CONFIG_BRCM_HAS_SDIO_V0)
-	bchip_sdio_init();
+	bchip_sdio_init(0, 0);
 	platform_device_register(&sdio_plat_dev);
 #endif
+
+#if defined(CONFIG_BRCM_HAS_SDIO_V1)
+	brcm_add_sdio_host(0, BCHP_SDIO_0_CFG_REG_START,
+		BCHP_SDIO_0_HOST_REG_START, BRCM_IRQ_SDIO0);
+
+#if defined(BCHP_SDIO_1_CFG_REG_START)
+	brcm_add_sdio_host(1, BCHP_SDIO_1_CFG_REG_START,
+		BCHP_SDIO_1_HOST_REG_START, BRCM_IRQ_SDIO1);
+#endif /* defined(BCHP_SDIO_1_CFG_REG_START) */
+
+#endif /* defined(CONFIG_BRCM_HAS_SDIO_V1) */
 
 	return 0;
 }

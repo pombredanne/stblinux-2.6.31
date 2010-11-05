@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Sep  4 11:31:43 2010
- *                 MD5 Checksum         5c793fc92372a5588d6af292f0d1b0c0
+ * Date:           Generated on         Sat Oct  9 13:42:55 2010
+ *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -45,6 +45,8 @@
 #define BCHP_MISB_BRIDGE_CORE_REV_ID             0x00410400 /* MISB Bridge Revision ID Register. */
 #define BCHP_MISB_BRIDGE_EXCEPTION_VECTOR_OFFSET 0x00410404 /* "Exception Vector Offset Address" */
 #define BCHP_MISB_BRIDGE_PROCESSOR_ID            0x00410408 /* Processor ID Register. */
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT       0x0041040c /* Write Gathering Mode & Timeout. */
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE         0x00410410 /* MISB Split Mode */
 
 /***************************************************************************
  *CORE_REV_ID - MISB Bridge Revision ID Register.
@@ -78,6 +80,37 @@
 /* MISB_BRIDGE :: PROCESSOR_ID :: ID [07:00] */
 #define BCHP_MISB_BRIDGE_PROCESSOR_ID_ID_MASK                      0x000000ff
 #define BCHP_MISB_BRIDGE_PROCESSOR_ID_ID_SHIFT                     0
+
+/***************************************************************************
+ *WG_MODE_N_TIMEOUT - Write Gathering Mode & Timeout.
+ ***************************************************************************/
+/* MISB_BRIDGE :: WG_MODE_N_TIMEOUT :: reserved0 [31:10] */
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_reserved0_MASK          0xfffffc00
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_reserved0_SHIFT         10
+
+/* MISB_BRIDGE :: WG_MODE_N_TIMEOUT :: MODE [09:08] */
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_MODE_MASK               0x00000300
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_MODE_SHIFT              8
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_MODE_MODE_0             0
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_MODE_MODE_1             1
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_MODE_MODE_2             2
+
+/* MISB_BRIDGE :: WG_MODE_N_TIMEOUT :: TIMEOUT [07:00] */
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_TIMEOUT_MASK            0x000000ff
+#define BCHP_MISB_BRIDGE_WG_MODE_N_TIMEOUT_TIMEOUT_SHIFT           0
+
+/***************************************************************************
+ *MISB_SPLIT_MODE - MISB Split Mode
+ ***************************************************************************/
+/* MISB_BRIDGE :: MISB_SPLIT_MODE :: reserved0 [31:01] */
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE_reserved0_MASK            0xfffffffe
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE_reserved0_SHIFT           1
+
+/* MISB_BRIDGE :: MISB_SPLIT_MODE :: SPLIT_MODE [00:00] */
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE_SPLIT_MODE_MASK           0x00000001
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE_SPLIT_MODE_SHIFT          0
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE_SPLIT_MODE_ENABLE         1
+#define BCHP_MISB_BRIDGE_MISB_SPLIT_MODE_SPLIT_MODE_DISABLE        0
 
 #endif /* #ifndef BCHP_MISB_BRIDGE_H__ */
 

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed Jul 28 22:27:25 2010
- *                 MD5 Checksum         03d89f69f47174d85e4889656b47d05e
+ * Date:           Generated on         Thu Oct  7 09:55:57 2010
+ *                 MD5 Checksum         7680814b9444c6623526deacd51057e3
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/35230/rdb/c0/bchp_common.h $
  * 
- * Hydra_Software_Devel/1   7/29/10 10:49a pntruong
- * SW35230-803: Initial version.
+ * Hydra_Software_Devel/3   10/7/10 12:50p jhaberf
+ * SW35230-1631: Updated register header files for MCDI block
  *
  ***************************************************************************/
 
@@ -573,12 +573,12 @@
 #define BCHP_HD_ANR_IT_0_REG_END                           0x005814f8
 #define BCHP_HD_ANR_AND_0_REG_START                        0x00581800
 #define BCHP_HD_ANR_AND_0_REG_END                          0x00581888
-#define BCHP_MDI_TOP_0_REG_START                           0x00582000
-#define BCHP_MDI_TOP_0_REG_END                             0x00582050
-#define BCHP_MDI_FCB_0_REG_START                           0x00582400
-#define BCHP_MDI_FCB_0_REG_END                             0x005827fc
-#define BCHP_MDI_PPB_0_REG_START                           0x00582800
-#define BCHP_MDI_PPB_0_REG_END                             0x00582bfc
+#define BCHP_MCDI_TOP_0_REG_START                          0x00582000
+#define BCHP_MCDI_TOP_0_REG_END                            0x00582050
+#define BCHP_MCDI_FCB_0_REG_START                          0x00582400
+#define BCHP_MCDI_FCB_0_REG_END                            0x005827fc
+#define BCHP_MCDI_PPB_0_REG_START                          0x00582800
+#define BCHP_MCDI_PPB_0_REG_END                            0x00582bfc
 #define BCHP_FRC_CTLENG_API_REG_START                      0x00590000
 #define BCHP_FRC_CTLENG_API_REG_END                        0x00591ffc
 #define BCHP_FRC_CTLENG_REG_START                          0x00592000
