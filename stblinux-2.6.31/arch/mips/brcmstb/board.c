@@ -399,6 +399,12 @@ void __init board_pinmux_setup(void)
 	PINMUX(20, gpio_109, 4);
 #endif
 
+#elif defined(CONFIG_BCM7422)
+
+	PINMUX(18, sgpio_00, 1);	/* MoCA I2C on BSCA */
+	PINMUX(19, sgpio_01, 1);
+	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCA_REG_START);
+
 #elif defined(CONFIG_BCM7468)
 
 	/* NOTE: R1022 and R1023 must be installed to use UARTB */

@@ -1,0 +1,5325 @@
+diff --git a/stblinux-2.6.31/drivers/mtd/chips/cfi_cmdset_0002.c b/stblinux-2.6.31/drivers/mtd/chips/cfi_cmdset_0002.c
+index 94bb61e..a3e0e56 100644
+--- a/stblinux-2.6.31/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/stblinux-2.6.31/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -32,6 +32,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
++#include <linux/reboot.h>
+ #include <linux/mtd/compatmac.h>
+ #include <linux/mtd/map.h>
+ #include <linux/mtd/mtd.h>
+@@ -60,6 +61,7 @@ static int cfi_amdstd_erase_varsize(struct mtd_info *, struct erase_info *);
+ static void cfi_amdstd_sync (struct mtd_info *);
+ static int cfi_amdstd_suspend (struct mtd_info *);
+ static void cfi_amdstd_resume (struct mtd_info *);
++static int cfi_amdstd_reboot(struct notifier_block *, unsigned long, void *);
+ static int cfi_amdstd_secsi_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
+ 
+ static void cfi_amdstd_destroy(struct mtd_info *);
+@@ -355,6 +357,8 @@ struct mtd_info *cfi_cmdset_0002(struct map_info *map, int primary)
+ 	mtd->name    = map->name;
+ 	mtd->writesize = 1;
+ 
++	mtd->reboot_notifier.notifier_call = cfi_amdstd_reboot;
++
+ 	if (cfi->cfi_mode==CFI_MODE_CFI){
+ 		unsigned char bootloc;
+ 		/*
+@@ -495,6 +499,7 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
+ 	printk(KERN_NOTICE "cfi_cmdset_0002: Disabling erase-suspend-program due to code brokenness.\n");
+ 
+ 	__module_get(THIS_MODULE);
++	register_reboot_notifier(&mtd->reboot_notifier);
+ 	return mtd;
+ 
+  setup_err:
+@@ -645,6 +650,10 @@ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr
+ 		chip->state = FL_READY;
+ 		return 0;
+ 
++	case FL_SHUTDOWN:
++		/* The machine is rebooting */
++		return -EIO;
++
+ 	case FL_POINT:
+ 		/* Only if there's no operation suspended... */
+ 		if (mode == FL_READY && chip->oldstate == FL_READY)
+@@ -1935,11 +1944,58 @@ static void cfi_amdstd_resume(struct mtd_info *mtd)
+ 	}
+ }
+ 
++
++/*
++ * Ensure that the flash device is put back into read array mode before
++ * unloading the driver or rebooting.  On some systems, rebooting while
++ * the flash is in query/program/erase mode will prevent the CPU from
++ * fetching the bootloader code, requiring a hard reset or power cycle.
++ */
++static int cfi_amdstd_reset(struct mtd_info *mtd)
++{
++	struct map_info *map = mtd->priv;
++	struct cfi_private *cfi = map->fldrv_priv;
++	int i, ret;
++	struct flchip *chip;
++
++	for (i = 0; i < cfi->numchips; i++) {
++
++		chip = &cfi->chips[i];
++
++		spin_lock(chip->mutex);
++
++		ret = get_chip(map, chip, chip->start, FL_SHUTDOWN);
++		if (!ret) {
++			map_write(map, CMD(0xF0), chip->start);
++			chip->state = FL_SHUTDOWN;
++			put_chip(map, chip, chip->start);
++		}
++
++		spin_unlock(chip->mutex);
++	}
++
++	return 0;
++}
++
++
++static int cfi_amdstd_reboot(struct notifier_block *nb, unsigned long val,
++			       void *v)
++{
++	struct mtd_info *mtd;
++
++	mtd = container_of(nb, struct mtd_info, reboot_notifier);
++	cfi_amdstd_reset(mtd);
++	return NOTIFY_DONE;
++}
++
++
+ static void cfi_amdstd_destroy(struct mtd_info *mtd)
+ {
+ 	struct map_info *map = mtd->priv;
+ 	struct cfi_private *cfi = map->fldrv_priv;
+ 
++	cfi_amdstd_reset(mtd);
++	unregister_reboot_notifier(&mtd->reboot_notifier);
+ 	kfree(cfi->cmdset_priv);
+ 	kfree(cfi->cfiq);
+ 	kfree(cfi);
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/Kconfig b/stblinux-2.6.31/drivers/mtd/ubi/Kconfig
+index b1cd7a1..928ee1e 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/Kconfig
++++ b/stblinux-2.6.31/drivers/mtd/ubi/Kconfig
+@@ -1,11 +1,7 @@
+ # drivers/mtd/ubi/Kconfig
+ 
+-menu "UBI - Unsorted block images"
+-	depends on MTD
+-
+-config MTD_UBI
+-	tristate "Enable UBI"
+-	depends on MTD
++menuconfig MTD_UBI
++	tristate "Enable UBI - Unsorted block images"
+ 	select CRC32
+ 	help
+ 	  UBI is a software layer above MTD layer which admits of LVM-like
+@@ -14,11 +10,12 @@ config MTD_UBI
+ 	  capabilities. Please, consult the MTD web site for more details
+ 	  (www.linux-mtd.infradead.org).
+ 
++if MTD_UBI
++
+ config MTD_UBI_WL_THRESHOLD
+ 	int "UBI wear-leveling threshold"
+ 	default 4096
+ 	range 2 65536
+-	depends on MTD_UBI
+ 	help
+ 	  This parameter defines the maximum difference between the highest
+ 	  erase counter value and the lowest erase counter value of eraseblocks
+@@ -29,14 +26,13 @@ config MTD_UBI_WL_THRESHOLD
+ 	  The default value should be OK for SLC NAND flashes, NOR flashes and
+ 	  other flashes which have eraseblock life-cycle 100000 or more.
+ 	  However, in case of MLC NAND flashes which typically have eraseblock
+-	  life-cycle less then 10000, the threshold should be lessened (e.g.,
++	  life-cycle less than 10000, the threshold should be lessened (e.g.,
+ 	  to 128 or 256, although it does not have to be power of 2).
+ 
+ config MTD_UBI_BEB_RESERVE
+ 	int "Percentage of reserved eraseblocks for bad eraseblocks handling"
+ 	default 1
+ 	range 0 25
+-	depends on MTD_UBI
+ 	help
+ 	  If the MTD device admits of bad eraseblocks (e.g. NAND flash), UBI
+ 	  reserves some amount of physical eraseblocks to handle new bad
+@@ -50,8 +46,6 @@ config MTD_UBI_BEB_RESERVE
+ 
+ config MTD_UBI_GLUEBI
+ 	tristate "MTD devices emulation driver (gluebi)"
+-	default n
+-	depends on MTD_UBI
+ 	help
+ 	   This option enables gluebi - an additional driver which emulates MTD
+ 	   devices on top of UBI volumes: for each UBI volumes an MTD device is
+@@ -61,4 +55,5 @@ config MTD_UBI_GLUEBI
+ 	   software.
+ 
+ source "drivers/mtd/ubi/Kconfig.debug"
+-endmenu
++
++endif # MTD_UBI
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/Kconfig.debug b/stblinux-2.6.31/drivers/mtd/ubi/Kconfig.debug
+index 2246f15..fad4adc 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/Kconfig.debug
++++ b/stblinux-2.6.31/drivers/mtd/ubi/Kconfig.debug
+@@ -1,94 +1,73 @@
+ comment "UBI debugging options"
+-	depends on MTD_UBI
+ 
+ config MTD_UBI_DEBUG
+ 	bool "UBI debugging"
+ 	depends on SYSFS
+-	depends on MTD_UBI
+ 	select DEBUG_FS
+-	select KALLSYMS_ALL
++	select KALLSYMS_ALL if KALLSYMS && DEBUG_KERNEL
+ 	help
+ 	  This option enables UBI debugging.
+ 
++if MTD_UBI_DEBUG
++
+ config MTD_UBI_DEBUG_MSG
+ 	bool "UBI debugging messages"
+-	depends on MTD_UBI_DEBUG
+-	default n
+ 	help
+ 	  This option enables UBI debugging messages.
+ 
+ config MTD_UBI_DEBUG_PARANOID
+ 	bool "Extra self-checks"
+-	default n
+-	depends on MTD_UBI_DEBUG
+ 	help
+ 	  This option enables extra checks in UBI code. Note this slows UBI down
+ 	  significantly.
+ 
+ config MTD_UBI_DEBUG_DISABLE_BGT
+ 	bool "Do not enable the UBI background thread"
+-	depends on MTD_UBI_DEBUG
+-	default n
+ 	help
+ 	  This option switches the background thread off by default. The thread
+ 	  may be also be enabled/disabled via UBI sysfs.
+ 
+ config MTD_UBI_DEBUG_EMULATE_BITFLIPS
+ 	bool "Emulate flash bit-flips"
+-	depends on MTD_UBI_DEBUG
+-	default n
+ 	help
+ 	  This option emulates bit-flips with probability 1/50, which in turn
+ 	  causes scrubbing. Useful for debugging and stressing UBI.
+ 
+ config MTD_UBI_DEBUG_EMULATE_WRITE_FAILURES
+ 	bool "Emulate flash write failures"
+-	depends on MTD_UBI_DEBUG
+-	default n
+ 	help
+ 	  This option emulates write failures with probability 1/100. Useful for
+ 	  debugging and testing how UBI handlines errors.
+ 
+ config MTD_UBI_DEBUG_EMULATE_ERASE_FAILURES
+ 	bool "Emulate flash erase failures"
+-	depends on MTD_UBI_DEBUG
+-	default n
+ 	help
+ 	  This option emulates erase failures with probability 1/100. Useful for
+ 	  debugging and testing how UBI handlines errors.
+ 
+-menu "Additional UBI debugging messages"
+-	depends on MTD_UBI_DEBUG
++comment "Additional UBI debugging messages"
+ 
+ config MTD_UBI_DEBUG_MSG_BLD
+ 	bool "Additional UBI initialization and build messages"
+-	default n
+-	depends on MTD_UBI_DEBUG
+ 	help
+ 	  This option enables detailed UBI initialization and device build
+ 	  debugging messages.
+ 
+ config MTD_UBI_DEBUG_MSG_EBA
+ 	bool "Eraseblock association unit messages"
+-	default n
+-	depends on MTD_UBI_DEBUG
+ 	help
+ 	  This option enables debugging messages from the UBI eraseblock
+ 	  association unit.
+ 
+ config MTD_UBI_DEBUG_MSG_WL
+ 	bool "Wear-leveling unit messages"
+-	default n
+-	depends on MTD_UBI_DEBUG
+ 	help
+ 	  This option enables debugging messages from the UBI wear-leveling
+ 	  unit.
+ 
+ config MTD_UBI_DEBUG_MSG_IO
+ 	bool "Input/output unit messages"
+-	default n
+-	depends on MTD_UBI_DEBUG
+ 	help
+ 	  This option enables debugging messages from the UBI input/output unit.
+ 
+-endmenu # UBI debugging messages
++endif # MTD_UBI_DEBUG
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/build.c b/stblinux-2.6.31/drivers/mtd/ubi/build.c
+index 6a5d305..1c9ca65 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/build.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/build.c
+@@ -37,19 +37,26 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/stringify.h>
++#include <linux/namei.h>
+ #include <linux/stat.h>
+ #include <linux/miscdevice.h>
+ #include <linux/log2.h>
+ #include <linux/kthread.h>
+-#include <linux/reboot.h>
+ #include "ubi.h"
+ 
+ /* Maximum length of the 'mtd=' parameter */
+ #define MTD_PARAM_LEN_MAX 64
+ 
++#ifdef CONFIG_MTD_UBI_MODULE
++#define ubi_is_module() 1
++#else
++#define ubi_is_module() 0
++#endif
++
+ /**
+  * struct mtd_dev_param - MTD device parameter description data structure.
+- * @name: MTD device name or number string
++ * @name: MTD character device node path, MTD device name, or MTD device number
++ *        string
+  * @vid_hdr_offs: VID header offset
+  */
+ struct mtd_dev_param {
+@@ -58,10 +65,10 @@ struct mtd_dev_param {
+ };
+ 
+ /* Numbers of elements set in the @mtd_dev_param array */
+-static int mtd_devs;
++static int __initdata mtd_devs;
+ 
+ /* MTD devices specification parameters */
+-static struct mtd_dev_param mtd_dev_param[UBI_MAX_DEVICES];
++static struct mtd_dev_param __initdata mtd_dev_param[UBI_MAX_DEVICES];
+ 
+ /* Root UBI "class" object (corresponds to '/<sysfs>/class/ubi/') */
+ struct class *ubi_class;
+@@ -362,11 +369,13 @@ static void dev_release(struct device *dev)
+ /**
+  * ubi_sysfs_init - initialize sysfs for an UBI device.
+  * @ubi: UBI device description object
++ * @ref: set to %1 on exit in case of failure if a reference to @ubi->dev was
++ *       taken
+  *
+  * This function returns zero in case of success and a negative error code in
+  * case of failure.
+  */
+-static int ubi_sysfs_init(struct ubi_device *ubi)
++static int ubi_sysfs_init(struct ubi_device *ubi, int *ref)
+ {
+ 	int err;
+ 
+@@ -378,6 +387,7 @@ static int ubi_sysfs_init(struct ubi_device *ubi)
+ 	if (err)
+ 		return err;
+ 
++	*ref = 1;
+ 	err = device_create_file(&ubi->dev, &dev_eraseblock_size);
+ 	if (err)
+ 		return err;
+@@ -433,7 +443,7 @@ static void ubi_sysfs_close(struct ubi_device *ubi)
+ }
+ 
+ /**
+- * kill_volumes - destroy all volumes.
++ * kill_volumes - destroy all user volumes.
+  * @ubi: UBI device description object
+  */
+ static void kill_volumes(struct ubi_device *ubi)
+@@ -446,36 +456,29 @@ static void kill_volumes(struct ubi_device *ubi)
+ }
+ 
+ /**
+- * free_user_volumes - free all user volumes.
+- * @ubi: UBI device description object
+- *
+- * Normally the volumes are freed at the release function of the volume device
+- * objects. However, on error paths the volumes have to be freed before the
+- * device objects have been initialized.
+- */
+-static void free_user_volumes(struct ubi_device *ubi)
+-{
+-	int i;
+-
+-	for (i = 0; i < ubi->vtbl_slots; i++)
+-		if (ubi->volumes[i]) {
+-			kfree(ubi->volumes[i]->eba_tbl);
+-			kfree(ubi->volumes[i]);
+-		}
+-}
+-
+-/**
+  * uif_init - initialize user interfaces for an UBI device.
+  * @ubi: UBI device description object
++ * @ref: set to %1 on exit in case of failure if a reference to @ubi->dev was
++ *       taken, otherwise set to %0
++ *
++ * This function initializes various user interfaces for an UBI device. If the
++ * initialization fails at an early stage, this function frees all the
++ * resources it allocated, returns an error, and @ref is set to %0. However,
++ * if the initialization fails after the UBI device was registered in the
++ * driver core subsystem, this function takes a reference to @ubi->dev, because
++ * otherwise the release function ('dev_release()') would free whole @ubi
++ * object. The @ref argument is set to %1 in this case. The caller has to put
++ * this reference.
+  *
+  * This function returns zero in case of success and a negative error code in
+- * case of failure. Note, this function destroys all volumes if it fails.
++ * case of failure.
+  */
+-static int uif_init(struct ubi_device *ubi)
++static int uif_init(struct ubi_device *ubi, int *ref)
+ {
+ 	int i, err;
+ 	dev_t dev;
+ 
++	*ref = 0;
+ 	sprintf(ubi->ubi_name, UBI_NAME_STR "%d", ubi->ubi_num);
+ 
+ 	/*
+@@ -503,7 +506,7 @@ static int uif_init(struct ubi_device *ubi)
+ 		goto out_unreg;
+ 	}
+ 
+-	err = ubi_sysfs_init(ubi);
++	err = ubi_sysfs_init(ubi, ref);
+ 	if (err)
+ 		goto out_sysfs;
+ 
+@@ -521,6 +524,8 @@ static int uif_init(struct ubi_device *ubi)
+ out_volumes:
+ 	kill_volumes(ubi);
+ out_sysfs:
++	if (*ref)
++		get_device(&ubi->dev);
+ 	ubi_sysfs_close(ubi);
+ 	cdev_del(&ubi->cdev);
+ out_unreg:
+@@ -583,8 +588,10 @@ static int attach_by_scanning(struct ubi_device *ubi)
+ 
+ 	ubi->bad_peb_count = si->bad_peb_count;
+ 	ubi->good_peb_count = ubi->peb_count - ubi->bad_peb_count;
++	ubi->corr_peb_count = si->corr_peb_count;
+ 	ubi->max_ec = si->max_ec;
+ 	ubi->mean_ec = si->mean_ec;
++	ubi_msg("max. sequence number:       %llu", si->max_sqnum);
+ 
+ 	err = ubi_read_volume_table(ubi, si);
+ 	if (err)
+@@ -829,34 +836,6 @@ static int autoresize(struct ubi_device *ubi, int vol_id)
+ }
+ 
+ /**
+- * ubi_reboot_notifier - halt UBI transactions immediately prior to a reboot.
+- * @n: reboot notifier object
+- * @state: SYS_RESTART, SYS_HALT, or SYS_POWER_OFF
+- * @cmd: pointer to command string for RESTART2
+- *
+- * This function stops the UBI background thread so that the flash device
+- * remains quiescent when Linux restarts the system. Any queued work will be
+- * discarded, but this function will block until do_work() finishes if an
+- * operation is already in progress.
+- *
+- * This function solves a real-life problem observed on NOR flashes when an
+- * PEB erase operation starts, then the system is rebooted before the erase is
+- * finishes, and the boot loader gets confused and dies. So we prefer to finish
+- * the ongoing operation before rebooting.
+- */
+-static int ubi_reboot_notifier(struct notifier_block *n, unsigned long state,
+-			       void *cmd)
+-{
+-	struct ubi_device *ubi;
+-
+-	ubi = container_of(n, struct ubi_device, reboot_notifier);
+-	if (ubi->bgt_thread)
+-		kthread_stop(ubi->bgt_thread);
+-	ubi_sync(ubi->ubi_num);
+-	return NOTIFY_DONE;
+-}
+-
+-/**
+  * ubi_attach_mtd_dev - attach an MTD device.
+  * @mtd: MTD device description object
+  * @ubi_num: number to assign to the new UBI device
+@@ -874,7 +853,7 @@ static int ubi_reboot_notifier(struct notifier_block *n, unsigned long state,
+ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num, int vid_hdr_offset)
+ {
+ 	struct ubi_device *ubi;
+-	int i, err, do_free = 1;
++	int i, err, ref = 0;
+ 
+ 	/*
+ 	 * Check if we already have the same MTD device attached.
+@@ -974,9 +953,9 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num, int vid_hdr_offset)
+ 			goto out_detach;
+ 	}
+ 
+-	err = uif_init(ubi);
++	err = uif_init(ubi, &ref);
+ 	if (err)
+-		goto out_nofree;
++		goto out_detach;
+ 
+ 	ubi->bgt_thread = kthread_create(ubi_thread, ubi, ubi->bgt_name);
+ 	if (IS_ERR(ubi->bgt_thread)) {
+@@ -991,6 +970,7 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num, int vid_hdr_offset)
+ 	ubi_msg("MTD device size:            %llu MiB", ubi->flash_size >> 20);
+ 	ubi_msg("number of good PEBs:        %d", ubi->good_peb_count);
+ 	ubi_msg("number of bad PEBs:         %d", ubi->bad_peb_count);
++	ubi_msg("number of corrupted PEBs:   %d", ubi->corr_peb_count);
+ 	ubi_msg("max. allowed volumes:       %d", ubi->vtbl_slots);
+ 	ubi_msg("wear-leveling threshold:    %d", CONFIG_MTD_UBI_WL_THRESHOLD);
+ 	ubi_msg("number of internal volumes: %d", UBI_INT_VOL_COUNT);
+@@ -1001,7 +981,7 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num, int vid_hdr_offset)
+ 	ubi_msg("number of PEBs reserved for bad PEB handling: %d",
+ 		ubi->beb_rsvd_pebs);
+ 	ubi_msg("max/mean erase counter: %d/%d", ubi->max_ec, ubi->mean_ec);
+-	ubi_msg("image sequence number: %d", ubi->image_seq);
++	ubi_msg("image sequence number:  %d", ubi->image_seq);
+ 
+ 	/*
+ 	 * The below lock makes sure we do not race with 'ubi_thread()' which
+@@ -1013,23 +993,14 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num, int vid_hdr_offset)
+ 	wake_up_process(ubi->bgt_thread);
+ 	spin_unlock(&ubi->wl_lock);
+ 
+-	/* Flash device priority is 0 - UBI needs to shut down first */
+-	ubi->reboot_notifier.priority = 1;
+-	ubi->reboot_notifier.notifier_call = ubi_reboot_notifier;
+-	register_reboot_notifier(&ubi->reboot_notifier);
+-
+ 	ubi_devices[ubi_num] = ubi;
+ 	ubi_notify_all(ubi, UBI_VOLUME_ADDED, NULL);
+ 	return ubi_num;
+ 
+ out_uif:
+ 	uif_close(ubi);
+-out_nofree:
+-	do_free = 0;
+ out_detach:
+ 	ubi_wl_close(ubi);
+-	if (do_free)
+-		free_user_volumes(ubi);
+ 	free_internal_volumes(ubi);
+ 	vfree(ubi->vtbl);
+ out_free:
+@@ -1038,7 +1009,10 @@ out_free:
+ #ifdef CONFIG_MTD_UBI_DEBUG_PARANOID
+ 	vfree(ubi->dbg_peb_buf);
+ #endif
+-	kfree(ubi);
++	if (ref)
++		put_device(&ubi->dev);
++	else
++		kfree(ubi);
+ 	return err;
+ }
+ 
+@@ -1089,13 +1063,12 @@ int ubi_detach_mtd_dev(int ubi_num, int anyway)
+ 	 * Before freeing anything, we have to stop the background thread to
+ 	 * prevent it from doing anything on this device while we are freeing.
+ 	 */
+-	unregister_reboot_notifier(&ubi->reboot_notifier);
+ 	if (ubi->bgt_thread)
+ 		kthread_stop(ubi->bgt_thread);
+ 
+ 	/*
+ 	 * Get a reference to the device in order to prevent 'dev_release()'
+-	 * from freeing @ubi object.
++	 * from freeing the @ubi object.
+ 	 */
+ 	get_device(&ubi->dev);
+ 
+@@ -1115,13 +1088,50 @@ int ubi_detach_mtd_dev(int ubi_num, int anyway)
+ }
+ 
+ /**
+- * find_mtd_device - open an MTD device by its name or number.
+- * @mtd_dev: name or number of the device
++ * open_mtd_by_chdev - open an MTD device by its character device node path.
++ * @mtd_dev: MTD character device node path
++ *
++ * This helper function opens an MTD device by its character node device path.
++ * Returns MTD device description object in case of success and a negative
++ * error code in case of failure.
++ */
++static struct mtd_info * __init open_mtd_by_chdev(const char *mtd_dev)
++{
++	int err, major, minor, mode;
++	struct path path;
++
++	/* Probably this is an MTD character device node path */
++	err = kern_path(mtd_dev, LOOKUP_FOLLOW, &path);
++	if (err)
++		return ERR_PTR(err);
++
++	/* MTD device number is defined by the major / minor numbers */
++	major = imajor(path.dentry->d_inode);
++	minor = iminor(path.dentry->d_inode);
++	mode = path.dentry->d_inode->i_mode;
++	path_put(&path);
++	if (major != MTD_CHAR_MAJOR || !S_ISCHR(mode))
++		return ERR_PTR(-EINVAL);
++
++	if (minor & 1)
++		/*
++		 * Just do not think the "/dev/mtdrX" devices support is need,
++		 * so do not support them to avoid doing extra work.
++		 */
++		return ERR_PTR(-EINVAL);
++
++	return get_mtd_device(NULL, minor / 2);
++}
++
++/**
++ * open_mtd_device - open MTD device by name, character device path, or number.
++ * @mtd_dev: name, character device node path, or MTD device device number
+  *
+  * This function tries to open and MTD device described by @mtd_dev string,
+- * which is first treated as an ASCII number, and if it is not true, it is
+- * treated as MTD device name. Returns MTD device description object in case of
+- * success and a negative error code in case of failure.
++ * which is first treated as ASCII MTD device number, and if it is not true, it
++ * is treated as MTD device name, and if that is also not true, it is treated
++ * as MTD character device node path. Returns MTD device description object in
++ * case of success and a negative error code in case of failure.
+  */
+ static struct mtd_info * __init open_mtd_device(const char *mtd_dev)
+ {
+@@ -1136,6 +1146,9 @@ static struct mtd_info * __init open_mtd_device(const char *mtd_dev)
+ 		 * MTD device name.
+ 		 */
+ 		mtd = get_mtd_device_nm(mtd_dev);
++		if (IS_ERR(mtd) && PTR_ERR(mtd) == -ENODEV)
++			/* Probably this is an MTD character device node path */
++			mtd = open_mtd_by_chdev(mtd_dev);
+ 	} else
+ 		mtd = get_mtd_device(NULL, mtd_num);
+ 
+@@ -1199,9 +1212,24 @@ static int __init ubi_init(void)
+ 					 p->vid_hdr_offs);
+ 		mutex_unlock(&ubi_devices_mutex);
+ 		if (err < 0) {
+-			put_mtd_device(mtd);
+ 			ubi_err("cannot attach mtd%d", mtd->index);
+-			goto out_detach;
++			put_mtd_device(mtd);
++
++			/*
++			 * Originally UBI stopped initializing on any error.
++			 * However, later on it was found out that this
++			 * behavior is not very good when UBI is compiled into
++			 * the kernel and the MTD devices to attach are passed
++			 * through the command line. Indeed, UBI failure
++			 * stopped whole boot sequence.
++			 *
++			 * To fix this, we changed the behavior for the
++			 * non-module case, but preserved the old behavior for
++			 * the module case, just for compatibility. This is a
++			 * little inconsistent, though.
++			 */
++			if (ubi_is_module())
++				goto out_detach;
+ 		}
+ 	}
+ 
+@@ -1355,13 +1379,15 @@ static int __init ubi_mtd_param_parse(const char *val, struct kernel_param *kp)
+ 
+ module_param_call(mtd, ubi_mtd_param_parse, NULL, NULL, 000);
+ MODULE_PARM_DESC(mtd, "MTD devices to attach. Parameter format: "
+-		      "mtd=<name|num>[,<vid_hdr_offs>].\n"
++		      "mtd=<name|num|path>[,<vid_hdr_offs>].\n"
+ 		      "Multiple \"mtd\" parameters may be specified.\n"
+-		      "MTD devices may be specified by their number or name.\n"
++		      "MTD devices may be specified by their number, name, or "
++		      "path to the MTD character device node.\n"
+ 		      "Optional \"vid_hdr_offs\" parameter specifies UBI VID "
+-		      "header position and data starting position to be used "
+-		      "by UBI.\n"
+-		      "Example: mtd=content,1984 mtd=4 - attach MTD device"
++		      "header position to be used by UBI.\n"
++		      "Example 1: mtd=/dev/mtd0 - attach MTD device "
++		      "/dev/mtd0.\n"
++		      "Example 2: mtd=content,1984 mtd=4 - attach MTD device "
+ 		      "with name \"content\" using VID header offset 1984, and "
+ 		      "MTD device number 4 with default VID header offset.");
+ 
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/cdev.c b/stblinux-2.6.31/drivers/mtd/ubi/cdev.c
+index 111ea41..9c81704 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/cdev.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/cdev.c
+@@ -798,18 +798,18 @@ static int rename_volumes(struct ubi_device *ubi,
+ 			goto out_free;
+ 		}
+ 
+-		re = kzalloc(sizeof(struct ubi_rename_entry), GFP_KERNEL);
+-		if (!re) {
++		re1 = kzalloc(sizeof(struct ubi_rename_entry), GFP_KERNEL);
++		if (!re1) {
+ 			err = -ENOMEM;
+ 			ubi_close_volume(desc);
+ 			goto out_free;
+ 		}
+ 
+-		re->remove = 1;
+-		re->desc = desc;
+-		list_add(&re->list, &rename_list);
++		re1->remove = 1;
++		re1->desc = desc;
++		list_add(&re1->list, &rename_list);
+ 		dbg_msg("will remove volume %d, name \"%s\"",
+-			re->desc->vol->vol_id, re->desc->vol->name);
++			re1->desc->vol->vol_id, re1->desc->vol->name);
+ 	}
+ 
+ 	mutex_lock(&ubi->device_mutex);
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/debug.c b/stblinux-2.6.31/drivers/mtd/ubi/debug.c
+index 54b0186..4876977 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/debug.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/debug.c
+@@ -196,4 +196,36 @@ void ubi_dbg_dump_mkvol_req(const struct ubi_mkvol_req *req)
+ 	printk(KERN_DEBUG "\t1st 16 characters of name: %s\n", nm);
+ }
+ 
++/**
++ * ubi_dbg_dump_flash - dump a region of flash.
++ * @ubi: UBI device description object
++ * @pnum: the physical eraseblock number to dump
++ * @offset: the starting offset within the physical eraseblock to dump
++ * @len: the length of the region to dump
++ */
++void ubi_dbg_dump_flash(struct ubi_device *ubi, int pnum, int offset, int len)
++{
++	int err;
++	size_t read;
++	void *buf;
++	loff_t addr = (loff_t)pnum * ubi->peb_size + offset;
++
++	buf = vmalloc(len);
++	if (!buf)
++		return;
++	err = ubi->mtd->read(ubi->mtd, addr, len, &read, buf);
++	if (err && err != -EUCLEAN) {
++		ubi_err("error %d while reading %d bytes from PEB %d:%d, "
++			"read %zd bytes", err, len, pnum, offset, read);
++		goto out;
++	}
++
++	dbg_msg("dumping %d bytes of data from PEB %d, offset %d",
++		len, pnum, offset);
++	print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1, buf, len, 1);
++out:
++	vfree(buf);
++	return;
++}
++
+ #endif /* CONFIG_MTD_UBI_DEBUG */
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/debug.h b/stblinux-2.6.31/drivers/mtd/ubi/debug.h
+index a4da7a0..9eca950 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/debug.h
++++ b/stblinux-2.6.31/drivers/mtd/ubi/debug.h
+@@ -55,6 +55,10 @@ void ubi_dbg_dump_vtbl_record(const struct ubi_vtbl_record *r, int idx);
+ void ubi_dbg_dump_sv(const struct ubi_scan_volume *sv);
+ void ubi_dbg_dump_seb(const struct ubi_scan_leb *seb, int type);
+ void ubi_dbg_dump_mkvol_req(const struct ubi_mkvol_req *req);
++void ubi_dbg_dump_flash(struct ubi_device *ubi, int pnum, int offset, int len);
++
++#define ubi_dbg_print_hex_dump(l, ps, pt, r, g, b, len, a)  \
++		print_hex_dump(l, ps, pt, r, g, b, len, a)
+ 
+ #ifdef CONFIG_MTD_UBI_DEBUG_MSG
+ /* General debugging messages */
+@@ -95,8 +99,11 @@ void ubi_dbg_dump_mkvol_req(const struct ubi_mkvol_req *req);
+ 
+ #ifdef CONFIG_MTD_UBI_DEBUG_PARANOID
+ int ubi_dbg_check_all_ff(struct ubi_device *ubi, int pnum, int offset, int len);
++int ubi_dbg_check_write(struct ubi_device *ubi, const void *buf, int pnum,
++			int offset, int len);
+ #else
+ #define ubi_dbg_check_all_ff(ubi, pnum, offset, len) 0
++#define ubi_dbg_check_write(ubi, buf, pnum, offset, len) 0
+ #endif
+ 
+ #ifdef CONFIG_MTD_UBI_DEBUG_DISABLE_BGT
+@@ -167,6 +174,8 @@ static inline int ubi_dbg_is_erase_failure(void)
+ #define ubi_dbg_dump_sv(sv)              ({})
+ #define ubi_dbg_dump_seb(seb, type)      ({})
+ #define ubi_dbg_dump_mkvol_req(req)      ({})
++#define ubi_dbg_dump_flash(ubi, pnum, offset, len) ({})
++#define ubi_dbg_print_hex_dump(l, ps, pt, r, g, b, len, a)  ({})
+ 
+ #define UBI_IO_DEBUG               0
+ #define DBG_DISABLE_BGT            0
+@@ -174,6 +183,7 @@ static inline int ubi_dbg_is_erase_failure(void)
+ #define ubi_dbg_is_write_failure() 0
+ #define ubi_dbg_is_erase_failure() 0
+ #define ubi_dbg_check_all_ff(ubi, pnum, offset, len) 0
++#define ubi_dbg_check_write(ubi, buf, pnum, offset, len) 0
+ 
+ #endif /* !CONFIG_MTD_UBI_DEBUG */
+ #endif /* !__UBI_DEBUG_H__ */
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/eba.c b/stblinux-2.6.31/drivers/mtd/ubi/eba.c
+index e4d9ef0..6882e54 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/eba.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/eba.c
+@@ -418,7 +418,8 @@ retry:
+ 				 * may try to recover data. FIXME: but this is
+ 				 * not implemented.
+ 				 */
+-				if (err == UBI_IO_BAD_VID_HDR) {
++				if (err == UBI_IO_BAD_HDR_EBADMSG ||
++				    err == UBI_IO_BAD_HDR) {
+ 					ubi_warn("corrupted VID header at PEB "
+ 						 "%d, LEB %d:%d", pnum, vol_id,
+ 						 lnum);
+@@ -961,8 +962,8 @@ write_error:
+  */
+ static int is_error_sane(int err)
+ {
+-	if (err == -EIO || err == -ENOMEM || err == UBI_IO_BAD_VID_HDR ||
+-	    err == -ETIMEDOUT)
++	if (err == -EIO || err == -ENOMEM || err == UBI_IO_BAD_HDR ||
++	    err == UBI_IO_BAD_HDR_EBADMSG || err == -ETIMEDOUT)
+ 		return 0;
+ 	return 1;
+ }
+@@ -1165,6 +1166,47 @@ out_unlock_leb:
+ }
+ 
+ /**
++ * print_rsvd_warning - warn about not having enough reserved PEBs.
++ * @ubi: UBI device description object
++ *
++ * This is a helper function for 'ubi_eba_init_scan()' which is called when UBI
++ * cannot reserve enough PEBs for bad block handling. This function makes a
++ * decision whether we have to print a warning or not. The algorithm is as
++ * follows:
++ *   o if this is a new UBI image, then just print the warning
++ *   o if this is an UBI image which has already been used for some time, print
++ *     a warning only if we can reserve less than 10% of the expected amount of
++ *     the reserved PEB.
++ *
++ * The idea is that when UBI is used, PEBs become bad, and the reserved pool
++ * of PEBs becomes smaller, which is normal and we do not want to scare users
++ * with a warning every time they attach the MTD device. This was an issue
++ * reported by real users.
++ */
++static void print_rsvd_warning(struct ubi_device *ubi,
++			       struct ubi_scan_info *si)
++{
++	/*
++	 * The 1 << 18 (256KiB) number is picked randomly, just a reasonably
++	 * large number to distinguish between newly flashed and used images.
++	 */
++	if (si->max_sqnum > (1 << 18)) {
++		int min = ubi->beb_rsvd_level / 10;
++
++		if (!min)
++			min = 1;
++		if (ubi->beb_rsvd_pebs > min)
++			return;
++	}
++
++	ubi_warn("cannot reserve enough PEBs for bad PEB handling, reserved %d,"
++		 " need %d", ubi->beb_rsvd_pebs, ubi->beb_rsvd_level);
++	if (ubi->corr_peb_count)
++		ubi_warn("%d PEBs are corrupted and not used",
++			ubi->corr_peb_count);
++}
++
++/**
+  * ubi_eba_init_scan - initialize the EBA sub-system using scanning information.
+  * @ubi: UBI device description object
+  * @si: scanning information
+@@ -1224,6 +1266,9 @@ int ubi_eba_init_scan(struct ubi_device *ubi, struct ubi_scan_info *si)
+ 	if (ubi->avail_pebs < EBA_RESERVED_PEBS) {
+ 		ubi_err("no enough physical eraseblocks (%d, need %d)",
+ 			ubi->avail_pebs, EBA_RESERVED_PEBS);
++		if (ubi->corr_peb_count)
++			ubi_err("%d PEBs are corrupted and not used",
++				ubi->corr_peb_count);
+ 		err = -ENOSPC;
+ 		goto out_free;
+ 	}
+@@ -1236,9 +1281,7 @@ int ubi_eba_init_scan(struct ubi_device *ubi, struct ubi_scan_info *si)
+ 		if (ubi->avail_pebs < ubi->beb_rsvd_level) {
+ 			/* No enough free physical eraseblocks */
+ 			ubi->beb_rsvd_pebs = ubi->avail_pebs;
+-			ubi_warn("cannot reserve enough PEBs for bad PEB "
+-				 "handling, reserved %d, need %d",
+-				 ubi->beb_rsvd_pebs, ubi->beb_rsvd_level);
++			print_rsvd_warning(ubi, si);
+ 		} else
+ 			ubi->beb_rsvd_pebs = ubi->beb_rsvd_level;
+ 
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/io.c b/stblinux-2.6.31/drivers/mtd/ubi/io.c
+index 4cb6992..47ec397 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/io.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/io.c
+@@ -64,9 +64,9 @@
+  * device, e.g., make @ubi->min_io_size = 512 in the example above?
+  *
+  * A: because when writing a sub-page, MTD still writes a full 2K page but the
+- * bytes which are no relevant to the sub-page are 0xFF. So, basically, writing
+- * 4x512 sub-pages is 4 times slower then writing one 2KiB NAND page. Thus, we
+- * prefer to use sub-pages only for EV and VID headers.
++ * bytes which are not relevant to the sub-page are 0xFF. So, basically,
++ * writing 4x512 sub-pages is 4 times slower than writing one 2KiB NAND page.
++ * Thus, we prefer to use sub-pages only for EC and VID headers.
+  *
+  * As it was noted above, the VID header may start at a non-aligned offset.
+  * For example, in case of a 2KiB page NAND flash with a 512 bytes sub-page,
+@@ -143,12 +143,14 @@ int ubi_io_read(const struct ubi_device *ubi, void *buf, int pnum, int offset,
+ 
+ 	err = paranoid_check_not_bad(ubi, pnum);
+ 	if (err)
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 
+ 	addr = (loff_t)pnum * ubi->peb_size + offset;
+ retry:
+ 	err = ubi->mtd->read(ubi->mtd, addr, len, &read, buf);
+ 	if (err) {
++		const char *errstr = (err == -EBADMSG) ? " (ECC error)" : "";
++
+ 		if (err == -EUCLEAN) {
+ 			/*
+ 			 * -EUCLEAN is reported if there was a bit-flip which
+@@ -164,15 +166,15 @@ retry:
+ 		}
+ 
+ 		if (read != len && retries++ < UBI_IO_RETRIES) {
+-			dbg_io("error %d while reading %d bytes from PEB %d:%d,"
++			dbg_io("error %d%s while reading %d bytes from PEB %d:%d,"
+ 			       " read only %zd bytes, retry",
+-			       err, len, pnum, offset, read);
++			       err, errstr, len, pnum, offset, read);
+ 			yield();
+ 			goto retry;
+ 		}
+ 
+-		ubi_err("error %d while reading %d bytes from PEB %d:%d, "
+-			"read %zd bytes", err, len, pnum, offset, read);
++		ubi_err("error %d%s while reading %d bytes from PEB %d:%d, "
++			"read %zd bytes", err, errstr, len, pnum, offset, read);
+ 		ubi_dbg_dump_stack();
+ 
+ 		/*
+@@ -236,12 +238,12 @@ int ubi_io_write(struct ubi_device *ubi, const void *buf, int pnum, int offset,
+ 
+ 	err = paranoid_check_not_bad(ubi, pnum);
+ 	if (err)
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 
+ 	/* The area we are writing to has to contain all 0xFF bytes */
+ 	err = ubi_dbg_check_all_ff(ubi, pnum, offset, len);
+ 	if (err)
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 
+ 	if (offset >= ubi->leb_start) {
+ 		/*
+@@ -250,10 +252,10 @@ int ubi_io_write(struct ubi_device *ubi, const void *buf, int pnum, int offset,
+ 		 */
+ 		err = paranoid_check_peb_ec_hdr(ubi, pnum);
+ 		if (err)
+-			return err > 0 ? -EINVAL : err;
++			return err;
+ 		err = paranoid_check_peb_vid_hdr(ubi, pnum);
+ 		if (err)
+-			return err > 0 ? -EINVAL : err;
++			return err;
+ 	}
+ 
+ 	if (ubi_dbg_is_write_failure()) {
+@@ -269,9 +271,25 @@ int ubi_io_write(struct ubi_device *ubi, const void *buf, int pnum, int offset,
+ 		ubi_err("error %d while writing %d bytes to PEB %d:%d, written "
+ 			"%zd bytes", err, len, pnum, offset, written);
+ 		ubi_dbg_dump_stack();
++		ubi_dbg_dump_flash(ubi, pnum, offset, len);
+ 	} else
+ 		ubi_assert(written == len);
+ 
++	if (!err) {
++		err = ubi_dbg_check_write(ubi, buf, pnum, offset, len);
++		if (err)
++			return err;
++
++		/*
++		 * Since we always write sequentially, the rest of the PEB has
++		 * to contain only 0xFF bytes.
++		 */
++		offset += len;
++		len = ubi->peb_size - offset;
++		if (len)
++			err = ubi_dbg_check_all_ff(ubi, pnum, offset, len);
++	}
++
+ 	return err;
+ }
+ 
+@@ -347,7 +365,7 @@ retry:
+ 
+ 	err = ubi_dbg_check_all_ff(ubi, pnum, 0, ubi->peb_size);
+ 	if (err)
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 
+ 	if (ubi_dbg_is_erase_failure() && !err) {
+ 		dbg_err("cannot erase PEB %d (emulated)", pnum);
+@@ -357,25 +375,6 @@ retry:
+ 	return 0;
+ }
+ 
+-/**
+- * check_pattern - check if buffer contains only a certain byte pattern.
+- * @buf: buffer to check
+- * @patt: the pattern to check
+- * @size: buffer size in bytes
+- *
+- * This function returns %1 in there are only @patt bytes in @buf, and %0 if
+- * something else was also found.
+- */
+-static int check_pattern(const void *buf, uint8_t patt, int size)
+-{
+-	int i;
+-
+-	for (i = 0; i < size; i++)
+-		if (((const uint8_t *)buf)[i] != patt)
+-			return 0;
+-	return 1;
+-}
+-
+ /* Patterns to write to a physical eraseblock when torturing it */
+ static uint8_t patterns[] = {0xa5, 0x5a, 0x0};
+ 
+@@ -407,7 +406,7 @@ static int torture_peb(struct ubi_device *ubi, int pnum)
+ 		if (err)
+ 			goto out;
+ 
+-		err = check_pattern(ubi->peb_buf1, 0xFF, ubi->peb_size);
++		err = ubi_check_pattern(ubi->peb_buf1, 0xFF, ubi->peb_size);
+ 		if (err == 0) {
+ 			ubi_err("erased PEB %d, but a non-0xFF byte found",
+ 				pnum);
+@@ -426,7 +425,8 @@ static int torture_peb(struct ubi_device *ubi, int pnum)
+ 		if (err)
+ 			goto out;
+ 
+-		err = check_pattern(ubi->peb_buf1, patterns[i], ubi->peb_size);
++		err = ubi_check_pattern(ubi->peb_buf1, patterns[i],
++					ubi->peb_size);
+ 		if (err == 0) {
+ 			ubi_err("pattern %x checking failed for PEB %d",
+ 				patterns[i], pnum);
+@@ -475,30 +475,46 @@ out:
+  */
+ static int nor_erase_prepare(struct ubi_device *ubi, int pnum)
+ {
+-	int err;
++	int err, err1;
+ 	size_t written;
+ 	loff_t addr;
+ 	uint32_t data = 0;
++	struct ubi_vid_hdr vid_hdr;
+ 
+-	addr = (loff_t)pnum * ubi->peb_size;
++	addr = (loff_t)pnum * ubi->peb_size + ubi->vid_hdr_aloffset;
+ 	err = ubi->mtd->write(ubi->mtd, addr, 4, &written, (void *)&data);
+-	if (err) {
+-		ubi_err("error %d while writing 4 bytes to PEB %d:%d, written "
+-			"%zd bytes", err, pnum, 0, written);
+-		ubi_dbg_dump_stack();
+-		return err;
++	if (!err) {
++		addr -= ubi->vid_hdr_aloffset;
++		err = ubi->mtd->write(ubi->mtd, addr, 4, &written,
++				      (void *)&data);
++		if (!err)
++			return 0;
+ 	}
+ 
+-	addr += ubi->vid_hdr_aloffset;
+-	err = ubi->mtd->write(ubi->mtd, addr, 4, &written, (void *)&data);
+-	if (err) {
+-		ubi_err("error %d while writing 4 bytes to PEB %d:%d, written "
+-			"%zd bytes", err, pnum, ubi->vid_hdr_aloffset, written);
+-		ubi_dbg_dump_stack();
+-		return err;
+-	}
++	/*
++	 * We failed to write to the media. This was observed with Spansion
++	 * S29GL512N NOR flash. Most probably the eraseblock erasure was
++	 * interrupted at a very inappropriate moment, so it became unwritable.
++	 * In this case we probably anyway have garbage in this PEB.
++	 */
++	err1 = ubi_io_read_vid_hdr(ubi, pnum, &vid_hdr, 0);
++	if (err1 == UBI_IO_BAD_HDR_EBADMSG || err1 == UBI_IO_BAD_HDR)
++		/*
++		 * The VID header is corrupted, so we can safely erase this
++		 * PEB and not afraid that it will be treated as a valid PEB in
++		 * case of an unclean reboot.
++		 */
++		return 0;
+ 
+-	return 0;
++	/*
++	 * The PEB contains a valid VID header, but we cannot invalidate it.
++	 * Supposedly the flash media or the driver is screwed up, so return an
++	 * error.
++	 */
++	ubi_err("cannot invalidate PEB %d, write returned %d read returned %d",
++		pnum, err, err1);
++	ubi_dbg_dump_flash(ubi, pnum, 0, ubi->peb_size);
++	return -EIO;
+ }
+ 
+ /**
+@@ -525,7 +541,7 @@ int ubi_io_sync_erase(struct ubi_device *ubi, int pnum, int torture)
+ 
+ 	err = paranoid_check_not_bad(ubi, pnum);
+ 	if (err != 0)
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 
+ 	if (ubi->ro_mode) {
+ 		ubi_err("read-only mode");
+@@ -676,50 +692,48 @@ bad:
+  * o %UBI_IO_BITFLIPS if the CRC is correct, but bit-flips were detected
+  *   and corrected by the flash driver; this is harmless but may indicate that
+  *   this eraseblock may become bad soon (but may be not);
+- * o %UBI_IO_BAD_EC_HDR if the erase counter header is corrupted (a CRC error);
+- * o %UBI_IO_PEB_EMPTY if the physical eraseblock is empty;
++ * o %UBI_IO_BAD_HDR if the erase counter header is corrupted (a CRC error);
++ * o %UBI_IO_BAD_HDR_EBADMSG is the same as %UBI_IO_BAD_HDR, but there also was
++ *   a data integrity error (uncorrectable ECC error in case of NAND);
++ * o %UBI_IO_FF if only 0xFF bytes were read (the PEB is supposedly empty)
+  * o a negative error code in case of failure.
+  */
+ int ubi_io_read_ec_hdr(struct ubi_device *ubi, int pnum,
+ 		       struct ubi_ec_hdr *ec_hdr, int verbose)
+ {
+-	int err, read_err = 0;
++	int err, read_err;
+ 	uint32_t crc, magic, hdr_crc;
+ 
+ 	dbg_io("read EC header from PEB %d", pnum);
+ 	ubi_assert(pnum >= 0 && pnum < ubi->peb_count);
+ 
+-	err = ubi_io_read(ubi, ec_hdr, pnum, 0, UBI_EC_HDR_SIZE);
+-	if (err) {
+-		if (err != UBI_IO_BITFLIPS && err != -EBADMSG)
+-			return err;
++	read_err = ubi_io_read(ubi, ec_hdr, pnum, 0, UBI_EC_HDR_SIZE);
++	if (read_err) {
++		if (read_err != UBI_IO_BITFLIPS && read_err != -EBADMSG)
++			return read_err;
+ 
+ 		/*
+ 		 * We read all the data, but either a correctable bit-flip
+-		 * occurred, or MTD reported about some data integrity error,
+-		 * like an ECC error in case of NAND. The former is harmless,
+-		 * the later may mean that the read data is corrupted. But we
+-		 * have a CRC check-sum and we will detect this. If the EC
+-		 * header is still OK, we just report this as there was a
+-		 * bit-flip.
++		 * occurred, or MTD reported a data integrity error
++		 * (uncorrectable ECC error in case of NAND). The former is
++		 * harmless, the later may mean that the read data is
++		 * corrupted. But we have a CRC check-sum and we will detect
++		 * this. If the EC header is still OK, we just report this as
++		 * there was a bit-flip, to force scrubbing.
+ 		 */
+-		read_err = err;
+ 	}
+ 
+ 	magic = be32_to_cpu(ec_hdr->magic);
+ 	if (magic != UBI_EC_HDR_MAGIC) {
++		if (read_err == -EBADMSG)
++			return UBI_IO_BAD_HDR_EBADMSG;
++
+ 		/*
+ 		 * The magic field is wrong. Let's check if we have read all
+ 		 * 0xFF. If yes, this physical eraseblock is assumed to be
+ 		 * empty.
+-		 *
+-		 * But if there was a read error, we do not test it for all
+-		 * 0xFFs. Even if it does contain all 0xFFs, this error
+-		 * indicates that something is still wrong with this physical
+-		 * eraseblock and we anyway cannot treat it as empty.
+ 		 */
+-		if (read_err != -EBADMSG &&
+-		    check_pattern(ec_hdr, 0xFF, UBI_EC_HDR_SIZE)) {
++		if (ubi_check_pattern(ec_hdr, 0xFF, UBI_EC_HDR_SIZE)) {
+ 			/* The physical eraseblock is supposedly empty */
+ 			if (verbose)
+ 				ubi_warn("no EC header found at PEB %d, "
+@@ -727,7 +741,10 @@ int ubi_io_read_ec_hdr(struct ubi_device *ubi, int pnum,
+ 			else if (UBI_IO_DEBUG)
+ 				dbg_msg("no EC header found at PEB %d, "
+ 					"only 0xFF bytes", pnum);
+-			return UBI_IO_PEB_EMPTY;
++			if (!read_err)
++				return UBI_IO_FF;
++			else
++				return UBI_IO_FF_BITFLIPS;
+ 		}
+ 
+ 		/*
+@@ -741,7 +758,7 @@ int ubi_io_read_ec_hdr(struct ubi_device *ubi, int pnum,
+ 		} else if (UBI_IO_DEBUG)
+ 			dbg_msg("bad magic number at PEB %d: %08x instead of "
+ 				"%08x", pnum, magic, UBI_EC_HDR_MAGIC);
+-		return UBI_IO_BAD_EC_HDR;
++		return UBI_IO_BAD_HDR;
+ 	}
+ 
+ 	crc = crc32(UBI_CRC32_INIT, ec_hdr, UBI_EC_HDR_SIZE_CRC);
+@@ -755,7 +772,11 @@ int ubi_io_read_ec_hdr(struct ubi_device *ubi, int pnum,
+ 		} else if (UBI_IO_DEBUG)
+ 			dbg_msg("bad EC header CRC at PEB %d, calculated "
+ 				"%#08x, read %#08x", pnum, crc, hdr_crc);
+-		return UBI_IO_BAD_EC_HDR;
++
++		if (!read_err)
++			return UBI_IO_BAD_HDR;
++		else
++			return UBI_IO_BAD_HDR_EBADMSG;
+ 	}
+ 
+ 	/* And of course validate what has just been read from the media */
+@@ -765,6 +786,10 @@ int ubi_io_read_ec_hdr(struct ubi_device *ubi, int pnum,
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * If there was %-EBADMSG, but the header CRC is still OK, report about
++	 * a bit-flip to force scrubbing on this PEB.
++	 */
+ 	return read_err ? UBI_IO_BITFLIPS : 0;
+ }
+ 
+@@ -802,7 +827,7 @@ int ubi_io_write_ec_hdr(struct ubi_device *ubi, int pnum,
+ 
+ 	err = paranoid_check_ec_hdr(ubi, pnum, ec_hdr);
+ 	if (err)
+-		return -EINVAL;
++		return err;
+ 
+ 	err = ubi_io_write(ubi, ec_hdr, pnum, 0, ubi->ec_hdr_alsize);
+ 	return err;
+@@ -938,22 +963,16 @@ bad:
+  *
+  * This function reads the volume identifier header from physical eraseblock
+  * @pnum and stores it in @vid_hdr. It also checks CRC checksum of the read
+- * volume identifier header. The following codes may be returned:
++ * volume identifier header. The error codes are the same as in
++ * 'ubi_io_read_ec_hdr()'.
+  *
+- * o %0 if the CRC checksum is correct and the header was successfully read;
+- * o %UBI_IO_BITFLIPS if the CRC is correct, but bit-flips were detected
+- *   and corrected by the flash driver; this is harmless but may indicate that
+- *   this eraseblock may become bad soon;
+- * o %UBI_IO_BAD_VID_HDR if the volume identifier header is corrupted (a CRC
+- *   error detected);
+- * o %UBI_IO_PEB_FREE if the physical eraseblock is free (i.e., there is no VID
+- *   header there);
+- * o a negative error code in case of failure.
++ * Note, the implementation of this function is also very similar to
++ * 'ubi_io_read_ec_hdr()', so refer commentaries in 'ubi_io_read_ec_hdr()'.
+  */
+ int ubi_io_read_vid_hdr(struct ubi_device *ubi, int pnum,
+ 			struct ubi_vid_hdr *vid_hdr, int verbose)
+ {
+-	int err, read_err = 0;
++	int err, read_err;
+ 	uint32_t crc, magic, hdr_crc;
+ 	void *p;
+ 
+@@ -961,50 +980,29 @@ int ubi_io_read_vid_hdr(struct ubi_device *ubi, int pnum,
+ 	ubi_assert(pnum >= 0 &&  pnum < ubi->peb_count);
+ 
+ 	p = (char *)vid_hdr - ubi->vid_hdr_shift;
+-	err = ubi_io_read(ubi, p, pnum, ubi->vid_hdr_aloffset,
++	read_err = ubi_io_read(ubi, p, pnum, ubi->vid_hdr_aloffset,
+ 			  ubi->vid_hdr_alsize);
+-	if (err) {
+-		if (err != UBI_IO_BITFLIPS && err != -EBADMSG)
+-			return err;
+-
+-		/*
+-		 * We read all the data, but either a correctable bit-flip
+-		 * occurred, or MTD reported about some data integrity error,
+-		 * like an ECC error in case of NAND. The former is harmless,
+-		 * the later may mean the read data is corrupted. But we have a
+-		 * CRC check-sum and we will identify this. If the VID header is
+-		 * still OK, we just report this as there was a bit-flip.
+-		 */
+-		read_err = err;
+-	}
++	if (read_err && read_err != UBI_IO_BITFLIPS && read_err != -EBADMSG)
++		return read_err;
+ 
+ 	magic = be32_to_cpu(vid_hdr->magic);
+ 	if (magic != UBI_VID_HDR_MAGIC) {
+-		/*
+-		 * If we have read all 0xFF bytes, the VID header probably does
+-		 * not exist and the physical eraseblock is assumed to be free.
+-		 *
+-		 * But if there was a read error, we do not test the data for
+-		 * 0xFFs. Even if it does contain all 0xFFs, this error
+-		 * indicates that something is still wrong with this physical
+-		 * eraseblock and it cannot be regarded as free.
+-		 */
+-		if (read_err != -EBADMSG &&
+-		    check_pattern(vid_hdr, 0xFF, UBI_VID_HDR_SIZE)) {
+-			/* The physical eraseblock is supposedly free */
++		if (read_err == -EBADMSG)
++			return UBI_IO_BAD_HDR_EBADMSG;
++
++		if (ubi_check_pattern(vid_hdr, 0xFF, UBI_VID_HDR_SIZE)) {
+ 			if (verbose)
+ 				ubi_warn("no VID header found at PEB %d, "
+ 					 "only 0xFF bytes", pnum);
+ 			else if (UBI_IO_DEBUG)
+ 				dbg_msg("no VID header found at PEB %d, "
+ 					"only 0xFF bytes", pnum);
+-			return UBI_IO_PEB_FREE;
++			if (!read_err)
++				return UBI_IO_FF;
++			else
++				return UBI_IO_FF_BITFLIPS;
+ 		}
+ 
+-		/*
+-		 * This is not a valid VID header, and these are not 0xFF
+-		 * bytes. Report that the header is corrupted.
+-		 */
+ 		if (verbose) {
+ 			ubi_warn("bad magic number at PEB %d: %08x instead of "
+ 				 "%08x", pnum, magic, UBI_VID_HDR_MAGIC);
+@@ -1012,7 +1010,7 @@ int ubi_io_read_vid_hdr(struct ubi_device *ubi, int pnum,
+ 		} else if (UBI_IO_DEBUG)
+ 			dbg_msg("bad magic number at PEB %d: %08x instead of "
+ 				"%08x", pnum, magic, UBI_VID_HDR_MAGIC);
+-		return UBI_IO_BAD_VID_HDR;
++		return UBI_IO_BAD_HDR;
+ 	}
+ 
+ 	crc = crc32(UBI_CRC32_INIT, vid_hdr, UBI_VID_HDR_SIZE_CRC);
+@@ -1026,10 +1024,12 @@ int ubi_io_read_vid_hdr(struct ubi_device *ubi, int pnum,
+ 		} else if (UBI_IO_DEBUG)
+ 			dbg_msg("bad CRC at PEB %d, calculated %#08x, "
+ 				"read %#08x", pnum, crc, hdr_crc);
+-		return UBI_IO_BAD_VID_HDR;
++		if (!read_err)
++			return UBI_IO_BAD_HDR;
++		else
++			return UBI_IO_BAD_HDR_EBADMSG;
+ 	}
+ 
+-	/* Validate the VID header that we have just read */
+ 	err = validate_vid_hdr(ubi, vid_hdr);
+ 	if (err) {
+ 		ubi_err("validation failed for PEB %d", pnum);
+@@ -1066,7 +1066,7 @@ int ubi_io_write_vid_hdr(struct ubi_device *ubi, int pnum,
+ 
+ 	err = paranoid_check_peb_ec_hdr(ubi, pnum);
+ 	if (err)
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 
+ 	vid_hdr->magic = cpu_to_be32(UBI_VID_HDR_MAGIC);
+ 	vid_hdr->version = UBI_VERSION;
+@@ -1075,7 +1075,7 @@ int ubi_io_write_vid_hdr(struct ubi_device *ubi, int pnum,
+ 
+ 	err = paranoid_check_vid_hdr(ubi, pnum, vid_hdr);
+ 	if (err)
+-		return -EINVAL;
++		return err;
+ 
+ 	p = (char *)vid_hdr - ubi->vid_hdr_shift;
+ 	err = ubi_io_write(ubi, p, pnum, ubi->vid_hdr_aloffset,
+@@ -1090,8 +1090,8 @@ int ubi_io_write_vid_hdr(struct ubi_device *ubi, int pnum,
+  * @ubi: UBI device description object
+  * @pnum: physical eraseblock number to check
+  *
+- * This function returns zero if the physical eraseblock is good, a positive
+- * number if it is bad and a negative error code if an error occurred.
++ * This function returns zero if the physical eraseblock is good, %-EINVAL if
++ * it is bad and a negative error code if an error occurred.
+  */
+ static int paranoid_check_not_bad(const struct ubi_device *ubi, int pnum)
+ {
+@@ -1103,7 +1103,7 @@ static int paranoid_check_not_bad(const struct ubi_device *ubi, int pnum)
+ 
+ 	ubi_err("paranoid check failed for PEB %d", pnum);
+ 	ubi_dbg_dump_stack();
+-	return err;
++	return err > 0 ? -EINVAL : err;
+ }
+ 
+ /**
+@@ -1113,7 +1113,7 @@ static int paranoid_check_not_bad(const struct ubi_device *ubi, int pnum)
+  * @ec_hdr: the erase counter header to check
+  *
+  * This function returns zero if the erase counter header contains valid
+- * values, and %1 if not.
++ * values, and %-EINVAL if not.
+  */
+ static int paranoid_check_ec_hdr(const struct ubi_device *ubi, int pnum,
+ 				 const struct ubi_ec_hdr *ec_hdr)
+@@ -1139,7 +1139,7 @@ static int paranoid_check_ec_hdr(const struct ubi_device *ubi, int pnum,
+ fail:
+ 	ubi_dbg_dump_ec_hdr(ec_hdr);
+ 	ubi_dbg_dump_stack();
+-	return 1;
++	return -EINVAL;
+ }
+ 
+ /**
+@@ -1147,8 +1147,8 @@ fail:
+  * @ubi: UBI device description object
+  * @pnum: the physical eraseblock number to check
+  *
+- * This function returns zero if the erase counter header is all right, %1 if
+- * not, and a negative error code if an error occurred.
++ * This function returns zero if the erase counter header is all right and and
++ * a negative error code if not or if an error occurred.
+  */
+ static int paranoid_check_peb_ec_hdr(const struct ubi_device *ubi, int pnum)
+ {
+@@ -1171,7 +1171,7 @@ static int paranoid_check_peb_ec_hdr(const struct ubi_device *ubi, int pnum)
+ 		ubi_err("paranoid check failed for PEB %d", pnum);
+ 		ubi_dbg_dump_ec_hdr(ec_hdr);
+ 		ubi_dbg_dump_stack();
+-		err = 1;
++		err = -EINVAL;
+ 		goto exit;
+ 	}
+ 
+@@ -1189,7 +1189,7 @@ exit:
+  * @vid_hdr: the volume identifier header to check
+  *
+  * This function returns zero if the volume identifier header is all right, and
+- * %1 if not.
++ * %-EINVAL if not.
+  */
+ static int paranoid_check_vid_hdr(const struct ubi_device *ubi, int pnum,
+ 				  const struct ubi_vid_hdr *vid_hdr)
+@@ -1216,7 +1216,7 @@ fail:
+ 	ubi_err("paranoid check failed for PEB %d", pnum);
+ 	ubi_dbg_dump_vid_hdr(vid_hdr);
+ 	ubi_dbg_dump_stack();
+-	return 1;
++	return -EINVAL;
+ 
+ }
+ 
+@@ -1226,7 +1226,7 @@ fail:
+  * @pnum: the physical eraseblock number to check
+  *
+  * This function returns zero if the volume identifier header is all right,
+- * %1 if not, and a negative error code if an error occurred.
++ * and a negative error code if not or if an error occurred.
+  */
+ static int paranoid_check_peb_vid_hdr(const struct ubi_device *ubi, int pnum)
+ {
+@@ -1253,7 +1253,7 @@ static int paranoid_check_peb_vid_hdr(const struct ubi_device *ubi, int pnum)
+ 		ubi_err("paranoid check failed for PEB %d", pnum);
+ 		ubi_dbg_dump_vid_hdr(vid_hdr);
+ 		ubi_dbg_dump_stack();
+-		err = 1;
++		err = -EINVAL;
+ 		goto exit;
+ 	}
+ 
+@@ -1265,6 +1265,61 @@ exit:
+ }
+ 
+ /**
++ * ubi_dbg_check_write - make sure write succeeded.
++ * @ubi: UBI device description object
++ * @buf: buffer with data which were written
++ * @pnum: physical eraseblock number the data were written to
++ * @offset: offset within the physical eraseblock the data were written to
++ * @len: how many bytes were written
++ *
++ * This functions reads data which were recently written and compares it with
++ * the original data buffer - the data have to match. Returns zero if the data
++ * match and a negative error code if not or in case of failure.
++ */
++int ubi_dbg_check_write(struct ubi_device *ubi, const void *buf, int pnum,
++			int offset, int len)
++{
++	int err, i;
++
++	mutex_lock(&ubi->dbg_buf_mutex);
++	err = ubi_io_read(ubi, ubi->dbg_peb_buf, pnum, offset, len);
++	if (err)
++		goto out_unlock;
++
++	for (i = 0; i < len; i++) {
++		uint8_t c = ((uint8_t *)buf)[i];
++		uint8_t c1 = ((uint8_t *)ubi->dbg_peb_buf)[i];
++		int dump_len;
++
++		if (c == c1)
++			continue;
++
++		ubi_err("paranoid check failed for PEB %d:%d, len %d",
++			pnum, offset, len);
++		ubi_msg("data differ at position %d", i);
++		dump_len = max_t(int, 128, len - i);
++		ubi_msg("hex dump of the original buffer from %d to %d",
++			i, i + dump_len);
++		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
++			       buf + i, dump_len, 1);
++		ubi_msg("hex dump of the read buffer from %d to %d",
++			i, i + dump_len);
++		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
++			       ubi->dbg_peb_buf + i, dump_len, 1);
++		ubi_dbg_dump_stack();
++		err = -EINVAL;
++		goto out_unlock;
++	}
++	mutex_unlock(&ubi->dbg_buf_mutex);
++
++	return 0;
++
++out_unlock:
++	mutex_unlock(&ubi->dbg_buf_mutex);
++	return err;
++}
++
++/**
+  * ubi_dbg_check_all_ff - check that a region of flash is empty.
+  * @ubi: UBI device description object
+  * @pnum: the physical eraseblock number to check
+@@ -1272,8 +1327,8 @@ exit:
+  * @len: the length of the region to check
+  *
+  * This function returns zero if only 0xFF bytes are present at offset
+- * @offset of the physical eraseblock @pnum, %1 if not, and a negative error
+- * code if an error occurred.
++ * @offset of the physical eraseblock @pnum, and a negative error code if not
++ * or if an error occurred.
+  */
+ int ubi_dbg_check_all_ff(struct ubi_device *ubi, int pnum, int offset, int len)
+ {
+@@ -1289,7 +1344,7 @@ int ubi_dbg_check_all_ff(struct ubi_device *ubi, int pnum, int offset, int len)
+ 		goto error;
+ 	}
+ 
+-	err = check_pattern(ubi->dbg_peb_buf, 0xFF, len);
++	err = ubi_check_pattern(ubi->dbg_peb_buf, 0xFF, len);
+ 	if (err == 0) {
+ 		ubi_err("flash region at PEB %d:%d, length %d does not "
+ 			"contain all 0xFF bytes", pnum, offset, len);
+@@ -1304,7 +1359,7 @@ fail:
+ 	ubi_msg("hex dump of the %d-%d region", offset, offset + len);
+ 	print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
+ 		       ubi->dbg_peb_buf, len, 1);
+-	err = 1;
++	err = -EINVAL;
+ error:
+ 	ubi_dbg_dump_stack();
+ 	mutex_unlock(&ubi->dbg_buf_mutex);
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/kapi.c b/stblinux-2.6.31/drivers/mtd/ubi/kapi.c
+index 88a72e9..bcc15d8 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/kapi.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/kapi.c
+@@ -22,6 +22,8 @@
+ 
+ #include <linux/module.h>
+ #include <linux/err.h>
++#include <linux/namei.h>
++#include <linux/fs.h>
+ #include <asm/div64.h>
+ #include "ubi.h"
+ 
+@@ -280,6 +282,43 @@ struct ubi_volume_desc *ubi_open_volume_nm(int ubi_num, const char *name,
+ EXPORT_SYMBOL_GPL(ubi_open_volume_nm);
+ 
+ /**
++ * ubi_open_volume_path - open UBI volume by its character device node path.
++ * @pathname: volume character device node path
++ * @mode: open mode
++ *
++ * This function is similar to 'ubi_open_volume()', but opens a volume the path
++ * to its character device node.
++ */
++struct ubi_volume_desc *ubi_open_volume_path(const char *pathname, int mode)
++{
++	int error, ubi_num, vol_id, mod;
++	struct inode *inode;
++	struct path path;
++
++	dbg_gen("open volume %s, mode %d", pathname, mode);
++
++	if (!pathname || !*pathname)
++		return ERR_PTR(-EINVAL);
++
++	error = kern_path(pathname, LOOKUP_FOLLOW, &path);
++	if (error)
++		return ERR_PTR(error);
++
++	inode = path.dentry->d_inode;
++	mod = inode->i_mode;
++	ubi_num = ubi_major2num(imajor(inode));
++	vol_id = iminor(inode) - 1;
++	path_put(&path);
++
++	if (!S_ISCHR(mod))
++		return ERR_PTR(-EINVAL);
++	if (vol_id >= 0 && ubi_num >= 0)
++		return ubi_open_volume(ubi_num, vol_id, mode);
++	return ERR_PTR(-ENODEV);
++}
++EXPORT_SYMBOL_GPL(ubi_open_volume_path);
++
++/**
+  * ubi_close_volume - close UBI volume.
+  * @desc: volume descriptor
+  */
+@@ -448,7 +487,7 @@ EXPORT_SYMBOL_GPL(ubi_leb_write);
+  *
+  * This function changes the contents of a logical eraseblock atomically. @buf
+  * has to contain new logical eraseblock data, and @len - the length of the
+- * data, which has to be aligned. The length may be shorter then the logical
++ * data, which has to be aligned. The length may be shorter than the logical
+  * eraseblock size, ant the logical eraseblock may be appended to more times
+  * later on. This function guarantees that in case of an unclean reboot the old
+  * contents is preserved. Returns zero in case of success and a negative error
+@@ -531,7 +570,7 @@ EXPORT_SYMBOL_GPL(ubi_leb_erase);
+  *
+  * This function un-maps logical eraseblock @lnum and schedules the
+  * corresponding physical eraseblock for erasure, so that it will eventually be
+- * physically erased in background. This operation is much faster then the
++ * physically erased in background. This operation is much faster than the
+  * erase operation.
+  *
+  * Unlike erase, the un-map operation does not guarantee that the logical
+@@ -550,7 +589,7 @@ EXPORT_SYMBOL_GPL(ubi_leb_erase);
+  *
+  * The main and obvious use-case of this function is when the contents of a
+  * logical eraseblock has to be re-written. Then it is much more efficient to
+- * first un-map it, then write new data, rather then first erase it, then write
++ * first un-map it, then write new data, rather than first erase it, then write
+  * new data. Note, once new data has been written to the logical eraseblock,
+  * UBI guarantees that the old contents has gone forever. In other words, if an
+  * unclean reboot happens after the logical eraseblock has been un-mapped and
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/misc.c b/stblinux-2.6.31/drivers/mtd/ubi/misc.c
+index 22ad314..ff2a65c 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/misc.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/misc.c
+@@ -103,3 +103,22 @@ void ubi_calculate_reserved(struct ubi_device *ubi)
+ 	if (ubi->beb_rsvd_level < MIN_RESEVED_PEBS)
+ 		ubi->beb_rsvd_level = MIN_RESEVED_PEBS;
+ }
++
++/**
++ * ubi_check_pattern - check if buffer contains only a certain byte pattern.
++ * @buf: buffer to check
++ * @patt: the pattern to check
++ * @size: buffer size in bytes
++ *
++ * This function returns %1 in there are only @patt bytes in @buf, and %0 if
++ * something else was also found.
++ */
++int ubi_check_pattern(const void *buf, uint8_t patt, int size)
++{
++	int i;
++
++	for (i = 0; i < size; i++)
++		if (((const uint8_t *)buf)[i] != patt)
++			return 0;
++	return 1;
++}
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/scan.c b/stblinux-2.6.31/drivers/mtd/ubi/scan.c
+index b847745..1413954 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/scan.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/scan.c
+@@ -29,7 +29,7 @@
+  * objects which are kept in volume RB-tree with root at the @volumes field.
+  * The RB-tree is indexed by the volume ID.
+  *
+- * Found logical eraseblocks are represented by &struct ubi_scan_leb objects.
++ * Scanned logical eraseblocks are represented by &struct ubi_scan_leb objects.
+  * These objects are kept in per-volume RB-trees with the root at the
+  * corresponding &struct ubi_scan_volume object. To put it differently, we keep
+  * an RB-tree of per-volume objects and each of these objects is the root of
+@@ -38,11 +38,39 @@
+  * Corrupted physical eraseblocks are put to the @corr list, free physical
+  * eraseblocks are put to the @free list and the physical eraseblock to be
+  * erased are put to the @erase list.
++ *
++ * UBI tries to distinguish between 2 types of corruptions.
++ * 1. Corruptions caused by power cuts. These are harmless and expected
++ *    corruptions and UBI tries to handle them gracefully, without printing too
++ *    many warnings and error messages. The idea is that we do not lose
++ *    important data in these case - we may lose only the data which was being
++ *    written to the media just before the power cut happened, and the upper
++ *    layers (e.g., UBIFS) are supposed to handle these situations. UBI puts
++ *    these PEBs to the head of the @erase list and they are scheduled for
++ *    erasure.
++ *
++ * 2. Unexpected corruptions which are not caused by power cuts. During
++ *    scanning, such PEBs are put to the @corr list and UBI preserves them.
++ *    Obviously, this lessens the amount of available PEBs, and if at some
++ *    point UBI runs out of free PEBs, it switches to R/O mode. UBI also loudly
++ *    informs about such PEBs every time the MTD device is attached.
++ *
++ * However, it is difficult to reliably distinguish between these types of
++ * corruptions and UBI's strategy is as follows. UBI assumes (2.) if the VID
++ * header is corrupted and the data area does not contain all 0xFFs, and there
++ * were not bit-flips or integrity errors while reading the data area. Otherwise
++ * UBI assumes (1.). The assumptions are:
++ *   o if the data area contains only 0xFFs, there is no data, and it is safe
++ *     to just erase this PEB.
++ *   o if the data area has bit-flips and data integrity errors (ECC errors on
++ *     NAND), it is probably a PEB which was being erased when power cut
++ *     happened.
+  */
+ 
+ #include <linux/err.h>
+ #include <linux/crc32.h>
+ #include <linux/math64.h>
++#include <linux/random.h>
+ #include "ubi.h"
+ 
+ #ifdef CONFIG_MTD_UBI_DEBUG_PARANOID
+@@ -60,26 +88,30 @@ static struct ubi_vid_hdr *vidh;
+  * @si: scanning information
+  * @pnum: physical eraseblock number to add
+  * @ec: erase counter of the physical eraseblock
++ * @to_head: if not zero, add to the head of the list
+  * @list: the list to add to
+  *
+- * This function adds physical eraseblock @pnum to free, erase, corrupted or
+- * alien lists. Returns zero in case of success and a negative error code in
+- * case of failure.
++ * This function adds physical eraseblock @pnum to free, erase, or alien lists.
++ * If @to_head is not zero, PEB will be added to the head of the list, which
++ * basically means it will be processed first later. E.g., we add corrupted
++ * PEBs (corrupted due to power cuts) to the head of the erase list to make
++ * sure we erase them first and get rid of corruptions ASAP. This function
++ * returns zero in case of success and a negative error code in case of
++ * failure.
+  */
+-static int add_to_list(struct ubi_scan_info *si, int pnum, int ec,
++static int add_to_list(struct ubi_scan_info *si, int pnum, int ec, int to_head,
+ 		       struct list_head *list)
+ {
+ 	struct ubi_scan_leb *seb;
+ 
+-	if (list == &si->free)
++	if (list == &si->free) {
+ 		dbg_bld("add to free: PEB %d, EC %d", pnum, ec);
+-	else if (list == &si->erase)
++	} else if (list == &si->erase) {
+ 		dbg_bld("add to erase: PEB %d, EC %d", pnum, ec);
+-	else if (list == &si->corr)
+-		dbg_bld("add to corrupted: PEB %d, EC %d", pnum, ec);
+-	else if (list == &si->alien)
++	} else if (list == &si->alien) {
+ 		dbg_bld("add to alien: PEB %d, EC %d", pnum, ec);
+-	else
++		si->alien_peb_count += 1;
++	} else
+ 		BUG();
+ 
+ 	seb = kmalloc(sizeof(struct ubi_scan_leb), GFP_KERNEL);
+@@ -88,7 +120,37 @@ static int add_to_list(struct ubi_scan_info *si, int pnum, int ec,
+ 
+ 	seb->pnum = pnum;
+ 	seb->ec = ec;
+-	list_add_tail(&seb->u.list, list);
++	if (to_head)
++		list_add(&seb->u.list, list);
++	else
++		list_add_tail(&seb->u.list, list);
++	return 0;
++}
++
++/**
++ * add_corrupted - add a corrupted physical eraseblock.
++ * @si: scanning information
++ * @pnum: physical eraseblock number to add
++ * @ec: erase counter of the physical eraseblock
++ *
++ * This function adds corrupted physical eraseblock @pnum to the 'corr' list.
++ * The corruption was presumably not caused by a power cut. Returns zero in
++ * case of success and a negative error code in case of failure.
++ */
++static int add_corrupted(struct ubi_scan_info *si, int pnum, int ec)
++{
++	struct ubi_scan_leb *seb;
++
++	dbg_bld("add to corrupted: PEB %d, EC %d", pnum, ec);
++
++	seb = kmalloc(sizeof(struct ubi_scan_leb), GFP_KERNEL);
++	if (!seb)
++		return -ENOMEM;
++
++	si->corr_peb_count += 1;
++	seb->pnum = pnum;
++	seb->ec = ec;
++	list_add(&seb->u.list, &si->corr);
+ 	return 0;
+ }
+ 
+@@ -229,7 +291,7 @@ static struct ubi_scan_volume *add_volume(struct ubi_scan_info *si, int vol_id,
+  * case of success this function returns a positive value, in case of failure, a
+  * negative error code is returned. The success return codes use the following
+  * bits:
+- *     o bit 0 is cleared: the first PEB (described by @seb) is newer then the
++ *     o bit 0 is cleared: the first PEB (described by @seb) is newer than the
+  *       second PEB (described by @pnum and @vid_hdr);
+  *     o bit 0 is set: the second PEB is newer;
+  *     o bit 1 is cleared: no bit-flips were detected in the newer LEB;
+@@ -252,8 +314,8 @@ static int compare_lebs(struct ubi_device *ubi, const struct ubi_scan_leb *seb,
+ 		 * created before sequence numbers support has been added. At
+ 		 * that times we used 32-bit LEB versions stored in logical
+ 		 * eraseblocks. That was before UBI got into mainline. We do not
+-		 * support these images anymore. Well, those images will work
+-		 * still work, but only if no unclean reboots happened.
++		 * support these images anymore. Well, those images still work,
++		 * but only if no unclean reboots happened.
+ 		 */
+ 		ubi_err("unsupported on-flash UBI format\n");
+ 		return -EINVAL;
+@@ -279,19 +341,25 @@ static int compare_lebs(struct ubi_device *ubi, const struct ubi_scan_leb *seb,
+ 			return 1;
+ 		}
+ 	} else {
+-		pnum = seb->pnum;
++		if (!seb->copy_flag) {
++			/* It is not a copy, so it is newer */
++			dbg_bld("first PEB %d is newer, copy_flag is unset",
++				pnum);
++			return bitflips << 1;
++		}
+ 
+ 		vh = ubi_zalloc_vid_hdr(ubi, GFP_KERNEL);
+ 		if (!vh)
+ 			return -ENOMEM;
+ 
++		pnum = seb->pnum;
+ 		err = ubi_io_read_vid_hdr(ubi, pnum, vh, 0);
+ 		if (err) {
+ 			if (err == UBI_IO_BITFLIPS)
+ 				bitflips = 1;
+ 			else {
+ 				dbg_err("VID of PEB %d header is bad, but it "
+-					"was OK earlier", pnum);
++					"was OK earlier, err %d", pnum, err);
+ 				if (err > 0)
+ 					err = -EIO;
+ 
+@@ -299,14 +367,6 @@ static int compare_lebs(struct ubi_device *ubi, const struct ubi_scan_leb *seb,
+ 			}
+ 		}
+ 
+-		if (!vh->copy_flag) {
+-			/* It is not a copy, so it is newer */
+-			dbg_bld("first PEB %d is newer, copy_flag is unset",
+-				pnum);
+-			err = bitflips << 1;
+-			goto out_free_vidh;
+-		}
+-
+ 		vid_hdr = vh;
+ 	}
+ 
+@@ -450,25 +510,22 @@ int ubi_scan_add_used(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 
+ 		if (cmp_res & 1) {
+ 			/*
+-			 * This logical eraseblock is newer then the one
++			 * This logical eraseblock is newer than the one
+ 			 * found earlier.
+ 			 */
+ 			err = validate_vid_hdr(vid_hdr, sv, pnum);
+ 			if (err)
+ 				return err;
+ 
+-			if (cmp_res & 4)
+-				err = add_to_list(si, seb->pnum, seb->ec,
+-						  &si->corr);
+-			else
+-				err = add_to_list(si, seb->pnum, seb->ec,
+-						  &si->erase);
++			err = add_to_list(si, seb->pnum, seb->ec, cmp_res & 4,
++					  &si->erase);
+ 			if (err)
+ 				return err;
+ 
+ 			seb->ec = ec;
+ 			seb->pnum = pnum;
+ 			seb->scrub = ((cmp_res & 2) || bitflips);
++			seb->copy_flag = vid_hdr->copy_flag;
+ 			seb->sqnum = sqnum;
+ 
+ 			if (sv->highest_lnum == lnum)
+@@ -481,10 +538,8 @@ int ubi_scan_add_used(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 			 * This logical eraseblock is older than the one found
+ 			 * previously.
+ 			 */
+-			if (cmp_res & 4)
+-				return add_to_list(si, pnum, ec, &si->corr);
+-			else
+-				return add_to_list(si, pnum, ec, &si->erase);
++			return add_to_list(si, pnum, ec, cmp_res & 4,
++					   &si->erase);
+ 		}
+ 	}
+ 
+@@ -504,8 +559,9 @@ int ubi_scan_add_used(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 	seb->ec = ec;
+ 	seb->pnum = pnum;
+ 	seb->lnum = lnum;
+-	seb->sqnum = sqnum;
+ 	seb->scrub = bitflips;
++	seb->copy_flag = vid_hdr->copy_flag;
++	seb->sqnum = sqnum;
+ 
+ 	if (sv->highest_lnum <= lnum) {
+ 		sv->highest_lnum = lnum;
+@@ -661,8 +717,8 @@ out_free:
+ struct ubi_scan_leb *ubi_scan_get_free_peb(struct ubi_device *ubi,
+ 					   struct ubi_scan_info *si)
+ {
+-	int err = 0, i;
+-	struct ubi_scan_leb *seb;
++	int err = 0;
++	struct ubi_scan_leb *seb, *tmp_seb;
+ 
+ 	if (!list_empty(&si->free)) {
+ 		seb = list_entry(si->free.next, struct ubi_scan_leb, u.list);
+@@ -671,38 +727,86 @@ struct ubi_scan_leb *ubi_scan_get_free_peb(struct ubi_device *ubi,
+ 		return seb;
+ 	}
+ 
+-	for (i = 0; i < 2; i++) {
+-		struct list_head *head;
+-		struct ubi_scan_leb *tmp_seb;
++	/*
++	 * We try to erase the first physical eraseblock from the erase list
++	 * and pick it if we succeed, or try to erase the next one if not. And
++	 * so forth. We don't want to take care about bad eraseblocks here -
++	 * they'll be handled later.
++	 */
++	list_for_each_entry_safe(seb, tmp_seb, &si->erase, u.list) {
++		if (seb->ec == UBI_SCAN_UNKNOWN_EC)
++			seb->ec = si->mean_ec;
+ 
+-		if (i == 0)
+-			head = &si->erase;
+-		else
+-			head = &si->corr;
++		err = ubi_scan_erase_peb(ubi, si, seb->pnum, seb->ec+1);
++		if (err)
++			continue;
++
++		seb->ec += 1;
++		list_del(&seb->u.list);
++		dbg_bld("return PEB %d, EC %d", seb->pnum, seb->ec);
++		return seb;
++	}
+ 
++	ubi_err("no free eraseblocks");
++	return ERR_PTR(-ENOSPC);
++}
++
++/**
++ * check_corruption - check the data area of PEB.
++ * @ubi: UBI device description object
++ * @vid_hrd: the (corrupted) VID header of this PEB
++ * @pnum: the physical eraseblock number to check
++ *
++ * This is a helper function which is used to distinguish between VID header
++ * corruptions caused by power cuts and other reasons. If the PEB contains only
++ * 0xFF bytes in the data area, the VID header is most probably corrupted
++ * because of a power cut (%0 is returned in this case). Otherwise, it was
++ * probably corrupted for some other reasons (%1 is returned in this case). A
++ * negative error code is returned if a read error occurred.
++ *
++ * If the corruption reason was a power cut, UBI can safely erase this PEB.
++ * Otherwise, it should preserve it to avoid possibly destroying important
++ * information.
++ */
++static int check_corruption(struct ubi_device *ubi, struct ubi_vid_hdr *vid_hdr,
++			    int pnum)
++{
++	int err;
++
++	mutex_lock(&ubi->buf_mutex);
++	memset(ubi->peb_buf1, 0x00, ubi->leb_size);
++
++	err = ubi_io_read(ubi, ubi->peb_buf1, pnum, ubi->leb_start,
++			  ubi->leb_size);
++	if (err == UBI_IO_BITFLIPS || err == -EBADMSG) {
+ 		/*
+-		 * We try to erase the first physical eraseblock from the @head
+-		 * list and pick it if we succeed, or try to erase the
+-		 * next one if not. And so forth. We don't want to take care
+-		 * about bad eraseblocks here - they'll be handled later.
++		 * Bit-flips or integrity errors while reading the data area.
++		 * It is difficult to say for sure what type of corruption is
++		 * this, but presumably a power cut happened while this PEB was
++		 * erased, so it became unstable and corrupted, and should be
++		 * erased.
+ 		 */
+-		list_for_each_entry_safe(seb, tmp_seb, head, u.list) {
+-			if (seb->ec == UBI_SCAN_UNKNOWN_EC)
+-				seb->ec = si->mean_ec;
++		return 0;
++	}
+ 
+-			err = ubi_scan_erase_peb(ubi, si, seb->pnum, seb->ec+1);
+-			if (err)
+-				continue;
++	if (err)
++		return err;
+ 
+-			seb->ec += 1;
+-			list_del(&seb->u.list);
+-			dbg_bld("return PEB %d, EC %d", seb->pnum, seb->ec);
+-			return seb;
+-		}
++	if (ubi_check_pattern(ubi->peb_buf1, 0xFF, ubi->leb_size)) {
++		mutex_unlock(&ubi->buf_mutex);
++		return 0;
+ 	}
+ 
+-	ubi_err("no eraseblocks found");
+-	return ERR_PTR(-ENOSPC);
++	ubi_err("PEB %d contains corrupted VID header, and the data does not "
++		"contain all 0xFF, this may be a non-UBI PEB or a severe VID "
++		"header corruption which requires manual inspection", pnum);
++	ubi_dbg_dump_vid_hdr(vid_hdr);
++	dbg_msg("hexdump of PEB %d offset %d, length %d",
++		pnum, ubi->leb_start, ubi->leb_size);
++	ubi_dbg_print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
++			       ubi->peb_buf1, ubi->leb_size, 1);
++	mutex_unlock(&ubi->buf_mutex);
++	return 1;
+ }
+ 
+ /**
+@@ -718,7 +822,7 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 		      int pnum)
+ {
+ 	long long uninitialized_var(ec);
+-	int err, bitflips = 0, vol_id, ec_corr = 0;
++	int err, bitflips = 0, vol_id, ec_err = 0;
+ 
+ 	dbg_bld("scan PEB %d", pnum);
+ 
+@@ -739,24 +843,37 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 	err = ubi_io_read_ec_hdr(ubi, pnum, ech, 0);
+ 	if (err < 0)
+ 		return err;
+-	else if (err == UBI_IO_BITFLIPS)
++	switch (err) {
++	case 0:
++		break;
++	case UBI_IO_BITFLIPS:
+ 		bitflips = 1;
+-	else if (err == UBI_IO_PEB_EMPTY)
+-		return add_to_list(si, pnum, UBI_SCAN_UNKNOWN_EC, &si->erase);
+-	else if (err == UBI_IO_BAD_EC_HDR) {
++		break;
++	case UBI_IO_FF:
++		si->empty_peb_count += 1;
++		return add_to_list(si, pnum, UBI_SCAN_UNKNOWN_EC, 0,
++				   &si->erase);
++	case UBI_IO_FF_BITFLIPS:
++		si->empty_peb_count += 1;
++		return add_to_list(si, pnum, UBI_SCAN_UNKNOWN_EC, 1,
++				   &si->erase);
++	case UBI_IO_BAD_HDR_EBADMSG:
++	case UBI_IO_BAD_HDR:
+ 		/*
+ 		 * We have to also look at the VID header, possibly it is not
+ 		 * corrupted. Set %bitflips flag in order to make this PEB be
+ 		 * moved and EC be re-created.
+ 		 */
+-		ec_corr = 1;
++		ec_err = err;
+ 		ec = UBI_SCAN_UNKNOWN_EC;
+ 		bitflips = 1;
++		break;
++	default:
++		ubi_err("'ubi_io_read_ec_hdr()' returned unknown code %d", err);
++		return -EINVAL;
+ 	}
+ 
+-	si->is_empty = 0;
+-
+-	if (!ec_corr) {
++	if (!ec_err) {
+ 		int image_seq;
+ 
+ 		/* Make sure UBI version is OK */
+@@ -793,16 +910,15 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 		 * number.
+ 		 */
+ 		image_seq = be32_to_cpu(ech->image_seq);
+-		if (!si->image_seq_set) {
++		if (!ubi->image_seq && image_seq)
+ 			ubi->image_seq = image_seq;
+-			si->image_seq_set = 1;
+-		} else if (ubi->image_seq && ubi->image_seq != image_seq) {
++		if (ubi->image_seq && image_seq &&
++		    ubi->image_seq != image_seq) {
+ 			ubi_err("bad image sequence number %d in PEB %d, "
+ 				"expected %d", image_seq, pnum, ubi->image_seq);
+ 			ubi_dbg_dump_ec_hdr(ech);
+ 			return -EINVAL;
+ 		}
+-
+ 	}
+ 
+ 	/* OK, we've done with the EC header, let's look at the VID header */
+@@ -810,21 +926,67 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 	err = ubi_io_read_vid_hdr(ubi, pnum, vidh, 0);
+ 	if (err < 0)
+ 		return err;
+-	else if (err == UBI_IO_BITFLIPS)
++	switch (err) {
++	case 0:
++		break;
++	case UBI_IO_BITFLIPS:
+ 		bitflips = 1;
+-	else if (err == UBI_IO_BAD_VID_HDR ||
+-		 (err == UBI_IO_PEB_FREE && ec_corr)) {
+-		/* VID header is corrupted */
+-		err = add_to_list(si, pnum, ec, &si->corr);
++		break;
++	case UBI_IO_BAD_HDR_EBADMSG:
++		if (ec_err == UBI_IO_BAD_HDR_EBADMSG)
++			/*
++			 * Both EC and VID headers are corrupted and were read
++			 * with data integrity error, probably this is a bad
++			 * PEB, bit it is not marked as bad yet. This may also
++			 * be a result of power cut during erasure.
++			 */
++			si->maybe_bad_peb_count += 1;
++	case UBI_IO_BAD_HDR:
++		if (ec_err)
++			/*
++			 * Both headers are corrupted. There is a possibility
++			 * that this a valid UBI PEB which has corresponding
++			 * LEB, but the headers are corrupted. However, it is
++			 * impossible to distinguish it from a PEB which just
++			 * contains garbage because of a power cut during erase
++			 * operation. So we just schedule this PEB for erasure.
++			 */
++			err = 0;
++		else
++			/*
++			 * The EC was OK, but the VID header is corrupted. We
++			 * have to check what is in the data area.
++			 */
++			err = check_corruption(ubi, vidh, pnum);
++
++		if (err < 0)
++			return err;
++		else if (!err)
++			/* This corruption is caused by a power cut */
++			err = add_to_list(si, pnum, ec, 1, &si->erase);
++		else
++			/* This is an unexpected corruption */
++			err = add_corrupted(si, pnum, ec);
+ 		if (err)
+ 			return err;
+ 		goto adjust_mean_ec;
+-	} else if (err == UBI_IO_PEB_FREE) {
+-		/* No VID header - the physical eraseblock is free */
+-		err = add_to_list(si, pnum, ec, &si->free);
++	case UBI_IO_FF_BITFLIPS:
++		err = add_to_list(si, pnum, ec, 1, &si->erase);
+ 		if (err)
+ 			return err;
+ 		goto adjust_mean_ec;
++	case UBI_IO_FF:
++		if (ec_err)
++			err = add_to_list(si, pnum, ec, 1, &si->erase);
++		else
++			err = add_to_list(si, pnum, ec, 0, &si->free);
++		if (err)
++			return err;
++		goto adjust_mean_ec;
++	default:
++		ubi_err("'ubi_io_read_vid_hdr()' returned unknown code %d",
++			err);
++		return -EINVAL;
+ 	}
+ 
+ 	vol_id = be32_to_cpu(vidh->vol_id);
+@@ -835,11 +997,11 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 		switch (vidh->compat) {
+ 		case UBI_COMPAT_DELETE:
+ 			ubi_msg("\"delete\" compatible internal volume %d:%d"
+-				" found, remove it", vol_id, lnum);
+-			err = add_to_list(si, pnum, ec, &si->corr);
++				" found, will remove it", vol_id, lnum);
++			err = add_to_list(si, pnum, ec, 1, &si->erase);
+ 			if (err)
+ 				return err;
+-			break;
++			return 0;
+ 
+ 		case UBI_COMPAT_RO:
+ 			ubi_msg("read-only compatible internal volume %d:%d"
+@@ -851,10 +1013,9 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 		case UBI_COMPAT_PRESERVE:
+ 			ubi_msg("\"preserve\" compatible internal volume %d:%d"
+ 				" found", vol_id, lnum);
+-			err = add_to_list(si, pnum, ec, &si->alien);
++			err = add_to_list(si, pnum, ec, 0, &si->alien);
+ 			if (err)
+ 				return err;
+-			si->alien_peb_count += 1;
+ 			return 0;
+ 
+ 		case UBI_COMPAT_REJECT:
+@@ -864,13 +1025,15 @@ static int process_eb(struct ubi_device *ubi, struct ubi_scan_info *si,
+ 		}
+ 	}
+ 
+-	/* Both UBI headers seem to be fine */
++	if (ec_err)
++		ubi_warn("valid VID header but corrupted EC header at PEB %d",
++			 pnum);
+ 	err = ubi_scan_add_used(ubi, si, pnum, ec, vidh, bitflips);
+ 	if (err)
+ 		return err;
+ 
+ adjust_mean_ec:
+-	if (!ec_corr) {
++	if (!ec_err) {
+ 		si->ec_sum += ec;
+ 		si->ec_count += 1;
+ 		if (ec > si->max_ec)
+@@ -883,6 +1046,80 @@ adjust_mean_ec:
+ }
+ 
+ /**
++ * check_what_we_have - check what PEB were found by scanning.
++ * @ubi: UBI device description object
++ * @si: scanning information
++ *
++ * This is a helper function which takes a look what PEBs were found by
++ * scanning, and decides whether the flash is empty and should be formatted and
++ * whether there are too many corrupted PEBs and we should not attach this
++ * MTD device. Returns zero if we should proceed with attaching the MTD device,
++ * and %-EINVAL if we should not.
++ */
++static int check_what_we_have(struct ubi_device *ubi, struct ubi_scan_info *si)
++{
++	struct ubi_scan_leb *seb;
++	int max_corr, peb_count;
++
++	peb_count = ubi->peb_count - si->bad_peb_count - si->alien_peb_count;
++	max_corr = peb_count / 20 ?: 8;
++
++	/*
++	 * Few corrupted PEBs is not a problem and may be just a result of
++	 * unclean reboots. However, many of them may indicate some problems
++	 * with the flash HW or driver.
++	 */
++	if (si->corr_peb_count) {
++		ubi_err("%d PEBs are corrupted and preserved",
++			si->corr_peb_count);
++		printk(KERN_ERR "Corrupted PEBs are:");
++		list_for_each_entry(seb, &si->corr, u.list)
++			printk(KERN_CONT " %d", seb->pnum);
++		printk(KERN_CONT "\n");
++
++		/*
++		 * If too many PEBs are corrupted, we refuse attaching,
++		 * otherwise, only print a warning.
++		 */
++		if (si->corr_peb_count >= max_corr) {
++			ubi_err("too many corrupted PEBs, refusing this device");
++			return -EINVAL;
++		}
++	}
++
++	if (si->empty_peb_count + si->maybe_bad_peb_count == peb_count) {
++		/*
++		 * All PEBs are empty, or almost all - a couple PEBs look like
++		 * they may be bad PEBs which were not marked as bad yet.
++		 *
++		 * This piece of code basically tries to distinguish between
++		 * the following situations:
++		 *
++		 * 1. Flash is empty, but there are few bad PEBs, which are not
++		 *    marked as bad so far, and which were read with error. We
++		 *    want to go ahead and format this flash. While formatting,
++		 *    the faulty PEBs will probably be marked as bad.
++		 *
++		 * 2. Flash contains non-UBI data and we do not want to format
++		 *    it and destroy possibly important information.
++		 */
++		if (si->maybe_bad_peb_count <= 2) {
++			si->is_empty = 1;
++			ubi_msg("empty MTD device detected");
++			get_random_bytes(&ubi->image_seq,
++					 sizeof(ubi->image_seq));
++		} else {
++			ubi_err("MTD device is not UBI-formatted and possibly "
++				"contains non-UBI data - refusing it");
++			return -EINVAL;
++		}
++
++	}
++
++	return 0;
++}
++
++/**
+  * ubi_scan - scan an MTD device.
+  * @ubi: UBI device description object
+  *
+@@ -906,7 +1143,6 @@ struct ubi_scan_info *ubi_scan(struct ubi_device *ubi)
+ 	INIT_LIST_HEAD(&si->erase);
+ 	INIT_LIST_HEAD(&si->alien);
+ 	si->volumes = RB_ROOT;
+-	si->is_empty = 1;
+ 
+ 	err = -ENOMEM;
+ 	ech = kzalloc(ubi->ec_hdr_alsize, GFP_KERNEL);
+@@ -932,8 +1168,9 @@ struct ubi_scan_info *ubi_scan(struct ubi_device *ubi)
+ 	if (si->ec_count)
+ 		si->mean_ec = div_u64(si->ec_sum, si->ec_count);
+ 
+-	if (si->is_empty)
+-		ubi_msg("empty MTD device detected");
++	err = check_what_we_have(ubi, si);
++	if (err)
++		goto out_vidh;
+ 
+ 	/*
+ 	 * In case of unknown erase counter we use the mean erase counter
+@@ -959,11 +1196,8 @@ struct ubi_scan_info *ubi_scan(struct ubi_device *ubi)
+ 			seb->ec = si->mean_ec;
+ 
+ 	err = paranoid_check_si(ubi, si);
+-	if (err) {
+-		if (err > 0)
+-			err = -EINVAL;
++	if (err)
+ 		goto out_vidh;
+-	}
+ 
+ 	ubi_free_vid_hdr(ubi, vidh);
+ 	kfree(ech);
+@@ -1071,8 +1305,8 @@ void ubi_scan_destroy_si(struct ubi_scan_info *si)
+  * @ubi: UBI device description object
+  * @si: scanning information
+  *
+- * This function returns zero if the scanning information is all right, %1 if
+- * not and a negative error code if an error occurred.
++ * This function returns zero if the scanning information is all right, and a
++ * negative error code if not or if an error occurred.
+  */
+ static int paranoid_check_si(struct ubi_device *ubi, struct ubi_scan_info *si)
+ {
+@@ -1331,7 +1565,7 @@ bad_vid_hdr:
+ 
+ out:
+ 	ubi_dbg_dump_stack();
+-	return 1;
++	return -EINVAL;
+ }
+ 
+ #endif /* CONFIG_MTD_UBI_DEBUG_PARANOID */
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/scan.h b/stblinux-2.6.31/drivers/mtd/ubi/scan.h
+index 1017cf1..a3264f0 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/scan.h
++++ b/stblinux-2.6.31/drivers/mtd/ubi/scan.h
+@@ -30,6 +30,7 @@
+  * @pnum: physical eraseblock number
+  * @lnum: logical eraseblock number
+  * @scrub: if this physical eraseblock needs scrubbing
++ * @copy_flag: this LEB is a copy (@copy_flag is set in VID header of this LEB)
+  * @sqnum: sequence number
+  * @u: unions RB-tree or @list links
+  * @u.rb: link in the per-volume RB-tree of &struct ubi_scan_leb objects
+@@ -42,7 +43,8 @@ struct ubi_scan_leb {
+ 	int ec;
+ 	int pnum;
+ 	int lnum;
+-	int scrub;
++	unsigned int scrub:1;
++	unsigned int copy_flag:1;
+ 	unsigned long long sqnum;
+ 	union {
+ 		struct rb_node rb;
+@@ -91,10 +93,15 @@ struct ubi_scan_volume {
+  * @erase: list of physical eraseblocks which have to be erased
+  * @alien: list of physical eraseblocks which should not be used by UBI (e.g.,
+  *         those belonging to "preserve"-compatible internal volumes)
++ * @corr_peb_count: count of PEBs in the @corr list
++ * @empty_peb_count: count of PEBs which are presumably empty (contain only
++ *                   0xFF bytes)
++ * @alien_peb_count: count of PEBs in the @alien list
+  * @bad_peb_count: count of bad physical eraseblocks
++ * @maybe_bad_peb_count: count of bad physical eraseblocks which are not marked
++ *                       as bad yet, but which look like bad
+  * @vols_found: number of volumes found during scanning
+  * @highest_vol_id: highest volume ID
+- * @alien_peb_count: count of physical eraseblocks in the @alien list
+  * @is_empty: flag indicating whether the MTD device is empty or not
+  * @min_ec: lowest erase counter value
+  * @max_ec: highest erase counter value
+@@ -102,7 +109,6 @@ struct ubi_scan_volume {
+  * @mean_ec: mean erase counter value
+  * @ec_sum: a temporary variable used when calculating @mean_ec
+  * @ec_count: a temporary variable used when calculating @mean_ec
+- * @image_seq_set: indicates @ubi->image_seq is known
+  *
+  * This data structure contains the result of scanning and may be used by other
+  * UBI sub-systems to build final UBI data structures, further error-recovery
+@@ -114,10 +120,13 @@ struct ubi_scan_info {
+ 	struct list_head free;
+ 	struct list_head erase;
+ 	struct list_head alien;
++	int corr_peb_count;
++	int empty_peb_count;
++	int alien_peb_count;
+ 	int bad_peb_count;
++	int maybe_bad_peb_count;
+ 	int vols_found;
+ 	int highest_vol_id;
+-	int alien_peb_count;
+ 	int is_empty;
+ 	int min_ec;
+ 	int max_ec;
+@@ -125,7 +134,6 @@ struct ubi_scan_info {
+ 	int mean_ec;
+ 	uint64_t ec_sum;
+ 	int ec_count;
+-	int image_seq_set;
+ };
+ 
+ struct ubi_device;
+@@ -135,7 +143,7 @@ struct ubi_vid_hdr;
+  * ubi_scan_move_to_list - move a PEB from the volume tree to a list.
+  *
+  * @sv: volume scanning information
+- * @seb: scanning eraseblock infprmation
++ * @seb: scanning eraseblock information
+  * @list: the list to move to
+  */
+ static inline void ubi_scan_move_to_list(struct ubi_scan_volume *sv,
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/ubi.h b/stblinux-2.6.31/drivers/mtd/ubi/ubi.h
+index 6a5fe96..469677a 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/ubi.h
++++ b/stblinux-2.6.31/drivers/mtd/ubi/ubi.h
+@@ -84,21 +84,26 @@
+ /*
+  * Error codes returned by the I/O sub-system.
+  *
+- * UBI_IO_PEB_EMPTY: the physical eraseblock is empty, i.e. it contains only
+- *                   %0xFF bytes
+- * UBI_IO_PEB_FREE: the physical eraseblock is free, i.e. it contains only a
+- *                  valid erase counter header, and the rest are %0xFF bytes
+- * UBI_IO_BAD_EC_HDR: the erase counter header is corrupted (bad magic or CRC)
+- * UBI_IO_BAD_VID_HDR: the volume identifier header is corrupted (bad magic or
+- *                     CRC)
++ * UBI_IO_FF: the read region of flash contains only 0xFFs
++ * UBI_IO_FF_BITFLIPS: the same as %UBI_IO_FF, but also also there was a data
++ *                     integrity error reported by the MTD driver
++ *                     (uncorrectable ECC error in case of NAND)
++ * UBI_IO_BAD_HDR: the EC or VID header is corrupted (bad magic or CRC)
++ * UBI_IO_BAD_HDR_EBADMSG: the same as %UBI_IO_BAD_HDR, but also there was a
++ *                         data integrity error reported by the MTD driver
++ *                         (uncorrectable ECC error in case of NAND)
+  * UBI_IO_BITFLIPS: bit-flips were detected and corrected
++ *
++ * Note, it is probably better to have bit-flip and ebadmsg as flags which can
++ * be or'ed with other error code. But this is a big change because there are
++ * may callers, so it does not worth the risk of introducing a bug
+  */
+ enum {
+-	UBI_IO_PEB_EMPTY = 1,
+-	UBI_IO_PEB_FREE,
+-	UBI_IO_BAD_EC_HDR,
+-	UBI_IO_BAD_VID_HDR,
+-	UBI_IO_BITFLIPS
++	UBI_IO_FF = 1,
++	UBI_IO_FF_BITFLIPS,
++	UBI_IO_BAD_HDR,
++	UBI_IO_BAD_HDR_EBADMSG,
++	UBI_IO_BITFLIPS,
+ };
+ 
+ /*
+@@ -349,13 +354,14 @@ struct ubi_wl_entry;
+  * @bgt_thread: background thread description object
+  * @thread_enabled: if the background thread is enabled
+  * @bgt_name: background thread name
+- * @reboot_notifier: notifier to terminate background thread before rebooting
+  *
+  * @flash_size: underlying MTD device size (in bytes)
+  * @peb_count: count of physical eraseblocks on the MTD device
+  * @peb_size: physical eraseblock size
+  * @bad_peb_count: count of bad physical eraseblocks
+  * @good_peb_count: count of good physical eraseblocks
++ * @corr_peb_count: count of corrupted physical eraseblocks (preserved and not
++ *                  used by UBI)
+  * @erroneous_peb_count: count of erroneous physical eraseblocks in @erroneous
+  * @max_erroneous: maximum allowed amount of erroneous physical eraseblocks
+  * @min_io_size: minimal input/output unit size of the underlying MTD device
+@@ -435,7 +441,6 @@ struct ubi_device {
+ 	struct task_struct *bgt_thread;
+ 	int thread_enabled;
+ 	char bgt_name[sizeof(UBI_BGT_NAME_PATTERN)+2];
+-	struct notifier_block reboot_notifier;
+ 
+ 	/* I/O sub-system's stuff */
+ 	long long flash_size;
+@@ -443,6 +448,7 @@ struct ubi_device {
+ 	int peb_size;
+ 	int bad_peb_count;
+ 	int good_peb_count;
++	int corr_peb_count;
+ 	int erroneous_peb_count;
+ 	int max_erroneous;
+ 	int min_io_size;
+@@ -507,6 +513,7 @@ int ubi_calc_data_len(const struct ubi_device *ubi, const void *buf,
+ 		      int length);
+ int ubi_check_volume(struct ubi_device *ubi, int vol_id);
+ void ubi_calculate_reserved(struct ubi_device *ubi);
++int ubi_check_pattern(const void *buf, uint8_t patt, int size);
+ 
+ /* eba.c */
+ int ubi_eba_unmap_leb(struct ubi_device *ubi, struct ubi_volume *vol,
+@@ -579,7 +586,8 @@ void ubi_do_get_volume_info(struct ubi_device *ubi, struct ubi_volume *vol,
+ 	for (rb = rb_first(root),                                            \
+ 	     pos = (rb ? container_of(rb, typeof(*pos), member) : NULL);     \
+ 	     rb;                                                             \
+-	     rb = rb_next(rb), pos = container_of(rb, typeof(*pos), member))
++	     rb = rb_next(rb),                                               \
++	     pos = (rb ? container_of(rb, typeof(*pos), member) : NULL))
+ 
+ /**
+  * ubi_zalloc_vid_hdr - allocate a volume identifier header object.
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/upd.c b/stblinux-2.6.31/drivers/mtd/ubi/upd.c
+index 74fdc40..425bf5a 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/upd.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/upd.c
+@@ -147,12 +147,15 @@ int ubi_start_update(struct ubi_device *ubi, struct ubi_volume *vol,
+ 	}
+ 
+ 	if (bytes == 0) {
++		err = ubi_wl_flush(ubi);
++		if (err)
++			return err;
++
+ 		err = clear_update_marker(ubi, vol, 0);
+ 		if (err)
+ 			return err;
+-		err = ubi_wl_flush(ubi);
+-		if (!err)
+-			vol->updating = 0;
++		vol->updating = 0;
++		return 0;
+ 	}
+ 
+ 	vol->upd_buf = vmalloc(ubi->leb_size);
+@@ -362,16 +365,16 @@ int ubi_more_update_data(struct ubi_device *ubi, struct ubi_volume *vol,
+ 
+ 	ubi_assert(vol->upd_received <= vol->upd_bytes);
+ 	if (vol->upd_received == vol->upd_bytes) {
++		err = ubi_wl_flush(ubi);
++		if (err)
++			return err;
+ 		/* The update is finished, clear the update marker */
+ 		err = clear_update_marker(ubi, vol, vol->upd_bytes);
+ 		if (err)
+ 			return err;
+-		err = ubi_wl_flush(ubi);
+-		if (err == 0) {
+-			vol->updating = 0;
+-			err = to_write;
+-			vfree(vol->upd_buf);
+-		}
++		vol->updating = 0;
++		err = to_write;
++		vfree(vol->upd_buf);
+ 	}
+ 
+ 	return err;
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/vmt.c b/stblinux-2.6.31/drivers/mtd/ubi/vmt.c
+index ab64cb5..d90958e 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/vmt.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/vmt.c
+@@ -260,6 +260,9 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
+ 	/* Reserve physical eraseblocks */
+ 	if (vol->reserved_pebs > ubi->avail_pebs) {
+ 		dbg_err("not enough PEBs, only %d available", ubi->avail_pebs);
++		if (ubi->corr_peb_count)
++			dbg_err("%d PEBs are corrupted and not used",
++				ubi->corr_peb_count);
+ 		err = -ENOSPC;
+ 		goto out_unlock;
+ 	}
+@@ -526,6 +529,9 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
+ 		if (pebs > ubi->avail_pebs) {
+ 			dbg_err("not enough PEBs: requested %d, available %d",
+ 				pebs, ubi->avail_pebs);
++			if (ubi->corr_peb_count)
++				dbg_err("%d PEBs are corrupted and not used",
++					ubi->corr_peb_count);
+ 			spin_unlock(&ubi->volumes_lock);
+ 			err = -ENOSPC;
+ 			goto out_free;
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/vtbl.c b/stblinux-2.6.31/drivers/mtd/ubi/vtbl.c
+index 1afc61e..9fa8c6b 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/vtbl.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/vtbl.c
+@@ -365,7 +365,7 @@ write_error:
+ 		 * Probably this physical eraseblock went bad, try to pick
+ 		 * another one.
+ 		 */
+-		list_add_tail(&new_seb->u.list, &si->corr);
++		list_add(&new_seb->u.list, &si->erase);
+ 		goto retry;
+ 	}
+ 	kfree(new_seb);
+@@ -413,7 +413,7 @@ static struct ubi_vtbl_record *process_lvol(struct ubi_device *ubi,
+ 	 * 0 contains more recent information.
+ 	 *
+ 	 * So the plan is to first check LEB 0. Then
+-	 * a. if LEB 0 is OK, it must be containing the most resent data; then
++	 * a. if LEB 0 is OK, it must be containing the most recent data; then
+ 	 *    we compare it with LEB 1, and if they are different, we copy LEB
+ 	 *    0 to LEB 1;
+ 	 * b. if LEB 0 is corrupted, but LEB 1 has to be OK, and we copy LEB 1
+@@ -566,6 +566,7 @@ static int init_volumes(struct ubi_device *ubi, const struct ubi_scan_info *si,
+ 		vol->reserved_pebs = be32_to_cpu(vtbl[i].reserved_pebs);
+ 		vol->alignment = be32_to_cpu(vtbl[i].alignment);
+ 		vol->data_pad = be32_to_cpu(vtbl[i].data_pad);
++		vol->upd_marker = vtbl[i].upd_marker;
+ 		vol->vol_type = vtbl[i].vol_type == UBI_VID_DYNAMIC ?
+ 					UBI_DYNAMIC_VOLUME : UBI_STATIC_VOLUME;
+ 		vol->name_len = be16_to_cpu(vtbl[i].name_len);
+@@ -660,9 +661,13 @@ static int init_volumes(struct ubi_device *ubi, const struct ubi_scan_info *si,
+ 	ubi->vol_count += 1;
+ 	vol->ubi = ubi;
+ 
+-	if (reserved_pebs > ubi->avail_pebs)
++	if (reserved_pebs > ubi->avail_pebs) {
+ 		ubi_err("not enough PEBs, required %d, available %d",
+ 			reserved_pebs, ubi->avail_pebs);
++		if (ubi->corr_peb_count)
++			ubi_err("%d PEBs are corrupted and not used",
++				ubi->corr_peb_count);
++	}
+ 	ubi->rsvd_pebs += reserved_pebs;
+ 	ubi->avail_pebs -= reserved_pebs;
+ 
+@@ -835,7 +840,7 @@ int ubi_read_volume_table(struct ubi_device *ubi, struct ubi_scan_info *si)
+ 			return PTR_ERR(ubi->vtbl);
+ 	}
+ 
+-	ubi->avail_pebs = ubi->good_peb_count;
++	ubi->avail_pebs = ubi->good_peb_count - ubi->corr_peb_count;
+ 
+ 	/*
+ 	 * The layout volume is OK, initialize the corresponding in-RAM data
+@@ -846,7 +851,7 @@ int ubi_read_volume_table(struct ubi_device *ubi, struct ubi_scan_info *si)
+ 		goto out_free;
+ 
+ 	/*
+-	 * Get sure that the scanning information is consistent to the
++	 * Make sure that the scanning information is consistent to the
+ 	 * information stored in the volume table.
+ 	 */
+ 	err = check_scanning_info(ubi, si);
+diff --git a/stblinux-2.6.31/drivers/mtd/ubi/wl.c b/stblinux-2.6.31/drivers/mtd/ubi/wl.c
+index 600c722..655bbbe 100644
+--- a/stblinux-2.6.31/drivers/mtd/ubi/wl.c
++++ b/stblinux-2.6.31/drivers/mtd/ubi/wl.c
+@@ -350,7 +350,7 @@ static void prot_queue_add(struct ubi_device *ubi, struct ubi_wl_entry *e)
+  * @max: highest possible erase counter
+  *
+  * This function looks for a wear leveling entry with erase counter closest to
+- * @max and less then @max.
++ * @max and less than @max.
+  */
+ static struct ubi_wl_entry *find_wl_entry(struct rb_root *root, int max)
+ {
+@@ -464,7 +464,7 @@ retry:
+ 				   ubi->peb_size - ubi->vid_hdr_aloffset);
+ 	if (err) {
+ 		ubi_err("new PEB %d does not contain all 0xFF bytes", e->pnum);
+-		return err > 0 ? -EINVAL : err;
++		return err;
+ 	}
+ 
+ 	return e->pnum;
+@@ -513,7 +513,7 @@ static int sync_erase(struct ubi_device *ubi, struct ubi_wl_entry *e,
+ 	dbg_wl("erase PEB %d, old EC %llu", e->pnum, ec);
+ 
+ 	err = paranoid_check_ec(ubi, e->pnum, e->ec);
+-	if (err > 0)
++	if (err)
+ 		return -EINVAL;
+ 
+ 	ec_hdr = kzalloc(ubi->ec_hdr_alsize, GFP_NOFS);
+@@ -745,7 +745,7 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 
+ 	err = ubi_io_read_vid_hdr(ubi, e1->pnum, vid_hdr, 0);
+ 	if (err && err != UBI_IO_BITFLIPS) {
+-		if (err == UBI_IO_PEB_FREE) {
++		if (err == UBI_IO_FF) {
+ 			/*
+ 			 * We are trying to move PEB without a VID header. UBI
+ 			 * always write VID headers shortly after the PEB was
+@@ -759,6 +759,16 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 			dbg_wl("PEB %d has no VID header", e1->pnum);
+ 			protect = 1;
+ 			goto out_not_moved;
++		} else if (err == UBI_IO_FF_BITFLIPS) {
++			/*
++			 * The same situation as %UBI_IO_FF, but bit-flips were
++			 * detected. It is better to schedule this PEB for
++			 * scrubbing.
++			 */
++			dbg_wl("PEB %d has no VID header but has bit-flips",
++			       e1->pnum);
++			scrubbing = 1;
++			goto out_not_moved;
+ 		}
+ 
+ 		ubi_err("error %d while reading VID header from PEB %d",
+@@ -1212,7 +1222,8 @@ int ubi_wl_scrub_peb(struct ubi_device *ubi, int pnum)
+ retry:
+ 	spin_lock(&ubi->wl_lock);
+ 	e = ubi->lookuptbl[pnum];
+-	if (e == ubi->move_from || in_wl_tree(e, &ubi->scrub)) {
++	if (e == ubi->move_from || in_wl_tree(e, &ubi->scrub) ||
++				   in_wl_tree(e, &ubi->erroneous)) {
+ 		spin_unlock(&ubi->wl_lock);
+ 		return 0;
+ 	}
+@@ -1467,22 +1478,6 @@ int ubi_wl_init_scan(struct ubi_device *ubi, struct ubi_scan_info *si)
+ 		ubi->lookuptbl[e->pnum] = e;
+ 	}
+ 
+-	list_for_each_entry(seb, &si->corr, u.list) {
+-		cond_resched();
+-
+-		e = kmem_cache_alloc(ubi_wl_entry_slab, GFP_KERNEL);
+-		if (!e)
+-			goto out_free;
+-
+-		e->pnum = seb->pnum;
+-		e->ec = seb->ec;
+-		ubi->lookuptbl[e->pnum] = e;
+-		if (schedule_erase(ubi, e, 0)) {
+-			kmem_cache_free(ubi_wl_entry_slab, e);
+-			goto out_free;
+-		}
+-	}
+-
+ 	ubi_rb_for_each_entry(rb1, sv, &si->volumes, rb) {
+ 		ubi_rb_for_each_entry(rb2, seb, &sv->root, u.rb) {
+ 			cond_resched();
+@@ -1509,6 +1504,9 @@ int ubi_wl_init_scan(struct ubi_device *ubi, struct ubi_scan_info *si)
+ 	if (ubi->avail_pebs < WL_RESERVED_PEBS) {
+ 		ubi_err("no enough physical eraseblocks (%d, need %d)",
+ 			ubi->avail_pebs, WL_RESERVED_PEBS);
++		if (ubi->corr_peb_count)
++			ubi_err("%d PEBs are corrupted and not used",
++				ubi->corr_peb_count);
+ 		goto out_free;
+ 	}
+ 	ubi->avail_pebs -= WL_RESERVED_PEBS;
+@@ -1572,8 +1570,7 @@ void ubi_wl_close(struct ubi_device *ubi)
+  * @ec: the erase counter to check
+  *
+  * This function returns zero if the erase counter of physical eraseblock @pnum
+- * is equivalent to @ec, %1 if not, and a negative error code if an error
+- * occurred.
++ * is equivalent to @ec, and a negative error code if not or if an error occurred.
+  */
+ static int paranoid_check_ec(struct ubi_device *ubi, int pnum, int ec)
+ {
+@@ -1611,8 +1608,8 @@ out_free:
+  * @e: the wear-leveling entry to check
+  * @root: the root of the tree
+  *
+- * This function returns zero if @e is in the @root RB-tree and %1 if it is
+- * not.
++ * This function returns zero if @e is in the @root RB-tree and %-EINVAL if it
++ * is not.
+  */
+ static int paranoid_check_in_wl_tree(struct ubi_wl_entry *e,
+ 				     struct rb_root *root)
+@@ -1623,7 +1620,7 @@ static int paranoid_check_in_wl_tree(struct ubi_wl_entry *e,
+ 	ubi_err("paranoid check failed for PEB %d, EC %d, RB-tree %p ",
+ 		e->pnum, e->ec, root);
+ 	ubi_dbg_dump_stack();
+-	return 1;
++	return -EINVAL;
+ }
+ 
+ /**
+@@ -1632,7 +1629,7 @@ static int paranoid_check_in_wl_tree(struct ubi_wl_entry *e,
+  * @ubi: UBI device description object
+  * @e: the wear-leveling entry to check
+  *
+- * This function returns zero if @e is in @ubi->pq and %1 if it is not.
++ * This function returns zero if @e is in @ubi->pq and %-EINVAL if it is not.
+  */
+ static int paranoid_check_in_pq(struct ubi_device *ubi, struct ubi_wl_entry *e)
+ {
+@@ -1647,6 +1644,6 @@ static int paranoid_check_in_pq(struct ubi_device *ubi, struct ubi_wl_entry *e)
+ 	ubi_err("paranoid check failed for PEB %d, EC %d, Protect queue",
+ 		e->pnum, e->ec);
+ 	ubi_dbg_dump_stack();
+-	return 1;
++	return -EINVAL;
+ }
+ #endif /* CONFIG_MTD_UBI_DEBUG_PARANOID */
+diff --git a/stblinux-2.6.31/fs/ubifs/budget.c b/stblinux-2.6.31/fs/ubifs/budget.c
+index eaf6d89..c1f3f99 100644
+--- a/stblinux-2.6.31/fs/ubifs/budget.c
++++ b/stblinux-2.6.31/fs/ubifs/budget.c
+@@ -741,7 +741,7 @@ long long ubifs_get_free_space_nolock(struct ubifs_info *c)
+  * ubifs_get_free_space - return amount of free space.
+  * @c: UBIFS file-system description object
+  *
+- * This function calculates and retuns amount of free space to report to
++ * This function calculates and returns amount of free space to report to
+  * user-space.
+  */
+ long long ubifs_get_free_space(struct ubifs_info *c)
+diff --git a/stblinux-2.6.31/fs/ubifs/commit.c b/stblinux-2.6.31/fs/ubifs/commit.c
+index f3a7945..01e6643 100644
+--- a/stblinux-2.6.31/fs/ubifs/commit.c
++++ b/stblinux-2.6.31/fs/ubifs/commit.c
+@@ -62,7 +62,9 @@ static int do_commit(struct ubifs_info *c)
+ 	struct ubifs_lp_stats lst;
+ 
+ 	dbg_cmt("start");
+-	if (c->ro_media) {
++	ubifs_assert(!c->ro_media && !c->ro_mount);
++
++	if (c->ro_error) {
+ 		err = -EROFS;
+ 		goto out_up;
+ 	}
+@@ -510,7 +512,7 @@ int dbg_check_old_index(struct ubifs_info *c, struct ubifs_zbranch *zroot)
+ 	int lnum, offs, len, err = 0, uninitialized_var(last_level), child_cnt;
+ 	int first = 1, iip;
+ 	struct ubifs_debug_info *d = c->dbg;
+-	union ubifs_key lower_key, upper_key, l_key, u_key;
++	union ubifs_key uninitialized_var(lower_key), upper_key, l_key, u_key;
+ 	unsigned long long uninitialized_var(last_sqnum);
+ 	struct ubifs_idx_node *idx;
+ 	struct list_head list;
+diff --git a/stblinux-2.6.31/fs/ubifs/debug.c b/stblinux-2.6.31/fs/ubifs/debug.c
+index ce2cd83..61b84a1 100644
+--- a/stblinux-2.6.31/fs/ubifs/debug.c
++++ b/stblinux-2.6.31/fs/ubifs/debug.c
+@@ -210,6 +210,20 @@ const char *dbg_cstate(int cmt_state)
+ 	}
+ }
+ 
++const char *dbg_jhead(int jhead)
++{
++	switch (jhead) {
++	case GCHD:
++		return "0 (GC)";
++	case BASEHD:
++		return "1 (base)";
++	case DATAHD:
++		return "2 (data)";
++	default:
++		return "unknown journal head";
++	}
++}
++
+ static void dump_ch(const struct ubifs_ch *ch)
+ {
+ 	printk(KERN_DEBUG "\tmagic          %#x\n", le32_to_cpu(ch->magic));
+@@ -623,8 +637,9 @@ void dbg_dump_budg(struct ubifs_info *c)
+ 	/* If we are in R/O mode, journal heads do not exist */
+ 	if (c->jheads)
+ 		for (i = 0; i < c->jhead_cnt; i++)
+-			printk(KERN_DEBUG "\tjhead %d\t LEB %d\n",
+-			       c->jheads[i].wbuf.jhead, c->jheads[i].wbuf.lnum);
++			printk(KERN_DEBUG "\tjhead %s\t LEB %d\n",
++			       dbg_jhead(c->jheads[i].wbuf.jhead),
++			       c->jheads[i].wbuf.lnum);
+ 	for (rb = rb_first(&c->buds); rb; rb = rb_next(rb)) {
+ 		bud = rb_entry(rb, struct ubifs_bud, rb);
+ 		printk(KERN_DEBUG "\tbud LEB %d\n", bud->lnum);
+@@ -648,9 +663,90 @@ void dbg_dump_budg(struct ubifs_info *c)
+ 
+ void dbg_dump_lprop(const struct ubifs_info *c, const struct ubifs_lprops *lp)
+ {
+-	printk(KERN_DEBUG "LEB %d lprops: free %d, dirty %d (used %d), "
+-	       "flags %#x\n", lp->lnum, lp->free, lp->dirty,
+-	       c->leb_size - lp->free - lp->dirty, lp->flags);
++	int i, spc, dark = 0, dead = 0;
++	struct rb_node *rb;
++	struct ubifs_bud *bud;
++
++	spc = lp->free + lp->dirty;
++	if (spc < c->dead_wm)
++		dead = spc;
++	else
++		dark = ubifs_calc_dark(c, spc);
++
++	if (lp->flags & LPROPS_INDEX)
++		printk(KERN_DEBUG "LEB %-7d free %-8d dirty %-8d used %-8d "
++		       "free + dirty %-8d flags %#x (", lp->lnum, lp->free,
++		       lp->dirty, c->leb_size - spc, spc, lp->flags);
++	else
++		printk(KERN_DEBUG "LEB %-7d free %-8d dirty %-8d used %-8d "
++		       "free + dirty %-8d dark %-4d dead %-4d nodes fit %-3d "
++		       "flags %#-4x (", lp->lnum, lp->free, lp->dirty,
++		       c->leb_size - spc, spc, dark, dead,
++		       (int)(spc / UBIFS_MAX_NODE_SZ), lp->flags);
++
++	if (lp->flags & LPROPS_TAKEN) {
++		if (lp->flags & LPROPS_INDEX)
++			printk(KERN_CONT "index, taken");
++		else
++			printk(KERN_CONT "taken");
++	} else {
++		const char *s;
++
++		if (lp->flags & LPROPS_INDEX) {
++			switch (lp->flags & LPROPS_CAT_MASK) {
++			case LPROPS_DIRTY_IDX:
++				s = "dirty index";
++				break;
++			case LPROPS_FRDI_IDX:
++				s = "freeable index";
++				break;
++			default:
++				s = "index";
++			}
++		} else {
++			switch (lp->flags & LPROPS_CAT_MASK) {
++			case LPROPS_UNCAT:
++				s = "not categorized";
++				break;
++			case LPROPS_DIRTY:
++				s = "dirty";
++				break;
++			case LPROPS_FREE:
++				s = "free";
++				break;
++			case LPROPS_EMPTY:
++				s = "empty";
++				break;
++			case LPROPS_FREEABLE:
++				s = "freeable";
++				break;
++			default:
++				s = NULL;
++				break;
++			}
++		}
++		printk(KERN_CONT "%s", s);
++	}
++
++	for (rb = rb_first((struct rb_root *)&c->buds); rb; rb = rb_next(rb)) {
++		bud = rb_entry(rb, struct ubifs_bud, rb);
++		if (bud->lnum == lp->lnum) {
++			int head = 0;
++			for (i = 0; i < c->jhead_cnt; i++) {
++				if (lp->lnum == c->jheads[i].wbuf.lnum) {
++					printk(KERN_CONT ", jhead %s",
++					       dbg_jhead(i));
++					head = 1;
++				}
++			}
++			if (!head)
++				printk(KERN_CONT ", bud of jhead %s",
++				       dbg_jhead(bud->jhead));
++		}
++	}
++	if (lp->lnum == c->gc_lnum)
++		printk(KERN_CONT ", GC LEB");
++	printk(KERN_CONT ")\n");
+ }
+ 
+ void dbg_dump_lprops(struct ubifs_info *c)
+@@ -724,7 +820,7 @@ void dbg_dump_leb(const struct ubifs_info *c, int lnum)
+ 
+ 	printk(KERN_DEBUG "(pid %d) start dumping LEB %d\n",
+ 	       current->pid, lnum);
+-	sleb = ubifs_scan(c, lnum, 0, c->dbg->buf);
++	sleb = ubifs_scan(c, lnum, 0, c->dbg->buf, 0);
+ 	if (IS_ERR(sleb)) {
+ 		ubifs_err("scan error %d", (int)PTR_ERR(sleb));
+ 		return;
+@@ -909,8 +1005,10 @@ out:
+ 	ubifs_msg("saved lprops statistics dump");
+ 	dbg_dump_lstats(&d->saved_lst);
+ 	ubifs_get_lp_stats(c, &lst);
++
+ 	ubifs_msg("current lprops statistics dump");
+-	dbg_dump_lstats(&d->saved_lst);
++	dbg_dump_lstats(&lst);
++
+ 	spin_lock(&c->space_lock);
+ 	dbg_dump_budg(c);
+ 	spin_unlock(&c->space_lock);
+@@ -1916,7 +2014,7 @@ static int check_leaf(struct ubifs_info *c, struct ubifs_zbranch *zbr,
+ 		inum = key_inum_flash(c, &dent->key);
+ 		fscki1 = read_add_inode(c, priv, inum);
+ 		if (IS_ERR(fscki1)) {
+-			err = PTR_ERR(fscki);
++			err = PTR_ERR(fscki1);
+ 			ubifs_err("error %d while processing entry node and "
+ 				  "trying to find parent inode node %lu",
+ 				  err, (unsigned long)inum);
+@@ -2145,6 +2243,162 @@ out_free:
+ 	return err;
+ }
+ 
++/**
++ * dbg_check_data_nodes_order - check that list of data nodes is sorted.
++ * @c: UBIFS file-system description object
++ * @head: the list of nodes ('struct ubifs_scan_node' objects)
++ *
++ * This function returns zero if the list of data nodes is sorted correctly,
++ * and %-EINVAL if not.
++ */
++int dbg_check_data_nodes_order(struct ubifs_info *c, struct list_head *head)
++{
++	struct list_head *cur;
++	struct ubifs_scan_node *sa, *sb;
++
++	if (!(ubifs_chk_flags & UBIFS_CHK_GEN))
++		return 0;
++
++	for (cur = head->next; cur->next != head; cur = cur->next) {
++		ino_t inuma, inumb;
++		uint32_t blka, blkb;
++
++		cond_resched();
++		sa = container_of(cur, struct ubifs_scan_node, list);
++		sb = container_of(cur->next, struct ubifs_scan_node, list);
++
++		if (sa->type != UBIFS_DATA_NODE) {
++			ubifs_err("bad node type %d", sa->type);
++			dbg_dump_node(c, sa->node);
++			return -EINVAL;
++		}
++		if (sb->type != UBIFS_DATA_NODE) {
++			ubifs_err("bad node type %d", sb->type);
++			dbg_dump_node(c, sb->node);
++			return -EINVAL;
++		}
++
++		inuma = key_inum(c, &sa->key);
++		inumb = key_inum(c, &sb->key);
++
++		if (inuma < inumb)
++			continue;
++		if (inuma > inumb) {
++			ubifs_err("larger inum %lu goes before inum %lu",
++				  (unsigned long)inuma, (unsigned long)inumb);
++			goto error_dump;
++		}
++
++		blka = key_block(c, &sa->key);
++		blkb = key_block(c, &sb->key);
++
++		if (blka > blkb) {
++			ubifs_err("larger block %u goes before %u", blka, blkb);
++			goto error_dump;
++		}
++		if (blka == blkb) {
++			ubifs_err("two data nodes for the same block");
++			goto error_dump;
++		}
++	}
++
++	return 0;
++
++error_dump:
++	dbg_dump_node(c, sa->node);
++	dbg_dump_node(c, sb->node);
++	return -EINVAL;
++}
++
++/**
++ * dbg_check_nondata_nodes_order - check that list of data nodes is sorted.
++ * @c: UBIFS file-system description object
++ * @head: the list of nodes ('struct ubifs_scan_node' objects)
++ *
++ * This function returns zero if the list of non-data nodes is sorted correctly,
++ * and %-EINVAL if not.
++ */
++int dbg_check_nondata_nodes_order(struct ubifs_info *c, struct list_head *head)
++{
++	struct list_head *cur;
++	struct ubifs_scan_node *sa, *sb;
++
++	if (!(ubifs_chk_flags & UBIFS_CHK_GEN))
++		return 0;
++
++	for (cur = head->next; cur->next != head; cur = cur->next) {
++		ino_t inuma, inumb;
++		uint32_t hasha, hashb;
++
++		cond_resched();
++		sa = container_of(cur, struct ubifs_scan_node, list);
++		sb = container_of(cur->next, struct ubifs_scan_node, list);
++
++		if (sa->type != UBIFS_INO_NODE && sa->type != UBIFS_DENT_NODE &&
++		    sa->type != UBIFS_XENT_NODE) {
++			ubifs_err("bad node type %d", sa->type);
++			dbg_dump_node(c, sa->node);
++			return -EINVAL;
++		}
++		if (sa->type != UBIFS_INO_NODE && sa->type != UBIFS_DENT_NODE &&
++		    sa->type != UBIFS_XENT_NODE) {
++			ubifs_err("bad node type %d", sb->type);
++			dbg_dump_node(c, sb->node);
++			return -EINVAL;
++		}
++
++		if (sa->type != UBIFS_INO_NODE && sb->type == UBIFS_INO_NODE) {
++			ubifs_err("non-inode node goes before inode node");
++			goto error_dump;
++		}
++
++		if (sa->type == UBIFS_INO_NODE && sb->type != UBIFS_INO_NODE)
++			continue;
++
++		if (sa->type == UBIFS_INO_NODE && sb->type == UBIFS_INO_NODE) {
++			/* Inode nodes are sorted in descending size order */
++			if (sa->len < sb->len) {
++				ubifs_err("smaller inode node goes first");
++				goto error_dump;
++			}
++			continue;
++		}
++
++		/*
++		 * This is either a dentry or xentry, which should be sorted in
++		 * ascending (parent ino, hash) order.
++		 */
++		inuma = key_inum(c, &sa->key);
++		inumb = key_inum(c, &sb->key);
++
++		if (inuma < inumb)
++			continue;
++		if (inuma > inumb) {
++			ubifs_err("larger inum %lu goes before inum %lu",
++				  (unsigned long)inuma, (unsigned long)inumb);
++			goto error_dump;
++		}
++
++		hasha = key_block(c, &sa->key);
++		hashb = key_block(c, &sb->key);
++
++		if (hasha > hashb) {
++			ubifs_err("larger hash %u goes before %u", hasha, hashb);
++			goto error_dump;
++		}
++	}
++
++	return 0;
++
++error_dump:
++	ubifs_msg("dumping first node");
++	dbg_dump_node(c, sa->node);
++	ubifs_msg("dumping second node");
++	dbg_dump_node(c, sb->node);
++	return -EINVAL;
++	return 0;
++}
++
+ static int invocation_cnt;
+ 
+ int dbg_force_in_the_gaps(void)
+diff --git a/stblinux-2.6.31/fs/ubifs/debug.h b/stblinux-2.6.31/fs/ubifs/debug.h
+index c1cd73b..69ebe47 100644
+--- a/stblinux-2.6.31/fs/ubifs/debug.h
++++ b/stblinux-2.6.31/fs/ubifs/debug.h
+@@ -271,6 +271,7 @@ void ubifs_debugging_exit(struct ubifs_info *c);
+ /* Dump functions */
+ const char *dbg_ntype(int type);
+ const char *dbg_cstate(int cmt_state);
++const char *dbg_jhead(int jhead);
+ const char *dbg_get_key_dump(const struct ubifs_info *c,
+ 			     const union ubifs_key *key);
+ void dbg_dump_inode(const struct ubifs_info *c, const struct inode *inode);
+@@ -321,6 +322,10 @@ void dbg_check_heap(struct ubifs_info *c, struct ubifs_lpt_heap *heap, int cat,
+ int dbg_check_lprops(struct ubifs_info *c);
+ int dbg_check_lpt_nodes(struct ubifs_info *c, struct ubifs_cnode *cnode,
+ 			int row, int col);
++int dbg_check_inode_size(struct ubifs_info *c, const struct inode *inode,
++			 loff_t size);
++int dbg_check_data_nodes_order(struct ubifs_info *c, struct list_head *head);
++int dbg_check_nondata_nodes_order(struct ubifs_info *c, struct list_head *head);
+ 
+ /* Force the use of in-the-gaps method for testing */
+ 
+@@ -425,6 +430,7 @@ void dbg_debugfs_exit_fs(struct ubifs_info *c);
+ 
+ #define dbg_ntype(type)                        ""
+ #define dbg_cstate(cmt_state)                  ""
++#define dbg_jhead(jhead)                       ""
+ #define dbg_get_key_dump(c, key)               ({})
+ #define dbg_dump_inode(c, inode)               ({})
+ #define dbg_dump_node(c, node)                 ({})
+@@ -460,6 +466,9 @@ void dbg_debugfs_exit_fs(struct ubifs_info *c);
+ #define dbg_check_heap(c, heap, cat, add_pos)      ({})
+ #define dbg_check_lprops(c)                        0
+ #define dbg_check_lpt_nodes(c, cnode, row, col)    0
++#define dbg_check_inode_size(c, inode, size)       0
++#define dbg_check_data_nodes_order(c, head)        0
++#define dbg_check_nondata_nodes_order(c, head)     0
+ #define dbg_force_in_the_gaps_enabled              0
+ #define dbg_force_in_the_gaps()                    0
+ #define dbg_failure_mode                           0
+diff --git a/stblinux-2.6.31/fs/ubifs/file.c b/stblinux-2.6.31/fs/ubifs/file.c
+index 6d34dc7..01737b3 100644
+--- a/stblinux-2.6.31/fs/ubifs/file.c
++++ b/stblinux-2.6.31/fs/ubifs/file.c
+@@ -21,34 +21,32 @@
+  */
+ 
+ /*
+- * This file implements VFS file and inode operations of regular files, device
++ * This file implements VFS file and inode operations for regular files, device
+  * nodes and symlinks as well as address space operations.
+  *
+- * UBIFS uses 2 page flags: PG_private and PG_checked. PG_private is set if the
+- * page is dirty and is used for budgeting purposes - dirty pages should not be
+- * budgeted. The PG_checked flag is set if full budgeting is required for the
+- * page e.g., when it corresponds to a file hole or it is just beyond the file
+- * size. The budgeting is done in 'ubifs_write_begin()', because it is OK to
+- * fail in this function, and the budget is released in 'ubifs_write_end()'. So
+- * the PG_private and PG_checked flags carry the information about how the page
+- * was budgeted, to make it possible to release the budget properly.
++ * UBIFS uses 2 page flags: @PG_private and @PG_checked. @PG_private is set if
++ * the page is dirty and is used for optimization purposes - dirty pages are
++ * not budgeted so the flag shows that 'ubifs_write_end()' should not release
++ * the budget for this page. The @PG_checked flag is set if full budgeting is
++ * required for the page e.g., when it corresponds to a file hole or it is
++ * beyond the file size. The budgeting is done in 'ubifs_write_begin()', because
++ * it is OK to fail in this function, and the budget is released in
++ * 'ubifs_write_end()'. So the @PG_private and @PG_checked flags carry
++ * information about how the page was budgeted, to make it possible to release
++ * the budget properly.
+  *
+- * A thing to keep in mind: inode's 'i_mutex' is locked in most VFS operations
+- * we implement. However, this is not true for '->writepage()', which might be
+- * called with 'i_mutex' unlocked. For example, when pdflush is performing
+- * write-back, it calls 'writepage()' with unlocked 'i_mutex', although the
+- * inode has 'I_LOCK' flag in this case. At "normal" work-paths 'i_mutex' is
+- * locked in '->writepage', e.g. in "sys_write -> alloc_pages -> direct reclaim
+- * path'. So, in '->writepage()' we are only guaranteed that the page is
+- * locked.
++ * A thing to keep in mind: inode @i_mutex is locked in most VFS operations we
++ * implement. However, this is not true for 'ubifs_writepage()', which may be
++ * called with @i_mutex unlocked. For example, when pdflush is doing background
++ * write-back, it calls 'ubifs_writepage()' with unlocked @i_mutex. At "normal"
++ * work-paths the @i_mutex is locked in 'ubifs_writepage()', e.g. in the
++ * "sys_write -> alloc_pages -> direct reclaim path". So, in 'ubifs_writepage()'
++ * we are only guaranteed that the page is locked.
+  *
+- * Similarly, 'i_mutex' does not have to be locked in readpage(), e.g.,
+- * readahead path does not have it locked ("sys_read -> generic_file_aio_read
+- * -> ondemand_readahead -> readpage"). In case of readahead, 'I_LOCK' flag is
+- * not set as well. However, UBIFS disables readahead.
+- *
+- * This, for example means that there might be 2 concurrent '->writepage()'
+- * calls for the same inode, but different inode dirty pages.
++ * Similarly, @i_mutex is not always locked in 'ubifs_readpage()', e.g., the
++ * read-ahead path does not lock it ("sys_read -> generic_file_aio_read ->
++ * ondemand_readahead -> readpage"). In case of readahead, @I_LOCK flag is not
++ * set as well. However, UBIFS disables readahead.
+  */
+ 
+ #include "ubifs.h"
+@@ -434,8 +432,9 @@ static int ubifs_write_begin(struct file *file, struct address_space *mapping,
+ 	struct page *page;
+ 
+ 	ubifs_assert(ubifs_inode(inode)->ui_size == inode->i_size);
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 
+-	if (unlikely(c->ro_media))
++	if (unlikely(c->ro_error))
+ 		return -EROFS;
+ 
+ 	/* Try out the fast-path part first */
+@@ -449,9 +448,9 @@ static int ubifs_write_begin(struct file *file, struct address_space *mapping,
+ 			/*
+ 			 * We change whole page so no need to load it. But we
+ 			 * have to set the @PG_checked flag to make the further
+-			 * code the page is new. This might be not true, but it
+-			 * is better to budget more that to read the page from
+-			 * the media.
++			 * code know that the page is new. This might be not
++			 * true, but it is better to budget more than to read
++			 * the page from the media.
+ 			 */
+ 			SetPageChecked(page);
+ 			skipped_read = 1;
+@@ -497,8 +496,8 @@ static int ubifs_write_begin(struct file *file, struct address_space *mapping,
+ 	}
+ 
+ 	/*
+-	 * Whee, we aquired budgeting quickly - without involving
+-	 * garbage-collection, committing or forceing write-back. We return
++	 * Whee, we acquired budgeting quickly - without involving
++	 * garbage-collection, committing or forcing write-back. We return
+ 	 * with @ui->ui_mutex locked if we are appending pages, and unlocked
+ 	 * otherwise. This is an optimization (slightly hacky though).
+ 	 */
+@@ -562,7 +561,7 @@ static int ubifs_write_end(struct file *file, struct address_space *mapping,
+ 
+ 		/*
+ 		 * Return 0 to force VFS to repeat the whole operation, or the
+-		 * error code if 'do_readpage()' failes.
++		 * error code if 'do_readpage()' fails.
+ 		 */
+ 		copied = do_readpage(page);
+ 		goto out;
+@@ -1175,11 +1174,11 @@ static int do_truncation(struct ubifs_info *c, struct inode *inode,
+ 	ui->ui_size = inode->i_size;
+ 	/* Truncation changes inode [mc]time */
+ 	inode->i_mtime = inode->i_ctime = ubifs_current_time(inode);
+-	/* The other attributes may be changed at the same time as well */
++	/* Other attributes may be changed at the same time as well */
+ 	do_attr_changes(inode, attr);
+-
+ 	err = ubifs_jnl_truncate(c, inode, old_size, new_size);
+ 	mutex_unlock(&ui->ui_mutex);
++
+ out_budg:
+ 	if (budgeted)
+ 		ubifs_release_budget(c, &req);
+@@ -1455,9 +1454,9 @@ static int ubifs_vm_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vm
+ 
+ 	dbg_gen("ino %lu, pg %lu, i_size %lld",	inode->i_ino, page->index,
+ 		i_size_read(inode));
+-	ubifs_assert(!(inode->i_sb->s_flags & MS_RDONLY));
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 
+-	if (unlikely(c->ro_media))
++	if (unlikely(c->ro_error))
+ 		return VM_FAULT_SIGBUS; /* -EROFS */
+ 
+ 	/*
+diff --git a/stblinux-2.6.31/fs/ubifs/gc.c b/stblinux-2.6.31/fs/ubifs/gc.c
+index f0f5f15..2127df9 100644
+--- a/stblinux-2.6.31/fs/ubifs/gc.c
++++ b/stblinux-2.6.31/fs/ubifs/gc.c
+@@ -218,10 +218,16 @@ int data_nodes_cmp(void *priv, struct list_head *a, struct list_head *b)
+ 	struct ubifs_scan_node *sa, *sb;
+ 
+ 	cond_resched();
++	if (a == b)
++		return 0;
++
+ 	sa = list_entry(a, struct ubifs_scan_node, list);
+ 	sb = list_entry(b, struct ubifs_scan_node, list);
++
+ 	ubifs_assert(key_type(c, &sa->key) == UBIFS_DATA_KEY);
+ 	ubifs_assert(key_type(c, &sb->key) == UBIFS_DATA_KEY);
++	ubifs_assert(sa->type == UBIFS_DATA_NODE);
++	ubifs_assert(sb->type == UBIFS_DATA_NODE);
+ 
+ 	inuma = key_inum(c, &sa->key);
+ 	inumb = key_inum(c, &sb->key);
+@@ -250,28 +256,40 @@ int data_nodes_cmp(void *priv, struct list_head *a, struct list_head *b)
+  */
+ int nondata_nodes_cmp(void *priv, struct list_head *a, struct list_head *b)
+ {
+-	int typea, typeb;
+ 	ino_t inuma, inumb;
+ 	struct ubifs_info *c = priv;
+ 	struct ubifs_scan_node *sa, *sb;
+ 
+ 	cond_resched();
++	if (a == b)
++		return 0;
++
+ 	sa = list_entry(a, struct ubifs_scan_node, list);
+ 	sb = list_entry(b, struct ubifs_scan_node, list);
+-	typea = key_type(c, &sa->key);
+-	typeb = key_type(c, &sb->key);
+-	ubifs_assert(typea != UBIFS_DATA_KEY && typeb != UBIFS_DATA_KEY);
++
++	ubifs_assert(key_type(c, &sa->key) != UBIFS_DATA_KEY &&
++		     key_type(c, &sb->key) != UBIFS_DATA_KEY);
++	ubifs_assert(sa->type != UBIFS_DATA_NODE &&
++		     sb->type != UBIFS_DATA_NODE);
+ 
+ 	/* Inodes go before directory entries */
+-	if (typea == UBIFS_INO_KEY) {
+-		if (typeb == UBIFS_INO_KEY)
++	if (sa->type == UBIFS_INO_NODE) {
++		if (sb->type == UBIFS_INO_NODE)
+ 			return sb->len - sa->len;
+ 		return -1;
+ 	}
+-	if (typeb == UBIFS_INO_KEY)
++	if (sb->type == UBIFS_INO_NODE)
+ 		return 1;
+ 
+-	ubifs_assert(typea == UBIFS_DENT_KEY && typeb == UBIFS_DENT_KEY);
++	ubifs_assert(key_type(c, &sa->key) == UBIFS_DENT_KEY ||
++		     key_type(c, &sa->key) == UBIFS_XENT_KEY);
++	ubifs_assert(key_type(c, &sb->key) == UBIFS_DENT_KEY ||
++		     key_type(c, &sb->key) == UBIFS_XENT_KEY);
++	ubifs_assert(sa->type == UBIFS_DENT_NODE ||
++		     sa->type == UBIFS_XENT_NODE);
++	ubifs_assert(sb->type == UBIFS_DENT_NODE ||
++		     sb->type == UBIFS_XENT_NODE);
++
+ 	inuma = key_inum(c, &sa->key);
+ 	inumb = key_inum(c, &sb->key);
+ 
+@@ -317,17 +335,33 @@ int nondata_nodes_cmp(void *priv, struct list_head *a, struct list_head *b)
+ static int sort_nodes(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 		      struct list_head *nondata, int *min)
+ {
++	int err;
+ 	struct ubifs_scan_node *snod, *tmp;
+ 
+ 	*min = INT_MAX;
+ 
+ 	/* Separate data nodes and non-data nodes */
+ 	list_for_each_entry_safe(snod, tmp, &sleb->nodes, list) {
+-		int err;
++		ubifs_assert(snod->type == UBIFS_INO_NODE  ||
++			     snod->type == UBIFS_DATA_NODE ||
++			     snod->type == UBIFS_DENT_NODE ||
++			     snod->type == UBIFS_XENT_NODE ||
++			     snod->type == UBIFS_TRUN_NODE);
++
++		if (snod->type != UBIFS_INO_NODE  &&
++		    snod->type != UBIFS_DATA_NODE &&
++		    snod->type != UBIFS_DENT_NODE &&
++		    snod->type != UBIFS_XENT_NODE) {
++			/* Probably truncation node, zap it */
++			list_del(&snod->list);
++			kfree(snod);
++			continue;
++		}
+ 
+-		ubifs_assert(snod->type != UBIFS_IDX_NODE);
+-		ubifs_assert(snod->type != UBIFS_REF_NODE);
+-		ubifs_assert(snod->type != UBIFS_CS_NODE);
++		ubifs_assert(key_type(c, &snod->key) == UBIFS_DATA_KEY ||
++			     key_type(c, &snod->key) == UBIFS_INO_KEY  ||
++			     key_type(c, &snod->key) == UBIFS_DENT_KEY ||
++			     key_type(c, &snod->key) == UBIFS_XENT_KEY);
+ 
+ 		err = ubifs_tnc_has_node(c, &snod->key, 0, sleb->lnum,
+ 					 snod->offs, 0);
+@@ -351,6 +385,13 @@ static int sort_nodes(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 	/* Sort data and non-data nodes */
+ 	list_sort(c, &sleb->nodes, &data_nodes_cmp);
+ 	list_sort(c, nondata, &nondata_nodes_cmp);
++
++	err = dbg_check_data_nodes_order(c, &sleb->nodes);
++	if (err)
++		return err;
++	err = dbg_check_nondata_nodes_order(c, nondata);
++	if (err)
++		return err;
+ 	return 0;
+ }
+ 
+@@ -529,7 +570,7 @@ int ubifs_garbage_collect_leb(struct ubifs_info *c, struct ubifs_lprops *lp)
+ 	 * We scan the entire LEB even though we only really need to scan up to
+ 	 * (c->leb_size - lp->free).
+ 	 */
+-	sleb = ubifs_scan(c, lnum, 0, c->sbuf);
++	sleb = ubifs_scan(c, lnum, 0, c->sbuf, 0);
+ 	if (IS_ERR(sleb))
+ 		return PTR_ERR(sleb);
+ 
+@@ -668,13 +709,14 @@ int ubifs_garbage_collect(struct ubifs_info *c, int anyway)
+ 	struct ubifs_wbuf *wbuf = &c->jheads[GCHD].wbuf;
+ 
+ 	ubifs_assert_cmt_locked(c);
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 
+ 	if (ubifs_gc_should_commit(c))
+ 		return -EAGAIN;
+ 
+ 	mutex_lock_nested(&wbuf->io_mutex, wbuf->jhead);
+ 
+-	if (c->ro_media) {
++	if (c->ro_error) {
+ 		ret = -EROFS;
+ 		goto out_unlock;
+ 	}
+@@ -770,14 +812,12 @@ int ubifs_garbage_collect(struct ubifs_info *c, int anyway)
+ 
+ 		ret = ubifs_garbage_collect_leb(c, &lp);
+ 		if (ret < 0) {
+-			if (ret == -EAGAIN || ret == -ENOSPC) {
++			if (ret == -EAGAIN) {
+ 				/*
+-				 * These codes are not errors, so we have to
+-				 * return the LEB to lprops. But if the
+-				 * 'ubifs_return_leb()' function fails, its
+-				 * failure code is propagated to the caller
+-				 * instead of the original '-EAGAIN' or
+-				 * '-ENOSPC'.
++				 * This is not error, so we have to return the
++				 * LEB to lprops. But if 'ubifs_return_leb()'
++				 * fails, its failure code is propagated to the
++				 * caller instead of the original '-EAGAIN'.
+ 				 */
+ 				err = ubifs_return_leb(c, lp.lnum);
+ 				if (err)
+@@ -867,8 +907,8 @@ out_unlock:
+ out:
+ 	ubifs_assert(ret < 0);
+ 	ubifs_assert(ret != -ENOSPC && ret != -EAGAIN);
+-	ubifs_ro_mode(c, ret);
+ 	ubifs_wbuf_sync_nolock(wbuf);
++	ubifs_ro_mode(c, ret);
+ 	mutex_unlock(&wbuf->io_mutex);
+ 	ubifs_return_leb(c, lp.lnum);
+ 	return ret;
+diff --git a/stblinux-2.6.31/fs/ubifs/io.c b/stblinux-2.6.31/fs/ubifs/io.c
+index 762a7d6..12e9551 100644
+--- a/stblinux-2.6.31/fs/ubifs/io.c
++++ b/stblinux-2.6.31/fs/ubifs/io.c
+@@ -60,9 +60,10 @@
+  */
+ void ubifs_ro_mode(struct ubifs_info *c, int err)
+ {
+-	if (!c->ro_media) {
+-		c->ro_media = 1;
++	if (!c->ro_error) {
++		c->ro_error = 1;
+ 		c->no_chk_data_crc = 0;
++		c->vfs_sb->s_flags |= MS_RDONLY;
+ 		ubifs_warn("switched to read-only mode, error %d", err);
+ 		dbg_dump_stack();
+ 	}
+@@ -297,7 +298,7 @@ static enum hrtimer_restart wbuf_timer_callback_nolock(struct hrtimer *timer)
+ {
+ 	struct ubifs_wbuf *wbuf = container_of(timer, struct ubifs_wbuf, timer);
+ 
+-	dbg_io("jhead %d", wbuf->jhead);
++	dbg_io("jhead %s", dbg_jhead(wbuf->jhead));
+ 	wbuf->need_sync = 1;
+ 	wbuf->c->need_wbuf_sync = 1;
+ 	ubifs_wake_up_bgt(wbuf->c);
+@@ -314,7 +315,8 @@ static void new_wbuf_timer_nolock(struct ubifs_wbuf *wbuf)
+ 
+ 	if (wbuf->no_timer)
+ 		return;
+-	dbg_io("set timer for jhead %d, %llu-%llu millisecs", wbuf->jhead,
++	dbg_io("set timer for jhead %s, %llu-%llu millisecs",
++	       dbg_jhead(wbuf->jhead),
+ 	       div_u64(ktime_to_ns(wbuf->softlimit), USEC_PER_SEC),
+ 	       div_u64(ktime_to_ns(wbuf->softlimit) + wbuf->delta,
+ 		       USEC_PER_SEC));
+@@ -351,13 +353,13 @@ int ubifs_wbuf_sync_nolock(struct ubifs_wbuf *wbuf)
+ 		/* Write-buffer is empty or not seeked */
+ 		return 0;
+ 
+-	dbg_io("LEB %d:%d, %d bytes, jhead %d",
+-	       wbuf->lnum, wbuf->offs, wbuf->used, wbuf->jhead);
+-	ubifs_assert(!(c->vfs_sb->s_flags & MS_RDONLY));
++	dbg_io("LEB %d:%d, %d bytes, jhead %s",
++	       wbuf->lnum, wbuf->offs, wbuf->used, dbg_jhead(wbuf->jhead));
+ 	ubifs_assert(!(wbuf->avail & 7));
+ 	ubifs_assert(wbuf->offs + c->min_io_size <= c->leb_size);
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 
+-	if (c->ro_media)
++	if (c->ro_error)
+ 		return -EROFS;
+ 
+ 	ubifs_pad(c, wbuf->buf + wbuf->used, wbuf->avail);
+@@ -401,7 +403,7 @@ int ubifs_wbuf_seek_nolock(struct ubifs_wbuf *wbuf, int lnum, int offs,
+ {
+ 	const struct ubifs_info *c = wbuf->c;
+ 
+-	dbg_io("LEB %d:%d, jhead %d", lnum, offs, wbuf->jhead);
++	dbg_io("LEB %d:%d, jhead %s", lnum, offs, dbg_jhead(wbuf->jhead));
+ 	ubifs_assert(lnum >= 0 && lnum < c->leb_cnt);
+ 	ubifs_assert(offs >= 0 && offs <= c->leb_size);
+ 	ubifs_assert(offs % c->min_io_size == 0 && !(offs & 7));
+@@ -437,11 +439,12 @@ int ubifs_bg_wbufs_sync(struct ubifs_info *c)
+ {
+ 	int err, i;
+ 
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 	if (!c->need_wbuf_sync)
+ 		return 0;
+ 	c->need_wbuf_sync = 0;
+ 
+-	if (c->ro_media) {
++	if (c->ro_error) {
+ 		err = -EROFS;
+ 		goto out_timers;
+ 	}
+@@ -508,14 +511,15 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
+ 	struct ubifs_info *c = wbuf->c;
+ 	int err, written, n, aligned_len = ALIGN(len, 8), offs;
+ 
+-	dbg_io("%d bytes (%s) to jhead %d wbuf at LEB %d:%d", len,
+-	       dbg_ntype(((struct ubifs_ch *)buf)->node_type), wbuf->jhead,
+-	       wbuf->lnum, wbuf->offs + wbuf->used);
++	dbg_io("%d bytes (%s) to jhead %s wbuf at LEB %d:%d", len,
++	       dbg_ntype(((struct ubifs_ch *)buf)->node_type),
++	       dbg_jhead(wbuf->jhead), wbuf->lnum, wbuf->offs + wbuf->used);
+ 	ubifs_assert(len > 0 && wbuf->lnum >= 0 && wbuf->lnum < c->leb_cnt);
+ 	ubifs_assert(wbuf->offs >= 0 && wbuf->offs % c->min_io_size == 0);
+ 	ubifs_assert(!(wbuf->offs & 7) && wbuf->offs <= c->leb_size);
+ 	ubifs_assert(wbuf->avail > 0 && wbuf->avail <= c->min_io_size);
+ 	ubifs_assert(mutex_is_locked(&wbuf->io_mutex));
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 
+ 	if (c->leb_size - wbuf->offs - wbuf->used < aligned_len) {
+ 		err = -ENOSPC;
+@@ -524,7 +528,7 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
+ 
+ 	cancel_wbuf_timer_nolock(wbuf);
+ 
+-	if (c->ro_media)
++	if (c->ro_error)
+ 		return -EROFS;
+ 
+ 	if (aligned_len <= wbuf->avail) {
+@@ -535,8 +539,8 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
+ 		memcpy(wbuf->buf + wbuf->used, buf, len);
+ 
+ 		if (aligned_len == wbuf->avail) {
+-			dbg_io("flush jhead %d wbuf to LEB %d:%d",
+-			       wbuf->jhead, wbuf->lnum, wbuf->offs);
++			dbg_io("flush jhead %s wbuf to LEB %d:%d",
++			       dbg_jhead(wbuf->jhead), wbuf->lnum, wbuf->offs);
+ 			err = ubi_leb_write(c->ubi, wbuf->lnum, wbuf->buf,
+ 					    wbuf->offs, c->min_io_size,
+ 					    wbuf->dtype);
+@@ -564,8 +568,8 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
+ 	 * minimal I/O unit. We have to fill and flush write-buffer and switch
+ 	 * to the next min. I/O unit.
+ 	 */
+-	dbg_io("flush jhead %d wbuf to LEB %d:%d",
+-	       wbuf->jhead, wbuf->lnum, wbuf->offs);
++	dbg_io("flush jhead %s wbuf to LEB %d:%d",
++	       dbg_jhead(wbuf->jhead), wbuf->lnum, wbuf->offs);
+ 	memcpy(wbuf->buf + wbuf->used, buf, wbuf->avail);
+ 	err = ubi_leb_write(c->ubi, wbuf->lnum, wbuf->buf, wbuf->offs,
+ 			    c->min_io_size, wbuf->dtype);
+@@ -660,8 +664,9 @@ int ubifs_write_node(struct ubifs_info *c, void *buf, int len, int lnum,
+ 	       buf_len);
+ 	ubifs_assert(lnum >= 0 && lnum < c->leb_cnt && offs >= 0);
+ 	ubifs_assert(offs % c->min_io_size == 0 && offs < c->leb_size);
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 
+-	if (c->ro_media)
++	if (c->ro_error)
+ 		return -EROFS;
+ 
+ 	ubifs_prepare_node(c, buf, len, 1);
+@@ -698,8 +703,8 @@ int ubifs_read_node_wbuf(struct ubifs_wbuf *wbuf, void *buf, int type, int len,
+ 	int err, rlen, overlap;
+ 	struct ubifs_ch *ch = buf;
+ 
+-	dbg_io("LEB %d:%d, %s, length %d, jhead %d", lnum, offs,
+-	       dbg_ntype(type), len, wbuf->jhead);
++	dbg_io("LEB %d:%d, %s, length %d, jhead %s", lnum, offs,
++	       dbg_ntype(type), len, dbg_jhead(wbuf->jhead));
+ 	ubifs_assert(wbuf && lnum >= 0 && lnum < c->leb_cnt && offs >= 0);
+ 	ubifs_assert(!(offs & 7) && offs < c->leb_size);
+ 	ubifs_assert(type >= 0 && type < UBIFS_NODE_TYPES_CNT);
+@@ -812,7 +817,8 @@ int ubifs_read_node(const struct ubifs_info *c, void *buf, int type, int len,
+ 	return 0;
+ 
+ out:
+-	ubifs_err("bad node at LEB %d:%d", lnum, offs);
++	ubifs_err("bad node at LEB %d:%d, LEB mapping status %d", lnum, offs,
++		  ubi_is_mapped(c->ubi, lnum));
+ 	dbg_dump_node(c, buf);
+ 	dbg_dump_stack();
+ 	return -EINVAL;
+diff --git a/stblinux-2.6.31/fs/ubifs/journal.c b/stblinux-2.6.31/fs/ubifs/journal.c
+index 64b5f3a..914f1bd 100644
+--- a/stblinux-2.6.31/fs/ubifs/journal.c
++++ b/stblinux-2.6.31/fs/ubifs/journal.c
+@@ -122,11 +122,12 @@ static int reserve_space(struct ubifs_info *c, int jhead, int len)
+ 	 * better to try to allocate space at the ends of eraseblocks. This is
+ 	 * what the squeeze parameter does.
+ 	 */
++	ubifs_assert(!c->ro_media && !c->ro_mount);
+ 	squeeze = (jhead == BASEHD);
+ again:
+ 	mutex_lock_nested(&wbuf->io_mutex, wbuf->jhead);
+ 
+-	if (c->ro_media) {
++	if (c->ro_error) {
+ 		err = -EROFS;
+ 		goto out_unlock;
+ 	}
+@@ -158,7 +159,7 @@ again:
+ 	 * some. But the write-buffer mutex has to be unlocked because
+ 	 * GC also takes it.
+ 	 */
+-	dbg_jnl("no free space  jhead %d, run GC", jhead);
++	dbg_jnl("no free space in jhead %s, run GC", dbg_jhead(jhead));
+ 	mutex_unlock(&wbuf->io_mutex);
+ 
+ 	lnum = ubifs_garbage_collect(c, 0);
+@@ -173,7 +174,8 @@ again:
+ 		 * because we dropped @wbuf->io_mutex, so try once
+ 		 * again.
+ 		 */
+-		dbg_jnl("GC couldn't make a free LEB for jhead %d", jhead);
++		dbg_jnl("GC couldn't make a free LEB for jhead %s",
++			dbg_jhead(jhead));
+ 		if (retries++ < 2) {
+ 			dbg_jnl("retry (%d)", retries);
+ 			goto again;
+@@ -184,7 +186,7 @@ again:
+ 	}
+ 
+ 	mutex_lock_nested(&wbuf->io_mutex, wbuf->jhead);
+-	dbg_jnl("got LEB %d for jhead %d", lnum, jhead);
++	dbg_jnl("got LEB %d for jhead %s", lnum, dbg_jhead(jhead));
+ 	avail = c->leb_size - wbuf->offs - wbuf->used;
+ 
+ 	if (wbuf->lnum != -1 && avail >= len) {
+@@ -255,7 +257,8 @@ static int write_node(struct ubifs_info *c, int jhead, void *node, int len,
+ 	*lnum = c->jheads[jhead].wbuf.lnum;
+ 	*offs = c->jheads[jhead].wbuf.offs + c->jheads[jhead].wbuf.used;
+ 
+-	dbg_jnl("jhead %d, LEB %d:%d, len %d", jhead, *lnum, *offs, len);
++	dbg_jnl("jhead %s, LEB %d:%d, len %d",
++		dbg_jhead(jhead), *lnum, *offs, len);
+ 	ubifs_prepare_node(c, node, len, 0);
+ 
+ 	return ubifs_wbuf_write_nolock(wbuf, node, len);
+@@ -285,7 +288,8 @@ static int write_head(struct ubifs_info *c, int jhead, void *buf, int len,
+ 
+ 	*lnum = c->jheads[jhead].wbuf.lnum;
+ 	*offs = c->jheads[jhead].wbuf.offs + c->jheads[jhead].wbuf.used;
+-	dbg_jnl("jhead %d, LEB %d:%d, len %d", jhead, *lnum, *offs, len);
++	dbg_jnl("jhead %s, LEB %d:%d, len %d",
++		dbg_jhead(jhead), *lnum, *offs, len);
+ 
+ 	err = ubifs_wbuf_write_nolock(wbuf, buf, len);
+ 	if (err)
+diff --git a/stblinux-2.6.31/fs/ubifs/key.h b/stblinux-2.6.31/fs/ubifs/key.h
+index 5fa27ea..92a8491 100644
+--- a/stblinux-2.6.31/fs/ubifs/key.h
++++ b/stblinux-2.6.31/fs/ubifs/key.h
+@@ -229,23 +229,6 @@ static inline void xent_key_init(const struct ubifs_info *c,
+ }
+ 
+ /**
+- * xent_key_init_hash - initialize extended attribute entry key without
+- *                      re-calculating hash function.
+- * @c: UBIFS file-system description object
+- * @key: key to initialize
+- * @inum: host inode number
+- * @hash: extended attribute entry name hash
+- */
+-static inline void xent_key_init_hash(const struct ubifs_info *c,
+-				      union ubifs_key *key, ino_t inum,
+-				      uint32_t hash)
+-{
+-	ubifs_assert(!(hash & ~UBIFS_S_KEY_HASH_MASK));
+-	key->u32[0] = inum;
+-	key->u32[1] = hash | (UBIFS_XENT_KEY << UBIFS_S_KEY_HASH_BITS);
+-}
+-
+-/**
+  * xent_key_init_flash - initialize on-flash extended attribute entry key.
+  * @c: UBIFS file-system description object
+  * @k: key to initialize
+@@ -295,22 +278,15 @@ static inline void data_key_init(const struct ubifs_info *c,
+ }
+ 
+ /**
+- * data_key_init_flash - initialize on-flash data key.
++ * highest_data_key - get the highest possible data key for an inode.
+  * @c: UBIFS file-system description object
+- * @k: key to initialize
++ * @key: key to initialize
+  * @inum: inode number
+- * @block: block number
+  */
+-static inline void data_key_init_flash(const struct ubifs_info *c, void *k,
+-				       ino_t inum, unsigned int block)
++static inline void highest_data_key(const struct ubifs_info *c,
++				   union ubifs_key *key, ino_t inum)
+ {
+-	union ubifs_key *key = k;
+-
+-	ubifs_assert(!(block & ~UBIFS_S_KEY_BLOCK_MASK));
+-	key->j32[0] = cpu_to_le32(inum);
+-	key->j32[1] = cpu_to_le32(block |
+-				  (UBIFS_DATA_KEY << UBIFS_S_KEY_BLOCK_BITS));
+-	memset(k + 8, 0, UBIFS_MAX_KEY_LEN - 8);
++	data_key_init(c, key, inum, UBIFS_S_KEY_BLOCK_MASK);
+ }
+ 
+ /**
+@@ -330,6 +306,20 @@ static inline void trun_key_init(const struct ubifs_info *c,
+ }
+ 
+ /**
++ * invalid_key_init - initialize invalid node key.
++ * @c: UBIFS file-system description object
++ * @key: key to initialize
++ *
++ * This is a helper function which marks a @key object as invalid.
++ */
++static inline void invalid_key_init(const struct ubifs_info *c,
++				    union ubifs_key *key)
++{
++	key->u32[0] = 0xDEADBEAF;
++	key->u32[1] = UBIFS_INVALID_KEY;
++}
++
++/**
+  * key_type - get key type.
+  * @c: UBIFS file-system description object
+  * @key: key to get type of
+@@ -554,4 +544,5 @@ static inline unsigned long long key_max_inode_size(const struct ubifs_info *c)
+ 		return 0;
+ 	}
+ }
++
+ #endif /* !__UBIFS_KEY_H__ */
+diff --git a/stblinux-2.6.31/fs/ubifs/log.c b/stblinux-2.6.31/fs/ubifs/log.c
+index 56e3377..4d0cb12 100644
+--- a/stblinux-2.6.31/fs/ubifs/log.c
++++ b/stblinux-2.6.31/fs/ubifs/log.c
+@@ -159,7 +159,7 @@ void ubifs_add_bud(struct ubifs_info *c, struct ubifs_bud *bud)
+ 		jhead = &c->jheads[bud->jhead];
+ 		list_add_tail(&bud->list, &jhead->buds_list);
+ 	} else
+-		ubifs_assert(c->replaying && (c->vfs_sb->s_flags & MS_RDONLY));
++		ubifs_assert(c->replaying && c->ro_mount);
+ 
+ 	/*
+ 	 * Note, although this is a new bud, we anyway account this space now,
+@@ -169,8 +169,8 @@ void ubifs_add_bud(struct ubifs_info *c, struct ubifs_bud *bud)
+ 	 */
+ 	c->bud_bytes += c->leb_size - bud->start;
+ 
+-	dbg_log("LEB %d:%d, jhead %d, bud_bytes %lld", bud->lnum,
+-		bud->start, bud->jhead, c->bud_bytes);
++	dbg_log("LEB %d:%d, jhead %s, bud_bytes %lld", bud->lnum,
++		bud->start, dbg_jhead(bud->jhead), c->bud_bytes);
+ 	spin_unlock(&c->buds_lock);
+ }
+ 
+@@ -223,8 +223,8 @@ int ubifs_add_bud_to_log(struct ubifs_info *c, int jhead, int lnum, int offs)
+ 	}
+ 
+ 	mutex_lock(&c->log_mutex);
+-
+-	if (c->ro_media) {
++	ubifs_assert(!c->ro_media && !c->ro_mount);
++	if (c->ro_error) {
+ 		err = -EROFS;
+ 		goto out_unlock;
+ 	}
+@@ -355,16 +355,16 @@ static void remove_buds(struct ubifs_info *c)
+ 			 * heads (non-closed buds).
+ 			 */
+ 			c->cmt_bud_bytes += wbuf->offs - bud->start;
+-			dbg_log("preserve %d:%d, jhead %d, bud bytes %d, "
++			dbg_log("preserve %d:%d, jhead %s, bud bytes %d, "
+ 				"cmt_bud_bytes %lld", bud->lnum, bud->start,
+-				bud->jhead, wbuf->offs - bud->start,
++				dbg_jhead(bud->jhead), wbuf->offs - bud->start,
+ 				c->cmt_bud_bytes);
+ 			bud->start = wbuf->offs;
+ 		} else {
+ 			c->cmt_bud_bytes += c->leb_size - bud->start;
+-			dbg_log("remove %d:%d, jhead %d, bud bytes %d, "
++			dbg_log("remove %d:%d, jhead %s, bud bytes %d, "
+ 				"cmt_bud_bytes %lld", bud->lnum, bud->start,
+-				bud->jhead, c->leb_size - bud->start,
++				dbg_jhead(bud->jhead), c->leb_size - bud->start,
+ 				c->cmt_bud_bytes);
+ 			rb_erase(p1, &c->buds);
+ 			/*
+@@ -429,7 +429,8 @@ int ubifs_log_start_commit(struct ubifs_info *c, int *ltail_lnum)
+ 		if (lnum == -1 || offs == c->leb_size)
+ 			continue;
+ 
+-		dbg_log("add ref to LEB %d:%d for jhead %d", lnum, offs, i);
++		dbg_log("add ref to LEB %d:%d for jhead %s",
++			lnum, offs, dbg_jhead(i));
+ 		ref = buf + len;
+ 		ref->ch.node_type = UBIFS_REF_NODE;
+ 		ref->lnum = cpu_to_le32(lnum);
+@@ -695,7 +696,7 @@ int ubifs_consolidate_log(struct ubifs_info *c)
+ 	lnum = c->ltail_lnum;
+ 	write_lnum = lnum;
+ 	while (1) {
+-		sleb = ubifs_scan(c, lnum, 0, c->sbuf);
++		sleb = ubifs_scan(c, lnum, 0, c->sbuf, 0);
+ 		if (IS_ERR(sleb)) {
+ 			err = PTR_ERR(sleb);
+ 			goto out_free;
+diff --git a/stblinux-2.6.31/fs/ubifs/lprops.c b/stblinux-2.6.31/fs/ubifs/lprops.c
+index 4cdd284..4d4ca38 100644
+--- a/stblinux-2.6.31/fs/ubifs/lprops.c
++++ b/stblinux-2.6.31/fs/ubifs/lprops.c
+@@ -281,7 +281,7 @@ void ubifs_add_to_cat(struct ubifs_info *c, struct ubifs_lprops *lprops,
+ 	case LPROPS_FREE:
+ 		if (add_to_lpt_heap(c, lprops, cat))
+ 			break;
+-		/* No more room on heap so make it uncategorized */
++		/* No more room on heap so make it un-categorized */
+ 		cat = LPROPS_UNCAT;
+ 		/* Fall through */
+ 	case LPROPS_UNCAT:
+@@ -375,8 +375,8 @@ void ubifs_replace_cat(struct ubifs_info *c, struct ubifs_lprops *old_lprops,
+  * @lprops: LEB properties
+  *
+  * A LEB may have fallen off of the bottom of a heap, and ended up as
+- * uncategorized even though it has enough space for us now. If that is the case
+- * this function will put the LEB back onto a heap.
++ * un-categorized even though it has enough space for us now. If that is the
++ * case this function will put the LEB back onto a heap.
+  */
+ void ubifs_ensure_cat(struct ubifs_info *c, struct ubifs_lprops *lprops)
+ {
+@@ -436,10 +436,10 @@ int ubifs_categorize_lprops(const struct ubifs_info *c,
+ /**
+  * change_category - change LEB properties category.
+  * @c: UBIFS file-system description object
+- * @lprops: LEB properties to recategorize
++ * @lprops: LEB properties to re-categorize
+  *
+  * LEB properties are categorized to enable fast find operations. When the LEB
+- * properties change they must be recategorized.
++ * properties change they must be re-categorized.
+  */
+ static void change_category(struct ubifs_info *c, struct ubifs_lprops *lprops)
+ {
+@@ -461,21 +461,18 @@ static void change_category(struct ubifs_info *c, struct ubifs_lprops *lprops)
+ }
+ 
+ /**
+- * calc_dark - calculate LEB dark space size.
++ * ubifs_calc_dark - calculate LEB dark space size.
+  * @c: the UBIFS file-system description object
+  * @spc: amount of free and dirty space in the LEB
+  *
+- * This function calculates amount of dark space in an LEB which has @spc bytes
+- * of free and dirty space. Returns the calculations result.
++ * This function calculates and returns amount of dark space in an LEB which
++ * has @spc bytes of free and dirty space.
+  *
+- * Dark space is the space which is not always usable - it depends on which
+- * nodes are written in which order. E.g., if an LEB has only 512 free bytes,
+- * it is dark space, because it cannot fit a large data node. So UBIFS cannot
+- * count on this LEB and treat these 512 bytes as usable because it is not true
+- * if, for example, only big chunks of uncompressible data will be written to
+- * the FS.
++ * UBIFS is trying to account the space which might not be usable, and this
++ * space is called "dark space". For example, if an LEB has only %512 free
++ * bytes, it is dark space, because it cannot fit a large data node.
+  */
+-static int calc_dark(struct ubifs_info *c, int spc)
++int ubifs_calc_dark(const struct ubifs_info *c, int spc)
+ {
+ 	ubifs_assert(!(spc & 7));
+ 
+@@ -518,7 +515,7 @@ static int is_lprops_dirty(struct ubifs_info *c, struct ubifs_lprops *lprops)
+  * @free: new free space amount
+  * @dirty: new dirty space amount
+  * @flags: new flags
+- * @idx_gc_cnt: change to the count of idx_gc list
++ * @idx_gc_cnt: change to the count of @idx_gc list
+  *
+  * This function changes LEB properties (@free, @dirty or @flag). However, the
+  * property which has the %LPROPS_NC value is not changed. Returns a pointer to
+@@ -535,7 +532,7 @@ const struct ubifs_lprops *ubifs_change_lp(struct ubifs_info *c,
+ {
+ 	/*
+ 	 * This is the only function that is allowed to change lprops, so we
+-	 * discard the const qualifier.
++	 * discard the "const" qualifier.
+ 	 */
+ 	struct ubifs_lprops *lprops = (struct ubifs_lprops *)lp;
+ 
+@@ -575,7 +572,7 @@ const struct ubifs_lprops *ubifs_change_lp(struct ubifs_info *c,
+ 		if (old_spc < c->dead_wm)
+ 			c->lst.total_dead -= old_spc;
+ 		else
+-			c->lst.total_dark -= calc_dark(c, old_spc);
++			c->lst.total_dark -= ubifs_calc_dark(c, old_spc);
+ 
+ 		c->lst.total_used -= c->leb_size - old_spc;
+ 	}
+@@ -616,7 +613,7 @@ const struct ubifs_lprops *ubifs_change_lp(struct ubifs_info *c,
+ 		if (new_spc < c->dead_wm)
+ 			c->lst.total_dead += new_spc;
+ 		else
+-			c->lst.total_dark += calc_dark(c, new_spc);
++			c->lst.total_dark += ubifs_calc_dark(c, new_spc);
+ 
+ 		c->lst.total_used += c->leb_size - new_spc;
+ 	}
+@@ -1096,7 +1093,7 @@ static int scan_check_cb(struct ubifs_info *c,
+ 		}
+ 	}
+ 
+-	sleb = ubifs_scan(c, lnum, 0, c->dbg->buf);
++	sleb = ubifs_scan(c, lnum, 0, c->dbg->buf, 0);
+ 	if (IS_ERR(sleb)) {
+ 		/*
+ 		 * After an unclean unmount, empty and freeable LEBs
+@@ -1107,7 +1104,7 @@ static int scan_check_cb(struct ubifs_info *c,
+ 				  "- continuing checking");
+ 			lst->empty_lebs += 1;
+ 			lst->total_free += c->leb_size;
+-			lst->total_dark += calc_dark(c, c->leb_size);
++			lst->total_dark += ubifs_calc_dark(c, c->leb_size);
+ 			return LPT_SCAN_CONTINUE;
+ 		}
+ 
+@@ -1117,7 +1114,7 @@ static int scan_check_cb(struct ubifs_info *c,
+ 				  "- continuing checking");
+ 			lst->total_free  += lp->free;
+ 			lst->total_dirty += lp->dirty;
+-			lst->total_dark  +=  calc_dark(c, c->leb_size);
++			lst->total_dark  +=  ubifs_calc_dark(c, c->leb_size);
+ 			return LPT_SCAN_CONTINUE;
+ 		}
+ 		data->err = PTR_ERR(sleb);
+@@ -1235,7 +1232,7 @@ static int scan_check_cb(struct ubifs_info *c,
+ 		if (spc < c->dead_wm)
+ 			lst->total_dead += spc;
+ 		else
+-			lst->total_dark += calc_dark(c, spc);
++			lst->total_dark += ubifs_calc_dark(c, spc);
+ 	}
+ 
+ 	ubifs_scan_destroy(sleb);
+diff --git a/stblinux-2.6.31/fs/ubifs/lpt.c b/stblinux-2.6.31/fs/ubifs/lpt.c
+index b2792e8..be0086f 100644
+--- a/stblinux-2.6.31/fs/ubifs/lpt.c
++++ b/stblinux-2.6.31/fs/ubifs/lpt.c
+@@ -1362,6 +1362,7 @@ static int read_lsave(struct ubifs_info *c)
+ 		goto out;
+ 	for (i = 0; i < c->lsave_cnt; i++) {
+ 		int lnum = c->lsave[i];
++		struct ubifs_lprops *lprops;
+ 
+ 		/*
+ 		 * Due to automatic resizing, the values in the lsave table
+@@ -1369,7 +1370,11 @@ static int read_lsave(struct ubifs_info *c)
+ 		 */
+ 		if (lnum >= c->leb_cnt)
+ 			continue;
+-		ubifs_lpt_lookup(c, lnum);
++		lprops = ubifs_lpt_lookup(c, lnum);
++		if (IS_ERR(lprops)) {
++			err = PTR_ERR(lprops);
++			goto out;
++		}
+ 	}
+ out:
+ 	vfree(buf);
+@@ -1456,13 +1461,13 @@ struct ubifs_lprops *ubifs_lpt_lookup(struct ubifs_info *c, int lnum)
+ 		shft -= UBIFS_LPT_FANOUT_SHIFT;
+ 		nnode = ubifs_get_nnode(c, nnode, iip);
+ 		if (IS_ERR(nnode))
+-			return ERR_PTR(PTR_ERR(nnode));
++			return ERR_CAST(nnode);
+ 	}
+ 	iip = ((i >> shft) & (UBIFS_LPT_FANOUT - 1));
+ 	shft -= UBIFS_LPT_FANOUT_SHIFT;
+ 	pnode = ubifs_get_pnode(c, nnode, iip);
+ 	if (IS_ERR(pnode))
+-		return ERR_PTR(PTR_ERR(pnode));
++		return ERR_CAST(pnode);
+ 	iip = (i & (UBIFS_LPT_FANOUT - 1));
+ 	dbg_lp("LEB %d, free %d, dirty %d, flags %d", lnum,
+ 	       pnode->lprops[iip].free, pnode->lprops[iip].dirty,
+@@ -1585,7 +1590,7 @@ struct ubifs_lprops *ubifs_lpt_lookup_dirty(struct ubifs_info *c, int lnum)
+ 	nnode = c->nroot;
+ 	nnode = dirty_cow_nnode(c, nnode);
+ 	if (IS_ERR(nnode))
+-		return ERR_PTR(PTR_ERR(nnode));
++		return ERR_CAST(nnode);
+ 	i = lnum - c->main_first;
+ 	shft = c->lpt_hght * UBIFS_LPT_FANOUT_SHIFT;
+ 	for (h = 1; h < c->lpt_hght; h++) {
+@@ -1593,19 +1598,19 @@ struct ubifs_lprops *ubifs_lpt_lookup_dirty(struct ubifs_info *c, int lnum)
+ 		shft -= UBIFS_LPT_FANOUT_SHIFT;
+ 		nnode = ubifs_get_nnode(c, nnode, iip);
+ 		if (IS_ERR(nnode))
+-			return ERR_PTR(PTR_ERR(nnode));
++			return ERR_CAST(nnode);
+ 		nnode = dirty_cow_nnode(c, nnode);
+ 		if (IS_ERR(nnode))
+-			return ERR_PTR(PTR_ERR(nnode));
++			return ERR_CAST(nnode);
+ 	}
+ 	iip = ((i >> shft) & (UBIFS_LPT_FANOUT - 1));
+ 	shft -= UBIFS_LPT_FANOUT_SHIFT;
+ 	pnode = ubifs_get_pnode(c, nnode, iip);
+ 	if (IS_ERR(pnode))
+-		return ERR_PTR(PTR_ERR(pnode));
++		return ERR_CAST(pnode);
+ 	pnode = dirty_cow_pnode(c, pnode);
+ 	if (IS_ERR(pnode))
+-		return ERR_PTR(PTR_ERR(pnode));
++		return ERR_CAST(pnode);
+ 	iip = (i & (UBIFS_LPT_FANOUT - 1));
+ 	dbg_lp("LEB %d, free %d, dirty %d, flags %d", lnum,
+ 	       pnode->lprops[iip].free, pnode->lprops[iip].dirty,
+diff --git a/stblinux-2.6.31/fs/ubifs/lpt_commit.c b/stblinux-2.6.31/fs/ubifs/lpt_commit.c
+index 8cbfb82..b1e8640 100644
+--- a/stblinux-2.6.31/fs/ubifs/lpt_commit.c
++++ b/stblinux-2.6.31/fs/ubifs/lpt_commit.c
+@@ -645,7 +645,7 @@ static struct ubifs_pnode *pnode_lookup(struct ubifs_info *c, int i)
+ 		shft -= UBIFS_LPT_FANOUT_SHIFT;
+ 		nnode = ubifs_get_nnode(c, nnode, iip);
+ 		if (IS_ERR(nnode))
+-			return ERR_PTR(PTR_ERR(nnode));
++			return ERR_CAST(nnode);
+ 	}
+ 	iip = ((i >> shft) & (UBIFS_LPT_FANOUT - 1));
+ 	return ubifs_get_pnode(c, nnode, iip);
+@@ -704,6 +704,9 @@ static int make_tree_dirty(struct ubifs_info *c)
+ 	struct ubifs_pnode *pnode;
+ 
+ 	pnode = pnode_lookup(c, 0);
++	if (IS_ERR(pnode))
++		return PTR_ERR(pnode);
++
+ 	while (pnode) {
+ 		do_make_pnode_dirty(c, pnode);
+ 		pnode = next_pnode_to_dirty(c, pnode);
+diff --git a/stblinux-2.6.31/fs/ubifs/master.c b/stblinux-2.6.31/fs/ubifs/master.c
+index a88f338..21f47af 100644
+--- a/stblinux-2.6.31/fs/ubifs/master.c
++++ b/stblinux-2.6.31/fs/ubifs/master.c
+@@ -29,7 +29,8 @@
+  * @c: UBIFS file-system description object
+  *
+  * This function scans the master node LEBs and search for the latest master
+- * node. Returns zero in case of success and a negative error code in case of
++ * node. Returns zero in case of success, %-EUCLEAN if there master area is
++ * corrupted and requires recovery, and a negative error code in case of
+  * failure.
+  */
+ static int scan_for_master(struct ubifs_info *c)
+@@ -40,7 +41,7 @@ static int scan_for_master(struct ubifs_info *c)
+ 
+ 	lnum = UBIFS_MST_LNUM;
+ 
+-	sleb = ubifs_scan(c, lnum, 0, c->sbuf);
++	sleb = ubifs_scan(c, lnum, 0, c->sbuf, 1);
+ 	if (IS_ERR(sleb))
+ 		return PTR_ERR(sleb);
+ 	nodes_cnt = sleb->nodes_cnt;
+@@ -48,7 +49,7 @@ static int scan_for_master(struct ubifs_info *c)
+ 		snod = list_entry(sleb->nodes.prev, struct ubifs_scan_node,
+ 				  list);
+ 		if (snod->type != UBIFS_MST_NODE)
+-			goto out;
++			goto out_dump;
+ 		memcpy(c->mst_node, snod->node, snod->len);
+ 		offs = snod->offs;
+ 	}
+@@ -56,7 +57,7 @@ static int scan_for_master(struct ubifs_info *c)
+ 
+ 	lnum += 1;
+ 
+-	sleb = ubifs_scan(c, lnum, 0, c->sbuf);
++	sleb = ubifs_scan(c, lnum, 0, c->sbuf, 1);
+ 	if (IS_ERR(sleb))
+ 		return PTR_ERR(sleb);
+ 	if (sleb->nodes_cnt != nodes_cnt)
+@@ -65,7 +66,7 @@ static int scan_for_master(struct ubifs_info *c)
+ 		goto out;
+ 	snod = list_entry(sleb->nodes.prev, struct ubifs_scan_node, list);
+ 	if (snod->type != UBIFS_MST_NODE)
+-		goto out;
++		goto out_dump;
+ 	if (snod->offs != offs)
+ 		goto out;
+ 	if (memcmp((void *)c->mst_node + UBIFS_CH_SZ,
+@@ -78,6 +79,12 @@ static int scan_for_master(struct ubifs_info *c)
+ 
+ out:
+ 	ubifs_scan_destroy(sleb);
++	return -EUCLEAN;
++
++out_dump:
++	ubifs_err("unexpected node type %d master LEB %d:%d",
++		  snod->type, lnum, snod->offs);
++	ubifs_scan_destroy(sleb);
+ 	return -EINVAL;
+ }
+ 
+@@ -256,7 +263,8 @@ int ubifs_read_master(struct ubifs_info *c)
+ 
+ 	err = scan_for_master(c);
+ 	if (err) {
+-		err = ubifs_recover_master_node(c);
++		if (err == -EUCLEAN)
++			err = ubifs_recover_master_node(c);
+ 		if (err)
+ 			/*
+ 			 * Note, we do not free 'c->mst_node' here because the
+@@ -353,7 +361,8 @@ int ubifs_write_master(struct ubifs_info *c)
+ {
+ 	int err, lnum, offs, len;
+ 
+-	if (c->ro_media)
++	ubifs_assert(!c->ro_media && !c->ro_mount);
++	if (c->ro_error)
+ 		return -EROFS;
+ 
+ 	lnum = UBIFS_MST_LNUM;
+diff --git a/stblinux-2.6.31/fs/ubifs/misc.h b/stblinux-2.6.31/fs/ubifs/misc.h
+index 4fa81d8..c3de04d 100644
+--- a/stblinux-2.6.31/fs/ubifs/misc.h
++++ b/stblinux-2.6.31/fs/ubifs/misc.h
+@@ -132,7 +132,8 @@ static inline int ubifs_leb_unmap(const struct ubifs_info *c, int lnum)
+ {
+ 	int err;
+ 
+-	if (c->ro_media)
++	ubifs_assert(!c->ro_media && !c->ro_mount);
++	if (c->ro_error)
+ 		return -EROFS;
+ 	err = ubi_leb_unmap(c->ubi, lnum);
+ 	if (err) {
+@@ -159,7 +160,8 @@ static inline int ubifs_leb_write(const struct ubifs_info *c, int lnum,
+ {
+ 	int err;
+ 
+-	if (c->ro_media)
++	ubifs_assert(!c->ro_media && !c->ro_mount);
++	if (c->ro_error)
+ 		return -EROFS;
+ 	err = ubi_leb_write(c->ubi, lnum, buf, offs, len, dtype);
+ 	if (err) {
+@@ -186,7 +188,8 @@ static inline int ubifs_leb_change(const struct ubifs_info *c, int lnum,
+ {
+ 	int err;
+ 
+-	if (c->ro_media)
++	ubifs_assert(!c->ro_media && !c->ro_mount);
++	if (c->ro_error)
+ 		return -EROFS;
+ 	err = ubi_leb_change(c->ubi, lnum, buf, len, dtype);
+ 	if (err) {
+diff --git a/stblinux-2.6.31/fs/ubifs/orphan.c b/stblinux-2.6.31/fs/ubifs/orphan.c
+index 152a7b3..82009c7 100644
+--- a/stblinux-2.6.31/fs/ubifs/orphan.c
++++ b/stblinux-2.6.31/fs/ubifs/orphan.c
+@@ -670,9 +670,10 @@ static int kill_orphans(struct ubifs_info *c)
+ 		struct ubifs_scan_leb *sleb;
+ 
+ 		dbg_rcvry("LEB %d", lnum);
+-		sleb = ubifs_scan(c, lnum, 0, c->sbuf);
++		sleb = ubifs_scan(c, lnum, 0, c->sbuf, 1);
+ 		if (IS_ERR(sleb)) {
+-			sleb = ubifs_recover_leb(c, lnum, 0, c->sbuf, 0);
++			if (PTR_ERR(sleb) == -EUCLEAN)
++				sleb = ubifs_recover_leb(c, lnum, 0, c->sbuf, 0);
+ 			if (IS_ERR(sleb)) {
+ 				err = PTR_ERR(sleb);
+ 				break;
+@@ -899,7 +900,7 @@ static int dbg_scan_orphans(struct ubifs_info *c, struct check_info *ci)
+ 	for (lnum = c->orph_first; lnum <= c->orph_last; lnum++) {
+ 		struct ubifs_scan_leb *sleb;
+ 
+-		sleb = ubifs_scan(c, lnum, 0, c->dbg->buf);
++		sleb = ubifs_scan(c, lnum, 0, c->dbg->buf, 0);
+ 		if (IS_ERR(sleb)) {
+ 			err = PTR_ERR(sleb);
+ 			break;
+diff --git a/stblinux-2.6.31/fs/ubifs/recovery.c b/stblinux-2.6.31/fs/ubifs/recovery.c
+index e5f6cf8..0316f55 100644
+--- a/stblinux-2.6.31/fs/ubifs/recovery.c
++++ b/stblinux-2.6.31/fs/ubifs/recovery.c
+@@ -24,7 +24,7 @@
+  * This file implements functions needed to recover from unclean un-mounts.
+  * When UBIFS is mounted, it checks a flag on the master node to determine if
+  * an un-mount was completed sucessfully. If not, the process of mounting
+- * incorparates additional checking and fixing of on-flash data structures.
++ * incorporates additional checking and fixing of on-flash data structures.
+  * UBIFS always cleans away all remnants of an unclean un-mount, so that
+  * errors do not accumulate. However UBIFS defers recovery if it is mounted
+  * read-only, and the flash is not modified in that case.
+@@ -286,12 +286,12 @@ int ubifs_recover_master_node(struct ubifs_info *c)
+ 		mst = mst2;
+ 	}
+ 
+-	dbg_rcvry("recovered master node from LEB %d",
++	ubifs_msg("recovered master node from LEB %d",
+ 		  (mst == mst1 ? UBIFS_MST_LNUM : UBIFS_MST_LNUM + 1));
+ 
+ 	memcpy(c->mst_node, mst, UBIFS_MST_NODE_SZ);
+ 
+-	if ((c->vfs_sb->s_flags & MS_RDONLY)) {
++	if (c->ro_mount) {
+ 		/* Read-only mode. Keep a copy for switching to rw mode */
+ 		c->rcvrd_mst_node = kmalloc(sz, GFP_KERNEL);
+ 		if (!c->rcvrd_mst_node) {
+@@ -468,7 +468,7 @@ static int fix_unclean_leb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 		endpt = snod->offs + snod->len;
+ 	}
+ 
+-	if ((c->vfs_sb->s_flags & MS_RDONLY) && !c->remounting_rw) {
++	if (c->ro_mount && !c->remounting_rw) {
+ 		/* Add to recovery list */
+ 		struct ubifs_unclean_leb *ucleb;
+ 
+@@ -771,7 +771,8 @@ out_free:
+  * @sbuf: LEB-sized buffer to use
+  *
+  * This function does a scan of a LEB, but caters for errors that might have
+- * been caused by the unclean unmount from which we are attempting to recover.
++ * been caused by unclean reboots from which we are attempting to recover
++ * (assume that only the last log LEB can be corrupted by an unclean reboot).
+  *
+  * This function returns %0 on success and a negative error code on failure.
+  */
+@@ -790,7 +791,7 @@ struct ubifs_scan_leb *ubifs_recover_log_leb(struct ubifs_info *c, int lnum,
+ 		 * We can only recover at the end of the log, so check that the
+ 		 * next log LEB is empty or out of date.
+ 		 */
+-		sleb = ubifs_scan(c, next_lnum, 0, sbuf);
++		sleb = ubifs_scan(c, next_lnum, 0, sbuf, 0);
+ 		if (IS_ERR(sleb))
+ 			return sleb;
+ 		if (sleb->nodes_cnt) {
+@@ -882,7 +883,7 @@ int ubifs_recover_inl_heads(const struct ubifs_info *c, void *sbuf)
+ {
+ 	int err;
+ 
+-	ubifs_assert(!(c->vfs_sb->s_flags & MS_RDONLY) || c->remounting_rw);
++	ubifs_assert(!c->ro_mount || c->remounting_rw);
+ 
+ 	dbg_rcvry("checking index head at %d:%d", c->ihead_lnum, c->ihead_offs);
+ 	err = recover_head(c, c->ihead_lnum, c->ihead_offs, sbuf);
+@@ -1062,8 +1063,21 @@ int ubifs_rcvry_gc_commit(struct ubifs_info *c)
+ 	}
+ 	err = ubifs_find_dirty_leb(c, &lp, wbuf->offs, 2);
+ 	if (err) {
+-		if (err == -ENOSPC)
+-			dbg_err("could not find a dirty LEB");
++		/*
++		 * There are no dirty or empty LEBs subject to here being
++		 * enough for the index. Try to use
++		 * 'ubifs_find_free_leb_for_idx()', which will return any empty
++		 * LEBs (ignoring index requirements). If the index then
++		 * doesn't have enough LEBs the recovery commit will fail -
++		 * which is the  same result anyway i.e. recovery fails. So
++		 * there is no problem ignoring index  requirements and just
++		 * grabbing a free LEB since we have already established there
++		 * is not a dirty LEB we could have used instead.
++		 */
++		if (err == -ENOSPC) {
++			dbg_rcvry("could not find a dirty LEB");
++			goto find_free;
++		}
+ 		return err;
+ 	}
+ 	ubifs_assert(!(lp.flags & LPROPS_INDEX));
+@@ -1138,8 +1152,8 @@ int ubifs_rcvry_gc_commit(struct ubifs_info *c)
+ find_free:
+ 	/*
+ 	 * There is no GC head LEB or the free space in the GC head LEB is too
+-	 * small. Allocate gc_lnum by calling 'ubifs_find_free_leb_for_idx()' so
+-	 * GC is not run.
++	 * small, or there are not dirty LEBs. Allocate gc_lnum by calling
++	 * 'ubifs_find_free_leb_for_idx()' so GC is not run.
+ 	 */
+ 	lnum = ubifs_find_free_leb_for_idx(c);
+ 	if (lnum < 0) {
+@@ -1447,7 +1461,7 @@ int ubifs_recover_size(struct ubifs_info *c)
+ 			}
+ 		}
+ 		if (e->exists && e->i_size < e->d_size) {
+-			if (!e->inode && (c->vfs_sb->s_flags & MS_RDONLY)) {
++			if (!e->inode && c->ro_mount) {
+ 				/* Fix the inode size and pin it in memory */
+ 				struct inode *inode;
+ 
+diff --git a/stblinux-2.6.31/fs/ubifs/replay.c b/stblinux-2.6.31/fs/ubifs/replay.c
+index 2970500..eed0fcf 100644
+--- a/stblinux-2.6.31/fs/ubifs/replay.c
++++ b/stblinux-2.6.31/fs/ubifs/replay.c
+@@ -506,7 +506,7 @@ static int replay_bud(struct ubifs_info *c, int lnum, int offs, int jhead,
+ 	if (c->need_recovery)
+ 		sleb = ubifs_recover_leb(c, lnum, offs, c->sbuf, jhead != GCHD);
+ 	else
+-		sleb = ubifs_scan(c, lnum, offs, c->sbuf);
++		sleb = ubifs_scan(c, lnum, offs, c->sbuf, 0);
+ 	if (IS_ERR(sleb))
+ 		return PTR_ERR(sleb);
+ 
+@@ -627,8 +627,7 @@ static int replay_bud(struct ubifs_info *c, int lnum, int offs, int jhead,
+ 	ubifs_assert(sleb->endpt - offs >= used);
+ 	ubifs_assert(sleb->endpt % c->min_io_size == 0);
+ 
+-	if (sleb->endpt + c->min_io_size <= c->leb_size &&
+-	    !(c->vfs_sb->s_flags & MS_RDONLY))
++	if (sleb->endpt + c->min_io_size <= c->leb_size && !c->ro_mount)
+ 		err = ubifs_wbuf_seek_nolock(&c->jheads[jhead].wbuf, lnum,
+ 					     sleb->endpt, UBI_SHORTTERM);
+ 
+@@ -836,10 +835,15 @@ static int replay_log_leb(struct ubifs_info *c, int lnum, int offs, void *sbuf)
+ 	const struct ubifs_cs_node *node;
+ 
+ 	dbg_mnt("replay log LEB %d:%d", lnum, offs);
+-	sleb = ubifs_scan(c, lnum, offs, sbuf);
+-	if (IS_ERR(sleb) ) {
++	sleb = ubifs_scan(c, lnum, offs, sbuf, c->need_recovery);
++	if (IS_ERR(sleb)) {
+ 		if (PTR_ERR(sleb) != -EUCLEAN || !c->need_recovery)
+ 			return PTR_ERR(sleb);
++		/*
++		 * Note, the below function will recover this log LEB only if
++		 * it is the last, because unclean reboots can possibly corrupt
++		 * only the tail of the log.
++		 */
+ 		sleb = ubifs_recover_log_leb(c, lnum, offs, sbuf);
+ 		if (IS_ERR(sleb))
+ 			return PTR_ERR(sleb);
+@@ -851,7 +855,6 @@ static int replay_log_leb(struct ubifs_info *c, int lnum, int offs, void *sbuf)
+ 	}
+ 
+ 	node = sleb->buf;
+-
+ 	snod = list_entry(sleb->nodes.next, struct ubifs_scan_node, list);
+ 	if (c->cs_sqnum == 0) {
+ 		/*
+@@ -898,7 +901,6 @@ static int replay_log_leb(struct ubifs_info *c, int lnum, int offs, void *sbuf)
+ 	}
+ 
+ 	list_for_each_entry(snod, &sleb->nodes, list) {
+-
+ 		cond_resched();
+ 
+ 		if (snod->sqnum >= SQNUM_WATERMARK) {
+@@ -1011,7 +1013,6 @@ out:
+ int ubifs_replay_journal(struct ubifs_info *c)
+ {
+ 	int err, i, lnum, offs, free;
+-	void *sbuf = NULL;
+ 
+ 	BUILD_BUG_ON(UBIFS_TRUN_KEY > 5);
+ 
+@@ -1026,14 +1027,8 @@ int ubifs_replay_journal(struct ubifs_info *c)
+ 		return -EINVAL;
+ 	}
+ 
+-	sbuf = vmalloc(c->leb_size);
+-	if (!sbuf)
+-		return -ENOMEM;
+-
+ 	dbg_mnt("start replaying the journal");
+-
+ 	c->replaying = 1;
+-
+ 	lnum = c->ltail_lnum = c->lhead_lnum;
+ 	offs = c->lhead_offs;
+ 
+@@ -1046,7 +1041,7 @@ int ubifs_replay_journal(struct ubifs_info *c)
+ 			lnum = UBIFS_LOG_LNUM;
+ 			offs = 0;
+ 		}
+-		err = replay_log_leb(c, lnum, offs, sbuf);
++		err = replay_log_leb(c, lnum, offs, c->sbuf);
+ 		if (err == 1)
+ 			/* We hit the end of the log */
+ 			break;
+@@ -1079,7 +1074,6 @@ int ubifs_replay_journal(struct ubifs_info *c)
+ out:
+ 	destroy_replay_tree(c);
+ 	destroy_bud_list(c);
+-	vfree(sbuf);
+ 	c->replaying = 0;
+ 	return err;
+ }
+diff --git a/stblinux-2.6.31/fs/ubifs/sb.c b/stblinux-2.6.31/fs/ubifs/sb.c
+index 57085e4..92f4ca1 100644
+--- a/stblinux-2.6.31/fs/ubifs/sb.c
++++ b/stblinux-2.6.31/fs/ubifs/sb.c
+@@ -541,11 +541,8 @@ int ubifs_read_superblock(struct ubifs_info *c)
+ 	 * due to the unavailability of time-travelling equipment.
+ 	 */
+ 	if (c->fmt_version > UBIFS_FORMAT_VERSION) {
+-		struct super_block *sb = c->vfs_sb;
+-		int mounting_ro = sb->s_flags & MS_RDONLY;
+-
+-		ubifs_assert(!c->ro_media || mounting_ro);
+-		if (!mounting_ro ||
++		ubifs_assert(!c->ro_media || c->ro_mount);
++		if (!c->ro_mount ||
+ 		    c->ro_compat_version > UBIFS_RO_COMPAT_VERSION) {
+ 			ubifs_err("on-flash format version is w%d/r%d, but "
+ 				  "software only supports up to version "
+@@ -623,7 +620,7 @@ int ubifs_read_superblock(struct ubifs_info *c)
+ 	c->old_leb_cnt = c->leb_cnt;
+ 	if (c->leb_cnt < c->vi.size && c->leb_cnt < c->max_leb_cnt) {
+ 		c->leb_cnt = min_t(int, c->max_leb_cnt, c->vi.size);
+-		if (c->vfs_sb->s_flags & MS_RDONLY)
++		if (c->ro_mount)
+ 			dbg_mnt("Auto resizing (ro) from %d LEBs to %d LEBs",
+ 				c->old_leb_cnt,	c->leb_cnt);
+ 		else {
+diff --git a/stblinux-2.6.31/fs/ubifs/scan.c b/stblinux-2.6.31/fs/ubifs/scan.c
+index 892ebfe..3e1ee57 100644
+--- a/stblinux-2.6.31/fs/ubifs/scan.c
++++ b/stblinux-2.6.31/fs/ubifs/scan.c
+@@ -108,10 +108,9 @@ int ubifs_scan_a_node(const struct ubifs_info *c, void *buf, int len, int lnum,
+ 
+ 		/* Make the node pads to 8-byte boundary */
+ 		if ((node_len + pad_len) & 7) {
+-			if (!quiet) {
++			if (!quiet)
+ 				dbg_err("bad padding length %d - %d",
+ 					offs, offs + node_len + pad_len);
+-			}
+ 			return SCANNED_A_BAD_PAD_NODE;
+ 		}
+ 
+@@ -198,7 +197,7 @@ int ubifs_add_snod(const struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 	struct ubifs_ino_node *ino = buf;
+ 	struct ubifs_scan_node *snod;
+ 
+-	snod = kzalloc(sizeof(struct ubifs_scan_node), GFP_NOFS);
++	snod = kmalloc(sizeof(struct ubifs_scan_node), GFP_NOFS);
+ 	if (!snod)
+ 		return -ENOMEM;
+ 
+@@ -213,13 +212,15 @@ int ubifs_add_snod(const struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 	case UBIFS_DENT_NODE:
+ 	case UBIFS_XENT_NODE:
+ 	case UBIFS_DATA_NODE:
+-	case UBIFS_TRUN_NODE:
+ 		/*
+ 		 * The key is in the same place in all keyed
+ 		 * nodes.
+ 		 */
+ 		key_read(c, &ino->key, &snod->key);
+ 		break;
++	default:
++		invalid_key_init(c, &snod->key);
++		break;
+ 	}
+ 	list_add_tail(&snod->list, &sleb->nodes);
+ 	sleb->nodes_cnt += 1;
+@@ -253,15 +254,19 @@ void ubifs_scanned_corruption(const struct ubifs_info *c, int lnum, int offs,
+  * @c: UBIFS file-system description object
+  * @lnum: logical eraseblock number
+  * @offs: offset to start at (usually zero)
+- * @sbuf: scan buffer (must be c->leb_size)
++ * @sbuf: scan buffer (must be of @c->leb_size bytes in size)
++ * @quiet: print no messages
+  *
+  * This function scans LEB number @lnum and returns complete information about
+  * its contents. Returns the scaned information in case of success and,
+  * %-EUCLEAN if the LEB neads recovery, and other negative error codes in case
+  * of failure.
++ *
++ * If @quiet is non-zero, this function does not print large and scary
++ * error messages and flash dumps in case of errors.
+  */
+ struct ubifs_scan_leb *ubifs_scan(const struct ubifs_info *c, int lnum,
+-				  int offs, void *sbuf)
++				  int offs, void *sbuf, int quiet)
+ {
+ 	void *buf = sbuf + offs;
+ 	int err, len = c->leb_size - offs;
+@@ -280,7 +285,7 @@ struct ubifs_scan_leb *ubifs_scan(const struct ubifs_info *c, int lnum,
+ 
+ 		cond_resched();
+ 
+-		ret = ubifs_scan_a_node(c, buf, len, lnum, offs, 0);
++		ret = ubifs_scan_a_node(c, buf, len, lnum, offs, quiet);
+ 		if (ret > 0) {
+ 			/* Padding bytes or a valid padding node */
+ 			offs += ret;
+@@ -320,7 +325,9 @@ struct ubifs_scan_leb *ubifs_scan(const struct ubifs_info *c, int lnum,
+ 	}
+ 
+ 	if (offs % c->min_io_size) {
+-		ubifs_err("empty space starts at non-aligned offset %d", offs);
++		if (!quiet)
++			ubifs_err("empty space starts at non-aligned offset %d",
++				  offs);
+ 		goto corrupted;;
+ 	}
+ 
+@@ -331,18 +338,25 @@ struct ubifs_scan_leb *ubifs_scan(const struct ubifs_info *c, int lnum,
+ 			break;
+ 	for (; len; offs++, buf++, len--)
+ 		if (*(uint8_t *)buf != 0xff) {
+-			ubifs_err("corrupt empty space at LEB %d:%d",
+-				  lnum, offs);
++			if (!quiet)
++				ubifs_err("corrupt empty space at LEB %d:%d",
++					  lnum, offs);
+ 			goto corrupted;
+ 		}
+ 
+ 	return sleb;
+ 
+ corrupted:
+-	ubifs_scanned_corruption(c, lnum, offs, buf);
++	if (!quiet) {
++		ubifs_scanned_corruption(c, lnum, offs, buf);
++		ubifs_err("LEB %d scanning failed", lnum);
++	}
+ 	err = -EUCLEAN;
++	ubifs_scan_destroy(sleb);
++	return ERR_PTR(err);
++
+ error:
+-	ubifs_err("LEB %d scanning failed", lnum);
++	ubifs_err("LEB %d scanning failed, error %d", lnum, err);
+ 	ubifs_scan_destroy(sleb);
+ 	return ERR_PTR(err);
+ }
+diff --git a/stblinux-2.6.31/fs/ubifs/shrinker.c b/stblinux-2.6.31/fs/ubifs/shrinker.c
+index 02feb59..bc576eb 100644
+--- a/stblinux-2.6.31/fs/ubifs/shrinker.c
++++ b/stblinux-2.6.31/fs/ubifs/shrinker.c
+@@ -250,7 +250,7 @@ static int kick_a_thread(void)
+ 			dirty_zn_cnt = atomic_long_read(&c->dirty_zn_cnt);
+ 
+ 			if (!dirty_zn_cnt || c->cmt_state == COMMIT_BROKEN ||
+-			    c->ro_media) {
++			    c->ro_mount || c->ro_error) {
+ 				mutex_unlock(&c->umount_mutex);
+ 				continue;
+ 			}
+diff --git a/stblinux-2.6.31/fs/ubifs/super.c b/stblinux-2.6.31/fs/ubifs/super.c
+index 26d2e0d..4c13fac 100644
+--- a/stblinux-2.6.31/fs/ubifs/super.c
++++ b/stblinux-2.6.31/fs/ubifs/super.c
+@@ -36,7 +36,6 @@
+ #include <linux/mount.h>
+ #include <linux/math64.h>
+ #include <linux/writeback.h>
+-#include <linux/smp_lock.h>
+ #include "ubifs.h"
+ 
+ /*
+@@ -318,6 +317,8 @@ static int ubifs_write_inode(struct inode *inode, int wait)
+ 		if (err)
+ 			ubifs_err("can't write inode %lu, error %d",
+ 				  inode->i_ino, err);
++		else
++			err = dbg_check_inode_size(c, inode, ui->ui_size);
+ 	}
+ 
+ 	ui->dirty = 0;
+@@ -438,12 +439,6 @@ static int ubifs_sync_fs(struct super_block *sb, int wait)
+ {
+ 	int i, err;
+ 	struct ubifs_info *c = sb->s_fs_info;
+-	struct writeback_control wbc = {
+-		.sync_mode   = WB_SYNC_ALL,
+-		.range_start = 0,
+-		.range_end   = LLONG_MAX,
+-		.nr_to_write = LONG_MAX,
+-	};
+ 
+ 	/*
+ 	 * Zero @wait is just an advisory thing to help the file system shove
+@@ -454,17 +449,6 @@ static int ubifs_sync_fs(struct super_block *sb, int wait)
+ 		return 0;
+ 
+ 	/*
+-	 * VFS calls '->sync_fs()' before synchronizing all dirty inodes and
+-	 * pages, so synchronize them first, then commit the journal. Strictly
+-	 * speaking, it is not necessary to commit the journal here,
+-	 * synchronizing write-buffers would be enough. But committing makes
+-	 * UBIFS free space predictions much more accurate, so we want to let
+-	 * the user be able to get more accurate results of 'statfs()' after
+-	 * they synchronize the file system.
+-	 */
+-	generic_sync_sb_inodes(sb, &wbc);
+-
+-	/*
+ 	 * Synchronize write buffers, because 'ubifs_run_commit()' does not
+ 	 * do this if it waits for an already running commit.
+ 	 */
+@@ -474,6 +458,13 @@ static int ubifs_sync_fs(struct super_block *sb, int wait)
+ 			return err;
+ 	}
+ 
++	/*
++	 * Strictly speaking, it is not necessary to commit the journal here,
++	 * synchronizing write-buffers would be enough. But committing makes
++	 * UBIFS free space predictions much more accurate, so we want to let
++	 * the user be able to get more accurate results of 'statfs()' after
++	 * they synchronize the file system.
++	 */
+ 	err = ubifs_run_commit(c);
+ 	if (err)
+ 		return err;
+@@ -1142,11 +1133,11 @@ static int check_free_space(struct ubifs_info *c)
+  */
+ static int mount_ubifs(struct ubifs_info *c)
+ {
+-	struct super_block *sb = c->vfs_sb;
+-	int err, mounted_read_only = (sb->s_flags & MS_RDONLY);
++	int err;
+ 	long long x;
+ 	size_t sz;
+ 
++	c->ro_mount = !!(c->vfs_sb->s_flags & MS_RDONLY);
+ 	err = init_constants_early(c);
+ 	if (err)
+ 		return err;
+@@ -1159,7 +1150,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 	if (err)
+ 		goto out_free;
+ 
+-	if (c->empty && (mounted_read_only || c->ro_media)) {
++	if (c->empty && (c->ro_mount || c->ro_media)) {
+ 		/*
+ 		 * This UBI volume is empty, and read-only, or the file system
+ 		 * is mounted read-only - we cannot format it.
+@@ -1170,7 +1161,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 		goto out_free;
+ 	}
+ 
+-	if (c->ro_media && !mounted_read_only) {
++	if (c->ro_media && !c->ro_mount) {
+ 		ubifs_err("cannot mount read-write - read-only media");
+ 		err = -EROFS;
+ 		goto out_free;
+@@ -1190,7 +1181,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 	if (!c->sbuf)
+ 		goto out_free;
+ 
+-	if (!mounted_read_only) {
++	if (!c->ro_mount) {
+ 		c->ileb_buf = vmalloc(c->leb_size);
+ 		if (!c->ileb_buf)
+ 			goto out_free;
+@@ -1233,7 +1224,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 	}
+ 
+ 	sprintf(c->bgt_name, BGT_NAME_PATTERN, c->vi.ubi_num, c->vi.vol_id);
+-	if (!mounted_read_only) {
++	if (!c->ro_mount) {
+ 		err = alloc_wbufs(c);
+ 		if (err)
+ 			goto out_cbuf;
+@@ -1259,12 +1250,12 @@ static int mount_ubifs(struct ubifs_info *c)
+ 	if ((c->mst_node->flags & cpu_to_le32(UBIFS_MST_DIRTY)) != 0) {
+ 		ubifs_msg("recovery needed");
+ 		c->need_recovery = 1;
+-		if (!mounted_read_only) {
++		if (!c->ro_mount) {
+ 			err = ubifs_recover_inl_heads(c, c->sbuf);
+ 			if (err)
+ 				goto out_master;
+ 		}
+-	} else if (!mounted_read_only) {
++	} else if (!c->ro_mount) {
+ 		/*
+ 		 * Set the "dirty" flag so that if we reboot uncleanly we
+ 		 * will notice this immediately on the next mount.
+@@ -1275,7 +1266,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 			goto out_master;
+ 	}
+ 
+-	err = ubifs_lpt_init(c, 1, !mounted_read_only);
++	err = ubifs_lpt_init(c, 1, !c->ro_mount);
+ 	if (err)
+ 		goto out_lpt;
+ 
+@@ -1290,11 +1281,11 @@ static int mount_ubifs(struct ubifs_info *c)
+ 	/* Calculate 'min_idx_lebs' after journal replay */
+ 	c->min_idx_lebs = ubifs_calc_min_idx_lebs(c);
+ 
+-	err = ubifs_mount_orphans(c, c->need_recovery, mounted_read_only);
++	err = ubifs_mount_orphans(c, c->need_recovery, c->ro_mount);
+ 	if (err)
+ 		goto out_orphans;
+ 
+-	if (!mounted_read_only) {
++	if (!c->ro_mount) {
+ 		int lnum;
+ 
+ 		err = check_free_space(c);
+@@ -1316,6 +1307,8 @@ static int mount_ubifs(struct ubifs_info *c)
+ 			if (err)
+ 				goto out_orphans;
+ 			err = ubifs_rcvry_gc_commit(c);
++			if (err)
++				goto out_orphans;
+ 		} else {
+ 			err = take_gc_lnum(c);
+ 			if (err)
+@@ -1327,7 +1320,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 			 */
+ 			err = ubifs_leb_unmap(c, c->gc_lnum);
+ 			if (err)
+-				return err;
++				goto out_orphans;
+ 		}
+ 
+ 		err = dbg_check_lprops(c);
+@@ -1354,7 +1347,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 	spin_unlock(&ubifs_infos_lock);
+ 
+ 	if (c->need_recovery) {
+-		if (mounted_read_only)
++		if (c->ro_mount)
+ 			ubifs_msg("recovery deferred");
+ 		else {
+ 			c->need_recovery = 0;
+@@ -1381,7 +1374,7 @@ static int mount_ubifs(struct ubifs_info *c)
+ 
+ 	ubifs_msg("mounted UBI device %d, volume %d, name \"%s\"",
+ 		  c->vi.ubi_num, c->vi.vol_id, c->vi.name);
+-	if (mounted_read_only)
++	if (c->ro_mount)
+ 		ubifs_msg("mounted read-only");
+ 	x = (long long)c->main_lebs * c->leb_size;
+ 	ubifs_msg("file system size:   %lld bytes (%lld KiB, %lld MiB, %d "
+@@ -1648,7 +1641,7 @@ static int ubifs_remount_rw(struct ubifs_info *c)
+ 	}
+ 
+ 	dbg_gen("re-mounted read-write");
+-	c->vfs_sb->s_flags &= ~MS_RDONLY;
++	c->ro_mount = 0;
+ 	c->remounting_rw = 0;
+ 	c->always_chk_crc = 0;
+ 	err = dbg_check_space_info(c);
+@@ -1684,7 +1677,7 @@ static void ubifs_remount_ro(struct ubifs_info *c)
+ 	int i, err;
+ 
+ 	ubifs_assert(!c->need_recovery);
+-	ubifs_assert(!(c->vfs_sb->s_flags & MS_RDONLY));
++	ubifs_assert(!c->ro_mount);
+ 
+ 	mutex_lock(&c->umount_mutex);
+ 	if (c->bgt) {
+@@ -1694,10 +1687,8 @@ static void ubifs_remount_ro(struct ubifs_info *c)
+ 
+ 	dbg_save_space_info(c);
+ 
+-	for (i = 0; i < c->jhead_cnt; i++) {
++	for (i = 0; i < c->jhead_cnt; i++)
+ 		ubifs_wbuf_sync(&c->jheads[i].wbuf);
+-		hrtimer_cancel(&c->jheads[i].wbuf.timer);
+-	}
+ 
+ 	c->mst_node->flags &= ~cpu_to_le32(UBIFS_MST_DIRTY);
+ 	c->mst_node->flags |= cpu_to_le32(UBIFS_MST_NO_ORPHS);
+@@ -1712,6 +1703,7 @@ static void ubifs_remount_ro(struct ubifs_info *c)
+ 	vfree(c->ileb_buf);
+ 	c->ileb_buf = NULL;
+ 	ubifs_lpt_free(c, 1);
++	c->ro_mount = 1;
+ 	err = dbg_check_space_info(c);
+ 	if (err)
+ 		ubifs_ro_mode(c, err);
+@@ -1726,8 +1718,6 @@ static void ubifs_put_super(struct super_block *sb)
+ 	ubifs_msg("un-mount UBI device %d, volume %d", c->vi.ubi_num,
+ 		  c->vi.vol_id);
+ 
+-	lock_kernel();
+-
+ 	/*
+ 	 * The following asserts are only valid if there has not been a failure
+ 	 * of the media. For example, there will be dirty inodes if we failed
+@@ -1745,7 +1735,7 @@ static void ubifs_put_super(struct super_block *sb)
+ 	 * the mutex is locked.
+ 	 */
+ 	mutex_lock(&c->umount_mutex);
+-	if (!(c->vfs_sb->s_flags & MS_RDONLY)) {
++	if (!c->ro_mount) {
+ 		/*
+ 		 * First of all kill the background thread to make sure it does
+ 		 * not interfere with un-mounting and freeing resources.
+@@ -1755,23 +1745,22 @@ static void ubifs_put_super(struct super_block *sb)
+ 			c->bgt = NULL;
+ 		}
+ 
+-		/* Synchronize write-buffers */
+-		if (c->jheads)
+-			for (i = 0; i < c->jhead_cnt; i++)
+-				ubifs_wbuf_sync(&c->jheads[i].wbuf);
+-
+ 		/*
+-		 * On fatal errors c->ro_media is set to 1, in which case we do
++		 * On fatal errors c->ro_error is set to 1, in which case we do
+ 		 * not write the master node.
+ 		 */
+-		if (!c->ro_media) {
++		if (!c->ro_error) {
++			int err;
++
++			/* Synchronize write-buffers */
++			for (i = 0; i < c->jhead_cnt; i++)
++				ubifs_wbuf_sync(&c->jheads[i].wbuf);
++
+ 			/*
+ 			 * We are being cleanly unmounted which means the
+ 			 * orphans were killed - indicate this in the master
+ 			 * node. Also save the reserved GC LEB number.
+ 			 */
+-			int err;
+-
+ 			c->mst_node->flags &= ~cpu_to_le32(UBIFS_MST_DIRTY);
+ 			c->mst_node->flags |= cpu_to_le32(UBIFS_MST_NO_ORPHS);
+ 			c->mst_node->gc_lnum = cpu_to_le32(c->gc_lnum);
+@@ -1784,6 +1773,10 @@ static void ubifs_put_super(struct super_block *sb)
+ 				 */
+ 				ubifs_err("failed to write master node, "
+ 					  "error %d", err);
++		} else {
++			for (i = 0; i < c->jhead_cnt; i++)
++				/* Make sure write-buffer timers are canceled */
++				hrtimer_cancel(&c->jheads[i].wbuf.timer);
+ 		}
+ 	}
+ 
+@@ -1792,8 +1785,6 @@ static void ubifs_put_super(struct super_block *sb)
+ 	ubi_close_volume(c->ubi);
+ 	mutex_unlock(&c->umount_mutex);
+ 	kfree(c);
+-
+-	unlock_kernel();
+ }
+ 
+ static int ubifs_remount_fs(struct super_block *sb, int *flags, char *data)
+@@ -1809,22 +1800,21 @@ static int ubifs_remount_fs(struct super_block *sb, int *flags, char *data)
+ 		return err;
+ 	}
+ 
+-	lock_kernel();
+-	if ((sb->s_flags & MS_RDONLY) && !(*flags & MS_RDONLY)) {
++	if (c->ro_mount && !(*flags & MS_RDONLY)) {
++		if (c->ro_error) {
++			ubifs_msg("cannot re-mount R/W due to prior errors");
++			return -EROFS;
++		}
+ 		if (c->ro_media) {
+-			ubifs_msg("cannot re-mount due to prior errors");
+-			unlock_kernel();
++			ubifs_msg("cannot re-mount R/W - UBI volume is R/O");
+ 			return -EROFS;
+ 		}
+ 		err = ubifs_remount_rw(c);
+-		if (err) {
+-			unlock_kernel();
++		if (err)
+ 			return err;
+-		}
+-	} else if (!(sb->s_flags & MS_RDONLY) && (*flags & MS_RDONLY)) {
+-		if (c->ro_media) {
+-			ubifs_msg("cannot re-mount due to prior errors");
+-			unlock_kernel();
++	} else if (!c->ro_mount && (*flags & MS_RDONLY)) {
++		if (c->ro_error) {
++			ubifs_msg("cannot re-mount R/O due to prior errors");
+ 			return -EROFS;
+ 		}
+ 		ubifs_remount_ro(c);
+@@ -1839,7 +1829,6 @@ static int ubifs_remount_fs(struct super_block *sb, int *flags, char *data)
+ 	}
+ 
+ 	ubifs_assert(c->lst.taken_empty_lebs > 0);
+-	unlock_kernel();
+ 	return 0;
+ }
+ 
+@@ -1861,22 +1850,32 @@ const struct super_operations ubifs_super_operations = {
+  * @name: UBI volume name
+  * @mode: UBI volume open mode
+  *
+- * There are several ways to specify UBI volumes when mounting UBIFS:
+- * o ubiX_Y    - UBI device number X, volume Y;
+- * o ubiY      - UBI device number 0, volume Y;
++ * The primary method of mounting UBIFS is by specifying the UBI volume
++ * character device node path. However, UBIFS may also be mounted withoug any
++ * character device node using one of the following methods:
++ *
++ * o ubiX_Y    - mount UBI device number X, volume Y;
++ * o ubiY      - mount UBI device number 0, volume Y;
+  * o ubiX:NAME - mount UBI device X, volume with name NAME;
+  * o ubi:NAME  - mount UBI device 0, volume with name NAME.
+  *
+  * Alternative '!' separator may be used instead of ':' (because some shells
+  * like busybox may interpret ':' as an NFS host name separator). This function
+- * returns ubi volume object in case of success and a negative error code in
+- * case of failure.
++ * returns UBI volume description object in case of success and a negative
++ * error code in case of failure.
+  */
+ static struct ubi_volume_desc *open_ubi(const char *name, int mode)
+ {
++	struct ubi_volume_desc *ubi;
+ 	int dev, vol;
+ 	char *endptr;
+ 
++	/* First, try to open using the device node path method */
++	ubi = ubi_open_volume_path(name, mode);
++	if (!IS_ERR(ubi))
++		return ubi;
++
++	/* Try the "nodev" method */
+ 	if (name[0] != 'u' || name[1] != 'b' || name[2] != 'i')
+ 		return ERR_PTR(-EINVAL);
+ 
+@@ -2055,8 +2054,8 @@ static int ubifs_get_sb(struct file_system_type *fs_type, int flags,
+ 	 */
+ 	ubi = open_ubi(name, UBI_READONLY);
+ 	if (IS_ERR(ubi)) {
+-		ubifs_err("cannot open \"%s\", error %d",
+-			  name, (int)PTR_ERR(ubi));
++		dbg_err("cannot open \"%s\", error %d",
++			name, (int)PTR_ERR(ubi));
+ 		return PTR_ERR(ubi);
+ 	}
+ 	ubi_get_volume_info(ubi, &vi);
+@@ -2070,9 +2069,11 @@ static int ubifs_get_sb(struct file_system_type *fs_type, int flags,
+ 	}
+ 
+ 	if (sb->s_root) {
++		struct ubifs_info *c1 = sb->s_fs_info;
++
+ 		/* A new mount point for already mounted UBIFS */
+ 		dbg_gen("this ubi volume is already mounted");
+-		if ((flags ^ sb->s_flags) & MS_RDONLY) {
++		if (!!(flags & MS_RDONLY) != c1->ro_mount) {
+ 			err = -EBUSY;
+ 			goto out_deact;
+ 		}
+diff --git a/stblinux-2.6.31/fs/ubifs/tnc.c b/stblinux-2.6.31/fs/ubifs/tnc.c
+index f249f7b..a744512 100644
+--- a/stblinux-2.6.31/fs/ubifs/tnc.c
++++ b/stblinux-2.6.31/fs/ubifs/tnc.c
+@@ -1159,8 +1159,8 @@ static struct ubifs_znode *dirty_cow_bottom_up(struct ubifs_info *c,
+  *   o exact match, i.e. the found zero-level znode contains key @key, then %1
+  *     is returned and slot number of the matched branch is stored in @n;
+  *   o not exact match, which means that zero-level znode does not contain
+- *     @key, then %0 is returned and slot number of the closed branch is stored
+- *     in  @n;
++ *     @key, then %0 is returned and slot number of the closest branch is stored
++ *     in @n;
+  *   o @key is so small that it is even less than the lowest key of the
+  *     leftmost zero-level node, then %0 is returned and %0 is stored in @n.
+  *
+@@ -1176,6 +1176,7 @@ int ubifs_lookup_level0(struct ubifs_info *c, const union ubifs_key *key,
+ 	unsigned long time = get_seconds();
+ 
+ 	dbg_tnc("search key %s", DBGKEY(key));
++	ubifs_assert(key_type(c, key) < UBIFS_INVALID_KEY);
+ 
+ 	znode = c->zroot.znode;
+ 	if (unlikely(!znode)) {
+@@ -1433,7 +1434,7 @@ static int maybe_leb_gced(struct ubifs_info *c, int lnum, int gc_seq1)
+  * @lnum: LEB number is returned here
+  * @offs: offset is returned here
+  *
+- * This function look up and reads node with key @key. The caller has to make
++ * This function looks up and reads node with key @key. The caller has to make
+  * sure the @node buffer is large enough to fit the node. Returns zero in case
+  * of success, %-ENOENT if the node was not found, and a negative error code in
+  * case of failure. The node location can be returned in @lnum and @offs.
+@@ -2965,7 +2966,7 @@ static struct ubifs_znode *right_znode(struct ubifs_info *c,
+  *
+  * This function searches an indexing node by its first key @key and its
+  * address @lnum:@offs. It looks up the indexing tree by pulling all indexing
+- * nodes it traverses to TNC. This function is called fro indexing nodes which
++ * nodes it traverses to TNC. This function is called for indexing nodes which
+  * were found on the media by scanning, for example when garbage-collecting or
+  * when doing in-the-gaps commit. This means that the indexing node which is
+  * looked for does not have to have exactly the same leftmost key @key, because
+@@ -2987,6 +2988,8 @@ static struct ubifs_znode *lookup_znode(struct ubifs_info *c,
+ 	struct ubifs_znode *znode, *zn;
+ 	int n, nn;
+ 
++	ubifs_assert(key_type(c, key) < UBIFS_INVALID_KEY);
++
+ 	/*
+ 	 * The arguments have probably been read off flash, so don't assume
+ 	 * they are valid.
+@@ -3268,3 +3271,73 @@ out_unlock:
+ 	mutex_unlock(&c->tnc_mutex);
+ 	return err;
+ }
++
++#ifdef CONFIG_UBIFS_FS_DEBUG
++
++/**
++ * dbg_check_inode_size - check if inode size is correct.
++ * @c: UBIFS file-system description object
++ * @inum: inode number
++ * @size: inode size
++ *
++ * This function makes sure that the inode size (@size) is correct and it does
++ * not have any pages beyond @size. Returns zero if the inode is OK, %-EINVAL
++ * if it has a data page beyond @size, and other negative error code in case of
++ * other errors.
++ */
++int dbg_check_inode_size(struct ubifs_info *c, const struct inode *inode,
++			 loff_t size)
++{
++	int err, n;
++	union ubifs_key from_key, to_key, *key;
++	struct ubifs_znode *znode;
++	unsigned int block;
++
++	if (!S_ISREG(inode->i_mode))
++		return 0;
++	if (!(ubifs_chk_flags & UBIFS_CHK_GEN))
++		return 0;
++
++	block = (size + UBIFS_BLOCK_SIZE - 1) >> UBIFS_BLOCK_SHIFT;
++	data_key_init(c, &from_key, inode->i_ino, block);
++	highest_data_key(c, &to_key, inode->i_ino);
++
++	mutex_lock(&c->tnc_mutex);
++	err = ubifs_lookup_level0(c, &from_key, &znode, &n);
++	if (err < 0)
++		goto out_unlock;
++
++	if (err) {
++		err = -EINVAL;
++		key = &from_key;
++		goto out_dump;
++	}
++
++	err = tnc_next(c, &znode, &n);
++	if (err == -ENOENT) {
++		err = 0;
++		goto out_unlock;
++	}
++	if (err < 0)
++		goto out_unlock;
++
++	ubifs_assert(err == 0);
++	key = &znode->zbranch[n].key;
++	if (!key_in_range(c, key, &from_key, &to_key))
++		goto out_unlock;
++
++out_dump:
++	block = key_block(c, key);
++	ubifs_err("inode %lu has size %lld, but there are data at offset %lld "
++		  "(data key %s)", (unsigned long)inode->i_ino, size,
++		  ((loff_t)block) << UBIFS_BLOCK_SHIFT, DBGKEY(key));
++	dbg_dump_inode(c, inode);
++	dbg_dump_stack();
++	err = -EINVAL;
++
++out_unlock:
++	mutex_unlock(&c->tnc_mutex);
++	return err;
++}
++
++#endif /* CONFIG_UBIFS_FS_DEBUG */
+diff --git a/stblinux-2.6.31/fs/ubifs/tnc_commit.c b/stblinux-2.6.31/fs/ubifs/tnc_commit.c
+index fde8d12..53288e5 100644
+--- a/stblinux-2.6.31/fs/ubifs/tnc_commit.c
++++ b/stblinux-2.6.31/fs/ubifs/tnc_commit.c
+@@ -245,7 +245,7 @@ static int layout_leb_in_gaps(struct ubifs_info *c, int *p)
+ 	 * it is more comprehensive and less efficient than is needed for this
+ 	 * purpose.
+ 	 */
+-	sleb = ubifs_scan(c, lnum, 0, c->ileb_buf);
++	sleb = ubifs_scan(c, lnum, 0, c->ileb_buf, 0);
+ 	c->ileb_len = 0;
+ 	if (IS_ERR(sleb))
+ 		return PTR_ERR(sleb);
+diff --git a/stblinux-2.6.31/fs/ubifs/ubifs-media.h b/stblinux-2.6.31/fs/ubifs/ubifs-media.h
+index 3eee07e..191ca78 100644
+--- a/stblinux-2.6.31/fs/ubifs/ubifs-media.h
++++ b/stblinux-2.6.31/fs/ubifs/ubifs-media.h
+@@ -135,6 +135,13 @@
+ /* The key is always at the same position in all keyed nodes */
+ #define UBIFS_KEY_OFFSET offsetof(struct ubifs_ino_node, key)
+ 
++/* Garbage collector journal head number */
++#define UBIFS_GC_HEAD   0
++/* Base journal head number */
++#define UBIFS_BASE_HEAD 1
++/* Data journal head number */
++#define UBIFS_DATA_HEAD 2
++
+ /*
+  * LEB Properties Tree node types.
+  *
+diff --git a/stblinux-2.6.31/fs/ubifs/ubifs.h b/stblinux-2.6.31/fs/ubifs/ubifs.h
+index a293490..8c87c55 100644
+--- a/stblinux-2.6.31/fs/ubifs/ubifs.h
++++ b/stblinux-2.6.31/fs/ubifs/ubifs.h
+@@ -105,12 +105,10 @@
+ /* Number of non-data journal heads */
+ #define NONDATA_JHEADS_CNT 2
+ 
+-/* Garbage collector head */
+-#define GCHD   0
+-/* Base journal head number */
+-#define BASEHD 1
+-/* First "general purpose" journal head */
+-#define DATAHD 2
++/* Shorter names for journal head numbers for internal usage */
++#define GCHD   UBIFS_GC_HEAD
++#define BASEHD UBIFS_BASE_HEAD
++#define DATAHD UBIFS_DATA_HEAD
+ 
+ /* 'No change' value for 'ubifs_change_lp()' */
+ #define LPROPS_NC 0x80000001
+@@ -120,8 +118,12 @@
+  * in TNC. However, when replaying, it is handy to introduce fake "truncation"
+  * keys for truncation nodes because the code becomes simpler. So we define
+  * %UBIFS_TRUN_KEY type.
++ *
++ * But otherwise, out of the journal reply scope, the truncation keys are
++ * invalid.
+  */
+-#define UBIFS_TRUN_KEY UBIFS_KEY_TYPES_CNT
++#define UBIFS_TRUN_KEY    UBIFS_KEY_TYPES_CNT
++#define UBIFS_INVALID_KEY UBIFS_KEY_TYPES_CNT
+ 
+ /*
+  * How much a directory entry/extended attribute entry adds to the parent/host
+@@ -1029,6 +1031,8 @@ struct ubifs_debug_info;
+  * @max_leb_cnt: maximum count of logical eraseblocks
+  * @old_leb_cnt: count of logical eraseblocks before re-size
+  * @ro_media: the underlying UBI volume is read-only
++ * @ro_mount: the file-system was mounted as read-only
++ * @ro_error: UBIFS switched to R/O mode because an error happened
+  *
+  * @dirty_pg_cnt: number of dirty pages (not used)
+  * @dirty_zn_cnt: number of dirty znodes
+@@ -1169,11 +1173,14 @@ struct ubifs_debug_info;
+  * @replay_sqnum: sequence number of node currently being replayed
+  * @need_recovery: file-system needs recovery
+  * @replaying: set to %1 during journal replay
+- * @unclean_leb_list: LEBs to recover when mounting ro to rw
+- * @rcvrd_mst_node: recovered master node to write when mounting ro to rw
++ * @unclean_leb_list: LEBs to recover when re-mounting R/O mounted FS to R/W
++ *                    mode
++ * @rcvrd_mst_node: recovered master node to write when re-mounting R/O mounted
++ *                  FS to R/W mode
+  * @size_tree: inode size information for recovery
+- * @remounting_rw: set while remounting from ro to rw (sb flags have MS_RDONLY)
+- * @always_chk_crc: always check CRCs (while mounting and remounting rw)
++ * @remounting_rw: set while re-mounting from R/O mode to R/W mode
++ * @always_chk_crc: always check CRCs (while mounting and remounting to R/W
++ *                  mode)
+  * @mount_opts: UBIFS-specific mount options
+  *
+  * @dbg: debugging-related information
+@@ -1269,7 +1276,9 @@ struct ubifs_info {
+ 	int leb_cnt;
+ 	int max_leb_cnt;
+ 	int old_leb_cnt;
+-	int ro_media;
++	unsigned int ro_media:1;
++	unsigned int ro_mount:1;
++	unsigned int ro_error:1;
+ 
+ 	atomic_long_t dirty_pg_cnt;
+ 	atomic_long_t dirty_zn_cnt;
+@@ -1451,7 +1460,7 @@ int ubifs_sync_wbufs_by_inode(struct ubifs_info *c, struct inode *inode);
+ 
+ /* scan.c */
+ struct ubifs_scan_leb *ubifs_scan(const struct ubifs_info *c, int lnum,
+-				  int offs, void *sbuf);
++				  int offs, void *sbuf, int quiet);
+ void ubifs_scan_destroy(struct ubifs_scan_leb *sleb);
+ int ubifs_scan_a_node(const struct ubifs_info *c, void *buf, int len, int lnum,
+ 		      int offs, int quiet);
+@@ -1676,6 +1685,7 @@ const struct ubifs_lprops *ubifs_fast_find_free(struct ubifs_info *c);
+ const struct ubifs_lprops *ubifs_fast_find_empty(struct ubifs_info *c);
+ const struct ubifs_lprops *ubifs_fast_find_freeable(struct ubifs_info *c);
+ const struct ubifs_lprops *ubifs_fast_find_frdi_idx(struct ubifs_info *c);
++int ubifs_calc_dark(const struct ubifs_info *c, int spc);
+ 
+ /* file.c */
+ int ubifs_fsync(struct file *file, struct dentry *dentry, int datasync);
+diff --git a/stblinux-2.6.31/fs/ubifs/xattr.c b/stblinux-2.6.31/fs/ubifs/xattr.c
+index adafcf5..7998cc3 100644
+--- a/stblinux-2.6.31/fs/ubifs/xattr.c
++++ b/stblinux-2.6.31/fs/ubifs/xattr.c
+@@ -78,9 +78,9 @@ enum {
+ 	SECURITY_XATTR,
+ };
+ 
+-static struct inode_operations none_inode_operations;
++static const struct inode_operations none_inode_operations;
+ static struct address_space_operations none_address_operations;
+-static struct file_operations none_file_operations;
++static const struct file_operations none_file_operations;
+ 
+ /**
+  * create_xattr - create an extended attribute.
+diff --git a/stblinux-2.6.31/include/linux/mtd/ubi.h b/stblinux-2.6.31/include/linux/mtd/ubi.h
+index 6913b71..b31bd9e 100644
+--- a/stblinux-2.6.31/include/linux/mtd/ubi.h
++++ b/stblinux-2.6.31/include/linux/mtd/ubi.h
+@@ -174,6 +174,8 @@ void ubi_get_volume_info(struct ubi_volume_desc *desc,
+ struct ubi_volume_desc *ubi_open_volume(int ubi_num, int vol_id, int mode);
+ struct ubi_volume_desc *ubi_open_volume_nm(int ubi_num, const char *name,
+ 					   int mode);
++struct ubi_volume_desc *ubi_open_volume_path(const char *pathname, int mode);
++
+ int ubi_register_volume_notifier(struct notifier_block *nb,
+ 				 int ignore_existing);
+ int ubi_unregister_volume_notifier(struct notifier_block *nb);

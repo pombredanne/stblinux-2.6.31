@@ -7,6 +7,7 @@
  *		2 of the License, or (at your option) any later version.
  *
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+ *		Match mark added by Catalin(ux aka Dino) BOIE <catab at umbrella.ro> [5 nov 2004]
  *
  */
 
@@ -19,26 +20,34 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <linux/if.h>
+#include <linux/if_ether.h>
 
 #include "utils.h"
 #include "tc_util.h"
 
+extern int show_pretty;
+
 static void explain(void)
 {
-	fprintf(stderr, "Usage: ... u32 [ match SELECTOR ... ] [ link HTID ] [ classid CLASSID ]\n");
-	fprintf(stderr, "               [ police POLICE_SPEC ] [ offset OFFSET_SPEC ]\n");
+	fprintf(stderr, "Usage: ... u32 [ match SELECTOR ... ] [ link HTID ]"
+		" [ classid CLASSID ]\n");
+	fprintf(stderr, "               [ police POLICE_SPEC ]"
+		" [ offset OFFSET_SPEC ]\n");
 	fprintf(stderr, "               [ ht HTID ] [ hashkey HASHKEY_SPEC ]\n");
 	fprintf(stderr, "               [ sample SAMPLE ]\n");
 	fprintf(stderr, "or         u32 divisor DIVISOR\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Where: SELECTOR := SAMPLE SAMPLE ...\n");
-	fprintf(stderr, "       SAMPLE := { ip | ip6 | udp | tcp | icmp | u{32|16|8} } SAMPLE_ARGS\n");
+	fprintf(stderr, "       SAMPLE := { ip | ip6 | udp | tcp | icmp |"
+		" u{32|16|8} | mark } SAMPLE_ARGS [divisor DIVISOR]\n");
 	fprintf(stderr, "       FILTERID := X:Y:Z\n");
+	fprintf(stderr, "\nNOTE: CLASSID is parsed at hexadecimal input.\n");
 }
 
 #define usage() return(-1)
 
-int get_u32_handle(__u32 *handle, char *str)
+int get_u32_handle(__u32 *handle, const char *str)
 {
 	__u32 htid=0, hash=0, nodeid=0;
 	char *tmp = strchr(str, ':');
@@ -107,7 +116,8 @@ char * sprint_u32_handle(__u32 handle, char *buf)
 	return buf;
 }
 
-static int pack_key(struct tc_u32_sel *sel, __u32 key, __u32 mask, int off, int offmask)
+static int pack_key(struct tc_u32_sel *sel, __u32 key, __u32 mask,
+		    int off, int offmask)
 {
 	int i;
 	int hwm = sel->nkeys;
@@ -138,14 +148,16 @@ static int pack_key(struct tc_u32_sel *sel, __u32 key, __u32 mask, int off, int 
 	return 0;
 }
 
-static int pack_key32(struct tc_u32_sel *sel, __u32 key, __u32 mask, int off, int offmask)
+static int pack_key32(struct tc_u32_sel *sel, __u32 key, __u32 mask,
+		      int off, int offmask)
 {
 	key = htonl(key);
 	mask = htonl(mask);
 	return pack_key(sel, key, mask, off, offmask);
 }
 
-static int pack_key16(struct tc_u32_sel *sel, __u32 key, __u32 mask, int off, int offmask)
+static int pack_key16(struct tc_u32_sel *sel, __u32 key, __u32 mask,
+		      int off, int offmask)
 {
 	if (key > 0xFFFF || mask > 0xFFFF)
 		return -1;
@@ -213,7 +225,8 @@ int parse_at(int *argc_p, char ***argv_p, int *off, int *offmask)
 }
 
 
-static int parse_u32(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int off, int offmask)
+static int parse_u32(int *argc_p, char ***argv_p, struct tc_u32_sel *sel,
+		     int off, int offmask)
 {
 	int res = -1;
 	int argc = *argc_p;
@@ -244,7 +257,8 @@ static int parse_u32(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int of
 	return res;
 }
 
-static int parse_u16(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int off, int offmask)
+static int parse_u16(int *argc_p, char ***argv_p, struct tc_u32_sel *sel,
+		     int off, int offmask)
 {
 	int res = -1;
 	int argc = *argc_p;
@@ -274,7 +288,8 @@ static int parse_u16(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int of
 	return res;
 }
 
-static int parse_u8(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int off, int offmask)
+static int parse_u8(int *argc_p, char ***argv_p, struct tc_u32_sel *sel,
+		    int off, int offmask)
 {
 	int res = -1;
 	int argc = *argc_p;
@@ -308,7 +323,8 @@ static int parse_u8(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int off
 	return res;
 }
 
-static int parse_ip_addr(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int off)
+static int parse_ip_addr(int *argc_p, char ***argv_p, struct tc_u32_sel *sel,
+			 int off)
 {
 	int res = -1;
 	int argc = *argc_p;
@@ -342,7 +358,8 @@ static int parse_ip_addr(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, in
 	return res;
 }
 
-static int parse_ip6_addr(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, int off)
+static int parse_ip6_addr(int *argc_p, char ***argv_p,
+			  struct tc_u32_sel *sel, int off)
 {
 	int res = -1;
 	int argc = *argc_p;
@@ -367,16 +384,63 @@ static int parse_ip6_addr(int *argc_p, char ***argv_p, struct tc_u32_sel *sel, i
 
 	plen = addr.bitlen;
 	for (i=0; i<plen; i+=32) {
-		if (((i+31)&~0x1F)<=plen) {
-			if ((res = pack_key(sel, addr.data[i/32], 0xFFFFFFFF, off+4*(i/32), offmask)) < 0)
+//		if (((i+31)&~0x1F)<=plen) {
+		if (i + 31 <= plen) {
+			res = pack_key(sel, addr.data[i/32],
+				       0xFFFFFFFF, off+4*(i/32), offmask);
+			if (res < 0)
 				return -1;
-		} else if (i<plen) {
-			__u32 mask = htonl(0xFFFFFFFF<<(32-(plen-i)));
-			if ((res = pack_key(sel, addr.data[i/32], mask, off+4*(i/32), offmask)) < 0)
+		} else if (i < plen) {
+			__u32 mask = htonl(0xFFFFFFFF << (32 - (plen -i )));
+			res = pack_key(sel, addr.data[i/32],
+				       mask, off+4*(i/32), offmask);
+			if (res < 0)
 				return -1;
 		}
 	}
 	res = 0;
+
+	*argc_p = argc;
+	*argv_p = argv;
+	return res;
+}
+
+static int parse_ether_addr(int *argc_p, char ***argv_p,
+			    struct tc_u32_sel *sel, int off)
+{
+	int res = -1;
+	int argc = *argc_p;
+	char **argv = *argv_p;
+	__u8 addr[6];
+	int offmask = 0;
+	__u32 key;
+	int i;
+
+	if (argc < 1)
+		return -1;
+
+	if (sscanf(*argv, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+		   addr + 0, addr + 1, addr + 2,
+		   addr + 3, addr + 4, addr + 5) != 6) {
+		fprintf(stderr, "parse_ether_addr: improperly formed address '%s'\n",
+			*argv);
+		return -1;
+	}
+
+	argc--; argv++;
+	if (argc > 0 && strcmp(argv[0], "at") == 0) {
+		NEXT_ARG();
+		if (parse_at(&argc, &argv, &off, &offmask))
+			return -1;
+	}
+
+	for (i = 0; i < 6; i += 2) {
+		key = *(__u16 *) (addr + i);
+		
+		res = pack_key16(sel, key, 0xFFFF, off + i, offmask);
+		if (res < 0)
+			return -1;
+	}
 
 	*argc_p = argc;
 	*argv_p = argv;
@@ -395,82 +459,54 @@ static int parse_ip(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 	if (strcmp(*argv, "src") == 0) {
 		NEXT_ARG();
 		res = parse_ip_addr(&argc, &argv, sel, 12);
-		goto done;
-	}
-	if (strcmp(*argv, "dst") == 0) {
+	} else if (strcmp(*argv, "dst") == 0) {
 		NEXT_ARG();
 		res = parse_ip_addr(&argc, &argv, sel, 16);
-		goto done;
-	}
-	if (strcmp(*argv, "tos") == 0 ||
+	} else if (strcmp(*argv, "tos") == 0 ||
 	    matches(*argv, "dsfield") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 1, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "ihl") == 0) {
+	} else if (strcmp(*argv, "ihl") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 0, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "protocol") == 0) {
+	} else if (strcmp(*argv, "protocol") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 9, 0);
-		goto done;
-	}
-	if (matches(*argv, "precedence") == 0) {
+	} else if (matches(*argv, "precedence") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 1, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "nofrag") == 0) {
+	} else if (strcmp(*argv, "nofrag") == 0) {
 		argc--; argv++;
 		res = pack_key16(sel, 0, 0x3FFF, 6, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "firstfrag") == 0) {
+	} else if (strcmp(*argv, "firstfrag") == 0) {
 		argc--; argv++;
 		res = pack_key16(sel, 0, 0x1FFF, 6, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "df") == 0) {
+	} else if (strcmp(*argv, "df") == 0) {
 		argc--; argv++;
 		res = pack_key16(sel, 0x4000, 0x4000, 6, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "mf") == 0) {
+	} else if (strcmp(*argv, "mf") == 0) {
 		argc--; argv++;
 		res = pack_key16(sel, 0x2000, 0x2000, 6, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "dport") == 0) {
+	} else if (strcmp(*argv, "dport") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 22, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "sport") == 0) {
+	} else if (strcmp(*argv, "sport") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 20, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "icmp_type") == 0) {
+	} else if (strcmp(*argv, "icmp_type") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 20, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "icmp_code") == 0) {
+	} else if (strcmp(*argv, "icmp_code") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 20, 1);
-		goto done;
-	}
-	return -1;
+	} else
+		return -1;
 
-done:
 	*argc_p = argc;
 	*argv_p = argv;
 	return res;
 }
-
+				
 static int parse_ip6(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 {
 	int res = -1;
@@ -483,51 +519,58 @@ static int parse_ip6(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 	if (strcmp(*argv, "src") == 0) {
 		NEXT_ARG();
 		res = parse_ip6_addr(&argc, &argv, sel, 8);
-		goto done;
-	}
-	if (strcmp(*argv, "dst") == 0) {
+	} else if (strcmp(*argv, "dst") == 0) {
 		NEXT_ARG();
 		res = parse_ip6_addr(&argc, &argv, sel, 24);
-		goto done;
-	}
-	if (strcmp(*argv, "priority") == 0) {
+	} else if (strcmp(*argv, "priority") == 0) {
 		NEXT_ARG();
-		res = parse_u8(&argc, &argv, sel, 0, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "protocol") == 0) {
+		res = parse_u8(&argc, &argv, sel, 4, 0);
+	} else if (strcmp(*argv, "protocol") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 6, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "flowlabel") == 0) {
+	} else if (strcmp(*argv, "flowlabel") == 0) {
 		NEXT_ARG();
 		res = parse_u32(&argc, &argv, sel, 0, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "dport") == 0) {
+	} else if (strcmp(*argv, "dport") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 42, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "sport") == 0) {
+	} else if (strcmp(*argv, "sport") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 40, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "icmp_type") == 0) {
+	} else if (strcmp(*argv, "icmp_type") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 40, 0);
-		goto done;
-	}
-	if (strcmp(*argv, "icmp_code") == 0) {
+	} else if (strcmp(*argv, "icmp_code") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 41, 1);
-		goto done;
-	}
-	return -1;
+	} else
+		return -1;
 
-done:
+	*argc_p = argc;
+	*argv_p = argv;
+	return res;
+}
+
+static int parse_ether(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
+{
+	int res = -1;
+	int argc = *argc_p;
+	char **argv = *argv_p;
+
+	if (argc < 2)
+		return -1;
+
+	if (strcmp(*argv, "src") == 0) {
+		NEXT_ARG();
+		res = parse_ether_addr(&argc, &argv, sel, -8);
+	} else if (strcmp(*argv, "dst") == 0) {
+		NEXT_ARG();
+		res = parse_ether_addr(&argc, &argv, sel, -14);
+	} else {
+		fprintf(stderr, "Unknown match: ether %s\n", *argv);
+		return -1;
+	}
+
 	*argc_p = argc;
 	*argv_p = argv;
 	return res;
@@ -546,20 +589,17 @@ static int parse_udp(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 	if (strcmp(*argv, "src") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 0, -1);
-		goto done;
-	}
-	if (strcmp(*argv, "dst") == 0) {
+	} else if (strcmp(*argv, "dst") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 2, -1);
-		goto done;
-	}
-	return -1;
+	} else
+		return -1;
 
-done:
 	*argc_p = argc;
 	*argv_p = argv;
 	return res;
 }
+
 
 static int parse_icmp(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 {
@@ -573,24 +613,54 @@ static int parse_icmp(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 	if (strcmp(*argv, "type") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 0, -1);
-		goto done;
-	}
-	if (strcmp(*argv, "code") == 0) {
+	} else if (strcmp(*argv, "code") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 1, -1);
-		goto done;
-	}
-	return -1;
+	} else
+		return -1;
 
-done:
 	*argc_p = argc;
 	*argv_p = argv;
 	return res;
 }
 
+static int parse_mark(int *argc_p, char ***argv_p, struct nlmsghdr *n)
+{
+	int res = -1;
+	int argc = *argc_p;
+	char **argv = *argv_p;
+	struct tc_u32_mark mark;
 
+	if (argc <= 1)
+		return -1;
 
-static int parse_selector(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
+	if (get_u32(&mark.val, *argv, 0)) {
+		fprintf(stderr, "Illegal \"mark\" value\n");
+		return -1;
+	}
+	NEXT_ARG();
+
+	if (get_u32(&mark.mask, *argv, 0)) {
+		fprintf(stderr, "Illegal \"mark\" mask\n");
+		return -1;
+	}
+	NEXT_ARG();
+
+	if ((mark.val & mark.mask) != mark.val) {
+		fprintf(stderr, "Illegal \"mark\" (impossible combination)\n");
+		return -1;
+	}
+
+	addattr_l(n, MAX_MSG, TCA_U32_MARK, &mark, sizeof(mark));
+	res = 0;
+
+	*argc_p = argc;
+	*argv_p = argv;
+	return res;
+}
+
+static int parse_selector(int *argc_p, char ***argv_p,
+			  struct tc_u32_sel *sel, struct nlmsghdr *n)
 {
 	int argc = *argc_p;
 	char **argv = *argv_p;
@@ -602,46 +672,36 @@ static int parse_selector(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 	if (matches(*argv, "u32") == 0) {
 		NEXT_ARG();
 		res = parse_u32(&argc, &argv, sel, 0, 0);
-		goto done;
-	}
-	if (matches(*argv, "u16") == 0) {
+	} else if (matches(*argv, "u16") == 0) {
 		NEXT_ARG();
 		res = parse_u16(&argc, &argv, sel, 0, 0);
-		goto done;
-	}
-	if (matches(*argv, "u8") == 0) {
+	} else if (matches(*argv, "u8") == 0) {
 		NEXT_ARG();
 		res = parse_u8(&argc, &argv, sel, 0, 0);
-		goto done;
-	}
-	if (matches(*argv, "ip") == 0) {
+	} else if (matches(*argv, "ip") == 0) {
 		NEXT_ARG();
 		res = parse_ip(&argc, &argv, sel);
-		goto done;
-	}
-	if (matches(*argv, "ip6") == 0) {
+	} else 	if (matches(*argv, "ip6") == 0) {
 		NEXT_ARG();
 		res = parse_ip6(&argc, &argv, sel);
-		goto done;
-	}
-	if (matches(*argv, "udp") == 0) {
+	} else if (matches(*argv, "udp") == 0) {
 		NEXT_ARG();
 		res = parse_udp(&argc, &argv, sel);
-		goto done;
-	}
-	if (matches(*argv, "tcp") == 0) {
+	} else if (matches(*argv, "tcp") == 0) {
 		NEXT_ARG();
 		res = parse_tcp(&argc, &argv, sel);
-		goto done;
-	}
-	if (matches(*argv, "icmp") == 0) {
+	} else if (matches(*argv, "icmp") == 0) {
 		NEXT_ARG();
 		res = parse_icmp(&argc, &argv, sel);
-		goto done;
-	}
-	return -1;
+	} else if (matches(*argv, "mark") == 0) {
+		NEXT_ARG();
+		res = parse_mark(&argc, &argv, n);
+	} else if (matches(*argv, "ether") == 0) {
+		NEXT_ARG();
+		res = parse_ether(&argc, &argv, sel);
+	} else 
+		return -1;
 
-done:
 	*argc_p = argc;
 	*argv_p = argv;
 	return res;
@@ -729,7 +789,158 @@ static int parse_hashkey(int *argc_p, char ***argv_p, struct tc_u32_sel *sel)
 	return 0;
 }
 
-static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **argv, struct nlmsghdr *n)
+static void print_ipv4(FILE *f, const struct tc_u32_key *key)
+{
+	char abuf[256];
+
+	switch (key->off) {
+	case 0:
+		switch (ntohl(key->mask)) {
+		case 0x0f000000:
+			fprintf(f, "\n  match IP ihl %u", ntohl(key->val) >> 24);
+			return;
+		case 0x00ff0000:
+			fprintf(f, "\n  match IP dsfield %#x", ntohl(key->val) >> 16);
+			return;
+		}
+		break;
+	case 8:
+		if (ntohl(key->mask) == 0x00ff0000) {
+			fprintf(f, "\n  match IP protocol %d", ntohl(key->val) >> 16);
+			return;
+		}
+		break;
+	case 12:
+	case 16: {
+			int bits = mask2bits(key->mask);
+			if (bits >= 0) {
+				fprintf(f, "\n  %s %s/%d", 
+					key->off == 12 ? "match IP src" : "match IP dst",
+					inet_ntop(AF_INET, &key->val,
+						  abuf, sizeof(abuf)),
+					bits);
+				return;
+			}
+		}
+		break;
+
+	case 20:
+		switch (ntohl(key->mask)) {
+		case 0x0000ffff:
+			fprintf(f, "\n  match sport %u",
+				ntohl(key->val) & 0xffff);
+			return;
+		case 0xffff0000:
+			fprintf(f, "\n  match dport %u",
+				ntohl(key->val) >> 16);
+			return;
+		case 0xffffffff:
+			fprintf(f, "\n  match sport %u, match dport %u",
+				ntohl(key->val) & 0xffff,
+				ntohl(key->val) >> 16);
+
+			return;
+		}
+		/* XXX: Default print_raw */
+	}
+}
+
+static void print_ipv6(FILE *f, const struct tc_u32_key *key)
+{
+	char abuf[256];
+
+	switch (key->off) {
+	case 0:
+		switch (ntohl(key->mask)) {
+		case 0x0f000000:
+			fprintf(f, "\n  match IP ihl %u", ntohl(key->val) >> 24);
+			return;
+		case 0x00ff0000:
+			fprintf(f, "\n  match IP dsfield %#x", ntohl(key->val) >> 16);
+			return;
+		}
+		break;
+	case 8:
+		if (ntohl(key->mask) == 0x00ff0000) {
+			fprintf(f, "\n  match IP protocol %d", ntohl(key->val) >> 16);
+			return;
+		}
+		break;
+	case 12:
+	case 16: {
+			int bits = mask2bits(key->mask);
+			if (bits >= 0) {
+				fprintf(f, "\n  %s %s/%d", 
+					key->off == 12 ? "match IP src" : "match IP dst",
+					inet_ntop(AF_INET, &key->val,
+						  abuf, sizeof(abuf)),
+					bits);
+				return;
+			}
+		}
+		break;
+
+	case 20:
+		switch (ntohl(key->mask)) {
+		case 0x0000ffff:
+			fprintf(f, "\n  match sport %u",
+				ntohl(key->val) & 0xffff);
+			return;
+		case 0xffff0000:
+			fprintf(f, "\n  match dport %u",
+				ntohl(key->val) >> 16);
+			return;
+		case 0xffffffff:
+			fprintf(f, "\n  match sport %u, match dport %u",
+				ntohl(key->val) & 0xffff,
+				ntohl(key->val) >> 16);
+
+			return;
+		}
+		/* XXX: Default print_raw */
+	}
+}
+
+static void print_raw(FILE *f, const struct tc_u32_key *key)
+{
+	fprintf(f, "\n  match %08x/%08x at %s%d", 
+		(unsigned int)ntohl(key->val),
+		(unsigned int)ntohl(key->mask),
+		key->offmask ? "nexthdr+" : "",
+		key->off);
+}
+
+static const struct {
+	__u16 proto;
+	__u16 pad;
+	void (*pprinter)(FILE *f, const struct tc_u32_key *key);
+} u32_pprinters[] = {
+	{0, 	   0, print_raw},
+	{ETH_P_IP, 0, print_ipv4},
+	{ETH_P_IPV6, 0, print_ipv6},
+};
+
+static void show_keys(FILE *f, const struct tc_u32_key *key)
+{
+	int i = 0;
+
+	if (!show_pretty)
+		goto show_k;
+
+	for (i = 0; i < sizeof(u32_pprinters) / sizeof(u32_pprinters[0]); i++) {
+		if (u32_pprinters[i].proto == ntohs(f_proto)) {
+show_k:
+			u32_pprinters[i].pprinter(f, key);
+			return;
+		}
+	}
+
+	i = 0;
+	goto show_k;
+}
+
+static int u32_parse_opt(struct filter_util *qu, char *handle,
+			 int argc, char **argv, struct nlmsghdr *n)
 {
 	struct {
 		struct tc_u32_sel sel;
@@ -737,7 +948,7 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 	} sel;
 	struct tcmsg *t = NLMSG_DATA(n);
 	struct rtattr *tail;
-	int sel_ok = 0;
+	int sel_ok = 0, terminal_ok = 0;
 	int sample_ok = 0;
 	__u32 htid = 0;
 	__u32 order = 0;
@@ -752,13 +963,13 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 	if (argc == 0)
 		return 0;
 
-	tail = (struct rtattr*)(((void*)n)+NLMSG_ALIGN(n->nlmsg_len));
-	addattr_l(n, 4096, TCA_OPTIONS, NULL, 0);
+	tail = NLMSG_TAIL(n);
+	addattr_l(n, MAX_MSG, TCA_OPTIONS, NULL, 0);
 
 	while (argc > 0) {
 		if (matches(*argv, "match") == 0) {
 			NEXT_ARG();
-			if (parse_selector(&argc, &argv, &sel.sel)) {
+			if (parse_selector(&argc, &argv, &sel.sel, n)) {
 				fprintf(stderr, "Illegal \"match\"\n");
 				return -1;
 			}
@@ -786,17 +997,18 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 				fprintf(stderr, "Illegal \"classid\"\n");
 				return -1;
 			}
-			addattr_l(n, 4096, TCA_U32_CLASSID, &handle, 4);
+			addattr_l(n, MAX_MSG, TCA_U32_CLASSID, &handle, 4);
 			sel.sel.flags |= TC_U32_TERMINAL;
 		} else if (matches(*argv, "divisor") == 0) {
 			unsigned divisor;
 			NEXT_ARG();
-			if (get_unsigned(&divisor, *argv, 0) || divisor == 0 ||
-			    divisor > 0x100) {
+			if (get_unsigned(&divisor, *argv, 0) ||
+			    divisor == 0 ||
+			    divisor > 0x100 || ((divisor - 1) & divisor)) {
 				fprintf(stderr, "Illegal \"divisor\"\n");
 				return -1;
 			}
-			addattr_l(n, 4096, TCA_U32_DIVISOR, &divisor, 4);
+			addattr_l(n, MAX_MSG, TCA_U32_DIVISOR, &divisor, 4);
 		} else if (matches(*argv, "order") == 0) {
 			NEXT_ARG();
 			if (get_u32(&order, *argv, 0)) {
@@ -814,7 +1026,7 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 				fprintf(stderr, "\"link\" must be a hash table.\n");
 				return -1;
 			}
-			addattr_l(n, 4096, TCA_U32_LINK, &handle, 4);
+			addattr_l(n, MAX_MSG, TCA_U32_LINK, &handle, 4);
 		} else if (strcmp(*argv, "ht") == 0) {
 			unsigned handle;
 			NEXT_ARG();
@@ -832,31 +1044,66 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 				htid = (handle&0xFFFFF000);
 		} else if (strcmp(*argv, "sample") == 0) {
 			__u32 hash;
+			unsigned divisor = 0x100;
+
 			struct {
 				struct tc_u32_sel sel;
 				struct tc_u32_key keys[4];
 			} sel2;
+			memset(&sel2, 0, sizeof(sel2));
 			NEXT_ARG();
-			if (parse_selector(&argc, &argv, &sel2.sel)) {
+			if (parse_selector(&argc, &argv, &sel2.sel, n)) {
 				fprintf(stderr, "Illegal \"sample\"\n");
 				return -1;
 			}
 			if (sel2.sel.nkeys != 1) {
-				fprintf(stderr, "\"sample\" must contain exactly ONE key.\n");
+				fprintf(stderr, "\"sample\" must contain"
+					" exactly ONE key.\n");
 				return -1;
+			}
+			if (*argv != 0 && strcmp(*argv, "divisor") == 0) {
+				NEXT_ARG();
+				if (get_unsigned(&divisor, *argv, 0) || divisor == 0 ||
+				    divisor > 0x100 || ((divisor - 1) & divisor)) {
+					fprintf(stderr, "Illegal sample \"divisor\"\n");
+					return -1;
+				}
+				NEXT_ARG();
 			}
 			hash = sel2.sel.keys[0].val&sel2.sel.keys[0].mask;
 			hash ^= hash>>16;
 			hash ^= hash>>8;
-			htid = ((hash<<12)&0xFF000)|(htid&0xFFF00000);
+			htid = ((hash%divisor)<<12)|(htid&0xFFF00000);
 			sample_ok = 1;
 			continue;
+		} else if (strcmp(*argv, "indev") == 0) {
+			char ind[IFNAMSIZ + 1];
+			memset(ind, 0, sizeof (ind));
+			argc--;
+			argv++;
+			if (argc < 1) {
+				fprintf(stderr, "Illegal indev\n");
+				return -1;
+			}
+			strncpy(ind, *argv, sizeof (ind) - 1);
+			addattr_l(n, MAX_MSG, TCA_U32_INDEV, ind, strlen(ind) + 1);
+
+		} else if (matches(*argv, "action") == 0) {
+			NEXT_ARG();
+			if (parse_action(&argc, &argv, TCA_U32_ACT, n)) {
+				fprintf(stderr, "Illegal \"action\"\n");
+				return -1;
+			}
+			terminal_ok++;
+			continue;
+
 		} else if (matches(*argv, "police") == 0) {
 			NEXT_ARG();
 			if (parse_police(&argc, &argv, TCA_U32_POLICE, n)) {
 				fprintf(stderr, "Illegal \"police\"\n");
 				return -1;
 			}
+			terminal_ok++;
 			continue;
 		} else if (strcmp(*argv, "help") == 0) {
 			explain();
@@ -869,6 +1116,10 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 		argc--; argv++;
 	}
 
+	/* We dont necessarily need class/flowids */
+	if (terminal_ok)
+		sel.sel.flags |= TC_U32_TERMINAL;
+	
 	if (order) {
 		if (TC_U32_NODE(t->tcm_handle) && order != TC_U32_NODE(t->tcm_handle)) {
 			fprintf(stderr, "\"order\" contradicts \"handle\"\n");
@@ -878,24 +1129,25 @@ static int u32_parse_opt(struct filter_util *qu, char *handle, int argc, char **
 	}
 
 	if (htid)
-		addattr_l(n, 4096, TCA_U32_HASH, &htid, 4);
+		addattr_l(n, MAX_MSG, TCA_U32_HASH, &htid, 4);
 	if (sel_ok)
-		addattr_l(n, 4096, TCA_U32_SEL, &sel, sizeof(sel.sel)+sel.sel.nkeys*sizeof(struct tc_u32_key));
-	tail->rta_len = (((void*)n)+n->nlmsg_len) - (void*)tail;
+		addattr_l(n, MAX_MSG, TCA_U32_SEL, &sel, 
+			  sizeof(sel.sel)+sel.sel.nkeys*sizeof(struct tc_u32_key));
+	tail->rta_len = (void *) NLMSG_TAIL(n) - (void *) tail;
 	return 0;
 }
 
-static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt, __u32 handle)
+static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt,
+			 __u32 handle)
 {
 	struct rtattr *tb[TCA_U32_MAX+1];
 	struct tc_u32_sel *sel = NULL;
+	struct tc_u32_pcnt *pf = NULL;
 
 	if (opt == NULL)
 		return 0;
 
-	memset(tb, 0, sizeof(tb));
-	if (opt)
-		parse_rtattr(tb, TCA_U32_MAX, RTA_DATA(opt), RTA_PAYLOAD(opt));
+	parse_rtattr_nested(tb, TCA_U32_MAX, opt);
 
 	if (handle) {
 		SPRINT_BUF(b1);
@@ -916,7 +1168,8 @@ static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt, __
 		fprintf(f, "ht divisor %d ", *(__u32*)RTA_DATA(tb[TCA_U32_DIVISOR]));
 	} else if (tb[TCA_U32_HASH]) {
 		__u32 htid = *(__u32*)RTA_DATA(tb[TCA_U32_HASH]);
-		fprintf(f, "key ht %x bkt %x ", TC_U32_USERHTID(htid), TC_U32_HASH(htid));
+		fprintf(f, "key ht %x bkt %x ", TC_U32_USERHTID(htid),
+			TC_U32_HASH(htid));
 	} else {
 		fprintf(f, "??? ");
 	}
@@ -930,30 +1183,50 @@ static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt, __
 	}
 	if (tb[TCA_U32_LINK]) {
 		SPRINT_BUF(b1);
-		fprintf(f, "link %s ", sprint_u32_handle(*(__u32*)RTA_DATA(tb[TCA_U32_LINK]), b1));
+		fprintf(f, "link %s ",
+			sprint_u32_handle(*(__u32*)RTA_DATA(tb[TCA_U32_LINK]), b1));
 	}
-	if (tb[TCA_U32_POLICE]) {
-		fprintf(f, "\n");
-		tc_print_police(f, tb[TCA_U32_POLICE]);
+
+	if (tb[TCA_U32_PCNT]) {
+		if (RTA_PAYLOAD(tb[TCA_U32_PCNT])  < sizeof(*pf)) {
+			fprintf(f, "Broken perf counters \n");
+			return -1;
+		}
+		pf = RTA_DATA(tb[TCA_U32_PCNT]);
+	}
+
+	if (sel && show_stats && NULL != pf)
+		fprintf(f, " (rule hit %llu success %llu)",
+			(unsigned long long) pf->rcnt,
+			(unsigned long long) pf->rhit);
+
+	if (tb[TCA_U32_MARK]) {
+		struct tc_u32_mark *mark = RTA_DATA(tb[TCA_U32_MARK]);
+		if (RTA_PAYLOAD(tb[TCA_U32_MARK]) < sizeof(*mark)) {
+			fprintf(f, "\n  Invalid mark (kernel&iproute2 mismatch)\n");
+		} else {
+			fprintf(f, "\n  mark 0x%04x 0x%04x (success %d)",
+				mark->val, mark->mask, mark->success);
+		}
 	}
 
 	if (sel) {
-		int i;
-		struct tc_u32_key *key = sel->keys;
-
 		if (sel->nkeys) {
-			for (i=0; i<sel->nkeys; i++, key++)
-				fprintf(f, "\n  match %08x/%08x at %s%d",
-					(unsigned int)ntohl(key->val),
-					(unsigned int)ntohl(key->mask),
-					key->offmask ? "nexthdr+" : "",
-					key->off);
+			int i;
+			for (i=0; i<sel->nkeys; i++) {
+				show_keys(f, sel->keys + i);
+				if (show_stats && NULL != pf)
+					fprintf(f, " (success %llu ) ",
+						(unsigned long long) pf->kcnts[i]);
+			}
 		}
 
 		if (sel->flags&(TC_U32_VAROFFSET|TC_U32_OFFSET)) {
 			fprintf(f, "\n    offset ");
 			if (sel->flags&TC_U32_VAROFFSET)
-				fprintf(f, "%04x>>%d at %d ", ntohs(sel->offmask), sel->offshift,  sel->offoff);
+				fprintf(f, "%04x>>%d at %d ",
+					ntohs(sel->offmask),
+					sel->offshift,  sel->offoff);
 			if (sel->off)
 				fprintf(f, "plus %d ", sel->off);
 		}
@@ -966,12 +1239,23 @@ static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt, __
 		}
 	}
 
+	if (tb[TCA_U32_POLICE]) {
+		fprintf(f, "\n");
+		tc_print_police(f, tb[TCA_U32_POLICE]);
+	}
+	if (tb[TCA_U32_INDEV]) {
+		struct rtattr *idev = tb[TCA_U32_INDEV];
+		fprintf(f, "\n  input dev %s\n", (char *) RTA_DATA(idev));
+	}
+	if (tb[TCA_U32_ACT]) {
+		tc_print_action(f, tb[TCA_U32_ACT]);
+	}
+
 	return 0;
 }
 
-struct filter_util u32_util = {
-	NULL,
-	"u32",
-	u32_parse_opt,
-	u32_print_opt,
+struct filter_util u32_filter_util = {
+	.id = "u32",
+	.parse_fopt = u32_parse_opt,
+	.print_fopt = u32_print_opt,
 };

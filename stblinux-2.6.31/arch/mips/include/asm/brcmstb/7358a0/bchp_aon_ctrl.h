@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Aug  2 14:56:40 2010
- *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
+ * Date:           Generated on         Tue Nov  2 15:33:59 2010
+ *                 MD5 Checksum         d5654099cee13d096484a8849c56a604
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_aon_ctrl.h $
  * 
- * Hydra_Software_Devel/1   8/2/10 3:47p pntruong
- * SW7358-2: Initial version of rdb header files.
+ * Hydra_Software_Devel/2   11/2/10 5:36p pntruong
+ * SW7358-2: Synced up with central RDB.
  *
  ***************************************************************************/
 
@@ -805,9 +805,13 @@
 /***************************************************************************
  *TIME_COUNTER - Hour/Minute Counter Initial value
  ***************************************************************************/
-/* AON_CTRL :: TIME_COUNTER :: reserved0 [31:19] */
-#define BCHP_AON_CTRL_TIME_COUNTER_reserved0_MASK                  0xfff80000
-#define BCHP_AON_CTRL_TIME_COUNTER_reserved0_SHIFT                 19
+/* AON_CTRL :: TIME_COUNTER :: reserved0 [31:20] */
+#define BCHP_AON_CTRL_TIME_COUNTER_reserved0_MASK                  0xfff00000
+#define BCHP_AON_CTRL_TIME_COUNTER_reserved0_SHIFT                 20
+
+/* AON_CTRL :: TIME_COUNTER :: hour_display_mode [19:19] */
+#define BCHP_AON_CTRL_TIME_COUNTER_hour_display_mode_MASK          0x00080000
+#define BCHP_AON_CTRL_TIME_COUNTER_hour_display_mode_SHIFT         19
 
 /* AON_CTRL :: TIME_COUNTER :: mode_12h_24h_init [18:18] */
 #define BCHP_AON_CTRL_TIME_COUNTER_mode_12h_24h_init_MASK          0x00040000

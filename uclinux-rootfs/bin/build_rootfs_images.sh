@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# UBIFS logical eraseblock limit - increase this number if mkfs.ubifs complains
+max_leb_cnt=2047
+
 set -e
 
 function make_ubi_img()
@@ -22,7 +25,7 @@ function make_ubi_img()
 	echo "Writing UBIFS image for ${pebk}kB erase, ${minmsg}..."
 
 	bin/mkfs.ubifs -U -D misc/devtable.txt -r romfs -o tmp/ubifs.img \
-		-m $page -e $leb -c 2047
+		--nosquash-rino-perm -m $page -e $leb -c ${max_leb_cnt}
 
 	vol_size=$(du -sm tmp/ubifs.img | cut -f1)
 
@@ -73,7 +76,7 @@ fi
 echo "Writing SQUASHFS image..."
 rm -f images/squashfs-${TARGET}.img
 bin/mksquashfs romfs images/squashfs-${TARGET}.img \
-	-root-owned -p "/dev/console c 0600 0 0 5 1"
+	-processors 1 -root-owned -p "/dev/console c 0600 0 0 5 1"
 chmod 0644 images/squashfs-${TARGET}.img
 echo "  -> images/squashfs-${TARGET}.img"
 echo ""
@@ -93,11 +96,17 @@ make_ubi_img 16 512
 # 128k erase / 2048B page - NAND
 make_ubi_img 128 2048
 
-# 256k erase / 4K page - NAND
+# 256k erase / 4096B page - NAND
 make_ubi_img 256 4096
 
 # 512k erase / 4096B page - large NAND
 make_ubi_img 512 4096
+
+# 1MB erase / 4096B page - large NAND
+make_ubi_img 1024 4096
+
+# 1MB erase / 8192B page - large NAND
+make_ubi_img 1024 8192
 
 # jffs2 NOR images for 64k, 128k, 256k erase sizes
 make_jffs2_img 64

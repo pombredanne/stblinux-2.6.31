@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-10-22
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-11-21
 #
 # Original package: strace-4.5.18.tar.bz2
 #
 diff -ruNp strace.orig/.gitignore strace/.gitignore
 --- strace.orig/.gitignore	1969-12-31 16:00:00.000000000 -0800
-+++ strace/.gitignore	2010-10-22 14:51:04.000000000 -0700
++++ strace/.gitignore	2010-11-21 13:40:15.000000000 -0800
 @@ -0,0 +1,7 @@
 +.deps/
 +Makefile
@@ -16,7 +16,7 @@ diff -ruNp strace.orig/.gitignore strace/.gitignore
 +strace
 diff -ruNp strace.orig/makefile strace/makefile
 --- strace.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ strace/makefile	2010-10-22 14:51:04.000000000 -0700
++++ strace/makefile	2010-11-21 13:40:15.000000000 -0800
 @@ -0,0 +1,29 @@
 +include $(ROOTDIR)/config.arch
 +

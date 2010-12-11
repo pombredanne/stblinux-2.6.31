@@ -294,13 +294,17 @@ broadcast address will break networking.
 Do not use it, if you do not understand what this operation really does.
 \end{NB}
 
+\item \verb|netns PID|
+
+--- move the device to the network namespace associated with the process PID.
+
 \end{itemize}
 
 \vskip 1mm
 \begin{NB}
-The {\tt ip} utility does not change the \verb|PROMISC| 
-or \verb|ALLMULTI| flags. These flags are considered
-obsolete and should not be changed administratively.
+The \verb|PROMISC| and \verb|ALLMULTI| flags are considered
+obsolete and should not be changed administratively, though
+the {\tt ip} utility will allow that.
 \end{NB}
 
 \paragraph{Warning:} If multiple parameter changes are requested,
@@ -449,13 +453,6 @@ There are other flags but they are either obsolete (\verb|NOTRAILERS|)
 or not implemented (\verb|DEBUG|) or specific to some devices
 (\verb|MASTER|, \verb|AUTOMEDIA| and \verb|PORTSEL|). We do not discuss
 them here.
-\end{NB}
-\begin{NB}
-The values of \verb|PROMISC| and \verb|ALLMULTI| flags
-shown by the \verb|ifconfig| utility and by the \verb|ip| utility
-are {\em different\/}. \verb|ip link ls| shows the true device state,
-while \verb|ifconfig| shows the virtual state which was set with
-\verb|ifconfig| itself.
 \end{NB}
 
 
@@ -758,6 +755,11 @@ An IP address becomes secondary if another address with the same
 prefix bits already exists. The first address is primary.
 It is the leader of the group of all secondary addresses. When the leader
 is deleted, all secondaries are purged too.
+There is a tweak in \verb|/proc/sys/net/ipv4/conf/<dev>/promote_secondaries|
+which activate secondaries promotion when a primary is deleted.
+To permanently enable this feature on all devices add
+\verb|net.ipv4.conf.all.promote_secondaries=1| to \verb|/etc/sysctl.conf|.
+This tweak is available in linux 2.6.15 and later.
 
 
 \item \verb|dynamic|
@@ -1322,7 +1324,17 @@ peers are allowed to send to us.
     If it is not given, Linux uses the value selected with \verb|sysctl|
     variable \verb|net/ipv4/tcp_reordering|.
 
+\item \verb|hoplimit NUMBER|
 
+--- [2.5.74+ only] Maximum number of hops on the path to this destination.
+    The default is the value selected with the \verb|sysctl| variable
+    \verb|net/ipv4/ip_default_ttl|.
+
+\item \verb|initcwnd NUMBER|
+--- [2.5.70+ only] Initial congestion window size for connections to
+    this destination. Actual window size is this value multiplied by the
+    MSS (``Maximal Segment Size'') for same connection. The default is
+    zero, meaning to use the values specified in~\cite{RFC2414}.
 
 \item \verb|nexthop NEXTHOP|
 
@@ -2651,6 +2663,9 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios120.
 \bibitem{RFC-DHCP} R.~Droms.
 ``Dynamic Host Configuration Protocol.'', RFC-2131
 
+\bibitem{RFC2414}  M.~Allman, S.~Floyd, C.~Partridge.
+``Increasing TCP's Initial Window'', RFC-2414.
+
 \end{thebibliography}
 
 
@@ -2813,7 +2828,7 @@ active FTP clients happy, your choice is not route NAT but masquerading,
 port forwarding, NAPT etc. 
 \begin{NB}
 By the way, you may also want to look at
-http://www.csn.tu-chemnitz.de/HyperNews/get/linux-ip-nat.html
+http://www.suse.com/\~mha/HyperNews/get/linux-ip-nat.html
 \end{NB}
 
 

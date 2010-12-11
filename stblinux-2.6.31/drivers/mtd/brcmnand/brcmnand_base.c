@@ -116,6 +116,8 @@ extern int gNumNandCS;
 
 /* The Chip Select [0..7] for the NAND chips from gNumNand above, only applicable to v1.0+ NAND controller */
 extern int gNandCS[];
+extern uint32_t gNandConfig[];
+extern uint32_t gAccControl[];
 
 // If wr_preempt_en is enabled, need to disable IRQ during NAND I/O
 int wr_preempt_en = 0;
@@ -169,6 +171,26 @@ static int brcmnand_erase_nolock(struct mtd_info *, struct erase_info *, int);
 #define BRCMNAND_ID_HAS_MICRON_M68A	0x00080000
 #define BRCMNAND_ID_EXT_MICRON_M68A \
 	(BRCMNAND_ID_HAS_MICRON_M60A|BRCMNAND_ID_HAS_MICRON_M68A)
+
+
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+
+#define ONFI_RDPARAM_SIGNATURE_OFS	  0			
+#define ONFI_RDPARAM_PAGESIZE_OFS	 80
+#define ONFI_RDPARAM_OOBSIZE_OFS		 84
+#define ONFI_RDPARAM_ECC_LEVEL_OFS	112
+
+#define ONFI_EXTPARAM_SIG1_OFS		768
+#define ONFI_EXTPARAM_SIG2_OFS		772
+#define ONFI_EXTPARAM_EXT_ECC_OFS	800
+#define ONFI_EXTPARAM_CODEWORK_OFS	801
+
+#define BRCMNAND_FLASH_CACHE_SIZE	512
+
+#define ONFI_SIGNATURE 		0x4F4E4649	/* "ONFI" */
+#define ONFI_EXTPARAM_SIG	0x45505053	/* "EPPS" */
+
+#endif
 
 typedef struct brcmnand_chip_Id {
     	uint8 mafId, chipId;
@@ -493,6 +515,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.chipId = ST_NAND01GW3B,
 		.mafId = FLASHTYPE_ST,
 		.chipIdStr = "ST NAND01GW3B2B",
+		.nbrBlocks = 1024, /* size=128MB, bsize=128K */
 		.options = NAND_USE_FLASH_BBT,
 		.idOptions = 0,
 		.timing1 = 0, .timing2 = 0,
@@ -500,6 +523,8 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_0,
 	},
 
+#if 0
+//R version = 1.8V
 	{	/* 23 */ 
 		.chipId = ST_NAND01GR3B,
 		.mafId = FLASHTYPE_ST,
@@ -521,10 +546,12 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.nop=4,
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_0,
 	},
+#endif
 	{	/* 25 */ 
 		.chipId = ST_NAND02GW3B,
 		.mafId = FLASHTYPE_ST,
 		.chipIdStr = "ST NAND02GW3B2C",
+		.nbrBlocks = 2048, /* size=256MB, bsize=128K */
 		.options = NAND_USE_FLASH_BBT,
 		.idOptions = 0,
 		.timing1 = 0, .timing2 = 0,
@@ -583,12 +610,28 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
 	},
 
-	{	/* 29 */
+	{	/* 28c */
+		.chipId = SAMSUNG_K9LBG08U0E,
+		.chipId345 = {0xC5, 0x72, 0x54},  /* C5h, 72h, 54h, 42h */
+		.nbrBlocks = 4096, /* 4GB flash */
+		//.eccLevel = 24 per 1KB,  Will decode from ID string
+		.mafId = FLASHTYPE_SAMSUNG,
+		.chipIdStr = "Samsung K9LBG08UD",
+		.options = NAND_USE_FLASH_BBT, 		/* Use BBT on flash */
+				//| NAND_COMPLEX_OOB_WRITE	/* Write data together with OOB for write_oob */
+		.idOptions = BRCMNAND_ID_EXT_BYTES_TYPE2,
+		.timing1 = 0, 
+		.timing2 = 0,
+		.nop=1,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_5_0, 
+	},
+
+	{	/* 29a */
 		.chipId = SAMSUNG_K9GA08U0D,
 		.chipId345 = {0x94, 0x29, 0x34},
 		.mafId = FLASHTYPE_SAMSUNG,
 		.nbrBlocks = 4096,
-		//.eccLevel = 8,  Will decode from ID string
+		//.eccLevel = 8 ,  Will decode from ID string
 		.chipIdStr = "Samsung K9GAG08U0D",
 		.options = NAND_USE_FLASH_BBT, 		/* Use BBT on flash */
 				//| NAND_COMPLEX_OOB_WRITE	/* Write data together with OOB for write_oob */
@@ -597,6 +640,22 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.timing2 = 0,
 		.nop=1,
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
+	},
+
+	{	/* 29b */
+		.chipId = SAMSUNG_K9GA08U0E,
+		.chipId345 = {0x84, 0x72, 0x50},  /* 84h, 72h, 50h, 42h */
+		.mafId = FLASHTYPE_SAMSUNG,
+		.nbrBlocks = 2948,
+		//.eccLevel = 24 per 1KB,  Will decode from ID string
+		.chipIdStr = "Samsung K9GAG08U0D",
+		.options = NAND_USE_FLASH_BBT, 		/* Use BBT on flash */
+				//| NAND_COMPLEX_OOB_WRITE	/* Write data together with OOB for write_oob */
+		.idOptions = BRCMNAND_ID_EXT_BYTES_TYPE2,
+		.timing1 = 0, 
+		.timing2 = 0,
+		.nop=1,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_5_0, 
 	},
 
 	{	/* 30 */
@@ -633,11 +692,41 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.idOptions = BRCMNAND_ID_EXT_BYTES,
 		.timing1 = 0, 
 		.timing2 = 0,
-		.nop=1,
-		.ctrlVersion = 0, 
+		.nop=4,
+		.eccLevel=1,
+		.nbrBlocks = 1024,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_0, 
 	},
 
-	{	/* 33 */
+	{	/* 33 */  
+		.chipId = TOSHIBA_TC58NVG1S3ETAI5,
+		.mafId = FLASHTYPE_TOSHIBA,
+		.chipIdStr = "TOSHIBA TC58NVG1S3ETAI5",
+		.options = NAND_USE_FLASH_BBT, 
+		.idOptions = BRCMNAND_ID_EXT_BYTES,
+		.timing1 = 0, 
+		.timing2 = 0,
+		.nop=4,
+		.eccLevel=1,
+		.nbrBlocks = 2048,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_2_0, 
+	},
+
+	{	/* 34 */  
+		.chipId = TOSHIBA_TC58NVG3S0ETA00,
+		.mafId = FLASHTYPE_TOSHIBA,
+		.chipIdStr = "TOSHIBA TC58NVG3S0ETA00",
+		.options = NAND_USE_FLASH_BBT, 
+		.idOptions = BRCMNAND_ID_EXT_BYTES,
+		.timing1 = 0, 
+		.timing2 = 0,
+		.nop=4,
+		.eccLevel=4,
+		.nbrBlocks = 4096,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
+	},
+
+	{	/* 35 */
 		.chipId = MICRON_MT29F1G08ABA,
 		.mafId = FLASHTYPE_MICRON,
 		.chipIdStr = "MICRON MT29F1G08ABA",
@@ -649,7 +738,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
 	},
 
-	{	/* 34 */
+	{	/* 36 */
 		.chipId = MICRON_MT29F2G08ABA,
 		.mafId = FLASHTYPE_MICRON,
 		.chipIdStr = "MICRON MT29F2G08ABA",
@@ -661,7 +750,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
 	},
 
-	{	/* 35 */
+	{	/* 37 */
 		.chipId = MICRON_MT29F4G08ABA,
 		.mafId = FLASHTYPE_MICRON,
 		.chipIdStr = "MICRON MT29F4G08ABA",
@@ -673,7 +762,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
 	},
 
-	{	/* 36 */
+	{	/* 38 */
 		.chipId = MICRON_MT29F8G08ABA,
 		.mafId = FLASHTYPE_MICRON,
 		.chipIdStr = "MICRON MT29F8G08ABA",
@@ -685,7 +774,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_3_0, 
 	},
 
-#if 1
+#if 0
 /* New Chip ID scheme in place and working, but as of 2631-2.5 these do not work yet, for some unknown reason */
 
 	{	/* 37 */
@@ -715,17 +804,37 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 	},
 #endif
 
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+
+	{	/* ONFI ENTRY */
+		.chipId = 0xFF,			
+		.mafId = 0xFF,			
+		.chipIdStr = "ONFI NAND CHIP",
+		.options = NAND_USE_FLASH_BBT,
+		.timing1 = 0, .timing2 = 0,
+		.ctrlVersion = CONFIG_MTD_BRCMNAND_VERS_4_0,  /* ONFI capable NAND controllers */		
+	},
+#endif
+
 	{	/* LAST DUMMY ENTRY */
 		.chipId = 0,
 		.mafId = 0,
 		.chipIdStr = "UNSUPPORTED NAND CHIP",
 		.options = NAND_USE_FLASH_BBT,
 		.timing1 = 0, .timing2 = 0,
+		.ctrlVersion = 0,  		
 	}
 };
 
+
+
 // Max chip account for the last dummy entry
 #define BRCMNAND_MAX_CHIPS (ARRAY_SIZE(brcmnand_chips) - 1)
+
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+
+#define BRCMNAND_ONFI_IDX (BRCMNAND_MAX_CHIPS - 1)
+#endif
 
 #include "brcmnand_oob.h" /* BRCMNAND controller defined OOB */
 
@@ -1528,6 +1637,8 @@ static int brcmnand_wait(struct mtd_info *mtd, int state, uint32_t* pStatus)
 
 		if (state != FL_READING && (!wr_preempt_en) && !in_interrupt())
 			cond_resched();
+		else
+			udelay(100);
 		//touch_softlockup_watchdog();
 	}
 
@@ -1578,6 +1689,8 @@ printk("-->%s, raw=%d\n", __FUNCTION__, raw);}
 		}
 		if (state != FL_READING && !wr_preempt_en && !in_interrupt())
 			cond_resched();
+		else
+			udelay(100);
 	}
 
 	return 0; // Timed out
@@ -1628,6 +1741,8 @@ printk("<--%s: ret = %d\n", __FUNCTION__, ecc);}
 		}
 		if (state != FL_READING && (!wr_preempt_en) && !in_interrupt())
 			cond_resched();
+		else
+			udelay(100);
 
 	}
 
@@ -7414,6 +7529,14 @@ brcmnand_decode_config(struct brcmnand_chip* chip, uint32_t nand_config)
 	if (chip->blockSize != (1<<20)) {
 		switch ((nand_config & BCHP_NAND_CONFIG_BLOCK_SIZE_MASK) 
 				>> BCHP_NAND_CONFIG_BLOCK_SIZE_SHIFT) {
+  #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+		case BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_1024KB:
+			chip->blockSize = 1024 << 10;
+			break;
+		case BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_2048KB:
+			chip->blockSize = 2048 << 10;
+			break;
+  #endif
 		case BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_256KB:
 			chip->blockSize = 256 << 10;
 			break;
@@ -7439,6 +7562,7 @@ brcmnand_decode_config(struct brcmnand_chip* chip, uint32_t nand_config)
 		
 	
 	chip->erase_shift = ffs(chip->blockSize) - 1;
+printk("Block size=%08x, erase shift=%d\n", chip->blockSize, chip->erase_shift);
 
 #if CONFIG_MTD_BRCMNAND_VERSION < CONFIG_MTD_BRCMNAND_VERS_2_2
 	// Version 2.1 or earlier: Bit 30
@@ -7621,8 +7745,8 @@ static void brcmnand_adjust_acccontrol(struct brcmnand_chip *this, brcmnand_chip
 	int cs = this->ctrl->CS[this->csi];
 	unsigned long nand_acc_b4 = this->ctrl_read(bchp_nand_acc_control(cs));
 	unsigned long nand_acc;
-	extern uint32_t gAccControl[];
 	int eccLevel;
+	int oobSize;
 
 PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n", 
 	__FUNCTION__, cs, gAccControl[csi], nand_acc_b4);
@@ -7645,6 +7769,16 @@ PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n",
 #endif
 		this->ecclevel = eccLevel;
 		printk("ECC level changed to %d\n", eccLevel);
+
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
+		oobSize = (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_MASK) >>
+			BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_SHIFT;
+#else
+		oobSize = (nand_acc & BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK) >>
+			BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
+#endif
+
+		this->eccOobSize = oobSize;
 	 }
 }
 
@@ -7735,7 +7869,7 @@ printk("After: NandSelect=%08x, nandConfig=%08x\n", nandSelect, nandConfig);
  */
 static uint32_t
 decode_ID_type1(struct brcmnand_chip * chip, 
-	unsigned char brcmnand_maf_id, unsigned char brcmnand_dev_id, uint32_t idOptions)
+	unsigned char brcmnand_maf_id, unsigned char brcmnand_dev_id, uint32_t idOptions, uint32_t nbrBlocks)
 {
 	uint32_t nand_config = chip->ctrl_read(bchp_nand_config(chip->ctrl->CS[chip->csi])); // returned value
 
@@ -7772,7 +7906,7 @@ PRINTK("%s: mafID=%02x, devID=%02x, ID4=%02x, ID5=%02x\n",
 		blockSize = (64*1024) << ((devId4thdByte & SAMSUNG_4THID_BLKSIZE_MASK) >> 4);
 		//oobSize = devId4thdByte & SAMSUNG_4THID_OOBSIZE_MASK ? 16 : 8;
 		chip->page_shift = ffs(pageSize) - 1;
-		
+		chip->erase_shift = ffs(blockSize) - 1;
 
 		
 PRINTK("Updating Config Reg: Block & Page Size: B4: %08x, blockSize=%08x, pageSize=%d\n", 
@@ -7817,90 +7951,99 @@ PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
 		printk(KERN_ERR "4th ID Byte: Device requiring Controller V3.0 in database, but not handled\n");
 		//BUG();
 	}
-/*---------------- 5th ID byte ------------------------- */
 
 
-	switch(brcmnand_maf_id) {
-	case FLASHTYPE_SAMSUNG:
-	case FLASHTYPE_HYNIX:		
-	case FLASHTYPE_TOSHIBA:
-	case FLASHTYPE_MICRON:
-PRINTK("5th ID byte = %02x, extID = %08lx\n", devId5thByte, devIdExt);
-
-		switch(devId5thByte & SAMSUNG_5THID_NRPLANE_MASK) {
-		case SAMSUNG_5THID_NRPLANE_1:
-			nbrPlanes = 1;
-			break;
-		case SAMSUNG_5THID_NRPLANE_2:
-			nbrPlanes = 2;
-			break;
-		case SAMSUNG_5THID_NRPLANE_4:
-			nbrPlanes = 4;
-			break;
-		case SAMSUNG_5THID_NRPLANE_8:
-			nbrPlanes = 8;
-			break;
-		}
-PRINTK("nbrPlanes = %d\n", nbrPlanes);
+	if (nbrBlocks > 0) {
+		chip->chipSize = ((uint64_t) nbrBlocks) << chip->erase_shift;
+		PRINTK("nbrBlocks=%d, blockSize=%d, blkShift=%d, chip Size = %llx\n", nbrBlocks, blockSize, chip->erase_shift, chip->chipSize);
+		chipSizeMB = (uint32_t) (chip->chipSize >> 20);
 	}
+	else { /* Use 5th byte plane size & nbrPlanes to compute chip size */
+/*---------------- 5th ID byte ------------------------- */
+		switch(brcmnand_maf_id) {
+		case FLASHTYPE_SAMSUNG:
+		case FLASHTYPE_HYNIX:		
+		case FLASHTYPE_TOSHIBA:
+		case FLASHTYPE_MICRON:
+	PRINTK("5th ID byte = %02x, extID = %08lx\n", devId5thByte, devIdExt);
 
-	switch(brcmnand_maf_id) {
-	case FLASHTYPE_SAMSUNG:
-	case FLASHTYPE_MICRON:
-		if (idOptions & BRCMNAND_ID_HAS_MICRON_M68A) {
-			planeSizeMB=128;
+			switch(devId5thByte & SAMSUNG_5THID_NRPLANE_MASK) {
+			case SAMSUNG_5THID_NRPLANE_1:
+				nbrPlanes = 1;
+				break;
+			case SAMSUNG_5THID_NRPLANE_2:
+				nbrPlanes = 2;
+				break;
+			case SAMSUNG_5THID_NRPLANE_4:
+				nbrPlanes = 4;
+				break;
+			case SAMSUNG_5THID_NRPLANE_8:
+				nbrPlanes = 8;
+				break;
+			}
+	PRINTK("nbrPlanes = %d\n", nbrPlanes);
 		}
-		else {
-			/* Samsung Plane Size
-			#define SAMSUNG_5THID_PLANESZ_64Mb	0x00
-			#define SAMSUNG_5THID_PLANESZ_128Mb	0x10
-			#define SAMSUNG_5THID_PLANESZ_256Mb	0x20
-			#define SAMSUNG_5THID_PLANESZ_512Mb	0x30
-			#define SAMSUNG_5THID_PLANESZ_1Gb	0x40
-			#define SAMSUNG_5THID_PLANESZ_2Gb	0x50
-			#define SAMSUNG_5THID_PLANESZ_4Gb	0x60
-			#define SAMSUNG_5THID_PLANESZ_8Gb	0x70
-			*/
-			// planeSize starts at (64Mb/8) = 8MB;
-			planeSizeMB = 8 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
-		}
-PRINTK("planSizeMB = %dMB\n", planeSizeMB);
-		break;
 
-	case FLASHTYPE_HYNIX:
-		if (idOptions & BRCMNAND_ID_HYNIX_LEGACY) {
-			// planeSize starts at (64Mb/8) = 8MB, same as Samsung
-			planeSizeMB = 8 << ((devId5thByte & HYNIX_5THID_LEG_PLANESZ_MASK) >> 4);
-		}
-		else {
-		  /* Hynix Plane Size, Type 2
-		  #define HYNIX_5THID_PLANESZ_MASK	0x70
-		  #define HYNIX_5THID_PLANESZ_512Mb	0x00
-		  #define HYNIX_5THID_PLANESZ_1Gb		0x10
-		  #define HYNIX_5THID_PLANESZ_2Gb		0x20
-		  #define HYNIX_5THID_PLANESZ_4Gb		0x30
-		  #define HYNIX_5THID_PLANESZ_8Gb		0x40
-		  #define HYNIX_5THID_PLANESZ_RSVD1	0x50
-		  #define HYNIX_5THID_PLANESZ_RSVD2	0x60
-		  #define HYNIX_5THID_PLANESZ_RSVD3	0x70
-		  */
-		  // planeSize starts at (512Mb/8) = 64MB;
-		  planeSizeMB = 64 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
-		}
-		break;				
+		switch(brcmnand_maf_id) {
+		case FLASHTYPE_SAMSUNG:
+		case FLASHTYPE_MICRON:
+			if (idOptions & BRCMNAND_ID_HAS_MICRON_M68A) {
+				planeSizeMB=128;
+			}
+			else {
+				/* Samsung Plane Size
+				#define SAMSUNG_5THID_PLANESZ_64Mb	0x00
+				#define SAMSUNG_5THID_PLANESZ_128Mb	0x10
+				#define SAMSUNG_5THID_PLANESZ_256Mb	0x20
+				#define SAMSUNG_5THID_PLANESZ_512Mb	0x30
+				#define SAMSUNG_5THID_PLANESZ_1Gb	0x40
+				#define SAMSUNG_5THID_PLANESZ_2Gb	0x50
+				#define SAMSUNG_5THID_PLANESZ_4Gb	0x60
+				#define SAMSUNG_5THID_PLANESZ_8Gb	0x70
+				*/
+				// planeSize starts at (64Mb/8) = 8MB;
+				planeSizeMB = 8 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
+			}
+	PRINTK("planSizeMB = %dMB\n", planeSizeMB);
+			break;
 
-	case FLASHTYPE_TOSHIBA:
-		/* No Plane Size defined */
-		planeSizeMB = 64; /* hard-coded for TC58NVG0S3ETA00 */
-		break;
+		case FLASHTYPE_HYNIX:
+			if (idOptions & BRCMNAND_ID_HYNIX_LEGACY) {
+				// planeSize starts at (64Mb/8) = 8MB, same as Samsung
+				planeSizeMB = 8 << ((devId5thByte & HYNIX_5THID_LEG_PLANESZ_MASK) >> 4);
+			}
+			else {
+			  /* Hynix Plane Size, Type 2
+			  #define HYNIX_5THID_PLANESZ_MASK	0x70
+			  #define HYNIX_5THID_PLANESZ_512Mb	0x00
+			  #define HYNIX_5THID_PLANESZ_1Gb		0x10
+			  #define HYNIX_5THID_PLANESZ_2Gb		0x20
+			  #define HYNIX_5THID_PLANESZ_4Gb		0x30
+			  #define HYNIX_5THID_PLANESZ_8Gb		0x40
+			  #define HYNIX_5THID_PLANESZ_RSVD1	0x50
+			  #define HYNIX_5THID_PLANESZ_RSVD2	0x60
+			  #define HYNIX_5THID_PLANESZ_RSVD3	0x70
+			  */
+			  // planeSize starts at (512Mb/8) = 64MB;
+			  planeSizeMB = 64 << ((devId5thByte & SAMSUNG_5THID_PLANESZ_MASK) >> 4);
+			}
+			break;				
 
-	/* TBD Add other mfg ID here */
+		case FLASHTYPE_TOSHIBA:
+			/* No Plane Size defined */
+			// THT Nothing to do, size is hardcoded in chip array.
+			// planeSizeMB = 64; /* hard-coded for TC58NVG0S3ETA00 */
+			break;
 
-	} /* End 5th ID byte */
+		/* TBD Add other mfg ID here */
+
+		} /* End 5th ID byte */
+		
+		chipSizeMB = planeSizeMB*nbrPlanes;
+		chip->chipSize = ((uint64_t) chipSizeMB) << 20;
+		PRINTK("planeSizeMB = %d, chipSizeMB=%d,0x%04x, planeSizeMask=%08x\n", planeSizeMB, chipSizeMB, chipSizeMB, devId5thByte & SAMSUNG_5THID_PLANESZ_MASK);
+	}
 	
-	chipSizeMB = planeSizeMB*nbrPlanes;
-	chip->chipSize = ((uint64_t) chipSizeMB) << 20;
-PRINTK("planeSizeMB = %d, chipSizeMB=%d,0x%04x, planeSizeMask=%08x\n", planeSizeMB, chipSizeMB, chipSizeMB, devId5thByte & SAMSUNG_5THID_PLANESZ_MASK);
 	/* NAND Config register starts at 4MB for chip size */
 	nandConfigChipSize = ffs(chipSizeMB >> 2) - 1;
 
@@ -8186,6 +8329,294 @@ PRINTK("Updating Config Reg on CS%1d: Block & Page Size: After: %08x\n", chip->c
 }
 
 
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+
+static inline uint32_t brcmnand_flashcache_read(uint32_t ofs) 
+{
+	uint32_t aligned_ofs = ofs & 0xFFFFFFFC;
+	volatile uint32_t* pReg = (volatile uint32_t*) (0xb0000000 +
+		BCHP_NAND_FLASH_CACHEi_ARRAY_BASE + aligned_ofs);
+
+if (gdebug > 3) {
+printk("%s: OFS=%08x, EBIAddr=%08x val=%08x\n", __FUNCTION__, 
+	(unsigned int) aligned_ofs, (unsigned int) pReg, (unsigned int)*pReg);
+}
+
+	return (uint32_t) (*pReg);
+}
+
+
+static void
+debug_print_flashcache(struct mtd_info *mtd)
+{
+	struct brcmnand_chip * chip = mtd->priv;
+	static uint32_t fbuffer[128];
+	volatile uint32_t* fcache = (volatile uint32_t*) chip->vbase;
+	int i;
+int saveDebug = gdebug;
+gdebug=0;
+
+	// Copy the data buffer 
+
+	for (i=0; i< 128; i++) {
+		fbuffer[i] = (uint32_t) (fcache[i]);
+	}
+	
+	printk("Flash Cache:\n");
+	print_databuf((u_char*) &fbuffer[0], 512);
+
+	brcmnand_post_mortem_dump(mtd, 0);
+gdebug=saveDebug;
+}
+
+/*
+ * Return 0 for ready, TIMEOUT for error
+ */
+static int brcmnand_wait_for_cache_ready(struct brcmnand_chip* chip) 
+{
+	unsigned long timeout;
+	uint32_t ready;
+
+	/* The 20 msec is enough */
+	timeout = jiffies + msecs_to_jiffies(3000); // 3 sec timeout for now
+	while (time_before(jiffies, timeout)) {
+		PLATFORM_IOFLUSH_WAR();
+		ready = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
+
+		if ((ready & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK) 
+		&& (ready & BCHP_NAND_INTFC_STATUS_CACHE_VALID_MASK)) {
+			
+			return BRCMNAND_SUCCESS;
+			
+		}
+		udelay(200);
+	}
+
+if (gdebug > 3 ) {
+printk("<--%s: ret = TIMEOUT\n", __FUNCTION__);
+print_nand_ctrl_regs();
+}
+	return BRCMNAND_TIMED_OUT; // TimeOut
+}
+
+
+/*
+ * Decode flash geometry using ONFI
+ * returns 1 on success, 0 on failure
+ */
+static int
+brcmnand_ONFI_decode(struct mtd_info *mtd, unsigned int chipSelect, 
+	uint32_t* pageSize, uint16_t* oobSize, int* reqEcc, int* codeWorkSize)
+{
+	int skipDecodeID = 0; /* Returned value */
+	struct brcmnand_chip * chip = mtd->priv;
+	uint32_t u32;
+	uint8_t eccLevel;
+	uint32_t nand_config0, nand_config;
+	uint32_t acc;
+	int status;
+	uint32_t nand_select;
+	//unsigned long irqflags;
+
+	//local_irq_save(irqflags);
+
+/* for now for CoC */
+	return 0;
+
+
+gdebug=4;
+if (gdebug>3) printk("-->%s, chipSelect=%d\n", __FUNCTION__, chipSelect);
+	
+	/* First check to see if flash is ONFI compliant */
+	if (chipSelect > 0) { // Do not re-initialize when on CS0, Bootloader already done that		
+		chip->vbase = (void*) (0xb0000000+BCHP_NAND_FLASH_CACHEi_ARRAY_BASE); 
+
+
+		status = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
+#if 	0
+		if ((status & (BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK|BCHP_NAND_INTFC_STATUS_FLASH_READY_MASK))
+			!= (BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK|BCHP_NAND_INTFC_STATUS_FLASH_READY_MASK)) 
+#endif
+		{
+			brcmnand_wait(mtd, FL_READING, &status);
+			chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
+			chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
+				BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
+		  
+			chip->ctrl_write(BCHP_NAND_CMD_START, 
+				BCHP_NAND_CMD_START_OPCODE_FLASH_RESET);
+			
+			brcmnand_wait(mtd, FL_READING, &status);
+			udelay(10000);
+		}
+
+
+		nand_config0 = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
+
+		/* Setup READ ID and AUTOCONFIG */
+		nand_select = chip->ctrl_read(BCHP_NAND_CS_NAND_SELECT);
+		nand_select |= BCHP_NAND_CS_NAND_SELECT_AUTO_DEVICE_ID_CONFIG_MASK;
+		nand_select &= ~(1<<(chipSelect+BCHP_NAND_CS_NAND_SELECT_EBI_CS_0_SEL_SHIFT));
+		chip->ctrl_write(BCHP_NAND_CS_NAND_SELECT, nand_select);
+
+
+		/* Turn off 1KB sector size  & turn on WR_PREEMPT */
+		acc = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
+		acc &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
+		acc |= (BCHP_NAND_ACC_CONTROL_CS1_WR_PREEMPT_EN_MASK);
+		chip->ctrl_write(bchp_nand_acc_control(chipSelect), acc);
+
+#if 0
+		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
+		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
+			BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
+	  
+		chip->ctrl_write(BCHP_NAND_CMD_START, 
+			BCHP_NAND_CMD_START_OPCODE_DEVICE_ID_READ);
+
+		brcmnand_wait(mtd, FL_READING, &status);
+		nand_config = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
+printk("B4 PARAM READ, nand_config0=%08x, nand_config1=%08x\n", nand_config0, nand_config);
+#endif
+	
+
+		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
+		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
+			BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
+
+		chip->ctrl_write(BCHP_NAND_CMD_START, 
+			BCHP_NAND_CMD_START_OPCODE_PARAMETER_READ);
+
+		brcmnand_wait_for_cache_ready(chip);
+		//udelay(10000);
+
+printk("ONFI sig=%08x\n", *((volatile unsigned int*) chip->vbase));
+
+		/*
+		 * Verify ONFI capability
+		 */
+		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_SIGNATURE_OFS);
+gdebug=0;
+
+		if (u32 != ONFI_SIGNATURE) {
+			printk("%s: Cannot find ONFI signature.  Looking for %08x found %08x\n",
+				__FUNCTION__, ONFI_SIGNATURE, u32);
+
+			debug_print_flashcache(mtd);
+			skipDecodeID = 0;
+			goto onfi_exit;
+		}
+else /* if (gdebug>3) */ {
+printk("Found ONFI sig\n");
+debug_print_flashcache(mtd);
+brcmnand_post_mortem_dump(mtd, 0);
+printk("\n");
+}
+		
+		// ONFI read-parameter 90H-20H was successful
+		nand_config = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
+		
+		if (nand_config != nand_config0) {
+			printk("Original nand_config=%08x, ONFI nand_config=%08x\n",
+				nand_config0, nand_config);
+		}
+
+		/* Page Size */
+		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_PAGESIZE_OFS);
+		*pageSize = be32_to_cpu(u32);
+
+		/* OOB Size */
+		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_OOBSIZE_OFS);
+		*oobSize = be16_to_cpu(u32>>16);
+
+		/* Required ECC level */
+		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_ECC_LEVEL_OFS);
+		eccLevel = u32 >> 24;
+
+		printk("EccLevel = [%08x], %02x\n", u32, eccLevel);
+
+		if (eccLevel != 0xFF) { /* Codework is 512B */
+			*reqEcc = eccLevel;
+			*codeWorkSize = 512;
+			skipDecodeID = 1;
+		}
+		else { /* Codework is NOT 512B */
+			int offset = 512;
+			uint32_t extParamSig = 0;
+			
+			//while (offset <= 512 && !skipDecodeID) 
+			{
+				
+
+	gdebug=4;
+
+					/* Turn off 1KB sector size */
+				acc = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
+				acc &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
+				chip->ctrl_write(bchp_nand_acc_control(chipSelect), acc);
+				
+				/* Bring in next 512B */
+				chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, offset);
+				chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
+					BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
+
+				chip->ctrl_write(BCHP_NAND_CMD_START, 
+					BCHP_NAND_CMD_START_OPCODE_PARAMETER_CHANGE_COL);	
+
+				brcmnand_wait_for_cache_ready(chip); /* Wait for Flash-Ready */
+				//udelay(10000);
+	gdebug=0;
+
+				/*
+				 * Verify EXT PARAM signature
+				 */
+				u32 = be32_to_cpu(brcmnand_flashcache_read(ONFI_EXTPARAM_SIG1_OFS-offset));
+				extParamSig = (u32 & 0xFFFF) << 16;
+printk("EPPS1: u32=%08x, eppsig=%08x\n", u32, extParamSig);
+				u32 = be32_to_cpu(brcmnand_flashcache_read(ONFI_EXTPARAM_SIG2_OFS-offset));
+				extParamSig |= (u32 >> 16);
+printk("EPPS2: u32=%08x, eppsig=%08x\n", u32, extParamSig);
+
+				if (ONFI_EXTPARAM_SIG != extParamSig) {
+					printk("%s: EXT PARAM not found, looking for %08x, found %08x\n",
+						__FUNCTION__, ONFI_EXTPARAM_SIG, extParamSig);
+					debug_print_flashcache(mtd);
+					skipDecodeID = 0;
+				}
+				else {
+					uint32_t powerOf2;
+					
+					u32 = brcmnand_flashcache_read(ONFI_EXTPARAM_EXT_ECC_OFS-offset);
+					*reqEcc = u32 >> 24;
+					powerOf2 = (u32 & (0x00FF0000)) >> 16;
+					*codeWorkSize = 1 << powerOf2;
+					skipDecodeID = 1;
+					
+				}
+				offset += 512;
+			}
+		}
+	}
+	if (skipDecodeID) {
+		printk("reqEcc=%d, codeWork=%d\n", *reqEcc, *codeWorkSize);
+	}
+gdebug = 0;
+
+onfi_exit:
+
+	//local_irq_restore(irqflags);
+
+	return skipDecodeID;
+}
+
+#else
+/* Non-ONFI chips */
+
+#define brcmnand_ONFI_decode(...) (0)
+
+#endif
+
+
 /**
  * brcmnand_probe - [BrcmNAND Interface] Probe the BrcmNAND device
  * @param mtd		MTD device structure
@@ -8200,244 +8631,300 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 {
 	struct brcmnand_chip * chip = mtd->priv;
 	unsigned char brcmnand_maf_id, brcmnand_dev_id;
-	uint32_t nand_config;
+	uint32_t nand_config = 0;
 	int version_id;
 	//int density;
-	int i;
+	int i = BRCMNAND_MAX_CHIPS+1;
+	int skipDecodeID = 0;
+	uint32_t __maybe_unused pageSize=0;
+	uint16_t __maybe_unused oobSize=0;
+	int __maybe_unused reqEcc=0;
+	uint32_t __maybe_unused codeWork=0;
 
+	skipDecodeID = brcmnand_ONFI_decode(mtd, chipSelect,
+		&pageSize, &oobSize, &reqEcc, &codeWork);
 
-	
-	/* Read manufacturer and device IDs from Controller */
-	brcmnand_read_id(mtd, chipSelect, &chip->device_id);
-
-	brcmnand_maf_id = (chip->device_id >> 24) & 0xff;
-	brcmnand_dev_id = (chip->device_id >> 16) & 0xff;
-
-	/* Look up in our table for infos on device */
-	for (i=0; i < BRCMNAND_MAX_CHIPS; i++) {
-		if (brcmnand_dev_id == brcmnand_chips[i].chipId 
-			&& brcmnand_maf_id == brcmnand_chips[i].mafId) {
-			
-			/* No ambiguity in ID#3,4,5 */
-			if (brcmnand_chips[i].chipId345[0] == 0x0 
-				&& brcmnand_chips[i].chipId345[1] == 0x0 
-				&& brcmnand_chips[i].chipId345[2] == 0x0) {
-				break; 
-			}
-
-			/* Must resolve ambiguity */
-			else if (brcmnand_dev_id == brcmnand_chips[i+1].chipId 
-				&& brcmnand_maf_id == brcmnand_chips[i+1].mafId) {
-			
-				uint32_t extID;
-				uint8_t id3, id4, id5;
-
-				id3 = (chip->device_id >> 8) & 0xff;
-				id4 = (chip->device_id & 0xff);
-
-				extID = chip->ctrl_read(BCHP_NAND_FLASH_DEVICE_ID_EXT);
-				id5 = (extID & 0xff000000) >> 24;
-
-				if (brcmnand_chips[i].chipId345[0] == id3
-					&& brcmnand_chips[i].chipId345[1] == id4
-					&& brcmnand_chips[i].chipId345[2] == id5) {
-					break;
-				}
-				else if (brcmnand_chips[i+1].chipId345[0] == id3
-					&& brcmnand_chips[i+1].chipId345[1] == id4
-					&& brcmnand_chips[i+1].chipId345[2] == id5) {
-					i = i+1;
-					break;
-				}
-				/* Else not match */
-			}
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+	if (skipDecodeID) { /* ONFI capable */
+		/* NAND CONFIG register already encoded by NAND controller */
+		chip->eccsize = codeWork;
+		chip->eccOobSize = oobSize/(pageSize/512);
+		if (codeWork == 512) {
+			chip->reqEccLevel = reqEcc;
 		}
+		else {
+			chip->reqEccLevel = (reqEcc*512)/codeWork;
+		}
+		/* TBD Check for required ECC level here */
+		nand_config = chip->ctrl_read(bchp_nand_config(chipSelect));
+		i = BRCMNAND_ONFI_IDX;
 	}
 
-	if (i >= BRCMNAND_MAX_CHIPS) {
-#if CONFIG_MTD_BRCMNAND_VERSION == CONFIG_MTD_BRCMNAND_VERS_0_0
-		printk(KERN_ERR "DevId %08x may not be supported\n", (unsigned int) chip->device_id);
-		/* Because of the bug in the controller in the first version,
-		 * if we can't identify the chip, we punt
-		 */
-		return (-EINVAL);
-#else
-		printk(KERN_WARNING"DevId %08x may not be supported.  Will use config info\n", (unsigned int) chip->device_id);
+	/* Else fallback to Read ID */
+	else 
 #endif
-	}
-	else {
-		// Record NOP if known
-		chip->nop = brcmnand_chips[i].nop;
-	}
+	{
+		/* Read manufacturer and device IDs from Controller */
+		brcmnand_read_id(mtd, chipSelect, &chip->device_id);
 
-	/*
-	 * Check to see if the NAND chip requires any special controller version
-	 */
-	if (brcmnand_chips[i].ctrlVersion > CONFIG_MTD_BRCMNAND_VERSION) {
-		printk(KERN_ERR "#########################################################\n");
-		printk(KERN_ERR "DevId %s requires controller version %d or later, but STB is version %d\n",
-			brcmnand_chips[i].chipIdStr, brcmnand_chips[i].ctrlVersion, CONFIG_MTD_BRCMNAND_VERSION);
-		printk(KERN_ERR "#########################################################\n");
-	}
+		brcmnand_maf_id = (chip->device_id >> 24) & 0xff;
+		brcmnand_dev_id = (chip->device_id >> 16) & 0xff;
 
+		/* Look up in our table for infos on device */
+		for (i=0; i < BRCMNAND_MAX_CHIPS; i++) {
+			if (brcmnand_dev_id == brcmnand_chips[i].chipId 
+				&& brcmnand_maf_id == brcmnand_chips[i].mafId) {
+				
+				/* No ambiguity in ID#3,4,5 */
+				if (brcmnand_chips[i].chipId345[0] == 0x0 
+					&& brcmnand_chips[i].chipId345[1] == 0x0 
+					&& brcmnand_chips[i].chipId345[2] == 0x0) {
+					break; 
+				}
 
+				/* Must resolve ambiguity */
+				else if (brcmnand_dev_id == brcmnand_chips[i+1].chipId 
+					&& brcmnand_maf_id == brcmnand_chips[i+1].mafId) {
+				
+					uint32_t extID;
+					uint8_t id3, id4, id5;
 
-	/*
-	 * Special treatment for Spansion OrNand chips which do not conform to standard ID
-	 */
+					id3 = (chip->device_id >> 8) & 0xff;
+					id4 = (chip->device_id & 0xff);
 
-	chip->disableECC = 0;
-	chip->cellinfo = 0; // default to SLC, will read 3rd byte ID later for v3.0+ controller
-	chip->eccOobSize = 16; // Will fix it if we have a Type2 ID flash (from which we know the actual OOB size */
-	
-	nand_config = brcmnand_ctrl_read(bchp_nand_config(chip->ctrl->CS[chip->csi]));
+					extID = chip->ctrl_read(BCHP_NAND_FLASH_DEVICE_ID_EXT);
+					id5 = (extID & 0xff000000) >> 24;
 
-/*------------- 3rd ID byte --------------------*/	
-	if (FLASHTYPE_SPANSION == brcmnand_maf_id) {
-		unsigned char devId3rdByte =  (chip->device_id >> 8) & 0xff;
-
-		switch (devId3rdByte) {
-			case 0x04:
-			case 0x00:
-				/* ECC Needed, device with up to 2% bad blocks */
-				break;
-
-			case 0x01:
-			case 0x03:
-				/* ECC NOT Needed, device is 100% valid blocks */
-				chip->disableECC = 1;
-				break;
+					if (brcmnand_chips[i].chipId345[0] == id3
+						&& brcmnand_chips[i].chipId345[1] == id4
+						&& brcmnand_chips[i].chipId345[2] == id5) {
+						break;
+					}
+					else if (brcmnand_chips[i+1].chipId345[0] == id3
+						&& brcmnand_chips[i+1].chipId345[1] == id4
+						&& brcmnand_chips[i+1].chipId345[2] == id5) {
+						i = i+1;
+						break;
+					}
+					/* Else not match */
+				}
+			}
 		}
 
-		/* Correct erase Block Size to read 512K for all Spansion OrNand chips */
-		nand_config &= ~(0x3 << 28);
-		nand_config |= (0x3 << 28); // bit 29:28 = 3 ===> 512K erase block
-		brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
-	}
-	/* Else if NAND is found in suppported table */
-	else if ( i < BRCMNAND_MAX_CHIPS) {
-	
-
+		if (i >= BRCMNAND_MAX_CHIPS) {
 #if CONFIG_MTD_BRCMNAND_VERSION == CONFIG_MTD_BRCMNAND_VERS_0_0
-		// Workaround for bug in 7400A0 returning invalid config
-		switch(i) { 
-			case 0: /* SamSung NAND 1Gbit */
-			case 1: /* ST NAND 1Gbit */
-			case 4:
-			case 5:
-				/* Large page, 128K erase block
-				   PAGE_SIZE = 0x1 = 1b = PG_SIZE_2KB
-				   BLOCK_SIZE = 0x1 = 01b = BK_SIZE_128KB
-				   DEVICE_SIZE = 0x5 = 101b = DVC_SIZE_128MB
-				   DEVICE_WIDTH = 0x0 = 0b = DVC_WIDTH_8
-				   FUL_ADR_BYTES = 5 = 101b
-				   COL_ADR_BYTES = 2 = 010b
-				   BLK_ADR_BYTES = 3 = 011b
-				 */
-				nand_config &= ~0x30000000;
-				nand_config |= 0x10000000; // bit 29:28 = 1 ===> 128K erase block
-				//nand_config = 0x55042200; //128MB, 0x55052300  for 256MB
-				brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
-
-				break;
-
-			case 2:
-			case 3:
-				/* Small page, 16K erase block
-				   PAGE_SIZE = 0x0 = 0b = PG_SIZE_512B
-				   BLOCK_SIZE = 0x0 = 0b = BK_SIZE_16KB
-				   DEVICE_SIZE = 0x5 = 101b = DVC_SIZE_128MB
-				   DEVICE_WIDTH = 0x0 = 0b = DVC_WIDTH_8
-				   FUL_ADR_BYTES = 5 = 101b
-				   COL_ADR_BYTES = 2 = 010b
-				   BLK_ADR_BYTES = 3 = 011b
-				 */
-				nand_config &= ~0x70000000;
-				brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
-
-				break;
-
-			default:
-				printk(KERN_ERR "%s: DevId %08x not supported\n", __FUNCTION__, (unsigned int) chip->device_id);
-				BUG();
-				break;
+			printk(KERN_ERR "DevId %08x may not be supported\n", (unsigned int) chip->device_id);
+			/* Because of the bug in the controller in the first version,
+			 * if we can't identify the chip, we punt
+			 */
+			return (-EINVAL);
+#else
+			printk(KERN_WARNING"DevId %08x may not be supported.  Will use config info\n", (unsigned int) chip->device_id);
+#endif
 		}
-#elif CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_0
+		else {
+			// Record NOP if known
+			chip->nop = brcmnand_chips[i].nop;
+		}
+
+		/*
+		 * Check to see if the NAND chip requires any special controller version
+		 */
+		if (brcmnand_chips[i].ctrlVersion > CONFIG_MTD_BRCMNAND_VERSION) {
+			printk(KERN_ERR "#########################################################\n");
+			printk(KERN_ERR "DevId %s requires controller version %d or later, but STB is version %d\n",
+				brcmnand_chips[i].chipIdStr, brcmnand_chips[i].ctrlVersion, CONFIG_MTD_BRCMNAND_VERSION);
+			printk(KERN_ERR "#########################################################\n");
+		}
+
+
+
+		/*
+		 * Special treatment for Spansion OrNand chips which do not conform to standard ID
+		 */
+
+		chip->disableECC = 0;
+		chip->cellinfo = 0; // default to SLC, will read 3rd byte ID later for v3.0+ controller
+		chip->eccOobSize = 16; // Will fix it if we have a Type2 ID flash (from which we know the actual OOB size */
 		
-		if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES) == 
-				BRCMNAND_ID_EXT_BYTES ||
-			(brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
-				BRCMNAND_ID_EXT_BYTES_TYPE2 ||
-			(brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M60A) == 
-				BRCMNAND_ID_EXT_MICRON_M60A ||
-			(brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M61A) == 
-				BRCMNAND_ID_EXT_MICRON_M61A
-		) {
+
+		// If not on CS0 && config is passed as command line, use it and skip decoding ID.
+		if (chip->csi != 0 && gNandConfig[chip->csi] != 0) {
+			skipDecodeID = 1;
+			nand_config = gNandConfig[chip->csi];
+			brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
+		}
+		else {
+			nand_config = brcmnand_ctrl_read(bchp_nand_config(chip->ctrl->CS[chip->csi]));
+		}
+
+	/*------------- 3rd ID byte --------------------*/	
+		if (!skipDecodeID && FLASHTYPE_SPANSION == brcmnand_maf_id) {
 			unsigned char devId3rdByte =  (chip->device_id >> 8) & 0xff;
 
-			chip->cellinfo = devId3rdByte & NAND_CI_CELLTYPE_MSK;
+			switch (devId3rdByte) {
+				case 0x04:
+				case 0x00:
+					/* ECC Needed, device with up to 2% bad blocks */
+					break;
 
-			/* Read 5th ID byte if MLC type */
-			//if (chip->cellinfo) 
-
-			/* THT SWLINUX 1459: Some new SLCs have 5th ID byte defined, not just MLC */
-			/* Type-1 ID string */
-			if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE4) && 
-				(brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE5)) 
-			{
-				nand_config = decode_ID_type1(chip, brcmnand_maf_id, brcmnand_dev_id, brcmnand_chips[i].idOptions);
+				case 0x01:
+				case 0x03:
+					/* ECC NOT Needed, device is 100% valid blocks */
+					chip->disableECC = 1;
+					break;
 			}
 
-			/* Type-2 ID string */
-			else if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
-				BRCMNAND_ID_EXT_BYTES_TYPE2) 
-			{
-				brcmnand_chips[i].eccLevel = 0;
-				nand_config = decode_ID_type2(chip, brcmnand_maf_id, brcmnand_dev_id, 
-								brcmnand_chips[i].nbrBlocks, &brcmnand_chips[i].eccLevel);
-			}
-
-			else if  ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M61A) == 
-				BRCMNAND_ID_EXT_MICRON_M61A) 
-			{
-				nand_config = decode_ID_M61A(chip, brcmnand_maf_id, brcmnand_dev_id);
-			}
-
-				/* Make sure that ColAddrBytes bits are correct */
-			nand_config = brcmnand_compute_adr_bytes(chip, nand_config);
-			
-			chip->ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);				
-
-			PRINTK("%s: NAND_CONFIG=%08x\n", __FUNCTION__, nand_config);
-
-
+			/* Correct erase Block Size to read 512K for all Spansion OrNand chips */
+			nand_config &= ~(0x3 << 28);
+			nand_config |= (0x3 << 28); // bit 29:28 = 3 ===> 512K erase block
+			brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
 		}
-
-		/* Else no 3rd ID byte, rely on NAND controller to identify the chip
-		else {
-		}
-		*/
-#endif // V3.0 Controller
-		if (brcmnand_chips[i].eccLevel) {
-			chip->reqEccLevel = brcmnand_chips[i].eccLevel;
-		}
-	}
-	else {
-		/* 
-		* else chip ID not found in table, just use what the NAND controller says.
-		* We operate under the premise that if it goes this far, the controller/CFE may
-		* have done something right.  It is not guaranteed to work, however
-		*/
-		/*
-		* Do nothing, we will decode the controller CONFIG register for
-		* for flash geometry
-		*/
-		nand_config = chip->ctrl_read(bchp_nand_config(chip->ctrl->CS[chip->csi]));  
+		/* Else if NAND is found in suppported table */
+		else if (i < BRCMNAND_MAX_CHIPS) {
 		
+
+#if CONFIG_MTD_BRCMNAND_VERSION == CONFIG_MTD_BRCMNAND_VERS_0_0
+			// Workaround for bug in 7400A0 returning invalid config
+			switch(i) { 
+				case 0: /* SamSung NAND 1Gbit */
+				case 1: /* ST NAND 1Gbit */
+				case 4:
+				case 5:
+					/* Large page, 128K erase block
+					   PAGE_SIZE = 0x1 = 1b = PG_SIZE_2KB
+					   BLOCK_SIZE = 0x1 = 01b = BK_SIZE_128KB
+					   DEVICE_SIZE = 0x5 = 101b = DVC_SIZE_128MB
+					   DEVICE_WIDTH = 0x0 = 0b = DVC_WIDTH_8
+					   FUL_ADR_BYTES = 5 = 101b
+					   COL_ADR_BYTES = 2 = 010b
+					   BLK_ADR_BYTES = 3 = 011b
+					 */
+					nand_config &= ~0x30000000;
+					nand_config |= 0x10000000; // bit 29:28 = 1 ===> 128K erase block
+					//nand_config = 0x55042200; //128MB, 0x55052300  for 256MB
+					brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
+
+					break;
+
+				case 2:
+				case 3:
+					/* Small page, 16K erase block
+					   PAGE_SIZE = 0x0 = 0b = PG_SIZE_512B
+					   BLOCK_SIZE = 0x0 = 0b = BK_SIZE_16KB
+					   DEVICE_SIZE = 0x5 = 101b = DVC_SIZE_128MB
+					   DEVICE_WIDTH = 0x0 = 0b = DVC_WIDTH_8
+					   FUL_ADR_BYTES = 5 = 101b
+					   COL_ADR_BYTES = 2 = 010b
+					   BLK_ADR_BYTES = 3 = 011b
+					 */
+					nand_config &= ~0x70000000;
+					brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
+
+					break;
+
+				default:
+					printk(KERN_ERR "%s: DevId %08x not supported\n", __FUNCTION__, (unsigned int) chip->device_id);
+					BUG();
+					break;
+			}
+#elif CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_0
+			
+			if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES) == 
+					BRCMNAND_ID_EXT_BYTES ||
+				(brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
+					BRCMNAND_ID_EXT_BYTES_TYPE2 ||
+				(brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M60A) == 
+					BRCMNAND_ID_EXT_MICRON_M60A ||
+				(brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M61A) == 
+					BRCMNAND_ID_EXT_MICRON_M61A
+			) {
+				unsigned char devId3rdByte =  (chip->device_id >> 8) & 0xff;
+
+				chip->cellinfo = devId3rdByte & NAND_CI_CELLTYPE_MSK;
+
+				/* Read 5th ID byte if MLC type */
+				//if (chip->cellinfo) 
+
+				/* THT SWLINUX 1459: Some new SLCs have 5th ID byte defined, not just MLC */
+				/* Type-1 ID string */
+				if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE4) && 
+					(brcmnand_chips[i].idOptions & BRCMNAND_ID_HAS_BYTE5)) 
+				{
+					nand_config = decode_ID_type1(chip, brcmnand_maf_id, brcmnand_dev_id, 
+						brcmnand_chips[i].idOptions, brcmnand_chips[i].nbrBlocks);
+				}
+
+				/* Type-2 ID string */
+				else if ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_BYTES_TYPE2) == 
+					BRCMNAND_ID_EXT_BYTES_TYPE2) 
+				{
+					brcmnand_chips[i].eccLevel = 0;
+					nand_config = decode_ID_type2(chip, brcmnand_maf_id, brcmnand_dev_id, 
+									brcmnand_chips[i].nbrBlocks, &brcmnand_chips[i].eccLevel);
+				}
+
+				else if  ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M61A) == 
+					BRCMNAND_ID_EXT_MICRON_M61A) 
+				{
+					nand_config = decode_ID_M61A(chip, brcmnand_maf_id, brcmnand_dev_id);
+				}
+
+				if (!skipDecodeID) {
+
+					/* Make sure that ColAddrBytes bits are correct */
+					nand_config = brcmnand_compute_adr_bytes(chip, nand_config);
+					
+					chip->ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);				
+
+					PRINTK("%s: NAND_CONFIG=%08x\n", __FUNCTION__, nand_config);
+				}
+
+
+			}
+
+			/* Else no 3rd ID byte, rely on NAND controller to identify the chip
+			else {
+			}
+			*/
+#endif // V3.0 Controller
+			if (brcmnand_chips[i].eccLevel) {
+				chip->reqEccLevel = brcmnand_chips[i].eccLevel;
+			}
+		}
+
+		/* ID not in table, and no CONFIG REG was passed at command line */
+		else if (!skipDecodeID) {
+			uint32_t acc;
+			
+			/* 
+			* else chip ID not found in table, just use what the NAND controller says.
+			* We operate under the premise that if it goes this far, the controller/CFE may
+			* have done something right.  It is not guaranteed to work, however
+			*/
+			/*
+			* Do nothing, we will decode the controller CONFIG register for
+			* for flash geometry
+			*/
+			nand_config = chip->ctrl_read(bchp_nand_config(chip->ctrl->CS[chip->csi]));  
+
+			/*
+			 * Also, we need to find out the size of the OOB from ACC_CONTROL reg
+			 */
+			acc = brcmnand_ctrl_read(bchp_nand_acc_control(chip->ctrl->CS[chip->csi]));  
+			chip->eccOobSize = 
+				(acc & BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK) >> 
+					BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
+
+			printk("Spare Area Size = %dB/512B\n", chip->eccOobSize);
+			
+		}
 	}
 
+	/*
+	 * else ID not in database, but CONFIG reg was passed at command line, already handled
+	 */
 	
-
 	/* 
 	 * For some ID case, the ID decode does not yield all informations,
 	 * so we read it back, making sure that NAND CONFIG register and chip-> struct
@@ -9034,13 +9521,19 @@ static uint32_t
 handle_acc_control(struct mtd_info *mtd, struct brcmnand_chip* chip, int cs)
 {
 	volatile unsigned long acc_control, org_acc_control;
-	//int csi = chip->csi; // Index into chip->ctrl->CS array
+	int csi = chip->csi; // Index into chip->ctrl->CS array
 	unsigned long eccLevel=0, eccLevel_0, eccLevel_n;
 	uint32_t eccOobSize;
 
+	if (gAccControl[csi] != 0) {
+		// Already done in brcmnand_adjust_acccontrol()
+		printk("ECC level from command line=%d\n", chip->ecclevel);
+	  	return chip->ecclevel; // Do nothing, take the overwrite value
+	}
+
   #if CONFIG_MTD_BRCMNAND_VERSION < CONFIG_MTD_BRCMNAND_VERS_3_3
 
-
+      
 PRINTK("100 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip->csi]);
 	
 	org_acc_control = acc_control = brcmnand_ctrl_read(bchp_nand_acc_control(cs));
@@ -9361,8 +9854,11 @@ int brcmnand_scan(struct mtd_info *mtd , int cs, int numchips )
 PRINTK("-->%s: CS=%d, numchips=%d, csi=%d\n", __FUNCTION__, cs, numchips, chip->csi);
 
 	chip->ctrl->CS[chip->csi] = cs;
+	
 
 	initialize_chip(chip);
+	chip->ecclevel = BRCMNAND_ECC_HAMMING;
+	
 	printk(KERN_INFO "mtd->oobsize=%d, mtd->eccOobSize=%d\n", mtd->oobsize, chip->eccOobSize);
 
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_2_0
@@ -9393,8 +9889,6 @@ PRINTK("-->%s: CS=%d, numchips=%d, csi=%d\n", __FUNCTION__, cs, numchips, chip->
 
 PRINTK("brcmnand_scan: Done brcmnand_probe\n");
 
-	/* Will correct it for MLC later */
-	chip->ecclevel = BRCMNAND_ECC_HAMMING;
 
 #if CONFIG_MTD_BRCMNAND_VERSION <= CONFIG_MTD_BRCMNAND_VERS_0_1	
 	handle_ecclevel_v0_1(mtd, chip, cs);
@@ -9465,6 +9959,9 @@ PRINTK("brcmnand_scan: Done brcmnand_probe\n");
 		acc_control = brcmnand_ctrl_read(bchp_nand_acc_control(cs));
 
 
+PRINTK("190 eccLevel=%d, chip->ecclevel=%d, acc=%08x\n", eccLevel, chip->ecclevel, acc_control);
+
+
 /*
  * For 3556 and 3548L, disable WR_PREEMPT
  */
@@ -9493,6 +9990,8 @@ PRINTK("brcmnand_scan: Done brcmnand_probe\n");
 PRINTK("%s 10\n", __FUNCTION__);
 
 PRINTK("200 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip->csi]);
+PRINTK("200 chip->ecclevel=%d, acc=%08x\n", chip->ecclevel, 
+	brcmnand_ctrl_read(bchp_nand_acc_control(chip->ctrl->CS[chip->csi])));
 
 	chip->bbt_erase_shift =  ffs(mtd->erasesize) - 1;
 
@@ -9512,7 +10011,7 @@ PRINTK("200 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip-
 
 
 
-PRINTK("%s 20\n", __FUNCTION__);
+PRINTK("%s 220\n", __FUNCTION__);
 	
 
 
@@ -9549,7 +10048,7 @@ init_edu_buf();
   #endif
 #endif
 
-PRINTK("%s 30\n", __FUNCTION__);
+PRINTK("%s 230\n", __FUNCTION__);
 	/*
 	 * Initialize the eccmask array for ease of verifying OOB area.
 	 */
@@ -9637,7 +10136,7 @@ printk("ECC layout=brcmnand_oob_bch4_4k\n");
 printk("ECC layout=brcmnand_oob_bch8_16_4k\n");
 							chip->ecclayout = &brcmnand_oob_bch8_16_4k;
 						}
-#if 0 /* Impossible */
+#if 1 
 						else if (chip->eccOobSize >=27) {
 printk("ECC layout=brcmnand_oob_bch8_27_4k\n");
 							chip->ecclayout = &brcmnand_oob_bch8_27_4k;
@@ -9686,12 +10185,15 @@ printk("ECC layout=brcmnand_oob_bch8_16_4k\n");
 			break; /* 128B OOB case */
 			
 		default: /* 27.25/28 or greater OOB size */
+PRINTK("27B OOB\n");
 			/* 
 			 * Now SLC does have 4KB page too
 			 * if (NAND_IS_MLC(chip) && mtd->writesize == 4096) 
 			 */
 			if (mtd->writesize == 4096) 
 			{
+PRINTK("300 chip->ecclevel=%d, acc=%08x\n", chip->ecclevel, 
+	brcmnand_ctrl_read(bchp_nand_acc_control(chip->ctrl->CS[chip->csi])));
 				switch(chip->ecclevel) {
 				case BRCMNAND_ECC_BCH_4:
 printk(KERN_INFO "ECC layout=brcmnand_oob_bch8_4k\n");

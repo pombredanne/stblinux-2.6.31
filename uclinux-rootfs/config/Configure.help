@@ -1959,10 +1959,6 @@ CONFIG_USER_MTDUTILS_ERASE
   A tool for erasing MTD partitions.
   This option adds approximately 40K to the image.
 
-CONFIG_USER_MTDUTILS_ERASEALL
-  A tool for erasing entire MTD partitions.
-  This option adds approximately 40K to the image.
-
 CONFIG_USER_MTDUTILS_FTL_CHECK
   Check the Flash Translation Layer.
   This option adds approximately 40K to the image.

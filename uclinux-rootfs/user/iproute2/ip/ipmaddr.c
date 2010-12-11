@@ -17,13 +17,14 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <string.h>
+
 #include <linux/netdevice.h>
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <linux/sockios.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
 
 #include "rt_names.h"
 #include "utils.h"
@@ -42,11 +43,11 @@ static void usage(void)
 	exit(-1);
 }
 
-static int parse_hex(char *str, unsigned char *addr)
+static int parse_hex(char *str, unsigned char *addr, size_t size)
 {
 	int len=0;
 
-	while (*str) {
+	while (*str && (len < 2 * size)) {
 		int tmp;
 		if (str[1] == 0)
 			return -1;
@@ -103,7 +104,7 @@ void read_dev_mcast(struct ma_info **result_p)
 
 		m.addr.family = AF_PACKET;
 
-		len = parse_hex(hexa, (unsigned char*)&m.addr.data);
+		len = parse_hex(hexa, (unsigned char*)&m.addr.data, sizeof (m.addr.data));
 		if (len >= 0) {
 			struct ma_info *ma = malloc(sizeof(m));
 
@@ -175,7 +176,7 @@ void read_igmp6(struct ma_info **result_p)
 
 		m.addr.family = AF_INET6;
 
-		len = parse_hex(hexa, (unsigned char*)&m.addr.data);
+		len = parse_hex(hexa, (unsigned char*)&m.addr.data, sizeof (m.addr.data));
 		if (len >= 0) {
 			struct ma_info *ma = malloc(sizeof(m));
 
@@ -191,7 +192,7 @@ void read_igmp6(struct ma_info **result_p)
 
 static void print_maddr(FILE *fp, struct ma_info *list)
 {
-	fprintf(fp, "%s\t", _SL_);
+	fprintf(fp, "\t");
 
 	if (list->addr.family == AF_PACKET) {
 		SPRINT_BUF(b1);
@@ -211,7 +212,7 @@ static void print_maddr(FILE *fp, struct ma_info *list)
 			fprintf(fp, "family %d ", list->addr.family);
 			break;
 		}
-		fprintf(fp, "%s", 
+		fprintf(fp, "%s",
 			format_host(list->addr.family,
 				    -1,
 				    list->addr.data,
@@ -230,7 +231,8 @@ static void print_mlist(FILE *fp, struct ma_info *list)
 
 	for (; list; list = list->next) {
 		if (oneline) {
-			fprintf(fp, "%d:\t%s", cur_index, list->name);
+			cur_index = list->index;
+			fprintf(fp, "%d:\t%s%s", cur_index, list->name, _SL_);
 		} else if (cur_index != list->index) {
 			cur_index = list->index;
 			fprintf(fp, "%d:\t%s\n", cur_index, list->name);
@@ -296,7 +298,8 @@ int multiaddr_modify(int cmd, int argc, char **argv)
 				usage();
 			if (ifr.ifr_hwaddr.sa_data[0])
 				duparg("address", *argv);
-			if (ll_addr_a2n(ifr.ifr_hwaddr.sa_data, 14, *argv) < 0) {
+			if (ll_addr_a2n(ifr.ifr_hwaddr.sa_data,
+					14, *argv) < 0) {
 				fprintf(stderr, "Error: \"%s\" is not a legal ll address.\n", *argv);
 				exit(1);
 			}

@@ -150,8 +150,8 @@ function handle_opt_1()
 {
 	mtd=/dev/mtd${kernel_part}
 
-	tftp_fetch $tftphost $tftpdir/vmlinuz-$plat /tmp/vmlinuz || exit 1
-	flash_eraseall $mtd
+	tftp_fetch $tftphost $tftppath/vmlinuz-$plat /tmp/vmlinuz || exit 1
+	flash_erase $mtd 0 0
 	if [ "$flash_type" = "nand" ]; then
 		nandwrite -p $mtd /tmp/vmlinuz
 	else
@@ -178,19 +178,19 @@ function handle_opt_2()
 
 	rem_img=ubifs-$(($flash_erasesize / 1024))k-$(($flash_writesize))-${plat}.img
 
-	tftp_fetch $tftphost $tftpdir/$rem_img /tmp/rootfs.img || exit 1
-	flash_eraseall $mtd
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	flash_erase $mtd 0 0
 	ubiformat $mtd --yes --flash-image=/tmp/rootfs.img
 	echo ""
 	echo "Finished writing rootfs to flash."
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftpdir/vmlinuz-$plat 'ubiroot'"
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat 'ubiroot'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
-	echo "  ubiattach /dev/ubi_ctrl -m $rootfs_part"
+	echo "  ubiattach -m $rootfs_part"
 	echo "  mount -t ubifs ubi0:rootfs /mnt/flash"
 	echo ""
 	exit 0
@@ -204,15 +204,15 @@ function handle_opt_3()
 
 	rem_img=jffs2-$(($flash_erasesize / 1024))k-${plat}.img
 
-	tftp_fetch $tftphost $tftpdir/$rem_img /tmp/rootfs.img || exit 1
-	flash_eraseall -j $mtd
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	flash_erase -j $mtd 0 0
 	dd if=/tmp/rootfs.img of=$mtd
 	echo ""
 	echo "Finished writing rootfs to flash."
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftpdir/vmlinuz-$plat 'rootfstype=jffs2 root=/dev/mtdblock${rootfs_part}'"
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat 'rootfstype=jffs2 root=/dev/mtdblock${rootfs_part}'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -229,12 +229,12 @@ function handle_opt_4()
 
 	rem_img=squashfs-${plat}.img
 
-	tftp_fetch $tftphost $tftpdir/$rem_img /tmp/rootfs.img || exit 1
-	flash_eraseall $mtd
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	flash_erase $mtd 0 0
 	if [ "$flash_type" = "nand" ]; then
 		imgsize=$(du -k /tmp/rootfs.img | sed 's/[ \t].*//')
 		ubiformat $mtd --yes
-		ubiattach /dev/ubi_ctrl -m $rootfs_part -d 0
+		ubiattach -m $rootfs_part -d 0
 		# NOTE: ubiattach may run asynchronously
 		while [ ! -e /dev/ubi0 ]; do
 			sleep 1
@@ -248,7 +248,7 @@ function handle_opt_4()
 			echo "ERROR: can't get gluebi erasesize"
 		fi
 		dd if=/tmp/rootfs.img of=/dev/mtd${newpart} bs=$new_erasesize
-		ubidetach /dev/ubi_ctrl -d 0
+		ubidetach -d 0
 		cmdline="ubi.mtd=rootfs root=/dev/mtdblock${newpart}"
 	else
 		newpart=$rootfs_part
@@ -260,17 +260,17 @@ function handle_opt_4()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftpdir/vmlinuz-$plat '$cmdline'"
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat '$cmdline'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
 	if [ "$flash_type" = "nand" ]; then
-		echo "  ubiattach /dev/ubi_ctrl -m $rootfs_part"
+		echo "  ubiattach -m $rootfs_part"
 		echo "  mount /dev/mtdblock${newpart} /mnt/flash"
 		echo ""
 		echo "OPTIONAL: Add a RW 'data' UBIFS to the same MTD partition:"
 		echo ""
-		echo "  ubiattach /dev/ubi_ctrl -m $rootfs_part"
+		echo "  ubiattach -m $rootfs_part"
 		echo "  ubimkvol /dev/ubi0 -N data -m"
 		echo "  mount -t ubifs ubi0:data /data"
 	else
@@ -286,48 +286,33 @@ function handle_opt_5()
 	check_root ${hdd_dev##*/}
 	echo "Writing partition table..."
 
-	if [ "${use_gpt}" = "1" ]; then
-		sgdisk -Z ${hdd_dev} || true
-		sgdisk ${hdd_dev} \
-			-n 1:2048:8390655 -t 1:0700 -c 1:"rootfs" \
-			-n 2:8390656:16779263 -t 2:8200 -c 2:"swap" \
-			-n 3:16779264:33556479 -t 3:0700 -c 3:"application" \
-			-N 4 -t 4:0700 -c 4:"video"
+	sgdisk -Z ${hdd_dev} || true
+	sgdisk ${hdd_dev} \
+		-n 1:2048:8390655 -t 1:0700 -c 1:"rootfs" \
+		-n 2:8390656:16779263 -t 2:8200 -c 2:"swap" \
+		-n 3:16779264:33556479 -t 3:0700 -c 3:"application" \
+		-N 4 -t 4:0700 -c 4:"video"
 
-		# Give mdev time to create the device nodes
-		sleep 2
+	# Give mdev time to create the device nodes
+	sleep 2
 
-		# Enable swap; mke2fs on multi-terabyte drives can malloc
-		# upwards of 80MB
-		mkswap ${hdd_dev}2
-		swapon ${hdd_dev}2
+	# Enable swap; mke2fs on multi-terabyte drives can malloc
+	# upwards of 80MB
+	mkswap ${hdd_dev}2
+	swapon ${hdd_dev}2
 
-		mkfs.ext4 -E stripe-width=32 ${hdd_dev}1
-		mkfs.ext4 -E stripe-width=32 ${hdd_dev}3
-		mkfs.ext4 -E stripe-width=32 -i 262144 ${hdd_dev}4
+	mkfs.ext4 -E stripe-width=32 ${hdd_dev}1
+	mkfs.ext4 -E stripe-width=32 ${hdd_dev}3
+	mkfs.ext4 -E stripe-width=32 -i 262144 ${hdd_dev}4
 
-		tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}1
-		tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}3
-		tune2fs -c 0 -i 0 -o journal_data_writeback ${hdd_dev}4
+	tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}1
+	tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}3
+	tune2fs -c 0 -i 0 -o journal_data_writeback ${hdd_dev}4
 
-		swapoff ${hdd_dev}2
+	swapoff ${hdd_dev}2
 
-		fstab=/etc/fstab-ext4
-	else
-		dd if=/dev/zero of=${hdd_dev} bs=1k count=40960 2> /dev/null
-		cat /etc/partition-lba48.map | sfdisk -fq ${hdd_dev}
-
-		mkfs.ext3 ${hdd_dev}1
-		mkfs.ext3 ${hdd_dev}3
-		mkfs.ext3 -N 16384 ${hdd_dev}4
-		mkswap ${hdd_dev}2
-
-		tune2fs -o journal_data_ordered -i 0 ${hdd_dev}1
-		tune2fs -o journal_data_ordered -i 0 ${hdd_dev}3
-		tune2fs -o journal_data_ordered -i 0 ${hdd_dev}4
-
-		fstab=/etc/fstab
-	fi
+	# mount and populate the partitions
+	fstab=/etc/fstab-ext4
 
 	mount ${hdd_dev}1 /mnt/hd
 	write_rootfs -linux
@@ -339,7 +324,7 @@ function handle_opt_5()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftpdir/vmlinuz-$plat"
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -373,7 +358,7 @@ function handle_opt_7()
 	dev=/dev/${thumbdrive}
 
 	mount ${dev} /mnt/hd
-	tftp_fetch $tftphost $tftpdir/vmlinuz-$plat \
+	tftp_fetch $tftphost $tftppath/vmlinuz-$plat \
 		/mnt/hd/vmlinuz-$plat || exit 1
 	write_rootfs -dos
 	umount ${dev}
@@ -397,7 +382,7 @@ function handle_opt_8()
 {
 	cd /tmp
 	rm -rf nonfree.tar.bz2 nonfree
-	tftp_fetch $tftphost $tftpdir/nonfree-$plat.tar.bz2 \
+	tftp_fetch $tftphost $tftppath/nonfree-$plat.tar.bz2 \
 		/tmp/nonfree.tar.bz2 || exit 1
 	tar -jxf nonfree.tar.bz2
 	cd nonfree/*
@@ -446,7 +431,7 @@ Options:
 	-a <selection>		Use SELECTION as the menu item selection,
 				instead of prompting the user
 	-H <disk>		Use hard drive DISK (default sda)
-	<tftpdir>		TFTP server hostname
+	<tftphost>		TFTP server hostname
 	<dir>			Directory (relative path) on TFTP server
 
 Examples:
@@ -476,7 +461,6 @@ hdd_dev=/dev/sda
 local_dir=
 resp=
 auto_resp=0
-use_gpt=0
 
 if [ ! -e /etc/brcmstb.conf ]; then
 	echo "ERROR: missing /etc/brcmstb.conf"
@@ -486,7 +470,7 @@ fi
 
 # use default settings from brcmstb.conf
 tftphost=$TFTPHOST
-tftpdir=$TFTPDIR
+tftppath=$TFTPPATH
 plat=$PLAT
 
 if find_mtd_partition rootfs rootfs_part; then
@@ -504,7 +488,7 @@ find_mtd_partition kernel kernel_part || true
 
 # parse command line
 
-while getopts "a:d:H:gh" opt; do
+while getopts "a:d:H:h" opt; do
 	case $opt in
 		d)
 			local_dir=$OPTARG
@@ -520,9 +504,6 @@ while getopts "a:d:H:gh" opt; do
 				echo "warning: /dev/$OPTARG does not exist"
 			fi
 			;;
-		g)
-			use_gpt=1
-			;;
 		h|?)
 			usage
 			;;
@@ -533,10 +514,10 @@ if [ ! -z "$1" ]; then
 	tftparg="$1"
 	if [[ "$tftparg" = *:* ]]; then
 		tftphost=${tftparg%%:*}
-		tftpdir=${tftparg#*:}
+		tftppath=${tftparg#*:}
 	else
 		tftphost=$tftparg
-		tftpdir=""
+		tftppath=""
 	fi
 fi
 
@@ -584,7 +565,7 @@ while :; do
 	echo ""
 	if [ -z "$local_dir" ]; then
 		echo "Using TFTP server:     $tftphost"
-		echo "Using TFTP path:       $tftpdir"
+		echo "Using TFTP path:       $tftppath"
 	else
 		echo "Using local directory: $local_dir"
 	fi

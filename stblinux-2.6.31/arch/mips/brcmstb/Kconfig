@@ -15,7 +15,7 @@ config BRCM_LEGACY
 	  Say Y to enable legacy platforms (anything older than 7405).
 	  These builds are not supported by Broadcom and they may be
 	  removed at any time.
-	  
+
 
 choice
 	prompt "Chipset selection"
@@ -872,7 +872,7 @@ config MTD_BRCMNAND
 	default y
 	help
 	  Say Y to enable the onchip NAND controller.
-	  
+
 config BRCMNAND_MTD_EXTENSION
 	bool "Enable Broadcom NAND controller extension"
 	depends on MTD_BRCMNAND
@@ -1432,7 +1432,7 @@ config BRCM_HAS_SATA2
 
 config BRCM_HAS_SATA3
 	bool
-	#select BRCM_HAS_SATA
+	select BRCM_HAS_SATA
 	select HW_HAS_PCI if !BRCM_IKOS
 
 config BRCM_SATA_75MHZ_PLL

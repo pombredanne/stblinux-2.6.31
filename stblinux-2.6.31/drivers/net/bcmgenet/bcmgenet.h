@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2002-2008 Broadcom Corporation 
+ * Copyright (c) 2002-2008 Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -25,12 +25,15 @@
 #include <linux/spinlock.h>
 #include <linux/clk.h>
 #include "bcmgenet_map.h"
-
-#define TOTAL_DESC				256		/* total number of Buffer Descriptors, same for Rx/Tx */
-#define DMA_RING_DESC_INDEX		16		/* which ring is descriptor based */
-
-#define ENET_MAX_MTU_SIZE       1536    /* Body(1500) + EH_SIZE(14) + VLANTAG(4) + BRCMTAG(6) + FCS(4) = 1528.  1536 is multiple of 256 bytes */
-#define DMA_MAX_BURST_LENGTH    0x10    
+/* total number of Buffer Descriptors, same for Rx/Tx */
+#define TOTAL_DESC				256
+/* which ring is descriptor based */
+#define DESC_INDEX				16
+/* Body(1500) + EH_SIZE(14) + VLANTAG(4) + BRCMTAG(6) + FCS(4) = 1528.
+ * 1536 is multiple of 256 bytes
+ */
+#define ENET_MAX_MTU_SIZE       1536
+#define DMA_MAX_BURST_LENGTH    0x10
 
 #define GENET_TX_RING_COUNT		16
 #define GENET_RX_RING_COUNT		16
@@ -41,16 +44,16 @@
 
 /* misc. configuration */
 #define CLEAR_ALL_HFB			0xFF
-#define DMA_FC_THRESH_HI		TOTAL_DESC >> 4
+#define DMA_FC_THRESH_HI		(TOTAL_DESC >> 4)
 #define DMA_FC_THRESH_LO		5
 
 
-typedef struct Enet_CB {
-    struct sk_buff      *skb;
-    volatile DmaDesc    *BdAddr;
+struct Enet_CB {
+	struct sk_buff      *skb;
+	volatile struct DmaDesc    *BdAddr;
 	dma_addr_t			dma_addr;
 	int					dma_len;
-} Enet_CB;
+};
 
 /* power management mode */
 #define GENET_POWER_CABLE_SENSE	0
@@ -60,78 +63,78 @@ typedef struct Enet_CB {
 
 /*
  * device context
- */ 
-typedef struct BcmEnet_devctrl {
-    struct net_device *dev;             /* ptr to net_device */
+ */
+struct BcmEnet_devctrl {
+	struct net_device *dev;	/* ptr to net_device */
 	struct net_device *next_dev;
-    spinlock_t      lock;               /* Serializing lock */
-	spinlock_t		bh_lock;			/* soft IRQ lock */
-	struct mii_if_info mii;				/* mii interface info */
-	struct mutex mdio_mutex;			/* mutex for mii_read/write */
-	wait_queue_head_t	wq;				/* mii wait queue */
-	struct timer_list timer;
+	spinlock_t      lock;		/* Serializing lock */
+	spinlock_t		bh_lock;	/* soft IRQ lock */
+	struct mii_if_info mii;		/* mii interface info */
+	struct mutex mdio_mutex;	/* mutex for mii_read/write */
+	wait_queue_head_t	wq;		/* mii wait queue */
+	struct timer_list timer;	/* Link status timer */
 
-	struct napi_struct napi;			/* NAPI for descriptor based rx */
-	struct napi_struct ring_napi;		/* NAPI for ring buffer */
-	unsigned long base_addr;			/* GENET register start address. */
-    volatile uniMacRegs *umac;     		/* UNIMAC register block base address */
-	volatile rbufRegs	*rbuf;			/* rbuf registers */
-	volatile intrl2Regs *intrl2_0;		/* INTR2_0 registers */
-	volatile intrl2Regs *intrl2_1;		/* INTR2_1 registers */
-	volatile SysRegs    *sys;			/* sys register */
-	volatile GrBridgeRegs *grb;			/* Grb */
-	volatile ExtRegs    *ext;			/* Extention register */
-	volatile unsigned long *hfb;		/* HFB registers */
+	struct napi_struct napi;	/* NAPI for descriptor based rx */
+	struct napi_struct ring_napi;	/* NAPI for ring buffer */
+	unsigned long base_addr;	/* GENET register start address. */
+	volatile struct uniMacRegs *umac;	/* UNIMAC register */
+	volatile struct rbufRegs	*rbuf;	/* rbuf registers */
+	volatile struct intrl2Regs *intrl2_0;	/* INTR2_0 registers */
+	volatile struct intrl2Regs *intrl2_1;	/* INTR2_1 registers */
+	volatile struct SysRegs    *sys;	/* sys register */
+	volatile struct GrBridgeRegs *grb;	/* Grb */
+	volatile struct ExtRegs    *ext;	/* Extention register */
+	volatile unsigned long *hfb;/* HFB registers */
 #ifdef CONFIG_BRCM_GENET_V2
-	volatile tbufRegs *tbuf;			/* New register group for GENET2 */
-	volatile hfbRegs  *hfbReg;			/* New register group for GENET2 */
+	volatile struct tbufRegs *tbuf;	/* tbuf register for GENET2 */
+	volatile struct hfbRegs  *hfbReg;	/* hfb register for GENET2 */
 #endif
 
-    /* transmit variables */
-    volatile tDmaRegs *txDma;			/* location of transmit DMA register set */
-    volatile DmaDesc *txBds;            /* location of tx Dma BD ring */
-    Enet_CB  *txCbs;					/* locaation of tx control block pool */
-    int	nrTxBds;						/* number of transmit bds */
-    int	txFreeBds;						/* # of free transmit bds */
-	int	txLastCIndex;					/* consumer index for the last xmit call */
+	/* transmit variables */
+	volatile struct tDmaRegs *txDma;/* location of tx Dma register */
+	volatile struct DmaDesc *txBds;	/* location of tx Dma BD ring */
+	struct Enet_CB *txCbs;	/* locaation of tx control block pool */
+	int	nrTxBds;		/* number of transmit bds */
+	int	txFreeBds;		/* # of free transmit bds */
+	int	txLastCIndex;	/* consumer index for the last xmit call */
 
-	Enet_CB * txRingCBs[16];
-	unsigned int txRingSize[16];
-	unsigned int txRingCIndex[16];
-	int txRingFreeBds[16];
-	unsigned char * txRingStart[16];
+	struct Enet_CB *txRingCBs[16];	/* tx ring buffer control block*/
+	unsigned int txRingSize[16];	/* size of each tx ring */
+	unsigned int txRingCIndex[16];	/* last consumer index of each ring*/
+	int txRingFreeBds[16];	/* # of free bds for each ring */
+	unsigned char *txRingStart[16];	/* tx ring start addr */
 
-    /* receive variables */
-    volatile rDmaRegs *rxDma;			/* location of receive DMA register set */
-    volatile DmaDesc *rxBds;            /* location of rx bd ring */
-    volatile DmaDesc *rxBdAssignPtr;    /* ptr to next rx bd to become full */
-    Enet_CB  *rxCbs;					/* location of rx control block pool */
-    int	nrRxBds;						/* number of receive bds */
-    int	rxBufLen;						/* size of rx buffers for DMA */
-	
-	Enet_CB	 *rxRingCbs[16];			/* rx ring buffer control block */
-	unsigned int rxRingSize[16];		/* size of each ring */
-	unsigned int rxRingCIndex[16];		/* consumer index for each ring */
-	unsigned int rxRingDiscCnt[16];		/* Discarded packet count for each ring */
-	unsigned char * rxRingStart[16];
+	/* receive variables */
+	volatile struct rDmaRegs *rxDma;	/* location of rx dma  */
+	volatile struct DmaDesc *rxBds;		/* location of rx bd ring */
+	volatile struct DmaDesc *rxBdAssignPtr;	/*next rx bd to assign buffer*/
+	struct Enet_CB *rxCbs;	/* location of rx control block pool */
+	int	nrRxBds;	/* number of receive bds */
+	int	rxBufLen;	/* size of rx buffers for DMA */
 
+	struct Enet_CB *rxRingCbs[16];	/* rx ring buffer control */
+	unsigned int rxRingSize[16];	/* size of each ring */
+	unsigned int rxRingCIndex[16];	/* consumer index for each ring */
+	unsigned int rxRingDiscCnt[16];	/* # of discarded pkt for each ring */
+	unsigned char *rxRingStart[16];	/* ring buffer start addr.*/
 
-    int irq0;							/* regular IRQ */
-	int	irq1;							/* ring buf IRQ */
-    int phyAddr;
+	/* other misc variables */
+	int irq0;	/* regular IRQ */
+	int	irq1;	/* ring buf IRQ */
+	int phyAddr;
 	int	phyType;
 	int	bIPHdrOptimize;
-	unsigned int irq0_stat;				/* software copy of irq0 status, for botom half processing */
-	unsigned int irq1_stat;				/* Software copy of irq1 status, for NAPI processing */
+	unsigned int irq0_stat;	/* sw copy of irq0 status, for IRQ BH */
+	unsigned int irq1_stat;	/* sw copy of irq1 status, for NAPI rx */
 
 	struct work_struct bcmgenet_irq_work;	/* bottom half work */
 	struct work_struct bcmgenet_link_work;	/* GPHY link status work */
-    int    devnum;							/* 0=EMAC_0, 1=EMAC_1 */
+	int    devnum;		/* 0=EMAC_0, 1=EMAC_1 */
 	struct clk *clk;
-	int dev_opened;						/* device opened. */
-	int dev_asleep;						/* device is at sleep */
+	int dev_opened;		/* device opened. */
+	int dev_asleep;		/* device is at sleep */
 	struct platform_device *pdev;
-} BcmEnet_devctrl;
+};
 
 #if defined(CONFIG_BCMGENET_DUMP_TRACE)
 #define TRACE(x)        printk x
@@ -139,9 +142,9 @@ typedef struct BcmEnet_devctrl {
 #define TRACE(x)
 #endif
 
-/* These macros are defined to deal with register map change between GENET1.1 and GENET2.
- * Only those currently being used by driver are defined. 
- * and I absolutely HATE it !!!!
+/* These macros are defined to deal with register map change
+ * between GENET1.1 and GENET2. Only those currently being used
+ * by driver are defined.
  */
 #ifdef CONFIG_BRCM_GENET_V2
 

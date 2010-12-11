@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul 23 15:18:13 2010
- *                 MD5 Checksum         4438f28f1dca03f7590368a04a9665d0
+ * Date:           Generated on         Fri Oct 22 16:18:39 2010
+ *                 MD5 Checksum         17a8d26ca43eefd936baae5d159d5690
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7422/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/8   7/23/10 5:00p albertl
- * SW7422-1: Updated to match RDB.
+ * Hydra_Software_Devel/10   10/25/10 8:58a pntruong
+ * SW7422-1: Synced with central rdb.
  *
  ***************************************************************************/
 
@@ -529,12 +529,12 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00429800
 #define BCHP_CLKGEN_REG_START                              0x00430000
 #define BCHP_CLKGEN_REG_END                                0x004304ec
-#define BCHP_PLL_VCXO2_RM_REG_START                        0x00432000
-#define BCHP_PLL_VCXO2_RM_REG_END                          0x0043202c
-#define BCHP_PLL_VCXO1_RM_REG_START                        0x00432080
-#define BCHP_PLL_VCXO1_RM_REG_END                          0x004320ac
-#define BCHP_PLL_VCXO0_RM_REG_START                        0x00432100
-#define BCHP_PLL_VCXO0_RM_REG_END                          0x0043212c
+#define BCHP_VCXO_2_RM_REG_START                           0x00432000
+#define BCHP_VCXO_2_RM_REG_END                             0x0043202c
+#define BCHP_VCXO_1_RM_REG_START                           0x00432080
+#define BCHP_VCXO_1_RM_REG_END                             0x004320ac
+#define BCHP_VCXO_0_RM_REG_START                           0x00432100
+#define BCHP_VCXO_0_RM_REG_END                             0x0043212c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00432800
 #define BCHP_AVS_HW_MNTR_REG_END                           0x00432874
 #define BCHP_AVS_PVT_MNTR_CONFIG_REG_START                 0x00432900
@@ -2643,20 +2643,6 @@
 /* XPT_RAVE :: NOTEH_AC3_AUDIO_ES_SETUP :: AUDIO_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_SHIFT 0
-
-/***************************************************************************
- *NOTEH_DVD_AC3_AUDIO_ES_SETUP - ES Setup - DVD_AC3 Audio
- ***************************************************************************/
-/* XPT_RAVE :: NOTEH_DVD_AC3_AUDIO_ES_SETUP :: DVD_AUDIO_AC3_ES_FORMAT [31:00] */
-#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
-#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_SHIFT 0
-
-/***************************************************************************
- *NOTEI_DVD_LPCM_AUDIO_ES_SETUP - ES Setup - DVD_LPCM Audio
- ***************************************************************************/
-/* XPT_RAVE :: NOTEI_DVD_LPCM_AUDIO_ES_SETUP :: DVD_AUDIO_LPCM_ES_FORMAT [31:00] */
-#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_MASK 0xffffffff
-#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
  *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio

@@ -21,6 +21,7 @@
 #include <linux/pm.h>
 #include <linux/clk.h>
 #include <linux/version.h>
+#include <linux/module.h>
 #include <asm/brcmstb/brcmstb.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
@@ -32,7 +33,6 @@
 #define MAX_HCD			8
 
 static DEFINE_MUTEX(brcm_usb_mutex);
-static int usb_cb_registered;
 static struct clk *usb_clk;
 
 struct brcm_hcd_status {
@@ -125,13 +125,6 @@ int brcm_usb_probe(struct platform_device *pdev, char *hcd_name,
 
 	mutex_lock(&brcm_usb_mutex);
 
-	if (!usb_cb_registered) {
-		if (brcm_pm_register_cb("usb", brcm_usb_pwr, NULL))
-			dev_warn(&pdev->dev, "can't register PM callback\n");
-		else
-			usb_cb_registered = 1;
-	}
-
 	BUG_ON(brcm_hcd_count >= MAX_HCD);
 	brcm_hcd[brcm_hcd_count].hcd = hcd;
 	brcm_hcd[brcm_hcd_count].irq = irq;
@@ -141,6 +134,7 @@ int brcm_usb_probe(struct platform_device *pdev, char *hcd_name,
 
 	return ret;
 }
+EXPORT_SYMBOL(brcm_usb_probe);
 
 int brcm_usb_remove(struct platform_device *pdev)
 {
@@ -162,16 +156,19 @@ int brcm_usb_remove(struct platform_device *pdev)
 
 	return 0;
 }
+EXPORT_SYMBOL(brcm_usb_remove);
 
 void brcm_usb_suspend(struct usb_hcd *hcd)
 {
 	clk_disable(usb_clk);
 }
+EXPORT_SYMBOL(brcm_usb_suspend);
 
 void brcm_usb_resume(struct usb_hcd *hcd)
 {
 	clk_enable(usb_clk);
 }
+EXPORT_SYMBOL(brcm_usb_resume);
 
 /*
  * If the USB interface has already been disabled through runtime PM, the
@@ -186,3 +183,24 @@ int brcm_usb_is_inactive(void)
 	mutex_unlock(&brcm_usb_mutex);
 	return ret;
 }
+EXPORT_SYMBOL(brcm_usb_is_inactive);
+
+static int __init brcm_usb_init(void)
+{
+	if (brcm_pm_register_cb("usb", brcm_usb_pwr, NULL))
+		printk(KERN_WARNING "%s: can't register PM callback\n",
+			__func__);
+	return 0;
+}
+
+static void __exit brcm_usb_exit(void)
+{
+	brcm_pm_unregister_cb("usb");
+}
+
+module_init(brcm_usb_init)
+module_exit(brcm_usb_exit)
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Broadcom Corporation");
+MODULE_DESCRIPTION("Broadcom USB common functions");

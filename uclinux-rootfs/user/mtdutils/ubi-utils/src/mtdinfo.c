@@ -21,6 +21,9 @@
  * Author: Artem Bityutskiy
  */
 
+#define PROGRAM_VERSION "1.0"
+#define PROGRAM_NAME    "mtdinfo"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -31,9 +34,7 @@
 #include <libubigen.h>
 #include <libmtd.h>
 #include "common.h"
-
-#define PROGRAM_VERSION "1.0"
-#define PROGRAM_NAME    "mtdinfo"
+#include "ubiutils-common.h"
 
 /* The variables below are set by command line arguments */
 struct args {
@@ -50,10 +51,10 @@ static struct args args = {
 	.node = NULL,
 };
 
-static const char *doc = PROGRAM_NAME " version " PROGRAM_VERSION
+static const char doc[] = PROGRAM_NAME " version " PROGRAM_VERSION
 			 " - a tool to print MTD information.";
 
-static const char *optionsstr =
+static const char optionsstr[] =
 "-m, --mtdn=<MTD device number>  MTD device number to get information about\n"
 "-u, --ubi-info                  print what would UBI layout be if it was put\n"
 "                                on this MTD device\n"
@@ -61,7 +62,7 @@ static const char *optionsstr =
 "-h, --help                      print help message\n"
 "-V, --version                   print program version";
 
-static const char *usage =
+static const char usage[] =
 "Usage 1: " PROGRAM_NAME " [-m <MTD device number>] [-u] [-h] [-V] [--mtdn <MTD device number>]\n"
 "\t\t[--ubi-info] [--help] [--version]\n"
 "Usage 2: " PROGRAM_NAME " <MTD device node file name> [-u] [-h] [-V] [--ubi-info] [--help]\n"
@@ -155,7 +156,7 @@ static int translate_dev(libmtd_t libmtd, const char *node)
 				  "device \"%s\"", node);
 	}
 
-	args.mtdn = mtd.dev_num;
+	args.mtdn = mtd.mtd_num;
 	return 0;
 }
 
@@ -174,7 +175,7 @@ static int print_dev_info(libmtd_t libmtd, const struct mtd_info *mtd_info, int 
 				  mtdn);
 	}
 
-	printf("mtd%d\n", mtd.dev_num);
+	printf("mtd%d\n", mtd.mtd_num);
 	printf("Name:                           %s\n", mtd.name);
 	printf("Type:                           %s\n", mtd.type_str);
 	printf("Eraseblock size:                ");
@@ -215,7 +216,7 @@ static int print_dev_info(libmtd_t libmtd, const struct mtd_info *mtd_info, int 
 	}
 
 	ubigen_info_init(&ui, mtd.eb_size, mtd.min_io_size, mtd.subpage_size,
-			 0, 1);
+			 0, 1, 0);
 	printf("Default UBI VID header offset:  %d\n", ui.vid_hdr_offs);
 	printf("Default UBI data offset:        %d\n", ui.data_offs);
 	printf("Default UBI LEB size:           ");
@@ -234,27 +235,24 @@ static int print_general_info(libmtd_t libmtd, const struct mtd_info *mtd_info,
 	int i, err, first = 1;
 	struct mtd_dev_info mtd;
 
-	printf("Count of MTD devices:           %d\n", mtd_info->dev_count);
-	if (mtd_info->dev_count == 0)
+	printf("Count of MTD devices:           %d\n", mtd_info->mtd_dev_cnt);
+	if (mtd_info->mtd_dev_cnt == 0)
 		return 0;
 
-	printf("Present MTD devices:            ");
-	for (i = mtd_info->lowest_dev_num;
-	     i <= mtd_info->highest_dev_num; i++) {
+	for (i = mtd_info->lowest_mtd_num;
+	     i <= mtd_info->highest_mtd_num; i++) {
 		err = mtd_get_dev_info1(libmtd, i, &mtd);
 		if (err == -1) {
 			if (errno == ENODEV)
 				continue;
-
-			printf("\n");
 			return sys_errmsg("libmtd failed get MTD device %d "
-					   "information", i);
+					  "information", i);
 		}
 
 		if (!first)
 			printf(", mtd%d", i);
 		else {
-			printf("mtd%d", i);
+			printf("Present MTD devices:            mtd%d", i);
 			first = 0;
 		}
 	}
@@ -268,8 +266,8 @@ static int print_general_info(libmtd_t libmtd, const struct mtd_info *mtd_info,
 	first = 1;
 	printf("\n");
 
-	for (i = mtd_info->lowest_dev_num;
-	     i <= mtd_info->highest_dev_num; i++) {
+	for (i = mtd_info->lowest_mtd_num;
+	     i <= mtd_info->highest_mtd_num; i++) {
 		err = print_dev_info(libmtd, mtd_info, i);
 		if (err)
 			return err;

@@ -41,10 +41,6 @@
 #define DBG(...) /* */
 #endif
 
-/***********************************************************************
- * BMEM (reserved A/V buffer memory) support
- ***********************************************************************/
-
 #define LINUX_MIN_MEM		64
 #define MAX_BMEM_REGIONS	4
 
@@ -62,6 +58,92 @@ static unsigned int bmem_disabled = 1;
 #else
 static unsigned int bmem_disabled;
 #endif
+
+/***********************************************************************
+ * MEMC1 handling
+ ***********************************************************************/
+
+#if defined(CONFIG_BRCM_HAS_1GB_MEMC1)
+
+/* size of Linux-owned MEMC1 region (disabled by default) */
+static unsigned long memc1_linux_size;
+
+static int __init memc1_setup(char *str)
+{
+	char *orig_str = str;
+	unsigned long size = 0;
+	unsigned long memc1_bytes = brcm_dram1_size_mb << 20;
+
+	size = (unsigned long)memparse(str, &str);
+
+	if (size & ~PAGE_MASK) {
+		printk(KERN_WARNING "memc1: ignoring invalid size '%s' "
+			"(is it missing an 'M' suffix?)\n", orig_str);
+		return 0;
+	}
+
+	if (size > memc1_bytes) {
+		printk(KERN_WARNING "memc1: '%s' is larger than "
+			"MEMC1 (%lu MB), ignoring\n", orig_str,
+			brcm_dram1_size_mb);
+		return 0;
+	}
+
+	memc1_linux_size = memc1_bytes - size;
+	return 0;
+}
+
+early_param("memc1", memc1_setup);
+
+/*
+ * MEMC1 is split between the app and the kernel.  By default the kernel
+ * gets nothing.
+ *
+ * In cases where the app is allocated a chunk of MEMC1, an extra BMEM region
+ * will be created to communicate the starting address and size.
+ */
+static void __init brcm_free_memc1_bootmem(unsigned long addr,
+	unsigned long size)
+{
+	unsigned long memc1_bytes = brcm_dram1_size_mb << 20;
+	struct bmem_region *r = NULL;
+
+	BUG_ON(size != memc1_bytes);
+
+#if defined(CONFIG_BRCM_IKOS)
+	/* allows for testing MEMC1 HIGHMEM in emulation */
+	if (!memc1_linux_size)
+		memc1_linux_size = memc1_bytes;
+#endif
+
+	if (memc1_linux_size) {
+		unsigned long addr = MEMC1_START + memc1_bytes -
+			memc1_linux_size;
+		free_bootmem(addr, memc1_linux_size);
+		printk(KERN_INFO "memc1: adding %lu MB LINUX region at "
+			"%lu MB\n", memc1_linux_size >> 20, addr >> 20);
+	}
+	if (memc1_linux_size < memc1_bytes &&
+			n_bmem_regions < MAX_BMEM_REGIONS) {
+		/*
+		 * create a bmem region to tell the app
+		 * that it has space available in MEMC1
+		 */
+		r = &bmem_regions[n_bmem_regions];
+		r->addr = MEMC1_START;
+		r->size = memc1_bytes - memc1_linux_size;
+		n_bmem_regions++;
+
+		printk(KERN_INFO "memc1: adding %lu MB RESERVED region at "
+			"%lu MB\n", r->size >> 20, r->addr >> 20);
+	}
+}
+
+#endif /* defined(CONFIG_BRCM_HAS_1GB_MEMC1) */
+
+/***********************************************************************
+ * BMEM (reserved A/V buffer memory) support
+ ***********************************************************************/
 
 /*
  * Parses command line for bmem= options
@@ -269,6 +351,13 @@ void __init brcm_free_bootmem(unsigned long addr, unsigned long size)
 		bmem_defaults_set = 1;
 	}
 
+#if defined(CONFIG_BRCM_HAS_1GB_MEMC1)
+	if (addr == MEMC1_START) {
+		brcm_free_memc1_bootmem(addr, size);
+		return;
+	}
+#endif
+
 	while (size) {
 		unsigned long chunksize = size;
 		int i;
@@ -319,6 +408,13 @@ skip:
 		addr += chunksize;
 		size -= chunksize;
 	}
+#if defined(CONFIG_HIGHMEM) && defined(CONFIG_BRCM_HAS_1GB_MEMC1)
+	/* XXX BROKEN */
+	bmem_regions[n_bmem_regions].addr = MEMC1_START;
+	bmem_regions[n_bmem_regions].size = brcm_dram1_size_mb << 20;
+	bmem_regions[n_bmem_regions].valid = 1;
+	n_bmem_regions++;
+#endif
 }
 
 /*

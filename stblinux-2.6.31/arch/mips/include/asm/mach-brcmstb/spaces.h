@@ -106,8 +106,8 @@
 #define PCI_MEM_START		_AC(0xdeadbeef, UL)
 #define PCI_MEM_SIZE		_AC(0xdeadbeef, UL)
 
-#define PCI_IO_START		_AC(0xdeadbeef, UL)
-#define PCI_IO_SIZE		_AC(0xdeadbeef, UL)
+#define PCI_IO_START		_AC(0xffff0000, UL)
+#define PCI_IO_SIZE		_AC(0x00001000, UL)
 
 #define PCIE_MEM_START		_AC(0xd0000000, UL)
 #define PCIE_MEM_SIZE		_AC(0x20000000, UL)

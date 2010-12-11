@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Aug  2 14:46:45 2010
- *                 MD5 Checksum         6080c3c4b7d1ec6fc0b6f0255c247b84
+ * Date:           Generated on         Tue Nov  2 15:21:57 2010
+ *                 MD5 Checksum         d5654099cee13d096484a8849c56a604
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_ddr40_phy_control_regs_0.h $
  * 
- * Hydra_Software_Devel/1   8/2/10 4:26p pntruong
- * SW7358-2: Initial version of rdb header files.
+ * Hydra_Software_Devel/2   11/2/10 5:38p pntruong
+ * SW7358-2: Synced up with central RDB.
  *
  ***************************************************************************/
 
@@ -57,6 +57,7 @@
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_IDLE_PAD_CONTROL 0x003b6038 /* Idle mode SSTL pad control register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_ZQ_PVT_COMP_CTL 0x003b603c /* PVT Compensation control and status register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL 0x003b6040 /* SSTL pad drive characteristics control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS 0x003b6044 /* PHY Auto Init rd_data_dly result register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIBRATE 0x003b6048 /* PHY VDL calibration control register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIB_STATUS 0x003b604c /* PHY VDL calibration status register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_DQ_CALIB_STATUS 0x003b6050 /* PHY DQ VDL calibration status register */
@@ -145,9 +146,9 @@
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_reserved0_MASK    0xffffff80
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_reserved0_SHIFT   7
 
-/* DDR40_PHY_CONTROL_REGS_0 :: PLL_CONFIG :: 40LP_PLL_POST_RESET [06:06] */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_40LP_PLL_POST_RESET_MASK 0x00000040
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_40LP_PLL_POST_RESET_SHIFT 6
+/* DDR40_PHY_CONTROL_REGS_0 :: PLL_CONFIG :: LP40_PLL_POST_RESET [06:06] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_LP40_PLL_POST_RESET_MASK 0x00000040
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_LP40_PLL_POST_RESET_SHIFT 6
 
 /* DDR40_PHY_CONTROL_REGS_0 :: PLL_CONFIG :: RESET_POST_DIV [05:05] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_CONFIG_RESET_POST_DIV_MASK 0x00000020
@@ -195,9 +196,17 @@
 /***************************************************************************
  *PLL_DIVIDERS - PHY PLL dividers control register
  ***************************************************************************/
-/* DDR40_PHY_CONTROL_REGS_0 :: PLL_DIVIDERS :: reserved0 [31:14] */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_reserved0_MASK  0xffffc000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_reserved0_SHIFT 14
+/* DDR40_PHY_CONTROL_REGS_0 :: PLL_DIVIDERS :: reserved0 [31:16] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_reserved0_MASK  0xffff0000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_reserved0_SHIFT 16
+
+/* DDR40_PHY_CONTROL_REGS_0 :: PLL_DIVIDERS :: NDIV_40LP_HI [15:15] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_NDIV_40LP_HI_MASK 0x00008000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_NDIV_40LP_HI_SHIFT 15
+
+/* DDR40_PHY_CONTROL_REGS_0 :: PLL_DIVIDERS :: NDIV_40LP_LO [14:14] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_NDIV_40LP_LO_MASK 0x00004000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_NDIV_40LP_LO_SHIFT 14
 
 /* DDR40_PHY_CONTROL_REGS_0 :: PLL_DIVIDERS :: POST_DIV [13:11] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_PLL_DIVIDERS_POST_DIV_MASK   0x00003800
@@ -456,6 +465,25 @@
 /* DDR40_PHY_CONTROL_REGS_0 :: DRIVE_PAD_CTL :: g_ddr [00:00] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL_g_ddr_MASK     0x00000001
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL_g_ddr_SHIFT    0
+
+/***************************************************************************
+ *VDL_RD_DATA_DLY_STATUS - PHY Auto Init rd_data_dly result register
+ ***************************************************************************/
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: reserved0 [31:12] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_reserved0_MASK 0xfffff000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_reserved0_SHIFT 12
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: auto_init_state [11:06] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_auto_init_state_MASK 0x00000fc0
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_auto_init_state_SHIFT 6
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: rd_data_dly_max [05:03] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_max_MASK 0x00000038
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_max_SHIFT 3
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: rd_data_dly_min [02:00] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_min_MASK 0x00000007
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_min_SHIFT 0
 
 /***************************************************************************
  *VDL_CALIBRATE - PHY VDL calibration control register
@@ -791,9 +819,29 @@
 /***************************************************************************
  *VREF_DAC_CONTROL - VREF DAC Control register
  ***************************************************************************/
-/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: reserved0 [31:15] */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_reserved0_MASK 0xffff8000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_reserved0_SHIFT 15
+/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: reserved0 [31:21] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_reserved0_MASK 0xffe00000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_reserved0_SHIFT 21
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: LDO_CK1_GT_INT [20:20] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_CK1_GT_INT_MASK 0x00100000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_CK1_GT_INT_SHIFT 20
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: LDO_CK0_GT_INT [19:19] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_CK0_GT_INT_MASK 0x00080000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_CK0_GT_INT_SHIFT 19
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: LDO_GT_INT [18:18] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_GT_INT_MASK 0x00040000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_GT_INT_SHIFT 18
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: EXT_GT_INT [17:17] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_EXT_GT_INT_MASK 0x00020000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_EXT_GT_INT_SHIFT 17
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: LDO_TESTOUT_MUX_CTL [16:15] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_TESTOUT_MUX_CTL_MASK 0x00018000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_LDO_TESTOUT_MUX_CTL_SHIFT 15
 
 /* DDR40_PHY_CONTROL_REGS_0 :: VREF_DAC_CONTROL :: TEST [14:14] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VREF_DAC_CONTROL_TEST_MASK   0x00004000
@@ -1007,9 +1055,17 @@
 /***************************************************************************
  *STANDBY_CONTROL - Standby Control register
  ***************************************************************************/
-/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: reserved0 [31:17] */
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_MASK 0xfffe0000
-#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_SHIFT 17
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: reserved0 [31:19] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_MASK 0xfff80000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_reserved0_SHIFT 19
+
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_ready [18:18] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_ready_MASK 0x00040000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_ready_SHIFT 18
+
+/* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_exit_pin_en [17:17] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_exit_pin_en_MASK 0x00020000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_exit_pin_en_SHIFT 17
 
 /* DDR40_PHY_CONTROL_REGS_0 :: STANDBY_CONTROL :: standby_active [16:16] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_STANDBY_CONTROL_standby_active_MASK 0x00010000

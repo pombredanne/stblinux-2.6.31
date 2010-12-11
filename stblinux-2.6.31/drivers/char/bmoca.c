@@ -61,7 +61,7 @@
 
 /* offsets from the start of the MoCA core */
 #define OFF_DATA_MEM		0x00000000
-#define OFF_CNTL_MEM		0x0004c000
+#define OFF_CNTL_MEM		0x00040000
 #define OFF_PKT_REINIT_MEM	0x00a08000
 #define OFF_M2M_SRC		0x000a2000
 #define OFF_M2M_DST		0x000a2004
@@ -87,7 +87,7 @@
 #define DATA_MEM_SIZE		(256 * 1024)
 #endif
 
-#define CNTL_MEM_SIZE		(80 * 1024)
+#define CNTL_MEM_SIZE		(128 * 1024)
 #define PKT_REINIT_MEM_SIZE	(32 * 1024)
 
 #define DATA_MEM_END		(OFF_DATA_MEM + DATA_MEM_SIZE)

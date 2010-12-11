@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2002-2005 Broadcom Corporation 
+ * Copyright (c) 2002-2005 Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -28,7 +28,8 @@
 #define MII_BRCM_AUX_SPEED_100				0x40
 #define MII_BRCM_AUX_LP_AN					0x80
 #define MII_BRCM_AUX_LP_PR					0x100
-#define MII_BRCM_AUX_AN_HCD_MASK			0x03 	/* highest common denominator*/
+/* highest common denominator*/
+#define MII_BRCM_AUX_AN_HCD_MASK			0x03
 #define MII_BRCM_AUX_AN_HCD_SHIFT			0x08
 #define MII_BRCM_AUX_AN_HCD_10T				0X01
 #define MII_BRCM_AUX_AN_HCD_10T_FULL		0x02
@@ -41,11 +42,11 @@
 #define MII_BRCM_AUX_GPHY_TX_PAUSE			0
 #define MII_BRCM_AUX_GPHY_RX_PAUSE			1
 /****************************************************************************
-    Prototypes
+Prototypes
 ****************************************************************************/
 
 extern void mii_setup(struct net_device *dev);
 extern int mii_init(struct net_device *dev);
-extern int mii_probe(struct net_device * dev, void * p);
+extern int mii_probe(struct net_device *dev, void * p);
 
 #endif /* _BCMMII_H_ */

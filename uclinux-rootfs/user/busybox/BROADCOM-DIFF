@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-10-22
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-11-21
 #
 # Original package: busybox-1.16.1.tar.bz2
 #
 diff -ruNp busybox.orig/makefile busybox/makefile
 --- busybox.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ busybox/makefile	2010-10-22 14:51:04.000000000 -0700
++++ busybox/makefile	2010-11-21 13:40:15.000000000 -0800
 @@ -0,0 +1,41 @@
 +#
 +# General settings
@@ -50,7 +50,7 @@ diff -ruNp busybox.orig/makefile busybox/makefile
 +	$(MAKE) -f Makefile $@
 diff -ruNp busybox.orig/networking/tftp.c busybox/networking/tftp.c
 --- busybox.orig/networking/tftp.c	2010-03-28 10:44:04.000000000 -0700
-+++ busybox/networking/tftp.c	2010-10-22 14:51:04.000000000 -0700
++++ busybox/networking/tftp.c	2010-11-21 13:40:15.000000000 -0800
 @@ -336,7 +336,7 @@ static int tftp_protocol(
  		/* Open file (must be after changing user) */
  		local_fd = CMD_GET(option_mask32) ? STDOUT_FILENO : STDIN_FILENO;

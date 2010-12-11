@@ -246,6 +246,17 @@ void __init bchip_mips_setup(void)
 
 #elif defined(CONFIG_BMIPS4380)
 
+	unsigned long cbr = BMIPS_GET_CBR();
+
+	/* CRBMIPS438X-164: CBG workaround */
+	switch (read_c0_prid()) {
+	case 0x2a040:
+	case 0x2a042:
+	case 0x2a044:
+	case 0x2a060:
+		DEV_UNSET(cbr + BMIPS_L2_CONFIG, 0x07000000);
+	}
+
 	/* clear BHTD to enable branch history table */
 	clear_c0_brcm_config_0(1 << 21);
 
@@ -349,6 +360,8 @@ void __init bchip_moca_init(void)
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
 #elif defined(CONFIG_BCM7420)
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
+#elif defined(CONFIG_BCM7422A0)
+	BDEV_WR_F(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL_CH_1, MDIV_CH1, 90);
 #endif
 }
 #endif

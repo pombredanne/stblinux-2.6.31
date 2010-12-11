@@ -22,20 +22,23 @@
 #include "libnetlink.h"
 #include "ll_map.h"
 
+extern unsigned int if_nametoindex (const char *);
+
 struct idxmap
 {
 	struct idxmap * next;
-	int		index;
+	unsigned	index;
 	int		type;
 	int		alen;
 	unsigned	flags;
-	unsigned char	addr[8];
+	unsigned char	addr[20];
 	char		name[16];
 };
 
 static struct idxmap *idxmap[16];
 
-int ll_remember_index(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+int ll_remember_index(const struct sockaddr_nl *who,
+		      struct nlmsghdr *n, void *arg)
 {
 	int h;
 	struct ifinfomsg *ifi = NLMSG_DATA(n);
@@ -85,7 +88,7 @@ int ll_remember_index(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
 	return 0;
 }
 
-const char *ll_idx_n2a(int idx, char *buf)
+const char *ll_idx_n2a(unsigned idx, char *buf)
 {
 	struct idxmap *im;
 
@@ -99,14 +102,14 @@ const char *ll_idx_n2a(int idx, char *buf)
 }
 
 
-const char *ll_index_to_name(int idx)
+const char *ll_index_to_name(unsigned idx)
 {
 	static char nbuf[16];
 
 	return ll_idx_n2a(idx, nbuf);
 }
 
-int ll_index_to_type(int idx)
+int ll_index_to_type(unsigned idx)
 {
 	struct idxmap *im;
 
@@ -118,7 +121,7 @@ int ll_index_to_type(int idx)
 	return -1;
 }
 
-unsigned ll_index_to_flags(int idx)
+unsigned ll_index_to_flags(unsigned idx)
 {
 	struct idxmap *im;
 
@@ -131,7 +134,28 @@ unsigned ll_index_to_flags(int idx)
 	return 0;
 }
 
-int ll_name_to_index(char *name)
+unsigned ll_index_to_addr(unsigned idx, unsigned char *addr,
+			  unsigned alen)
+{
+	struct idxmap *im;
+
+	if (idx == 0)
+		return 0;
+
+	for (im = idxmap[idx&0xF]; im; im = im->next) {
+		if (im->index == idx) {
+			if (alen > sizeof(im->addr))
+				alen = sizeof(im->addr);
+			if (alen > im->alen)
+				alen = im->alen;
+			memcpy(addr, im->addr, alen);
+			return alen;
+		}
+	}
+	return 0;
+}
+
+unsigned ll_name_to_index(const char *name)
 {
 	static char ncache[16];
 	static int icache;
@@ -151,7 +175,8 @@ int ll_name_to_index(char *name)
 			}
 		}
 	}
-	return 0;
+
+	return if_nametoindex(name);
 }
 
 int ll_init_map(struct rtnl_handle *rth)

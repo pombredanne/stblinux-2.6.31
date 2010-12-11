@@ -26,8 +26,9 @@
 #include <linux/interrupt.h>
 #include <linux/spi/spi.h>
 #include <linux/platform_device.h>
-#include <asm/io.h>
-#include <asm/delay.h>
+#include <linux/io.h>
+#include <linux/delay.h>
+
 #include <asm/brcmstb/brcmstb.h>
 
 #if 0
@@ -49,12 +50,6 @@ struct bcmspi_parms {
 	u8			mode;
 	u8			bits_per_word;
 };
-
-extern const struct bcmspi_parms bcmspi_default_parms_cs0;
-extern const struct bcmspi_parms bcmspi_default_parms_cs1;
-
-int bcmspi_simple_transaction(struct bcmspi_parms *xp,
-	const void *tx_buf, int tx_len, void *rx_buf, int rx_len);
 
 const struct bcmspi_parms bcmspi_default_parms_cs0 = {
 	.speed_hz		= MAX_SPEED_HZ,
@@ -147,7 +142,7 @@ static void bcmspi_disable_bspi(struct bcmspi_priv *priv)
 		return;
 
 	DBG("disabling bspi\n");
-	for(i = 0; i < 1000; i++) {
+	for (i = 0; i < 1000; i++) {
 		if ((priv->bspi_hw->busy_status & 1) == 0) {
 			priv->bspi_hw->mast_n_boot_ctrl = 1;
 			priv->bspi_enabled = 0;
@@ -185,7 +180,7 @@ static void bcmspi_hw_set_parms(struct bcmspi_priv *priv,
 	} else {
 		priv->mspi_hw->spcr0_lsb = SPBR_MIN;
 	}
-	priv->mspi_hw->spcr0_msb = 0x80 |	// MSTR bit
+	priv->mspi_hw->spcr0_msb = 0x80 |	/* MSTR bit */
 		((xp->bits_per_word ? xp->bits_per_word : 8) << 2) |
 		(xp->mode & 3);
 	priv->last_parms = *xp;
@@ -194,8 +189,8 @@ static void bcmspi_hw_set_parms(struct bcmspi_priv *priv,
 #define PARMS_NO_OVERRIDE		0
 #define PARMS_OVERRIDE			1
 
-static int bcmspi_update_parms(struct bcmspi_priv *priv, struct spi_device *spidev,
-	struct spi_transfer *trans, int override)
+static int bcmspi_update_parms(struct bcmspi_priv *priv,
+	struct spi_device *spidev, struct spi_transfer *trans, int override)
 {
 	struct bcmspi_parms xp;
 
@@ -206,17 +201,17 @@ static int bcmspi_update_parms(struct bcmspi_priv *priv, struct spi_device *spid
 	xp.mode = spidev->mode;
 	xp.bits_per_word = trans->bits_per_word ? trans->bits_per_word :
 		(spidev->bits_per_word ? spidev->bits_per_word : 8);
-	
+
 	if ((override == PARMS_OVERRIDE) ||
 		((xp.speed_hz == priv->last_parms.speed_hz) &&
 		 (xp.chip_select == priv->last_parms.chip_select) &&
 		 (xp.mode == priv->last_parms.mode) &&
 		 (xp.bits_per_word == priv->last_parms.bits_per_word))) {
 		bcmspi_hw_set_parms(priv, &xp);
-		return(0);
+		return 0;
 	}
 	/* no override, and parms do not match */
-	return(1);
+	return 1;
 }
 
 
@@ -225,16 +220,16 @@ static int bcmspi_setup(struct spi_device *spi)
 	struct bcmspi_parms *xp;
 	struct bcmspi_priv *priv = spi_master_get_devdata(spi->master);
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	if (spi->bits_per_word > 16)
-		return(-EINVAL);
+		return -EINVAL;
 
 	xp = spi_get_ctldata(spi);
 	if (!xp) {
 		xp = kzalloc(sizeof(struct bcmspi_parms), GFP_KERNEL);
 		if (!xp)
-			return(-ENOMEM);
+			return -ENOMEM;
 		spi_set_ctldata(spi, xp);
 	}
 	if (spi->max_speed_hz < priv->max_speed_hz)
@@ -246,14 +241,19 @@ static int bcmspi_setup(struct spi_device *spi)
 	xp->mode = spi->mode;
 	xp->bits_per_word = spi->bits_per_word ? spi->bits_per_word : 8;
 
-	return(0);
+	return 0;
 }
 
+/* stop at end of transfer, no other reason */
 #define FNB_BREAK_NONE			0
-#define FNB_BREAK_EOM			1	/* stop at end of spi_message */
-#define FNB_BREAK_DELAY			2	/* stop at end of spi_transfer if delay */
-#define FNB_BREAK_CS_CHANGE		4	/* stop at end of spi_transfer if cs_change */
-#define FNB_BREAK_NO_BYTES		8	/* stop if we run out of bytes */
+/* stop at end of spi_message */
+#define FNB_BREAK_EOM			1
+/* stop at end of spi_transfer if delay */
+#define FNB_BREAK_DELAY			2
+/* stop at end of spi_transfer if cs_change */
+#define FNB_BREAK_CS_CHANGE		4
+/* stop if we run out of bytes */
+#define FNB_BREAK_NO_BYTES		8
 
 /* events that make us stop filling TX slots */
 #define FNB_BREAK_TX			(FNB_BREAK_EOM | FNB_BREAK_DELAY | \
@@ -279,16 +279,17 @@ static int find_next_byte(struct bcmspi_priv *priv, struct position *p,
 		if (p->trans->cs_change && (flags & FNB_BREAK_CS_CHANGE))
 			ret |= FNB_BREAK_CS_CHANGE;
 		if (ret)
-			return(ret);
+			return ret;
 
 		/* advance to next spi_message? */
-		if (list_is_last(&p->trans->transfer_list, &p->msg->transfers)) {
+		if (list_is_last(&p->trans->transfer_list,
+				&p->msg->transfers)) {
 			struct spi_message *next_msg = NULL;
 
 			/* TX breaks at the end of each message as well */
 			if (!completed || (flags & FNB_BREAK_EOM)) {
 				DBG("find_next_byte: advance msg exit\n");
-				return(FNB_BREAK_EOM);
+				return FNB_BREAK_EOM;
 			}
 			if (!list_is_last(&p->msg->queue, &priv->msg_queue)) {
 				next_msg = list_entry(p->msg->queue.next,
@@ -321,7 +322,7 @@ static int find_next_byte(struct bcmspi_priv *priv, struct position *p,
 	}
 	DBG("find_next_byte: msg %p trans %p len %d byte %d ret %x\n",
 		p->msg, p->trans, p->trans ? p->trans->len : 0, p->byte, ret);
-	return(ret);
+	return ret;
 }
 
 static void read_from_hw(struct bcmspi_priv *priv, struct list_head *completed)
@@ -329,7 +330,7 @@ static void read_from_hw(struct bcmspi_priv *priv, struct list_head *completed)
 	struct position p;
 	int slot = 0, n = priv->outstanding_bytes;
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	p = priv->pos;
 
@@ -373,7 +374,7 @@ static void write_to_hw(struct bcmspi_priv *priv)
 	int slot = 0, fnb = 0;
 	struct spi_message *msg = NULL;
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	bcmspi_disable_bspi(priv);
 
@@ -435,8 +436,14 @@ static void write_to_hw(struct bcmspi_priv *priv)
 			(BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & ~0xff) |
 			(1 << msg->spi->chip_select));
 
+#if defined(CONFIG_BCM7422) || defined(CONFIG_BCM7425A0)
+		/* add delay after CS drop due to glitch on HOLDb line */
+		priv->mspi_hw->spcr1_lsb = 0x80;
+		priv->mspi_hw->cdram[0] |= 0x10;	/* dsck */
+#endif
+
 		BDEV_WR_F_RB(HIF_MSPI_WRITE_LOCK, WriteLock, 1);
-		priv->mspi_hw->spcr2 = 0xe0;	// cont | spe | spifie
+		priv->mspi_hw->spcr2 = 0xe0;	/* cont | spe | spifie */
 
 		priv->state = STATE_RUNNING;
 		priv->outstanding_bytes = slot;
@@ -462,7 +469,7 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 			break;
 		if (priv->state == STATE_SHUTDOWN) {
 			spin_unlock_irqrestore(&priv->lock, flags);
-			return(-EIO);
+			return -EIO;
 		}
 		spin_unlock_irqrestore(&priv->lock, flags);
 		sleep_on(&priv->idle_wait);
@@ -512,7 +519,7 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 
 	spin_unlock_irqrestore(&priv->lock, flags);
 
-	return(0);
+	return 0;
 }
 
 /*
@@ -529,18 +536,18 @@ static int bcmspi_emulate_flash_rdsr(struct bcmspi_priv *priv,
 	struct spi_transfer *trans;
 
 	if (priv->bspi_enabled == 0)
-		return(1);
-	
+		return 1;
+
 	trans = list_entry(msg->transfers.next->next, struct spi_transfer,
 		transfer_list);
 
 	buf = (void *)trans->rx_buf;
 	*buf = 0x00;
-	
+
 	msg->actual_length = 2;
 	msg->complete(msg->context);
 
-	return(0);
+	return 0;
 }
 
 #define OPCODE_READ		0x03
@@ -551,7 +558,7 @@ static int bcmspi_transfer(struct spi_device *spi, struct spi_message *msg)
 	struct bcmspi_priv *priv = spi_master_get_devdata(spi->master);
 	unsigned long flags;
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	if (msg->spi->chip_select == priv->bspi_chip_select) {
 		struct spi_transfer *trans;
@@ -561,20 +568,20 @@ static int bcmspi_transfer(struct spi_device *spi, struct spi_message *msg)
 		if (trans && trans->len && trans->tx_buf &&
 		   (((u8 *)trans->tx_buf)[0] == OPCODE_READ)) {
 			if (bcmspi_emulate_flash_read(priv, msg) == 0)
-				return(0);
+				return 0;
 		}
 		if (trans && trans->len && trans->tx_buf &&
 		   (((u8 *)trans->tx_buf)[0] == OPCODE_RDSR)) {
 			if (bcmspi_emulate_flash_rdsr(priv, msg) == 0)
-				return(0);
+				return 0;
 		}
 	}
-	
+
 	spin_lock_irqsave(&priv->lock, flags);
 
 	if (priv->state == STATE_SHUTDOWN) {
 		spin_unlock_irqrestore(&priv->lock, flags);
-		return(-EIO);
+		return -EIO;
 	}
 
 	msg->actual_length = 0;
@@ -592,14 +599,14 @@ static int bcmspi_transfer(struct spi_device *spi, struct spi_message *msg)
 	}
 	spin_unlock_irqrestore(&priv->lock, flags);
 
-	return(0);
+	return 0;
 }
 
 static void bcmspi_cleanup(struct spi_device *spi)
 {
 	struct bcmspi_parms *xp = spi_get_ctldata(spi);
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	kfree(xp);
 }
@@ -608,7 +615,7 @@ static irqreturn_t bcmspi_interrupt(int irq, void *dev_id)
 {
 	struct bcmspi_priv *priv = dev_id;
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	if (priv->mspi_hw->mspi_status & 1) {
 		/* clear interrupt */
@@ -616,9 +623,9 @@ static irqreturn_t bcmspi_interrupt(int irq, void *dev_id)
 		BDEV_WR_F_RB(HIF_SPI_INTR2_CPU_CLEAR, MSPI_DONE, 1);
 
 		tasklet_schedule(&priv->tasklet);
-		return(IRQ_HANDLED);
+		return IRQ_HANDLED;
 	} else {
-		return(IRQ_NONE);
+		return IRQ_NONE;
 	}
 }
 
@@ -629,7 +636,7 @@ static void bcmspi_tasklet(unsigned long param)
 	struct spi_message *msg;
 	unsigned long flags;
 
-	DBG("%s\n", __FUNCTION__);
+	DBG("%s\n", __func__);
 
 	INIT_LIST_HEAD(&completed);
 	spin_lock_irqsave(&priv->lock, flags);
@@ -664,7 +671,7 @@ static void bcmspi_complete(void *arg)
 	complete(arg);
 }
 
-static struct spi_master *default_master = NULL;
+static struct spi_master *default_master;
 
 int bcmspi_simple_transaction(struct bcmspi_parms *xp,
 	const void *tx_buf, int tx_len, void *rx_buf, int rx_len)
@@ -702,7 +709,7 @@ int bcmspi_simple_transaction(struct bcmspi_parms *xp,
 	ret = bcmspi_transfer(&spi, &m);
 	if (!ret)
 		wait_for_completion(&fini);
-	return(ret);
+	return ret;
 }
 EXPORT_SYMBOL(bcmspi_simple_transaction);
 
@@ -712,7 +719,7 @@ static void bcmspi_hw_init(struct bcmspi_priv *priv)
 	priv->mspi_hw->spcr1_msb = 0;
 	priv->mspi_hw->newqp = 0;
 	priv->mspi_hw->endqp = 0;
-	priv->mspi_hw->spcr2 = 0x20;	// spifie
+	priv->mspi_hw->spcr2 = 0x20;	/* spifie */
 
 	bcmspi_hw_set_parms(priv, &bcmspi_default_parms_cs0);
 
@@ -722,7 +729,7 @@ static void bcmspi_hw_init(struct bcmspi_priv *priv)
 
 static void bcmspi_hw_uninit(struct bcmspi_priv *priv)
 {
-	priv->mspi_hw->spcr2 = 0x0;	// disable irq and enable bits
+	priv->mspi_hw->spcr2 = 0x0;	/* disable irq and enable bits */
 	bcmspi_enable_bspi(priv);
 }
 
@@ -744,7 +751,7 @@ static int bcmspi_probe(struct platform_device *pdev)
 	master = spi_alloc_master(dev, sizeof(struct bcmspi_priv));
 	if (!master) {
 		dev_err(&pdev->dev, "error allocating spi_master\n");
-		return(-ENOMEM);
+		return -ENOMEM;
 	}
 
 	priv = spi_master_get_devdata(master);
@@ -836,7 +843,7 @@ static int bcmspi_probe(struct platform_device *pdev)
 	if (!default_master)
 		default_master = master;
 
-	return(0);
+	return 0;
 
 err1:
 	bcmspi_hw_uninit(priv);
@@ -845,7 +852,7 @@ err2:
 	iounmap(priv->mspi_hw);
 err3:
 	spi_master_put(master);
-	return(ret);
+	return ret;
 }
 
 static int bcmspi_remove(struct platform_device *pdev)
@@ -863,7 +870,7 @@ static int bcmspi_remove(struct platform_device *pdev)
 	}
 	priv->state = STATE_SHUTDOWN;
 	spin_unlock_irqrestore(&priv->lock, flags);
-	
+
 	tasklet_kill(&priv->tasklet);
 	platform_set_drvdata(pdev, NULL);
 	bcmspi_hw_uninit(priv);
@@ -874,7 +881,7 @@ static int bcmspi_remove(struct platform_device *pdev)
 
 	spi_unregister_master(priv->master);
 
-	return(0);
+	return 0;
 }
 
 static struct platform_driver driver = {
@@ -885,7 +892,6 @@ static struct platform_driver driver = {
 	},
 	.probe = bcmspi_probe,
 	.remove = __devexit_p(bcmspi_remove),
-	//.shutdown = bcmspi_shutdown,
 };
 
 static int __init bcmspi_spi_init(void)

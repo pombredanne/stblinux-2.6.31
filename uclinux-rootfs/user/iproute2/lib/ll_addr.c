@@ -17,13 +17,15 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <linux/netdevice.h>
-#include <linux/if_arp.h>
-#include <linux/sockios.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
 
+#include <linux/netdevice.h>
+#include <linux/if_arp.h>
+#include <linux/sockios.h>
+
+#include "rt_names.h"
 #include "utils.h"
 
 
@@ -35,6 +37,9 @@ const char *ll_addr_n2a(unsigned char *addr, int alen, int type, char *buf, int 
 	if (alen == 4 &&
 	    (type == ARPHRD_TUNNEL || type == ARPHRD_SIT || type == ARPHRD_IPGRE)) {
 		return inet_ntop(AF_INET, addr, buf, blen);
+	}
+	if (alen == 16 && type == ARPHRD_TUNNEL6) {
+		return inet_ntop(AF_INET6, addr, buf, blen);
 	}
 	l = 0;
 	for (i=0; i<alen; i++) {
@@ -51,7 +56,8 @@ const char *ll_addr_n2a(unsigned char *addr, int alen, int type, char *buf, int 
 	return buf;
 }
 
-int ll_addr_a2n(unsigned char *lladdr, int len, char *arg)
+/*NB: lladdr is char * (rather than u8 *) because sa_data is char * (1003.1g) */
+int ll_addr_a2n(char *lladdr, int len, char *arg)
 {
 	if (strchr(arg, '.')) {
 		inet_prefix pfx;

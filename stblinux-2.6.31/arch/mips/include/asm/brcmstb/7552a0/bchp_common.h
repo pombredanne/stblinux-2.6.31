@@ -21,7 +21,7 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Oct  9 13:31:03 2010
+ * Date:           Generated on         Thu Oct 21 14:39:07 2010
  *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
  *
  * Compiled with:  RDB Utility          combo_header.pl
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_common.h $
+ * 
+ * Hydra_Software_Devel/2   10/21/10 5:12p pntruong
+ * SW7552-2: Synced with central rdb.
  *
  ***************************************************************************/
 
@@ -1357,7 +1360,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1376,7 +1379,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1395,7 +1398,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

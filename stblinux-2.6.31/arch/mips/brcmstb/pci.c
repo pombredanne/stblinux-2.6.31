@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Broadcom Corporation
+ * Copyright (C) 2009 - 2010 Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -33,6 +33,8 @@
 
 #if defined(BCHP_PCIX_BRIDGE_GRB_REG_START)
 #define SATA_MEM_START		(BCHP_PCIX_BRIDGE_GRB_REG_START + 0x10010000)
+#elif defined(CONFIG_BRCM_HAS_SATA3)
+#define SATA_MEM_START		BPHYSADDR(BCHP_SATA_AHCI_GHC_REG_START)
 #else
 #define SATA_MEM_START		0x10510000
 #endif
@@ -80,7 +82,7 @@
 #define SET_PERST(x)		\
 	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_SW_PERST, (x))
 
-#define PCIE_IO_REG_START	BCHP_PCIE_EXT_CFG_REG_START
+#define PCIE_IO_REG_START	BPHYSADDR(BCHP_PCIE_EXT_CFG_REG_START)
 #define PCIE_IO_REG_SIZE	0x00000008
 
 #endif /* defined(CONFIG_BCM7420) */
@@ -90,6 +92,11 @@ static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 static int brcm_pci_write_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 data);
 
+static int brcm_sata3_read_config(struct pci_bus *bus, unsigned int devfn,
+	int where, int size, u32 *data);
+static int brcm_sata3_write_config(struct pci_bus *bus, unsigned int devfn,
+	int where, int size, u32 data);
+
 static inline int get_busno_pci23(void) { return BRCM_BUSNO_PCI23; }
 static inline int get_busno_sata(void)  { return BRCM_BUSNO_SATA;  }
 static inline int get_busno_pcie(void)  { return BRCM_BUSNO_PCIE;  }
@@ -97,6 +104,11 @@ static inline int get_busno_pcie(void)  { return BRCM_BUSNO_PCIE;  }
 static struct pci_ops brcmstb_pci_ops = {
 	.read = brcm_pci_read_config,
 	.write = brcm_pci_write_config,
+};
+
+static struct pci_ops __maybe_unused brcmstb_sata3_ops = {
+	.read = brcm_sata3_read_config,
+	.write = brcm_sata3_write_config,
 };
 
 /*
@@ -264,6 +276,10 @@ static inline void brcm_setup_sata_bridge(void)
 	BDEV_WR(BCHP_PCIX_BRIDGE_CPU_TO_SATA_MEM_WIN_BASE,
 		SATA_MEM_START | MMIO_ENDIAN);
 	BDEV_WR(BCHP_PCIX_BRIDGE_CPU_TO_SATA_IO_WIN_BASE, MMIO_ENDIAN);
+
+#elif defined(CONFIG_BRCM_HAS_SATA3)
+
+	/* XXX */
 
 #endif
 }
@@ -452,7 +468,7 @@ static inline void brcm_setup_pcie_bridge(void)
 
 static int __init brcmstb_pci_init(void)
 {
-	unsigned long reg_base;
+	unsigned long __maybe_unused reg_base;
 
 #if defined(CONFIG_BRCM_HAS_PCI23)
 	if (brcm_pci_enabled) {
@@ -486,17 +502,19 @@ static int __init brcmstb_pci_init(void)
 #endif
 #ifdef CONFIG_BRCM_HAS_SATA
 	if (brcm_sata_enabled) {
-
+#ifdef CONFIG_BRCM_HAS_SATA3
+		brcm_buses[BRCM_BUSNO_SATA].controller->pci_ops =
+			&brcmstb_sata3_ops;
+#else
 		request_mem_region(SATA_IO_REG_START, SATA_IO_REG_SIZE,
 			"Internal SATA PCI-X registers");
 		reg_base = (unsigned long)
 			ioremap(SATA_IO_REG_START, SATA_IO_REG_SIZE);
 
-		brcm_setup_sata_bridge();
-
 		brcm_buses[BRCM_BUSNO_SATA].idx_reg = reg_base + SATA_CFG_INDEX;
 		brcm_buses[BRCM_BUSNO_SATA].data_reg = reg_base + SATA_CFG_DATA;
-
+#endif
+		brcm_setup_sata_bridge();
 		register_pci_controller(&brcmstb_sata_controller);
 	}
 #endif
@@ -591,6 +609,43 @@ static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 	mask = (0xffffffff >> ((4 - size) << 3)) << shift;
 
 	*data = (val & mask) >> shift;
+	return PCIBIOS_SUCCESSFUL;
+}
+
+static u32 sata3_pci_reg[] = {
+	[PCI_VENDOR_ID] = 0x860314e4,
+	[PCI_CLASS_REVISION] = 0x01060100,
+	[PCI_INTERRUPT_PIN] = 0x01,
+};
+
+/*
+ * SATA3 is just a memory-mapped device; PCI config accesses are spoofed.
+ *
+ * BAR5 (AHCI MMIO registers) will be 4KB @ SATA_MEM_START.  This is the
+ * only active BAR.
+ */
+
+static int brcm_sata3_write_config(struct pci_bus *bus, unsigned int devfn,
+	int where, int size, u32 data)
+{
+	if (!devfn_ok(bus, devfn))
+		return PCIBIOS_FUNC_NOT_SUPPORTED;
+	if (where == PCI_BASE_ADDRESS_5)
+		sata3_pci_reg[where] = data & ~0x0fff;
+	else if (where <= PCI_INTERRUPT_PIN)
+		sata3_pci_reg[where] = data;
+	return PCIBIOS_SUCCESSFUL;
+}
+
+static int brcm_sata3_read_config(struct pci_bus *bus, unsigned int devfn,
+	int where, int size, u32 *data)
+{
+	if (!devfn_ok(bus, devfn))
+		return PCIBIOS_FUNC_NOT_SUPPORTED;
+	if (where <= PCI_INTERRUPT_PIN)
+		*data = sata3_pci_reg[where];
+	else
+		*data = 0;
 	return PCIBIOS_SUCCESSFUL;
 }
 

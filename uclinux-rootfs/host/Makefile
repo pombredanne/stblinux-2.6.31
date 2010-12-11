@@ -10,7 +10,7 @@ endif
 all: distclean
 	mkdir bin
 	tar zxf dist/lzo-2.03.tar.gz
-	tar jxf dist/mtd-utils-20090511.tar.bz2
+	tar jxf dist/mtdutils-20100923.tar.bz2
 	tar zxf dist/squashfs4.0.tar.gz
 	tar zxf dist/module-init-tools-3.8.tar.gz
 	patch -p1 -d mtd-utils < $(TOPDIR)/dist/mtd-utils.patch

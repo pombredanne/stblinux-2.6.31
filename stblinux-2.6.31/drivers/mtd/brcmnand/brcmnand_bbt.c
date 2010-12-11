@@ -1320,10 +1320,12 @@ PRINTK("-->%s: chip=%p, td->options=%08x, md->options=%08x\n", __FUNCTION__, thi
 
 	len = (uint32_t) (this->mtdSize >> (this->bbt_erase_shift + 2));
 	/* Allocate memory (2bit per block) */
-//printk("brcmnand_scan_bbt: Allocating %d byte buffer\n", len);
 
-// We don't read/write the BBT frequently, so let it default to not use DMA to avoid OOM
-	this->bbt = (uint8_t*) vmalloc (len);
+PRINTK("brcmnand_scan_bbt: Allocating %d byte for BBT. mtd->size=%lld, eraseshift=%d\n", 
+len, this->mtdSize, this->bbt_erase_shift);
+
+
+	this->bbt = (uint8_t*) kmalloc (len, GFP_KERNEL);
 
 	if (!this->bbt) 
 	{
@@ -1341,7 +1343,7 @@ PRINTK("-->%s: chip=%p, td->options=%08x, md->options=%08x\n", __FUNCTION__, thi
 	if (!td) {
 		if ((res = brcmnand_memory_bbt(mtd, bd))) {
 			printk (KERN_ERR "brcmnand_bbt: Can't scan flash and build the RAM-based BBT\n");
-			vfree(this->bbt);
+			kfree(this->bbt);
 			this->bbt = NULL;
 		}
 		return res;
@@ -1349,15 +1351,15 @@ PRINTK("-->%s: chip=%p, td->options=%08x, md->options=%08x\n", __FUNCTION__, thi
 
 	/* Allocate a temporary buffer for one eraseblock incl. oob */
 	len = (1 << this->bbt_erase_shift);
-//printk("%s: len before OOB = %08x\n", __FUNCTION__, len);
+PRINTK("%s: len before OOB = %08x\n", __FUNCTION__, len);
 	len += (len >> this->page_shift) * (mtd->oobsize);
-//printk("%s: Inc OOB - Allocating %08x byte buffer\n", __FUNCTION__, len);
-	buf = vmalloc (len);
+PRINTK("%s: Inc OOB - Allocating %08x byte buffer, oobsize=%d\n", __FUNCTION__, len, mtd->oobsize);
+	buf = kmalloc (len, GFP_KERNEL);
 	if (!buf) {
 		printk (KERN_ERR "%s: Out of memory 2, bbt_erase_shift=%d, len=%dx\n", 
 			__FUNCTION__, this->bbt_erase_shift, len  );
 		
-		vfree (this->bbt);
+		kfree (this->bbt);
 		
 		this->bbt = NULL;
 		return -ENOMEM;
@@ -1380,7 +1382,7 @@ PRINTK("-->%s: chip=%p, td->options=%08x, md->options=%08x\n", __FUNCTION__, thi
 	if (md)
 		mark_bbt_region (mtd, md);
 
-	vfree (buf);
+	kfree (buf);
 	return res;
 }
 

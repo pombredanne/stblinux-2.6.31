@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Oct 11 11:32:20 2010
- *                 MD5 Checksum         f7a5e3cee318ae69c6f36c988e5a756d
+ * Date:           Generated on         Fri Oct 22 17:49:49 2010
+ *                 MD5 Checksum         f40f91089a3edc0f50e339c7d9e4d52d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7425/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/4   10/11/10 2:15p pntruong
- * SW7425-6: Added bvn to vice mbox definition.
+ * Hydra_Software_Devel/5   10/25/10 9:03a pntruong
+ * SW7425-6: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -2788,20 +2788,6 @@
 /* XPT_RAVE :: NOTEH_AC3_AUDIO_ES_SETUP :: AUDIO_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_SHIFT 0
-
-/***************************************************************************
- *NOTEH_DVD_AC3_AUDIO_ES_SETUP - ES Setup - DVD_AC3 Audio
- ***************************************************************************/
-/* XPT_RAVE :: NOTEH_DVD_AC3_AUDIO_ES_SETUP :: DVD_AUDIO_AC3_ES_FORMAT [31:00] */
-#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
-#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_SHIFT 0
-
-/***************************************************************************
- *NOTEI_DVD_LPCM_AUDIO_ES_SETUP - ES Setup - DVD_LPCM Audio
- ***************************************************************************/
-/* XPT_RAVE :: NOTEI_DVD_LPCM_AUDIO_ES_SETUP :: DVD_AUDIO_LPCM_ES_FORMAT [31:00] */
-#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_MASK 0xffffffff
-#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
  *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio

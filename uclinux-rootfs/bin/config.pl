@@ -51,7 +51,7 @@ $busybox_config = "user/busybox/.config";
 $vendor_config = "config/.config";
 $arch_config = "config.arch";
 
-@patchlist = ("lttng");
+@patchlist = ("lttng", "android", "newubi");
 %use_patch = ( );
 
 %defsuf = (
@@ -290,10 +290,6 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 	# basic hardware support
 
-	if(defined($linux{"CONFIG_SMP"})) {
-		$vendor{"CONFIG_USER_AFFINITY"} = "y";
-	}
-
 	if(defined($linux{"CONFIG_BRCM_MOCA"})) {
 		$vendor{"CONFIG_USER_NONFREE_MOCA"} = "y";
 	}
@@ -436,7 +432,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 			$busybox{"CONFIG_MKSWAP"} = "n";
 			$busybox{"CONFIG_SWAPONOFF"} = "n";
-			$vendor{"CONFIG_USER_FDISK_FDISK"} = "n";
+			$busybox{"CONFIG_FDISK"} = "n";
 			$vendor{"CONFIG_USER_GDISK_GDISK"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_E2FSCK_E2FSCK"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_MISC_MKE2FS"} = "n";
@@ -488,6 +484,19 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			
 			$busybox{"CONFIG_FEATURE_FIND_PRUNE"} = "y";
 			$busybox{"CONFIG_FEATURE_FIND_PATH"} = "y";
+		} elsif($mod eq "android") {
+
+			# Enable Android
+
+			$use_patch{'android'} = 1;
+
+			read_cfg("defaults/override.linux-android", \%linux_o);
+			override_cfg(\%linux, \%linux_o);
+		} elsif($mod eq "newubi") {
+
+			# UBI/UBIFS backport from the mainline MTD tree
+
+			$use_patch{'newubi'} = 1;
 		} else {
 			print "\n";
 			print "ERROR: Unrecognized suffix '$mod' in '$tgt'\n";
@@ -599,7 +608,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	foreach $x (@patchlist) {
 		if(defined($use_patch{$x})) {
 			if(! -e "patch/.applied-$x") {
-				system("patch -p1 < patch/$x.patch");
+				system("patch -p2 < patch/$x.patch");
 
 				my $ret = WEXITSTATUS($?);
 				if($ret != 0) {
@@ -610,7 +619,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			}
 		} else {
 			if(-e "patch/.applied-$x") {
-				system("patch -R -p1 < patch/$x.patch");
+				system("patch -R -p2 < patch/$x.patch");
 
 				my $ret = WEXITSTATUS($?);
 				if($ret != 0) {

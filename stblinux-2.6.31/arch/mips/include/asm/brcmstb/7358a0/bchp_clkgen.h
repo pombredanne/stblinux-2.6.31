@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Thu Sep  2 17:34:01 2010
- *                 MD5 Checksum         743c9d1d55675e3b172ee6f75bfcb73c
+ * Date:           Generated on         Tue Nov  2 15:21:26 2010
+ *                 MD5 Checksum         d5654099cee13d096484a8849c56a604
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7358/rdb/a0/bchp_clkgen.h $
  * 
- * Hydra_Software_Devel/2   9/7/10 9:27a pntruong
- * SW7358-2: Synced up with central rdb.
+ * Hydra_Software_Devel/3   11/2/10 5:37p pntruong
+ * SW7358-2: Synced up with central RDB.
  *
  ***************************************************************************/
 
@@ -53,7 +53,7 @@
 #define BCHP_CLKGEN_PLL_AUDIO0_PLL_RESET         0x00420014 /* Resets */
 #define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_HIGH 0x00420018 /* Higher bits of Spread Spectrum mode control */
 #define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_LOW 0x0042001c /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_STATUS        0x00420020 /* Status */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_STATUS        0x00420020 /* Test Status */
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_CONTROL       0x00420024 /* Miscellaneous Controls */
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_DIV           0x00420028 /* Pre multiplier */
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_GAIN          0x0042002c /* PLL GAIN */
@@ -62,7 +62,7 @@
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_RESET         0x00420038 /* Resets */
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_HIGH 0x0042003c /* Higher bits of Spread Spectrum mode control */
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_LOW 0x00420040 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_STATUS        0x00420044 /* Status */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_STATUS        0x00420044 /* Test Status */
 #define BCHP_CLKGEN_PLL_AVD_MIPS_PLL_CHANNEL_CTRL_CH_0 0x00420048 /* PLL CHANNEL control CH 0 */
 #define BCHP_CLKGEN_PLL_AVD_MIPS_PLL_CHANNEL_CTRL_CH_1 0x0042004c /* PLL CHANNEL control CH 1 */
 #define BCHP_CLKGEN_PLL_AVD_MIPS_PLL_CHANNEL_CTRL_CH_2 0x00420050 /* PLL CHANNEL control CH 2 */
@@ -79,152 +79,181 @@
 #define BCHP_CLKGEN_PLL_AVD_MIPS_PLL_STATUS      0x0042007c /* Test Status */
 #define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_0 0x00420080 /* PLL CHANNEL control CH 0 */
 #define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_1 0x00420084 /* PLL CHANNEL control CH 1 */
-#define BCHP_CLKGEN_PLL_SC_PLL_CONTROL           0x00420088 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_SC_PLL_DIV               0x0042008c /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_SC_PLL_GAIN              0x00420090 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_SC_PLL_LOCK_STATUS       0x00420094 /* Lock Status */
-#define BCHP_CLKGEN_PLL_SC_PLL_MISC              0x00420098 /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_SC_PLL_PWRDN             0x0042009c /* Powerdowns */
-#define BCHP_CLKGEN_PLL_SC_PLL_RESET             0x004200a0 /* Resets */
-#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_HIGH 0x004200a4 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_LOW 0x004200a8 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SC_PLL_STATUS            0x004200ac /* Status */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_0 0x004200b0 /* PLL CHANNEL control CH 0 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_1 0x004200b4 /* PLL CHANNEL control CH 1 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_2 0x004200b8 /* PLL CHANNEL control CH 2 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_3 0x004200bc /* PLL CHANNEL control CH 3 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_4 0x004200c0 /* PLL CHANNEL control CH 4 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_5 0x004200c4 /* PLL CHANNEL control CH 5 */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_CONTROL         0x004200c8 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_DIV             0x004200cc /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_GAIN            0x004200d0 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_LOCK_STATUS     0x004200d4 /* Lock Status */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC            0x004200d8 /* Miscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC2           0x004200dc /* Miscellaneous control bus continued. */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_PWRDN           0x004200e0 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_HIGH 0x004200e4 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_LOW 0x004200e8 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS0_PLL_STATUS          0x004200ec /* Test Status */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_0 0x004200f0 /* PLL CHANNEL control CH 0 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_1 0x004200f4 /* PLL CHANNEL control CH 1 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_2 0x004200f8 /* PLL CHANNEL control CH 2 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_3 0x004200fc /* PLL CHANNEL control CH 3 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_4 0x00420100 /* PLL CHANNEL control CH 4 */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_CONTROL         0x00420104 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_DIV             0x00420108 /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_GAIN            0x0042010c /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_LOCK_STATUS     0x00420110 /* Lock Status */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_MISC            0x00420114 /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_PWRDN           0x00420118 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_RESET           0x0042011c /* Resets */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_HIGH 0x00420120 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_LOW 0x00420124 /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_STATUS          0x00420128 /* Status */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_CHANNEL_CTRL_CH_0 0x0042012c /* PLL CHANNEL control CH 0 */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_CHANNEL_CTRL_CH_1 0x00420130 /* PLL CHANNEL control CH 1 */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_CHANNEL_CTRL_CH_2 0x00420134 /* PLL CHANNEL control CH 2 */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_CONTROL         0x00420138 /* Miscellaneous Controls */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_DIV             0x0042013c /* Pre multiplier */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_FRAC            0x00420140 /* Fractional */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_GAIN            0x00420144 /* PLL GAIN */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_LOCK_STATUS     0x00420148 /* Lock Status */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_MISC            0x0042014c /* Mscellaneous control bus. */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_PWRDN           0x00420150 /* Powerdowns */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_RESET           0x00420154 /* Resets */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_HIGH 0x00420158 /* Higher bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_LOW 0x0042015c /* Lower bits of Spread Spectrum mode control */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_STATUS          0x00420160 /* Status */
-#define BCHP_CLKGEN_AVD0_TOP_CLOCK_ENABLE        0x00420164 /* Avd0 top clock enable */
-#define BCHP_CLKGEN_AVD0_TOP_MEMORY_STANDBY_ENABLE 0x00420168 /* Avd0 top memory standby enable */
-#define BCHP_CLKGEN_AVD0_TOP_POWER_SWITCH_MEMORY 0x0042016c /* Avd0 top power switch memory */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_DISABLE   0x00420170 /* Disable BCM_MIPS_TOP's clocks */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE    0x00420174 /* Bcm mips top clock enable */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_MEMORY_STANDBY_ENABLE 0x00420178 /* Bcm mips top memory standby enable */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_OBSERVE_CLOCK   0x0042017c /* Bcm mips top observe clock */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_POWER_SWITCH_MEMORY 0x00420180 /* Bcm mips top power switch memory */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_SELECT          0x00420184 /* Bcm mips top select */
-#define BCHP_CLKGEN_BVN_TOP_ENABLE               0x00420188 /* Bvn top enable */
-#define BCHP_CLKGEN_BVN_TOP_MEMORY_STANDBY_ENABLE 0x0042018c /* Bvn top memory standby enable */
-#define BCHP_CLKGEN_BVN_TOP_POWER_SWITCH_MEMORY  0x00420190 /* Bvn top power switch memory */
-#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE         0x00420194 /* Disable CLKGEN's clocks */
-#define BCHP_CLKGEN_CORE_XPT_CLOCK_DISABLE       0x00420198 /* Disable CORE_XPT's clocks */
-#define BCHP_CLKGEN_DVP_HT_CLOCK_DISABLE         0x0042019c /* Disable DVP_HT's clocks */
-#define BCHP_CLKGEN_DVP_HT_CLOCK_ENABLE          0x004201a0 /* Dvp ht clock enable */
-#define BCHP_CLKGEN_DVP_HT_ENABLE                0x004201a4 /* Dvp ht enable */
-#define BCHP_CLKGEN_DVP_HT_MEMORY_STANDBY_ENABLE 0x004201a8 /* Dvp ht memory standby enable */
-#define BCHP_CLKGEN_DVP_HT_OBSERVE               0x004201ac /* Dvp ht observe */
-#define BCHP_CLKGEN_DVP_HT_OBSERVE_CLOCK         0x004201b0 /* Dvp ht observe clock */
-#define BCHP_CLKGEN_DVP_HT_POWER_SWITCH_MEMORY   0x004201b4 /* Dvp ht power switch memory */
-#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_DISABLE 0x004201b8 /* Disable GENET_TOP_RGMII_INST's clocks */
-#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE 0x004201bc /* Genet top rgmii inst clock enable */
-#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_SELECT 0x004201c0 /* Genet top rgmii inst clock select */
-#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_MEMORY_STANDBY_ENABLE_A 0x004201c4 /* Genet top rgmii inst memory standby enable a */
-#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_OBSERVE_CLOCK 0x004201c8 /* Genet top rgmii inst observe clock */
-#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_POWER_SWITCH_MEMORY_A 0x004201cc /* Genet top rgmii inst power switch memory a */
-#define BCHP_CLKGEN_GRAPHICS_CLOCK_DISABLE       0x004201d0 /* Disable GRAPHICS's clocks */
-#define BCHP_CLKGEN_GRAPHICS_CLOCK_ENABLE        0x004201d4 /* Graphics clock enable */
-#define BCHP_CLKGEN_GRAPHICS_MEMORY_STANDBY_ENABLE 0x004201d8 /* Graphics memory standby enable */
-#define BCHP_CLKGEN_GRAPHICS_OBSERVE_CLOCK       0x004201dc /* Graphics observe clock */
-#define BCHP_CLKGEN_GRAPHICS_POWER_SWITCH_MEMORY 0x004201e0 /* Graphics power switch memory */
-#define BCHP_CLKGEN_HIF_CLOCK_DISABLE            0x004201e4 /* Disable HIF's clocks */
-#define BCHP_CLKGEN_HIF_CLOCK_ENABLE             0x004201e8 /* Hif clock enable */
-#define BCHP_CLKGEN_INTERNAL_MUX_SELECT          0x004201ec /* Mux selects for Internal clocks */
-#define BCHP_CLKGEN_MEMSYS_16_CLOCK_ENABLE       0x004201f0 /* Memsys 16 clock enable */
-#define BCHP_CLKGEN_MEMSYS_16_MEMORY_STANDBY_ENABLE 0x004201f4 /* Memsys 16 memory standby enable */
-#define BCHP_CLKGEN_MEMSYS_16_OBSERVE_CLOCK      0x004201f8 /* Memsys 16 observe clock */
-#define BCHP_CLKGEN_MEMSYS_16_POWER_SWITCH_MEMORY 0x004201fc /* Memsys 16 power switch memory */
-#define BCHP_CLKGEN_PAD_CLOCK_DISABLE            0x00420200 /* Disable PAD's clocks */
-#define BCHP_CLKGEN_PAD_MUX_SELECT               0x00420204 /* Mux selects for Pad clocks */
-#define BCHP_CLKGEN_PLL_AUDIO0_PLL_RESET_STATUS  0x00420208 /* PLL_AUDIO0 Reset Status */
-#define BCHP_CLKGEN_PLL_AUDIO1_PLL_RESET_STATUS  0x0042020c /* PLL_AUDIO1 Reset Status */
-#define BCHP_CLKGEN_PLL_SC_PLL_RESET_STATUS      0x00420210 /* PLL_SC Reset Status */
-#define BCHP_CLKGEN_PLL_SYS1_PLL_RESET_STATUS    0x00420214 /* PLL_SYS1 Reset Status */
-#define BCHP_CLKGEN_PLL_VCXO_PLL_RESET_STATUS    0x00420218 /* PLL_VCXO Reset Status */
-#define BCHP_CLKGEN_PM_CLOCK_108_ALIVE_SEL       0x0042021c /* Select clocks that can stay alive during power management standby mode. */
-#define BCHP_CLKGEN_PM_CLOCK_216_ALIVE_SEL       0x00420220 /* Select clocks that can stay alive during power management standby mode. */
-#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL             0x00420224 /* PLL Alive in Standby Mode */
-#define BCHP_CLKGEN_RAAGA_DSP_TOP_CLOCK_ENABLE   0x00420228 /* Raaga dsp top clock enable */
-#define BCHP_CLKGEN_RAAGA_DSP_TOP_MEMORY_STANDBY_ENABLE 0x0042022c /* Raaga dsp top memory standby enable */
-#define BCHP_CLKGEN_RAAGA_DSP_TOP_POWER_SWITCH_MEMORY 0x00420230 /* Raaga dsp top power switch memory */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_CLOCK_DISABLE   0x00420234 /* Disable SDS_AFEC_TOP's clocks */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_CLOCK_ENABLE    0x00420238 /* Sds afec top clock enable */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_MEMORY_STANDBY_ENABLE 0x0042023c /* Sds afec top memory standby enable */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_OBSERVE_CLOCK   0x00420240 /* Sds afec top observe clock */
-#define BCHP_CLKGEN_SDS_AFEC_TOP_POWER_SWITCH_MEMORY 0x00420244 /* Sds afec top power switch memory */
-#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_DISABLE   0x00420248 /* Disable SDS_RECEIVER's clocks */
-#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_ENABLE    0x0042024c /* Sds receiver clock enable */
-#define BCHP_CLKGEN_SDS_RECEIVER_MEMORY_STANDBY_ENABLE 0x00420250 /* Sds receiver memory standby enable */
-#define BCHP_CLKGEN_SDS_RECEIVER_OBSERVE_CLOCK   0x00420254 /* Sds receiver observe clock */
-#define BCHP_CLKGEN_SDS_RECEIVER_POWER_SWITCH_MEMORY 0x00420258 /* Sds receiver power switch memory */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_CLOCK_ENABLE    0x0042025c /* Sds tfec top clock enable */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_MEMORY_STANDBY_ENABLE 0x00420260 /* Sds tfec top memory standby enable */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_OBSERVE_CLOCK   0x00420264 /* Sds tfec top observe clock */
-#define BCHP_CLKGEN_SDS_TFEC_TOP_POWER_SWITCH_MEMORY 0x00420268 /* Sds tfec top power switch memory */
-#define BCHP_CLKGEN_SECTOP_INST_CLOCK_ENABLE     0x0042026c /* Sectop inst clock enable */
-#define BCHP_CLKGEN_SECTOP_INST_MEMORY_STANDBY_ENABLE 0x00420270 /* Sectop inst memory standby enable */
-#define BCHP_CLKGEN_SECTOP_INST_OBSERVE_CLOCK    0x00420274 /* Sectop inst observe clock */
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT         0x00420278 /* Mux selects for Smartcard clocks */
-#define BCHP_CLKGEN_SPARE                        0x0042027c /* Spares */
-#define BCHP_CLKGEN_SYS_AON_OBSERVE_CLOCK        0x00420280 /* Sys aon observe clock */
-#define BCHP_CLKGEN_SYS_CTRL_CLOCK_DISABLE       0x00420284 /* Disable SYS_CTRL's clocks */
-#define BCHP_CLKGEN_SYS_CTRL_CLOCK_ENABLE        0x00420288 /* Sys ctrl clock enable */
-#define BCHP_CLKGEN_SYS_CTRL_MEMORY_STANDBY_ENABLE 0x0042028c /* Sys ctrl memory standby enable */
-#define BCHP_CLKGEN_SYS_CTRL_OBSERVE_CLOCK       0x00420290 /* Sys ctrl observe clock */
-#define BCHP_CLKGEN_SYS_CTRL_POWER_SWITCH_MEMORY 0x00420294 /* Sys ctrl power switch memory */
-#define BCHP_CLKGEN_TESTPORT                     0x00420298 /* Special Testport Controls */
-#define BCHP_CLKGEN_USB_CLOCK_DISABLE            0x0042029c /* Disable USB's clocks */
-#define BCHP_CLKGEN_USB_CLOCK_ENABLE             0x004202a0 /* Usb clock enable */
-#define BCHP_CLKGEN_USB_MEMORY_STANDBY_ENABLE    0x004202a4 /* Usb memory standby enable */
-#define BCHP_CLKGEN_USB_OBSERVE                  0x004202a8 /* Usb observe */
-#define BCHP_CLKGEN_USB_OBSERVE_CLOCK            0x004202ac /* Usb observe clock */
-#define BCHP_CLKGEN_USB_POWER_SWITCH_MEMORY      0x004202b0 /* Usb power switch memory */
-#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_DISABLE    0x004202b4 /* Disable VEC_AIO_TOP's clocks */
-#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_ENABLE     0x004202b8 /* Vec aio top clock enable */
-#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_A 0x004202bc /* Vec aio top memory standby enable a */
-#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_B 0x004202c0 /* Vec aio top memory standby enable b */
-#define BCHP_CLKGEN_VEC_AIO_TOP_OBSERVE_CLOCK    0x004202c4 /* Vec aio top observe clock */
-#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_A 0x004202c8 /* Vec aio top power switch memory a */
-#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_B 0x004202cc /* Vec aio top power switch memory b */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2 0x00420088 /* PLL CHANNEL control CH 2 */
+#define BCHP_CLKGEN_PLL_SC_PLL_CONTROL           0x0042008c /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_SC_PLL_DIV               0x00420090 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_SC_PLL_GAIN              0x00420094 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_SC_PLL_LOCK_STATUS       0x00420098 /* Lock Status */
+#define BCHP_CLKGEN_PLL_SC_PLL_MISC              0x0042009c /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_SC_PLL_PWRDN             0x004200a0 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_SC_PLL_RESET             0x004200a4 /* Resets */
+#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_HIGH 0x004200a8 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_LOW 0x004200ac /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SC_PLL_STATUS            0x004200b0 /* Test Status */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_0 0x004200b4 /* PLL CHANNEL control CH 0 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_1 0x004200b8 /* PLL CHANNEL control CH 1 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_2 0x004200bc /* PLL CHANNEL control CH 2 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_3 0x004200c0 /* PLL CHANNEL control CH 3 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_4 0x004200c4 /* PLL CHANNEL control CH 4 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CHANNEL_CTRL_CH_5 0x004200c8 /* PLL CHANNEL control CH 5 */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_CONTROL         0x004200cc /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_DIV             0x004200d0 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_GAIN            0x004200d4 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_LOCK_STATUS     0x004200d8 /* Lock Status */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC            0x004200dc /* Miscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_MISC2           0x004200e0 /* Miscellaneous control bus continued. */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_PWRDN           0x004200e4 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_HIGH 0x004200e8 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_SSC_MODE_CONTROL_LOW 0x004200ec /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS0_PLL_STATUS          0x004200f0 /* Test Status */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_0 0x004200f4 /* PLL CHANNEL control CH 0 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_1 0x004200f8 /* PLL CHANNEL control CH 1 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_2 0x004200fc /* PLL CHANNEL control CH 2 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_3 0x00420100 /* PLL CHANNEL control CH 3 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_4 0x00420104 /* PLL CHANNEL control CH 4 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 0x00420108 /* PLL CHANNEL control CH 5 */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CONTROL         0x0042010c /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_DIV             0x00420110 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_GAIN            0x00420114 /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_LOCK_STATUS     0x00420118 /* Lock Status */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_MISC            0x0042011c /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_PWRDN           0x00420120 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_RESET           0x00420124 /* Resets */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_HIGH 0x00420128 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_SSC_MODE_CONTROL_LOW 0x0042012c /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_STATUS          0x00420130 /* Status */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_CHANNEL_CTRL_CH_0 0x00420134 /* PLL CHANNEL control CH 0 */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_CHANNEL_CTRL_CH_1 0x00420138 /* PLL CHANNEL control CH 1 */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_CHANNEL_CTRL_CH_2 0x0042013c /* PLL CHANNEL control CH 2 */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_CONTROL         0x00420140 /* Miscellaneous Controls */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_DIV             0x00420144 /* Pre multiplier */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_FRAC            0x00420148 /* Fractional */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_GAIN            0x0042014c /* PLL GAIN */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_LOCK_STATUS     0x00420150 /* Lock Status */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_MISC            0x00420154 /* Mscellaneous control bus. */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_PWRDN           0x00420158 /* Powerdowns */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_RESET           0x0042015c /* Resets */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_HIGH 0x00420160 /* Higher bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_SSC_MODE_CONTROL_LOW 0x00420164 /* Lower bits of Spread Spectrum mode control */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_STATUS          0x00420168 /* Status */
+#define BCHP_CLKGEN_AVD0_TOP_CLOCK_ENABLE        0x0042016c /* Avd0 top clock enable */
+#define BCHP_CLKGEN_AVD0_TOP_MEMORY_STANDBY_ENABLE 0x00420170 /* Avd0 top memory standby enable */
+#define BCHP_CLKGEN_AVD0_TOP_POWER_SWITCH_MEMORY 0x00420174 /* Avd0 top power switch memory */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_DISABLE   0x00420178 /* Disable BCM_MIPS_TOP's clocks */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE    0x0042017c /* Bcm mips top clock enable */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_MEMORY_STANDBY_ENABLE 0x00420180 /* Bcm mips top memory standby enable */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_OBSERVE_CLOCK   0x00420184 /* Bcm mips top observe clock */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_POWER_SWITCH_MEMORY 0x00420188 /* Bcm mips top power switch memory */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_SELECT          0x0042018c /* Bcm mips top select */
+#define BCHP_CLKGEN_BVN_TOP_ENABLE               0x00420190 /* Bvn top enable */
+#define BCHP_CLKGEN_BVN_TOP_MEMORY_STANDBY_ENABLE 0x00420194 /* Bvn top memory standby enable */
+#define BCHP_CLKGEN_BVN_TOP_POWER_SWITCH_MEMORY  0x00420198 /* Bvn top power switch memory */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION 0x0042019c /* Cktap 108 0 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION 0x004201a0 /* Cktap 108 1 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION 0x004201a4 /* Cktap 216 0 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK 0x004201a8 /* CKTAP CPU Adjustment System 108 Clock */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK 0x004201ac /* CKTAP CPU Adjustment System 216 Clock */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK 0x004201b0 /* CKTAP CPU Adjustment System Scb Clock */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION 0x004201b4 /* Cktap scb 0 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION 0x004201b8 /* Cktap scb 1 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE         0x004201bc /* Disable CLKGEN's clocks */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_DISABLE       0x004201c0 /* Disable CORE_XPT's clocks */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE        0x004201c4 /* Core xpt clock enable */
+#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE 0x004201c8 /* Core xpt memory standby enable */
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK       0x004201cc /* Core xpt observe clock */
+#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY 0x004201d0 /* Core xpt power switch memory */
+#define BCHP_CLKGEN_DVP_HT_CLOCK_DISABLE         0x004201d4 /* Disable DVP_HT's clocks */
+#define BCHP_CLKGEN_DVP_HT_CLOCK_ENABLE          0x004201d8 /* Dvp ht clock enable */
+#define BCHP_CLKGEN_DVP_HT_ENABLE                0x004201dc /* Dvp ht enable */
+#define BCHP_CLKGEN_DVP_HT_MEMORY_STANDBY_ENABLE 0x004201e0 /* Dvp ht memory standby enable */
+#define BCHP_CLKGEN_DVP_HT_OBSERVE               0x004201e4 /* Dvp ht observe */
+#define BCHP_CLKGEN_DVP_HT_OBSERVE_CLOCK         0x004201e8 /* Dvp ht observe clock */
+#define BCHP_CLKGEN_DVP_HT_POWER_SWITCH_MEMORY   0x004201ec /* Dvp ht power switch memory */
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE         0x004201f0 /* Fsk top clock enable */
+#define BCHP_CLKGEN_FSK_TOP_MEMORY_STANDBY_ENABLE 0x004201f4 /* Fsk top memory standby enable */
+#define BCHP_CLKGEN_FSK_TOP_POWER_SWITCH_MEMORY  0x004201f8 /* Fsk top power switch memory */
+#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_DISABLE 0x004201fc /* Disable GENET_TOP_RGMII_INST's clocks */
+#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE 0x00420200 /* Genet top rgmii inst clock enable */
+#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_SELECT 0x00420204 /* Genet top rgmii inst clock select */
+#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_MEMORY_STANDBY_ENABLE_A 0x00420208 /* Genet top rgmii inst memory standby enable a */
+#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_OBSERVE_CLOCK 0x0042020c /* Genet top rgmii inst observe clock */
+#define BCHP_CLKGEN_GENET_TOP_RGMII_INST_POWER_SWITCH_MEMORY_A 0x00420210 /* Genet top rgmii inst power switch memory a */
+#define BCHP_CLKGEN_GRAPHICS_CLOCK_DISABLE       0x00420214 /* Disable GRAPHICS's clocks */
+#define BCHP_CLKGEN_GRAPHICS_CLOCK_ENABLE        0x00420218 /* Graphics clock enable */
+#define BCHP_CLKGEN_GRAPHICS_MEMORY_STANDBY_ENABLE 0x0042021c /* Graphics memory standby enable */
+#define BCHP_CLKGEN_GRAPHICS_OBSERVE_CLOCK       0x00420220 /* Graphics observe clock */
+#define BCHP_CLKGEN_GRAPHICS_POWER_SWITCH_MEMORY 0x00420224 /* Graphics power switch memory */
+#define BCHP_CLKGEN_HIF_CLOCK_DISABLE            0x00420228 /* Disable HIF's clocks */
+#define BCHP_CLKGEN_HIF_CLOCK_ENABLE             0x0042022c /* Hif clock enable */
+#define BCHP_CLKGEN_HIF_MEMORY_STANDBY_ENABLE    0x00420230 /* Hif memory standby enable */
+#define BCHP_CLKGEN_HIF_POWER_SWITCH_MEMORY      0x00420234 /* Hif power switch memory */
+#define BCHP_CLKGEN_INTERNAL_MUX_SELECT          0x00420238 /* Mux selects for Internal clocks */
+#define BCHP_CLKGEN_MEMSYS_16_CLOCK_ENABLE       0x0042023c /* Memsys 16 clock enable */
+#define BCHP_CLKGEN_MEMSYS_16_MEMORY_STANDBY_ENABLE 0x00420240 /* Memsys 16 memory standby enable */
+#define BCHP_CLKGEN_MEMSYS_16_OBSERVE_CLOCK      0x00420244 /* Memsys 16 observe clock */
+#define BCHP_CLKGEN_MEMSYS_16_POWER_SWITCH_MEMORY 0x00420248 /* Memsys 16 power switch memory */
+#define BCHP_CLKGEN_MEMSYS_16_STATUS             0x0042024c /* Memsys 16 status */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION   0x00420250 /* Select observation clk */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION   0x00420254 /* Select observation clk */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION   0x00420258 /* Select observation clk */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION   0x0042025c /* Select observation clk */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE            0x00420260 /* Disable PAD's clocks */
+#define BCHP_CLKGEN_PAD_MUX_SELECT               0x00420264 /* Mux selects for Pad clocks */
+#define BCHP_CLKGEN_PLL_AUDIO0_PLL_RESET_STATUS  0x00420268 /* PLL_AUDIO0 Reset Status */
+#define BCHP_CLKGEN_PLL_AUDIO1_PLL_RESET_STATUS  0x0042026c /* PLL_AUDIO1 Reset Status */
+#define BCHP_CLKGEN_PLL_SC_PLL_RESET_STATUS      0x00420270 /* PLL_SC Reset Status */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_RESET_STATUS    0x00420274 /* PLL_SYS1 Reset Status */
+#define BCHP_CLKGEN_PLL_VCXO_PLL_RESET_STATUS    0x00420278 /* PLL_VCXO Reset Status */
+#define BCHP_CLKGEN_PM_CLOCK_108_ALIVE_SEL       0x0042027c /* Select clocks that can stay alive during power management standby mode. */
+#define BCHP_CLKGEN_PM_CLOCK_216_ALIVE_SEL       0x00420280 /* Select clocks that can stay alive during power management standby mode. */
+#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL             0x00420284 /* PLL Alive in Standby Mode */
+#define BCHP_CLKGEN_RAAGA_DSP_TOP_CLOCK_ENABLE   0x00420288 /* Raaga dsp top clock enable */
+#define BCHP_CLKGEN_RAAGA_DSP_TOP_MEMORY_STANDBY_ENABLE 0x0042028c /* Raaga dsp top memory standby enable */
+#define BCHP_CLKGEN_RAAGA_DSP_TOP_POWER_SWITCH_MEMORY 0x00420290 /* Raaga dsp top power switch memory */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_CLOCK_DISABLE   0x00420294 /* Disable SDS_AFEC_TOP's clocks */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_CLOCK_ENABLE    0x00420298 /* Sds afec top clock enable */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_MEMORY_STANDBY_ENABLE 0x0042029c /* Sds afec top memory standby enable */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_OBSERVE_CLOCK   0x004202a0 /* Sds afec top observe clock */
+#define BCHP_CLKGEN_SDS_AFEC_TOP_POWER_SWITCH_MEMORY 0x004202a4 /* Sds afec top power switch memory */
+#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_DISABLE   0x004202a8 /* Disable SDS_RECEIVER's clocks */
+#define BCHP_CLKGEN_SDS_RECEIVER_CLOCK_ENABLE    0x004202ac /* Sds receiver clock enable */
+#define BCHP_CLKGEN_SDS_RECEIVER_MEMORY_STANDBY_ENABLE 0x004202b0 /* Sds receiver memory standby enable */
+#define BCHP_CLKGEN_SDS_RECEIVER_OBSERVE_CLOCK   0x004202b4 /* Sds receiver observe clock */
+#define BCHP_CLKGEN_SDS_RECEIVER_POWER_SWITCH_MEMORY 0x004202b8 /* Sds receiver power switch memory */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_CLOCK_ENABLE    0x004202bc /* Sds tfec top clock enable */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_MEMORY_STANDBY_ENABLE 0x004202c0 /* Sds tfec top memory standby enable */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_OBSERVE_CLOCK   0x004202c4 /* Sds tfec top observe clock */
+#define BCHP_CLKGEN_SDS_TFEC_TOP_POWER_SWITCH_MEMORY 0x004202c8 /* Sds tfec top power switch memory */
+#define BCHP_CLKGEN_SECTOP_INST_CLOCK_ENABLE     0x004202cc /* Sectop inst clock enable */
+#define BCHP_CLKGEN_SECTOP_INST_MEMORY_STANDBY_ENABLE 0x004202d0 /* Sectop inst memory standby enable */
+#define BCHP_CLKGEN_SECTOP_INST_OBSERVE_CLOCK    0x004202d4 /* Sectop inst observe clock */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT         0x004202d8 /* Mux selects for Smartcard clocks */
+#define BCHP_CLKGEN_SPARE                        0x004202dc /* Spares */
+#define BCHP_CLKGEN_SYS_AON_OBSERVE_CLOCK        0x004202e0 /* Sys aon observe clock */
+#define BCHP_CLKGEN_SYS_CTRL_CLOCK_DISABLE       0x004202e4 /* Disable SYS_CTRL's clocks */
+#define BCHP_CLKGEN_SYS_CTRL_CLOCK_ENABLE        0x004202e8 /* Sys ctrl clock enable */
+#define BCHP_CLKGEN_SYS_CTRL_MEMORY_STANDBY_ENABLE 0x004202ec /* Sys ctrl memory standby enable */
+#define BCHP_CLKGEN_SYS_CTRL_OBSERVE_CLOCK       0x004202f0 /* Sys ctrl observe clock */
+#define BCHP_CLKGEN_SYS_CTRL_POWER_SWITCH_MEMORY 0x004202f4 /* Sys ctrl power switch memory */
+#define BCHP_CLKGEN_TESTPORT                     0x004202f8 /* Special Testport Controls */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION 0x004202fc /* Ts ctrl0 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION 0x00420300 /* Ts ctrl1 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION 0x00420304 /* Ts ctrl2 cktap cpu adjustment selection */
+#define BCHP_CLKGEN_TS_CTRL_CLK_MUX_SELECT       0x00420308 /* Mux selects for TS_CTRL_CLK clocks */
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION 0x0042030c /* Ts ctrl data cktap cpu adjustment selection */
+#define BCHP_CLKGEN_USB_CLOCK_DISABLE            0x00420310 /* Disable USB's clocks */
+#define BCHP_CLKGEN_USB_CLOCK_ENABLE             0x00420314 /* Usb clock enable */
+#define BCHP_CLKGEN_USB_MEMORY_STANDBY_ENABLE    0x00420318 /* Usb memory standby enable */
+#define BCHP_CLKGEN_USB_OBSERVE                  0x0042031c /* Usb observe */
+#define BCHP_CLKGEN_USB_OBSERVE_CLOCK            0x00420320 /* Usb observe clock */
+#define BCHP_CLKGEN_USB_POWER_SWITCH_MEMORY      0x00420324 /* Usb power switch memory */
+#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_DISABLE    0x00420328 /* Disable VEC_AIO_TOP's clocks */
+#define BCHP_CLKGEN_VEC_AIO_TOP_CLOCK_ENABLE     0x0042032c /* Vec aio top clock enable */
+#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_A 0x00420330 /* Vec aio top memory standby enable a */
+#define BCHP_CLKGEN_VEC_AIO_TOP_MEMORY_STANDBY_ENABLE_B 0x00420334 /* Vec aio top memory standby enable b */
+#define BCHP_CLKGEN_VEC_AIO_TOP_OBSERVE_CLOCK    0x00420338 /* Vec aio top observe clock */
+#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_A 0x0042033c /* Vec aio top power switch memory a */
+#define BCHP_CLKGEN_VEC_AIO_TOP_POWER_SWITCH_MEMORY_B 0x00420340 /* Vec aio top power switch memory b */
 
 /***************************************************************************
  *PLL_AUDIO0_PLL_CONTROL - Miscellaneous Controls
@@ -343,7 +372,7 @@
 #define BCHP_CLKGEN_PLL_AUDIO0_PLL_SSC_MODE_CONTROL_LOW_SSC_LIMIT_SHIFT 0
 
 /***************************************************************************
- *PLL_AUDIO0_PLL_STATUS - Status
+ *PLL_AUDIO0_PLL_STATUS - Test Status
  ***************************************************************************/
 /* CLKGEN :: PLL_AUDIO0_PLL_STATUS :: reserved0 [31:12] */
 #define BCHP_CLKGEN_PLL_AUDIO0_PLL_STATUS_reserved0_MASK           0xfffff000
@@ -470,7 +499,7 @@
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_SSC_MODE_CONTROL_LOW_SSC_LIMIT_SHIFT 0
 
 /***************************************************************************
- *PLL_AUDIO1_PLL_STATUS - Status
+ *PLL_AUDIO1_PLL_STATUS - Test Status
  ***************************************************************************/
 /* CLKGEN :: PLL_AUDIO1_PLL_STATUS :: reserved0 [31:12] */
 #define BCHP_CLKGEN_PLL_AUDIO1_PLL_STATUS_reserved0_MASK           0xfffff000
@@ -841,6 +870,33 @@
 #define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_1_CLOCK_DIS_CH1_SHIFT 0
 
 /***************************************************************************
+ *PLL_SC_PLL_CHANNEL_CTRL_CH_2 - PLL CHANNEL control CH 2
+ ***************************************************************************/
+/* CLKGEN :: PLL_SC_PLL_CHANNEL_CTRL_CH_2 :: reserved0 [31:14] */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_reserved0_MASK    0xffffc000
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_reserved0_SHIFT   14
+
+/* CLKGEN :: PLL_SC_PLL_CHANNEL_CTRL_CH_2 :: POST_DIVIDER_LOAD_EN_CH2 [13:13] */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_POST_DIVIDER_LOAD_EN_CH2_MASK 0x00002000
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_POST_DIVIDER_LOAD_EN_CH2_SHIFT 13
+
+/* CLKGEN :: PLL_SC_PLL_CHANNEL_CTRL_CH_2 :: POST_DIVIDER_HOLD_CH2 [12:12] */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_POST_DIVIDER_HOLD_CH2_MASK 0x00001000
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_POST_DIVIDER_HOLD_CH2_SHIFT 12
+
+/* CLKGEN :: PLL_SC_PLL_CHANNEL_CTRL_CH_2 :: PHASE_OFFSET_CH2 [11:09] */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_PHASE_OFFSET_CH2_MASK 0x00000e00
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_PHASE_OFFSET_CH2_SHIFT 9
+
+/* CLKGEN :: PLL_SC_PLL_CHANNEL_CTRL_CH_2 :: MDIV_CH2 [08:01] */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_MDIV_CH2_MASK     0x000001fe
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_MDIV_CH2_SHIFT    1
+
+/* CLKGEN :: PLL_SC_PLL_CHANNEL_CTRL_CH_2 :: CLOCK_DIS_CH2 [00:00] */
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_CLOCK_DIS_CH2_MASK 0x00000001
+#define BCHP_CLKGEN_PLL_SC_PLL_CHANNEL_CTRL_CH_2_CLOCK_DIS_CH2_SHIFT 0
+
+/***************************************************************************
  *PLL_SC_PLL_CONTROL - Miscellaneous Controls
  ***************************************************************************/
 /* CLKGEN :: PLL_SC_PLL_CONTROL :: reserved0 [31:01] */
@@ -1024,7 +1080,7 @@
 #define BCHP_CLKGEN_PLL_SC_PLL_SSC_MODE_CONTROL_LOW_SSC_LIMIT_SHIFT 0
 
 /***************************************************************************
- *PLL_SC_PLL_STATUS - Status
+ *PLL_SC_PLL_STATUS - Test Status
  ***************************************************************************/
 /* CLKGEN :: PLL_SC_PLL_STATUS :: reserved0 [31:12] */
 #define BCHP_CLKGEN_PLL_SC_PLL_STATUS_reserved0_MASK               0xfffff000
@@ -1528,6 +1584,33 @@
 /* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_4 :: CLOCK_DIS_CH4 [00:00] */
 #define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_4_CLOCK_DIS_CH4_MASK 0x00000001
 #define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_4_CLOCK_DIS_CH4_SHIFT 0
+
+/***************************************************************************
+ *PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 - PLL CHANNEL control CH 5
+ ***************************************************************************/
+/* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 :: reserved0 [31:14] */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_reserved0_MASK  0xffffc000
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_reserved0_SHIFT 14
+
+/* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 :: POST_DIVIDER_LOAD_EN_CH5 [13:13] */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_POST_DIVIDER_LOAD_EN_CH5_MASK 0x00002000
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_POST_DIVIDER_LOAD_EN_CH5_SHIFT 13
+
+/* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 :: POST_DIVIDER_HOLD_CH5 [12:12] */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_POST_DIVIDER_HOLD_CH5_MASK 0x00001000
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_POST_DIVIDER_HOLD_CH5_SHIFT 12
+
+/* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 :: PHASE_OFFSET_CH5 [11:09] */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_PHASE_OFFSET_CH5_MASK 0x00000e00
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_PHASE_OFFSET_CH5_SHIFT 9
+
+/* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 :: MDIV_CH5 [08:01] */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_MDIV_CH5_MASK   0x000001fe
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_MDIV_CH5_SHIFT  1
+
+/* CLKGEN :: PLL_SYS1_PLL_CHANNEL_CTRL_CH_5 :: CLOCK_DIS_CH5 [00:00] */
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_CLOCK_DIS_CH5_MASK 0x00000001
+#define BCHP_CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL_CH_5_CLOCK_DIS_CH5_SHIFT 0
 
 /***************************************************************************
  *PLL_SYS1_PLL_CONTROL - Miscellaneous Controls
@@ -2072,13 +2155,17 @@
 /***************************************************************************
  *BCM_MIPS_TOP_CLOCK_ENABLE - Bcm mips top clock enable
  ***************************************************************************/
-/* CLKGEN :: BCM_MIPS_TOP_CLOCK_ENABLE :: reserved0 [31:03] */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_reserved0_MASK       0xfffffff8
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_reserved0_SHIFT      3
+/* CLKGEN :: BCM_MIPS_TOP_CLOCK_ENABLE :: reserved0 [31:04] */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_reserved0_MASK       0xfffffff0
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_reserved0_SHIFT      4
 
-/* CLKGEN :: BCM_MIPS_TOP_CLOCK_ENABLE :: MIPS_SCB_CLOCK_ENABLE [02:02] */
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_SCB_CLOCK_ENABLE_MASK 0x00000004
-#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_SCB_CLOCK_ENABLE_SHIFT 2
+/* CLKGEN :: BCM_MIPS_TOP_CLOCK_ENABLE :: MIPS_SCB_CLOCK_ENABLE [03:03] */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_SCB_CLOCK_ENABLE_MASK 0x00000008
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_SCB_CLOCK_ENABLE_SHIFT 3
+
+/* CLKGEN :: BCM_MIPS_TOP_CLOCK_ENABLE :: MIPS_MIPS_CLOCK_ENABLE [02:02] */
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_MIPS_CLOCK_ENABLE_MASK 0x00000004
+#define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_MIPS_CLOCK_ENABLE_SHIFT 2
 
 /* CLKGEN :: BCM_MIPS_TOP_CLOCK_ENABLE :: MIPS_216_CLOCK_ENABLE [01:01] */
 #define BCHP_CLKGEN_BCM_MIPS_TOP_CLOCK_ENABLE_MIPS_216_CLOCK_ENABLE_MASK 0x00000002
@@ -2182,11 +2269,219 @@
 #define BCHP_CLKGEN_BVN_TOP_POWER_SWITCH_MEMORY_BVN_POWER_SWITCH_MEMORY_SHIFT 0
 
 /***************************************************************************
+ *CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION - Cktap 108 0 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: XPT_108_CKTAP_CPU_ADJUSTMENT_SELECTION [31:28] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_XPT_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0xf0000000
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_XPT_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 28
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: SYS_CTRL_108_CKTAP_CPU_ADJUSTMENT_SELECTION [27:24] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SYS_CTRL_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0f000000
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SYS_CTRL_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 24
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: SEC_108_CKTAP_CPU_ADJUSTMENT_SELECTION [23:20] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEC_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00f00000
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEC_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 20
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: SDS_108_CKTAP_CPU_ADJUSTMENT_SELECTION [19:16] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SDS_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000f0000
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SDS_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 16
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: RAAGA_108_CKTAP_CPU_ADJUSTMENT_SELECTION [15:12] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_RAAGA_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000f000
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_RAAGA_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 12
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: MIPS_108_CKTAP_CPU_ADJUSTMENT_SELECTION [11:08] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MIPS_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000f00
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MIPS_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 8
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: DVP_108_CKTAP_CPU_ADJUSTMENT_SELECTION [07:04] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_DVP_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000000f0
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_DVP_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: AVD_108_CKTAP_CPU_ADJUSTMENT_SELECTION [03:00] */
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_AVD_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000000f
+#define BCHP_CLKGEN_CKTAP_108_0_CKTAP_CPU_ADJUSTMENT_SELECTION_AVD_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION - Cktap 108 1 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:28] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0xf0000000
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 28
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: VEC_AIO_108_CKTAP_CPU_ADJUSTMENT_SELECTION [27:24] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_VEC_AIO_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0f000000
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_VEC_AIO_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 24
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: USB_108_CKTAP_CPU_ADJUSTMENT_SELECTION [23:20] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_USB_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00f00000
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_USB_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 20
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: RFM_108_CKTAP_CPU_ADJUSTMENT_SELECTION [19:16] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_RFM_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000f0000
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_RFM_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 16
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: MEMSYS_108_CKTAP_CPU_ADJUSTMENT_SELECTION [15:12] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_MEMSYS_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000f000
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_MEMSYS_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 12
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: M2MC_108_CKTAP_CPU_ADJUSTMENT_SELECTION [11:08] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_M2MC_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000f00
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_M2MC_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 8
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: HIF_108_CKTAP_CPU_ADJUSTMENT_SELECTION [07:04] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_HIF_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000000f0
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_HIF_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: BVN_108_CKTAP_CPU_ADJUSTMENT_SELECTION [03:00] */
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_BVN_108_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000000f
+#define BCHP_CLKGEN_CKTAP_108_1_CKTAP_CPU_ADJUSTMENT_SELECTION_BVN_108_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION - Cktap 216 0 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:28] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0xf0000000
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 28
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: XPT_216_CKTAP_CPU_ADJUSTMENT_SELECTION [27:24] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_XPT_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0f000000
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_XPT_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 24
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: VEC_AIO_216_CKTAP_CPU_ADJUSTMENT_SELECTION [23:20] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_VEC_AIO_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00f00000
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_VEC_AIO_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 20
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: SEC_216_CKTAP_CPU_ADJUSTMENT_SELECTION [19:16] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEC_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000f0000
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEC_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 16
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: MIPS_216_CKTAP_CPU_ADJUSTMENT_SELECTION [15:12] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MIPS_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000f000
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MIPS_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 12
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: HIF_216_CKTAP_CPU_ADJUSTMENT_SELECTION [11:08] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_HIF_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000f00
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_HIF_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 8
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: DVP_216_CKTAP_CPU_ADJUSTMENT_SELECTION [07:04] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_DVP_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000000f0
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_DVP_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: BVN_216_CKTAP_CPU_ADJUSTMENT_SELECTION [03:00] */
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_BVN_216_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000000f
+#define BCHP_CLKGEN_CKTAP_216_0_CKTAP_CPU_ADJUSTMENT_SELECTION_BVN_216_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK - CKTAP CPU Adjustment System 108 Clock
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK :: reserved0 [31:02] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK_reserved0_MASK 0xfffffffc
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK_reserved0_SHIFT 2
+
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK :: CKTAP_UPDATE [01:01] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK_CKTAP_UPDATE_MASK 0x00000002
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK_CKTAP_UPDATE_SHIFT 1
+
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK :: CKTAP_REG_SELECT [00:00] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK_CKTAP_REG_SELECT_MASK 0x00000001
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_108_CLOCK_CKTAP_REG_SELECT_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK - CKTAP CPU Adjustment System 216 Clock
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK :: reserved0 [31:02] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK_reserved0_MASK 0xfffffffc
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK_reserved0_SHIFT 2
+
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK :: CKTAP_UPDATE [01:01] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK_CKTAP_UPDATE_MASK 0x00000002
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK_CKTAP_UPDATE_SHIFT 1
+
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK :: CKTAP_REG_SELECT [00:00] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK_CKTAP_REG_SELECT_MASK 0x00000001
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_216_CLOCK_CKTAP_REG_SELECT_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK - CKTAP CPU Adjustment System Scb Clock
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK :: reserved0 [31:02] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK_reserved0_MASK 0xfffffffc
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK_reserved0_SHIFT 2
+
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK :: CKTAP_UPDATE [01:01] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK_CKTAP_UPDATE_MASK 0x00000002
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK_CKTAP_UPDATE_SHIFT 1
+
+/* CLKGEN :: CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK :: CKTAP_REG_SELECT [00:00] */
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK_CKTAP_REG_SELECT_MASK 0x00000001
+#define BCHP_CLKGEN_CKTAP_CPU_ADJUSTMENT_SYSTEM_SCB_CLOCK_CKTAP_REG_SELECT_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION - Cktap scb 0 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: VEC_AIO_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [31:28] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_VEC_AIO_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0xf0000000
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_VEC_AIO_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 28
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: USB_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [27:24] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_USB_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0f000000
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_USB_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 24
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: RAAGA_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [23:20] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_RAAGA_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00f00000
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_RAAGA_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 20
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: MIPS_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [19:16] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MIPS_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000f0000
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MIPS_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 16
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: MEMSYS_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [15:12] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MEMSYS_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000f000
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_MEMSYS_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 12
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: M2MC_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [11:08] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_M2MC_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000f00
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_M2MC_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 8
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: BVN_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [07:04] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_BVN_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000000f0
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_BVN_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION :: AVD_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [03:00] */
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_AVD_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000000f
+#define BCHP_CLKGEN_CKTAP_SCB_0_CKTAP_CPU_ADJUSTMENT_SELECTION_AVD_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION - Cktap scb 1 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:12] */
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0xfffff000
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 12
+
+/* CLKGEN :: CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: XPT_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [11:08] */
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_XPT_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000f00
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_XPT_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 8
+
+/* CLKGEN :: CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: SYS_CTRL_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [07:04] */
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_SYS_CTRL_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000000f0
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_SYS_CTRL_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION :: SEC_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION [03:00] */
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_SEC_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0000000f
+#define BCHP_CLKGEN_CKTAP_SCB_1_CKTAP_CPU_ADJUSTMENT_SELECTION_SEC_SCB_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
  *CLKGEN_CLOCK_DISABLE - Disable CLKGEN's clocks
  ***************************************************************************/
-/* CLKGEN :: CLKGEN_CLOCK_DISABLE :: reserved0 [31:01] */
-#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_reserved0_MASK            0xfffffffe
-#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_reserved0_SHIFT           1
+/* CLKGEN :: CLKGEN_CLOCK_DISABLE :: reserved0 [31:02] */
+#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_reserved0_MASK            0xfffffffc
+#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_reserved0_SHIFT           2
+
+/* CLKGEN :: CLKGEN_CLOCK_DISABLE :: DISABLE_OSC_DIGITAL_CLOCK [01:01] */
+#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_DISABLE_OSC_DIGITAL_CLOCK_MASK 0x00000002
+#define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_DISABLE_OSC_DIGITAL_CLOCK_SHIFT 1
 
 /* CLKGEN :: CLKGEN_CLOCK_DISABLE :: DISABLE_AVS_CLOCK [00:00] */
 #define BCHP_CLKGEN_CLKGEN_CLOCK_DISABLE_DISABLE_AVS_CLOCK_MASK    0x00000001
@@ -2218,6 +2513,66 @@
 /* CLKGEN :: CORE_XPT_CLOCK_DISABLE :: DISABLE_XPT_20P25_CLOCK [00:00] */
 #define BCHP_CLKGEN_CORE_XPT_CLOCK_DISABLE_DISABLE_XPT_20P25_CLOCK_MASK 0x00000001
 #define BCHP_CLKGEN_CORE_XPT_CLOCK_DISABLE_DISABLE_XPT_20P25_CLOCK_SHIFT 0
+
+/***************************************************************************
+ *CORE_XPT_CLOCK_ENABLE - Core xpt clock enable
+ ***************************************************************************/
+/* CLKGEN :: CORE_XPT_CLOCK_ENABLE :: reserved0 [31:03] */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_reserved0_MASK           0xfffffff8
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_reserved0_SHIFT          3
+
+/* CLKGEN :: CORE_XPT_CLOCK_ENABLE :: XPT_SCB_CLOCK_ENABLE [02:02] */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_XPT_SCB_CLOCK_ENABLE_MASK 0x00000004
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_XPT_SCB_CLOCK_ENABLE_SHIFT 2
+
+/* CLKGEN :: CORE_XPT_CLOCK_ENABLE :: XPT_216_CLOCK_ENABLE [01:01] */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_XPT_216_CLOCK_ENABLE_MASK 0x00000002
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_XPT_216_CLOCK_ENABLE_SHIFT 1
+
+/* CLKGEN :: CORE_XPT_CLOCK_ENABLE :: XPT_108_CLOCK_ENABLE [00:00] */
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_XPT_108_CLOCK_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_CORE_XPT_CLOCK_ENABLE_XPT_108_CLOCK_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *CORE_XPT_MEMORY_STANDBY_ENABLE - Core xpt memory standby enable
+ ***************************************************************************/
+/* CLKGEN :: CORE_XPT_MEMORY_STANDBY_ENABLE :: reserved0 [31:01] */
+#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE_reserved0_MASK  0xfffffffe
+#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE_reserved0_SHIFT 1
+
+/* CLKGEN :: CORE_XPT_MEMORY_STANDBY_ENABLE :: XPT_MEMORY_STANDBY_ENABLE [00:00] */
+#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE_XPT_MEMORY_STANDBY_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_CORE_XPT_MEMORY_STANDBY_ENABLE_XPT_MEMORY_STANDBY_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *CORE_XPT_OBSERVE_CLOCK - Core xpt observe clock
+ ***************************************************************************/
+/* CLKGEN :: CORE_XPT_OBSERVE_CLOCK :: reserved0 [31:06] */
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_reserved0_MASK          0xffffffc0
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_reserved0_SHIFT         6
+
+/* CLKGEN :: CORE_XPT_OBSERVE_CLOCK :: XPT_ENABLE_OBSERVE_CLOCK [05:05] */
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_XPT_ENABLE_OBSERVE_CLOCK_MASK 0x00000020
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_XPT_ENABLE_OBSERVE_CLOCK_SHIFT 5
+
+/* CLKGEN :: CORE_XPT_OBSERVE_CLOCK :: XPT_ENABLE_DIVIDER_OBSERVE_CLOCK [04:04] */
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_XPT_ENABLE_DIVIDER_OBSERVE_CLOCK_MASK 0x00000010
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_XPT_ENABLE_DIVIDER_OBSERVE_CLOCK_SHIFT 4
+
+/* CLKGEN :: CORE_XPT_OBSERVE_CLOCK :: XPT_CONTROL_OBSERVE_CLOCK [03:00] */
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_XPT_CONTROL_OBSERVE_CLOCK_MASK 0x0000000f
+#define BCHP_CLKGEN_CORE_XPT_OBSERVE_CLOCK_XPT_CONTROL_OBSERVE_CLOCK_SHIFT 0
+
+/***************************************************************************
+ *CORE_XPT_POWER_SWITCH_MEMORY - Core xpt power switch memory
+ ***************************************************************************/
+/* CLKGEN :: CORE_XPT_POWER_SWITCH_MEMORY :: reserved0 [31:02] */
+#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY_reserved0_MASK    0xfffffffc
+#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY_reserved0_SHIFT   2
+
+/* CLKGEN :: CORE_XPT_POWER_SWITCH_MEMORY :: XPT_POWER_SWITCH_MEMORY [01:00] */
+#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY_XPT_POWER_SWITCH_MEMORY_MASK 0x00000003
+#define BCHP_CLKGEN_CORE_XPT_POWER_SWITCH_MEMORY_XPT_POWER_SWITCH_MEMORY_SHIFT 0
 
 /***************************************************************************
  *DVP_HT_CLOCK_DISABLE - Disable DVP_HT's clocks
@@ -2311,6 +2666,47 @@
 /* CLKGEN :: DVP_HT_POWER_SWITCH_MEMORY :: DVPHT_POWER_SWITCH_MEMORY [01:00] */
 #define BCHP_CLKGEN_DVP_HT_POWER_SWITCH_MEMORY_DVPHT_POWER_SWITCH_MEMORY_MASK 0x00000003
 #define BCHP_CLKGEN_DVP_HT_POWER_SWITCH_MEMORY_DVPHT_POWER_SWITCH_MEMORY_SHIFT 0
+
+/***************************************************************************
+ *FSK_TOP_CLOCK_ENABLE - Fsk top clock enable
+ ***************************************************************************/
+/* CLKGEN :: FSK_TOP_CLOCK_ENABLE :: reserved0 [31:03] */
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_reserved0_MASK            0xfffffff8
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_reserved0_SHIFT           3
+
+/* CLKGEN :: FSK_TOP_CLOCK_ENABLE :: FSK_PHY_PRIMARY_CLOCK_ENABLE [02:02] */
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_FSK_PHY_PRIMARY_CLOCK_ENABLE_MASK 0x00000004
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_FSK_PHY_PRIMARY_CLOCK_ENABLE_SHIFT 2
+
+/* CLKGEN :: FSK_TOP_CLOCK_ENABLE :: FSK_216_CLOCK_ENABLE [01:01] */
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_FSK_216_CLOCK_ENABLE_MASK 0x00000002
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_FSK_216_CLOCK_ENABLE_SHIFT 1
+
+/* CLKGEN :: FSK_TOP_CLOCK_ENABLE :: FSK_108_CLOCK_ENABLE [00:00] */
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_FSK_108_CLOCK_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_FSK_TOP_CLOCK_ENABLE_FSK_108_CLOCK_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *FSK_TOP_MEMORY_STANDBY_ENABLE - Fsk top memory standby enable
+ ***************************************************************************/
+/* CLKGEN :: FSK_TOP_MEMORY_STANDBY_ENABLE :: reserved0 [31:01] */
+#define BCHP_CLKGEN_FSK_TOP_MEMORY_STANDBY_ENABLE_reserved0_MASK   0xfffffffe
+#define BCHP_CLKGEN_FSK_TOP_MEMORY_STANDBY_ENABLE_reserved0_SHIFT  1
+
+/* CLKGEN :: FSK_TOP_MEMORY_STANDBY_ENABLE :: FSK_MEMORY_STANDBY_ENABLE [00:00] */
+#define BCHP_CLKGEN_FSK_TOP_MEMORY_STANDBY_ENABLE_FSK_MEMORY_STANDBY_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_FSK_TOP_MEMORY_STANDBY_ENABLE_FSK_MEMORY_STANDBY_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *FSK_TOP_POWER_SWITCH_MEMORY - Fsk top power switch memory
+ ***************************************************************************/
+/* CLKGEN :: FSK_TOP_POWER_SWITCH_MEMORY :: reserved0 [31:02] */
+#define BCHP_CLKGEN_FSK_TOP_POWER_SWITCH_MEMORY_reserved0_MASK     0xfffffffc
+#define BCHP_CLKGEN_FSK_TOP_POWER_SWITCH_MEMORY_reserved0_SHIFT    2
+
+/* CLKGEN :: FSK_TOP_POWER_SWITCH_MEMORY :: FTM_POWER_SWITCH_MEMORY [01:00] */
+#define BCHP_CLKGEN_FSK_TOP_POWER_SWITCH_MEMORY_FTM_POWER_SWITCH_MEMORY_MASK 0x00000003
+#define BCHP_CLKGEN_FSK_TOP_POWER_SWITCH_MEMORY_FTM_POWER_SWITCH_MEMORY_SHIFT 0
 
 /***************************************************************************
  *GENET_TOP_RGMII_INST_CLOCK_DISABLE - Disable GENET_TOP_RGMII_INST's clocks
@@ -2528,9 +2924,13 @@
 /***************************************************************************
  *HIF_CLOCK_DISABLE - Disable HIF's clocks
  ***************************************************************************/
-/* CLKGEN :: HIF_CLOCK_DISABLE :: reserved0 [31:03] */
-#define BCHP_CLKGEN_HIF_CLOCK_DISABLE_reserved0_MASK               0xfffffff8
-#define BCHP_CLKGEN_HIF_CLOCK_DISABLE_reserved0_SHIFT              3
+/* CLKGEN :: HIF_CLOCK_DISABLE :: reserved0 [31:04] */
+#define BCHP_CLKGEN_HIF_CLOCK_DISABLE_reserved0_MASK               0xfffffff0
+#define BCHP_CLKGEN_HIF_CLOCK_DISABLE_reserved0_SHIFT              4
+
+/* CLKGEN :: HIF_CLOCK_DISABLE :: DISABLE_SDIO_48_CLOCK [03:03] */
+#define BCHP_CLKGEN_HIF_CLOCK_DISABLE_DISABLE_SDIO_48_CLOCK_MASK   0x00000008
+#define BCHP_CLKGEN_HIF_CLOCK_DISABLE_DISABLE_SDIO_48_CLOCK_SHIFT  3
 
 /* CLKGEN :: HIF_CLOCK_DISABLE :: DISABLE_HIF_SPI_CLOCK [02:02] */
 #define BCHP_CLKGEN_HIF_CLOCK_DISABLE_DISABLE_HIF_SPI_CLOCK_MASK   0x00000004
@@ -2547,9 +2947,13 @@
 /***************************************************************************
  *HIF_CLOCK_ENABLE - Hif clock enable
  ***************************************************************************/
-/* CLKGEN :: HIF_CLOCK_ENABLE :: reserved0 [31:02] */
-#define BCHP_CLKGEN_HIF_CLOCK_ENABLE_reserved0_MASK                0xfffffffc
-#define BCHP_CLKGEN_HIF_CLOCK_ENABLE_reserved0_SHIFT               2
+/* CLKGEN :: HIF_CLOCK_ENABLE :: reserved0 [31:03] */
+#define BCHP_CLKGEN_HIF_CLOCK_ENABLE_reserved0_MASK                0xfffffff8
+#define BCHP_CLKGEN_HIF_CLOCK_ENABLE_reserved0_SHIFT               3
+
+/* CLKGEN :: HIF_CLOCK_ENABLE :: HIF_SCB_CLOCK_ENABLE [02:02] */
+#define BCHP_CLKGEN_HIF_CLOCK_ENABLE_HIF_SCB_CLOCK_ENABLE_MASK     0x00000004
+#define BCHP_CLKGEN_HIF_CLOCK_ENABLE_HIF_SCB_CLOCK_ENABLE_SHIFT    2
 
 /* CLKGEN :: HIF_CLOCK_ENABLE :: HIF_216_CLOCK_ENABLE [01:01] */
 #define BCHP_CLKGEN_HIF_CLOCK_ENABLE_HIF_216_CLOCK_ENABLE_MASK     0x00000002
@@ -2560,15 +2964,33 @@
 #define BCHP_CLKGEN_HIF_CLOCK_ENABLE_HIF_108_CLOCK_ENABLE_SHIFT    0
 
 /***************************************************************************
+ *HIF_MEMORY_STANDBY_ENABLE - Hif memory standby enable
+ ***************************************************************************/
+/* CLKGEN :: HIF_MEMORY_STANDBY_ENABLE :: reserved0 [31:01] */
+#define BCHP_CLKGEN_HIF_MEMORY_STANDBY_ENABLE_reserved0_MASK       0xfffffffe
+#define BCHP_CLKGEN_HIF_MEMORY_STANDBY_ENABLE_reserved0_SHIFT      1
+
+/* CLKGEN :: HIF_MEMORY_STANDBY_ENABLE :: HIF_MEMORY_STANDBY_ENABLE [00:00] */
+#define BCHP_CLKGEN_HIF_MEMORY_STANDBY_ENABLE_HIF_MEMORY_STANDBY_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_HIF_MEMORY_STANDBY_ENABLE_HIF_MEMORY_STANDBY_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *HIF_POWER_SWITCH_MEMORY - Hif power switch memory
+ ***************************************************************************/
+/* CLKGEN :: HIF_POWER_SWITCH_MEMORY :: reserved0 [31:02] */
+#define BCHP_CLKGEN_HIF_POWER_SWITCH_MEMORY_reserved0_MASK         0xfffffffc
+#define BCHP_CLKGEN_HIF_POWER_SWITCH_MEMORY_reserved0_SHIFT        2
+
+/* CLKGEN :: HIF_POWER_SWITCH_MEMORY :: HIF_POWER_SWITCH_MEMORY [01:00] */
+#define BCHP_CLKGEN_HIF_POWER_SWITCH_MEMORY_HIF_POWER_SWITCH_MEMORY_MASK 0x00000003
+#define BCHP_CLKGEN_HIF_POWER_SWITCH_MEMORY_HIF_POWER_SWITCH_MEMORY_SHIFT 0
+
+/***************************************************************************
  *INTERNAL_MUX_SELECT - Mux selects for Internal clocks
  ***************************************************************************/
-/* CLKGEN :: INTERNAL_MUX_SELECT :: reserved0 [31:04] */
-#define BCHP_CLKGEN_INTERNAL_MUX_SELECT_reserved0_MASK             0xfffffff0
-#define BCHP_CLKGEN_INTERNAL_MUX_SELECT_reserved0_SHIFT            4
-
-/* CLKGEN :: INTERNAL_MUX_SELECT :: PLLSC_REFERENCE_CLOCK [03:03] */
-#define BCHP_CLKGEN_INTERNAL_MUX_SELECT_PLLSC_REFERENCE_CLOCK_MASK 0x00000008
-#define BCHP_CLKGEN_INTERNAL_MUX_SELECT_PLLSC_REFERENCE_CLOCK_SHIFT 3
+/* CLKGEN :: INTERNAL_MUX_SELECT :: reserved0 [31:03] */
+#define BCHP_CLKGEN_INTERNAL_MUX_SELECT_reserved0_MASK             0xfffffff8
+#define BCHP_CLKGEN_INTERNAL_MUX_SELECT_reserved0_SHIFT            3
 
 /* CLKGEN :: INTERNAL_MUX_SELECT :: PLLAUDIO1_REFERENCE_CLOCK [02:02] */
 #define BCHP_CLKGEN_INTERNAL_MUX_SELECT_PLLAUDIO1_REFERENCE_CLOCK_MASK 0x00000004
@@ -2639,15 +3061,118 @@
 #define BCHP_CLKGEN_MEMSYS_16_POWER_SWITCH_MEMORY_DDR1_POWER_SWITCH_MEMORY_SHIFT 0
 
 /***************************************************************************
+ *MEMSYS_16_STATUS - Memsys 16 status
+ ***************************************************************************/
+/* CLKGEN :: MEMSYS_16_STATUS :: reserved0 [31:01] */
+#define BCHP_CLKGEN_MEMSYS_16_STATUS_reserved0_MASK                0xfffffffe
+#define BCHP_CLKGEN_MEMSYS_16_STATUS_reserved0_SHIFT               1
+
+/* CLKGEN :: MEMSYS_16_STATUS :: MEMSYS_PLL_LOCKED_STATUS [00:00] */
+#define BCHP_CLKGEN_MEMSYS_16_STATUS_MEMSYS_PLL_LOCKED_STATUS_MASK 0x00000001
+#define BCHP_CLKGEN_MEMSYS_16_STATUS_MEMSYS_PLL_LOCKED_STATUS_SHIFT 0
+
+/***************************************************************************
+ *PAD_CLK_OBSRV0_OBSERVATION - Select observation clk
+ ***************************************************************************/
+/* CLKGEN :: PAD_CLK_OBSRV0_OBSERVATION :: reserved0 [31:08] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_reserved0_MASK      0xffffff00
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_reserved0_SHIFT     8
+
+/* CLKGEN :: PAD_CLK_OBSRV0_OBSERVATION :: SELECT_OBSERVE_CLK [07:07] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_SELECT_OBSERVE_CLK_MASK 0x00000080
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_SELECT_OBSERVE_CLK_SHIFT 7
+
+/* CLKGEN :: PAD_CLK_OBSRV0_OBSERVATION :: OBSERVE_MUX_SELECT [06:01] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_OBSERVE_MUX_SELECT_MASK 0x0000007e
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_OBSERVE_MUX_SELECT_SHIFT 1
+
+/* CLKGEN :: PAD_CLK_OBSRV0_OBSERVATION :: OBSERVE_DIV_ENABLE [00:00] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_OBSERVE_DIV_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_PAD_CLK_OBSRV0_OBSERVATION_OBSERVE_DIV_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *PAD_CLK_OBSRV1_OBSERVATION - Select observation clk
+ ***************************************************************************/
+/* CLKGEN :: PAD_CLK_OBSRV1_OBSERVATION :: reserved0 [31:08] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_reserved0_MASK      0xffffff00
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_reserved0_SHIFT     8
+
+/* CLKGEN :: PAD_CLK_OBSRV1_OBSERVATION :: SELECT_OBSERVE_CLK [07:07] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_SELECT_OBSERVE_CLK_MASK 0x00000080
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_SELECT_OBSERVE_CLK_SHIFT 7
+
+/* CLKGEN :: PAD_CLK_OBSRV1_OBSERVATION :: OBSERVE_MUX_SELECT [06:01] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_OBSERVE_MUX_SELECT_MASK 0x0000007e
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_OBSERVE_MUX_SELECT_SHIFT 1
+
+/* CLKGEN :: PAD_CLK_OBSRV1_OBSERVATION :: OBSERVE_DIV_ENABLE [00:00] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_OBSERVE_DIV_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_PAD_CLK_OBSRV1_OBSERVATION_OBSERVE_DIV_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *PAD_CLK_OBSRV2_OBSERVATION - Select observation clk
+ ***************************************************************************/
+/* CLKGEN :: PAD_CLK_OBSRV2_OBSERVATION :: reserved0 [31:08] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_reserved0_MASK      0xffffff00
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_reserved0_SHIFT     8
+
+/* CLKGEN :: PAD_CLK_OBSRV2_OBSERVATION :: SELECT_OBSERVE_CLK [07:07] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_SELECT_OBSERVE_CLK_MASK 0x00000080
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_SELECT_OBSERVE_CLK_SHIFT 7
+
+/* CLKGEN :: PAD_CLK_OBSRV2_OBSERVATION :: OBSERVE_MUX_SELECT [06:01] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_OBSERVE_MUX_SELECT_MASK 0x0000007e
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_OBSERVE_MUX_SELECT_SHIFT 1
+
+/* CLKGEN :: PAD_CLK_OBSRV2_OBSERVATION :: OBSERVE_DIV_ENABLE [00:00] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_OBSERVE_DIV_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_PAD_CLK_OBSRV2_OBSERVATION_OBSERVE_DIV_ENABLE_SHIFT 0
+
+/***************************************************************************
+ *PAD_CLK_OBSRV3_OBSERVATION - Select observation clk
+ ***************************************************************************/
+/* CLKGEN :: PAD_CLK_OBSRV3_OBSERVATION :: reserved0 [31:08] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_reserved0_MASK      0xffffff00
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_reserved0_SHIFT     8
+
+/* CLKGEN :: PAD_CLK_OBSRV3_OBSERVATION :: SELECT_OBSERVE_CLK [07:07] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_SELECT_OBSERVE_CLK_MASK 0x00000080
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_SELECT_OBSERVE_CLK_SHIFT 7
+
+/* CLKGEN :: PAD_CLK_OBSRV3_OBSERVATION :: OBSERVE_MUX_SELECT [06:01] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_OBSERVE_MUX_SELECT_MASK 0x0000007e
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_OBSERVE_MUX_SELECT_SHIFT 1
+
+/* CLKGEN :: PAD_CLK_OBSRV3_OBSERVATION :: OBSERVE_DIV_ENABLE [00:00] */
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_OBSERVE_DIV_ENABLE_MASK 0x00000001
+#define BCHP_CLKGEN_PAD_CLK_OBSRV3_OBSERVATION_OBSERVE_DIV_ENABLE_SHIFT 0
+
+/***************************************************************************
  *PAD_CLOCK_DISABLE - Disable PAD's clocks
  ***************************************************************************/
-/* CLKGEN :: PAD_CLOCK_DISABLE :: reserved0 [31:01] */
-#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_reserved0_MASK               0xfffffffe
-#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_reserved0_SHIFT              1
+/* CLKGEN :: PAD_CLOCK_DISABLE :: reserved0 [31:05] */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_reserved0_MASK               0xffffffe0
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_reserved0_SHIFT              5
 
-/* CLKGEN :: PAD_CLOCK_DISABLE :: DISABLE_PAD_OUTPUT_CLK27_CLOCK [00:00] */
-#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK27_CLOCK_MASK 0x00000001
-#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK27_CLOCK_SHIFT 0
+/* CLKGEN :: PAD_CLOCK_DISABLE :: DISABLE_SC_OUT_CLOCK [04:04] */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_SC_OUT_CLOCK_MASK    0x00000010
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_SC_OUT_CLOCK_SHIFT   4
+
+/* CLKGEN :: PAD_CLOCK_DISABLE :: DISABLE_PAD_OUTPUT_CODECMCLK_CLOCK [03:03] */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CODECMCLK_CLOCK_MASK 0x00000008
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CODECMCLK_CLOCK_SHIFT 3
+
+/* CLKGEN :: PAD_CLOCK_DISABLE :: DISABLE_PAD_OUTPUT_CLK27_CLOCK [02:02] */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK27_CLOCK_MASK 0x00000004
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK27_CLOCK_SHIFT 2
+
+/* CLKGEN :: PAD_CLOCK_DISABLE :: DISABLE_PAD_OUTPUT_CLK25_CLOCK [01:01] */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK25_CLOCK_MASK 0x00000002
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK25_CLOCK_SHIFT 1
+
+/* CLKGEN :: PAD_CLOCK_DISABLE :: DISABLE_PAD_OUTPUT_CLK24_CLOCK [00:00] */
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK24_CLOCK_MASK 0x00000001
+#define BCHP_CLKGEN_PAD_CLOCK_DISABLE_DISABLE_PAD_OUTPUT_CLK24_CLOCK_SHIFT 0
 
 /***************************************************************************
  *PAD_MUX_SELECT - Mux selects for Pad clocks
@@ -2776,9 +3301,13 @@
 /***************************************************************************
  *PM_PLL_ALIVE_SEL - PLL Alive in Standby Mode
  ***************************************************************************/
-/* CLKGEN :: PM_PLL_ALIVE_SEL :: reserved0 [31:02] */
-#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_reserved0_MASK                0xfffffffc
-#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_reserved0_SHIFT               2
+/* CLKGEN :: PM_PLL_ALIVE_SEL :: reserved0 [31:03] */
+#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_reserved0_MASK                0xfffffff8
+#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_reserved0_SHIFT               3
+
+/* CLKGEN :: PM_PLL_ALIVE_SEL :: memsys_PLL [02:02] */
+#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_memsys_PLL_MASK               0x00000004
+#define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_memsys_PLL_SHIFT              2
 
 /* CLKGEN :: PM_PLL_ALIVE_SEL :: PLL_SYS0 [01:01] */
 #define BCHP_CLKGEN_PM_PLL_ALIVE_SEL_PLL_SYS0_MASK                 0x00000002
@@ -3051,17 +3580,25 @@
 /***************************************************************************
  *SMARTCARD_MUX_SELECT - Mux selects for Smartcard clocks
  ***************************************************************************/
-/* CLKGEN :: SMARTCARD_MUX_SELECT :: reserved0 [31:06] */
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_reserved0_MASK            0xffffffc0
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_reserved0_SHIFT           6
+/* CLKGEN :: SMARTCARD_MUX_SELECT :: reserved0 [31:10] */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_reserved0_MASK            0xfffffc00
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_reserved0_SHIFT           10
 
-/* CLKGEN :: SMARTCARD_MUX_SELECT :: SC1_CLOCK [05:03] */
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC1_CLOCK_MASK            0x00000038
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC1_CLOCK_SHIFT           3
+/* CLKGEN :: SMARTCARD_MUX_SELECT :: SC_OUT_CLOCK [09:07] */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC_OUT_CLOCK_MASK         0x00000380
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC_OUT_CLOCK_SHIFT        7
 
-/* CLKGEN :: SMARTCARD_MUX_SELECT :: SC0_CLOCK [02:00] */
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC0_CLOCK_MASK            0x00000007
-#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC0_CLOCK_SHIFT           0
+/* CLKGEN :: SMARTCARD_MUX_SELECT :: SC1_CLOCK [06:04] */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC1_CLOCK_MASK            0x00000070
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC1_CLOCK_SHIFT           4
+
+/* CLKGEN :: SMARTCARD_MUX_SELECT :: SC0_CLOCK [03:01] */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC0_CLOCK_MASK            0x0000000e
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_SC0_CLOCK_SHIFT           1
+
+/* CLKGEN :: SMARTCARD_MUX_SELECT :: PLLSC_REFERENCE_CLOCK [00:00] */
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_PLLSC_REFERENCE_CLOCK_MASK 0x00000001
+#define BCHP_CLKGEN_SMARTCARD_MUX_SELECT_PLLSC_REFERENCE_CLOCK_SHIFT 0
 
 /***************************************************************************
  *SPARE - Spares
@@ -3186,6 +3723,137 @@
 /* CLKGEN :: TESTPORT :: PLL_TEST_STATUS_SELECT [02:00] */
 #define BCHP_CLKGEN_TESTPORT_PLL_TEST_STATUS_SELECT_MASK           0x00000007
 #define BCHP_CLKGEN_TESTPORT_PLL_TEST_STATUS_SELECT_SHIFT          0
+
+/***************************************************************************
+ *TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION - Ts ctrl0 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:22] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0xffc00000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 22
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: TOGGLE_CNT_CKTAP_CPU_ADJUSTMENT_SELECTION [21:17] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_TOGGLE_CNT_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x003e0000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_TOGGLE_CNT_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 17
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: SEL_MUX2_CKTAP_CPU_ADJUSTMENT_SELECTION [16:16] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEL_MUX2_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00010000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEL_MUX2_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 16
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: SEL_MUX1_CKTAP_CPU_ADJUSTMENT_SELECTION [15:15] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEL_MUX1_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00008000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_SEL_MUX1_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 15
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: RO_SEL_CKTAP_CPU_ADJUSTMENT_SELECTION [14:14] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_RO_SEL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00004000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_RO_SEL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 14
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: RO_EN_CKTAP_CPU_ADJUSTMENT_SELECTION [13:13] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_RO_EN_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00002000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_RO_EN_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 13
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: GATE_CTRL_EN_CKTAP_CPU_ADJUSTMENT_SELECTION [12:12] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_GATE_CTRL_EN_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00001000
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_GATE_CTRL_EN_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 12
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: EN_RAND_CKTAP_CPU_ADJUSTMENT_SELECTION [11:08] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_EN_RAND_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000f00
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_EN_RAND_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 8
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: EN_ORD_CKTAP_CPU_ADJUSTMENT_SELECTION [07:04] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_EN_ORD_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x000000f0
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_EN_ORD_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: DIV2SEL_CKTAP_CPU_ADJUSTMENT_SELECTION [03:03] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_DIV2SEL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000008
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_DIV2SEL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 3
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: CLK_GATE_EN_CKTAP_CPU_ADJUSTMENT_SELECTION [02:02] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_CLK_GATE_EN_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000004
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_CLK_GATE_EN_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 2
+
+/* CLKGEN :: TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION :: CKTAP_SEL_CKTAP_CPU_ADJUSTMENT_SELECTION [01:00] */
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_CKTAP_SEL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000003
+#define BCHP_CLKGEN_TS_CTRL0_CKTAP_CPU_ADJUSTMENT_SELECTION_CKTAP_SEL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION - Ts ctrl1 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:26] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0xfc000000
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 26
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: TAP3VAL_CKTAP_CPU_ADJUSTMENT_SELECTION [25:22] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP3VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x03c00000
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP3VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 22
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: TAP2VAL_CKTAP_CPU_ADJUSTMENT_SELECTION [21:18] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP2VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x003c0000
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP2VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 18
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: TAP1VAL_CKTAP_CPU_ADJUSTMENT_SELECTION [17:14] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP1VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x0003c000
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP1VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 14
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: TAP0VAL_CKTAP_CPU_ADJUSTMENT_SELECTION [13:10] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP0VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00003c00
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_TAP0VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 10
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: RISE_VAL_CKTAP_CPU_ADJUSTMENT_SELECTION [09:07] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_RISE_VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000380
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_RISE_VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 7
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: FALL_VAL_CKTAP_CPU_ADJUSTMENT_SELECTION [06:04] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_FALL_VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000070
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_FALL_VAL_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 4
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: FALL_TRANS_CKTAP_CPU_ADJUSTMENT_SELECTION [03:03] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_FALL_TRANS_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000008
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_FALL_TRANS_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 3
+
+/* CLKGEN :: TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION :: APRIOR_SWITCH_CNT_CKTAP_CPU_ADJUSTMENT_SELECTION [02:00] */
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_APRIOR_SWITCH_CNT_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000007
+#define BCHP_CLKGEN_TS_CTRL1_CKTAP_CPU_ADJUSTMENT_SELECTION_APRIOR_SWITCH_CNT_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION - Ts ctrl2 cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:02] */
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0xfffffffc
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 2
+
+/* CLKGEN :: TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION :: START_CKTAP_CPU_ADJUSTMENT_SELECTION [01:01] */
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION_START_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000002
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION_START_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 1
+
+/* CLKGEN :: TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION :: CLEAR_CKTAP_CPU_ADJUSTMENT_SELECTION [00:00] */
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION_CLEAR_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x00000001
+#define BCHP_CLKGEN_TS_CTRL2_CKTAP_CPU_ADJUSTMENT_SELECTION_CLEAR_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
+
+/***************************************************************************
+ *TS_CTRL_CLK_MUX_SELECT - Mux selects for TS_CTRL_CLK clocks
+ ***************************************************************************/
+/* CLKGEN :: TS_CTRL_CLK_MUX_SELECT :: reserved0 [31:02] */
+#define BCHP_CLKGEN_TS_CTRL_CLK_MUX_SELECT_reserved0_MASK          0xfffffffc
+#define BCHP_CLKGEN_TS_CTRL_CLK_MUX_SELECT_reserved0_SHIFT         2
+
+/* CLKGEN :: TS_CTRL_CLK_MUX_SELECT :: CKTAP_TS_CLK [01:00] */
+#define BCHP_CLKGEN_TS_CTRL_CLK_MUX_SELECT_CKTAP_TS_CLK_MASK       0x00000003
+#define BCHP_CLKGEN_TS_CTRL_CLK_MUX_SELECT_CKTAP_TS_CLK_SHIFT      0
+
+/***************************************************************************
+ *TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION - Ts ctrl data cktap cpu adjustment selection
+ ***************************************************************************/
+/* CLKGEN :: TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION :: reserved0 [31:31] */
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_MASK 0x80000000
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION_reserved0_SHIFT 31
+
+/* CLKGEN :: TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION :: TS_DATA_VALID_STATUS_CKTAP_CPU_ADJUSTMENT_SELECTION [30:30] */
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION_TS_DATA_VALID_STATUS_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x40000000
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION_TS_DATA_VALID_STATUS_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 30
+
+/* CLKGEN :: TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION :: TS_DATA_STATUS_CKTAP_CPU_ADJUSTMENT_SELECTION [29:00] */
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION_TS_DATA_STATUS_CKTAP_CPU_ADJUSTMENT_SELECTION_MASK 0x3fffffff
+#define BCHP_CLKGEN_TS_CTRL_DATA_CKTAP_CPU_ADJUSTMENT_SELECTION_TS_DATA_STATUS_CKTAP_CPU_ADJUSTMENT_SELECTION_SHIFT 0
 
 /***************************************************************************
  *USB_CLOCK_DISABLE - Disable USB's clocks

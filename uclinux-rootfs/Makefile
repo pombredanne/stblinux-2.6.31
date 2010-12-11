@@ -1,6 +1,6 @@
 #
-# STB Linux build system v2.0
-# Copyright (C) 2009 Broadcom Corporation
+# STB Linux build system v2.1
+# Copyright (C) 2010 Broadcom Corporation
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,16 +42,26 @@ PATH		:= $(shell $(CHKPATH) -a)
 export ROOTDIR LINUXDIR LINUX_CONFIG CONFIG_CONFIG ARCH_CONFIG ROMFSDIR \
 	ROMFSINST MAKEARCH LIBCDIR SHELL PATH 
 
+# hostname of TFTP server (defaults to the build machine)
 TFTPHOST	:= $(shell hostname)
-TFTPDIR		:= $$USER
-TFTPBOOT	:= /tftpboot/$(TFTPDIR)
+
+# root directory of TFTP server
+TFTPBOOT	:= /tftpboot
+
+# full (local) TFTP path, where "make install" will copy the images.
+# Typical usage: user overrides TFTPDIR on the command line, and
+# this Makefile will derive the correct TFTPPATH from TFTPDIR/TFTPBOOT
+TFTPDIR		:= $(TFTPBOOT)/$$USER
+
+# relative (remote) TFTP path under $(TFTPBOOT), for use by the TFTP client
+TFTPPATH	:= $(subst $(TFTPBOOT)/,,$(TFTPDIR))
 
 PLAT		:= $(shell cat .target 2> /dev/null)
 VERSION		:= $(shell cat version)
 DOTVERSION	:= $(patsubst 26%,2.6.%,$(VERSION))
 
 REL_TFTPHOST	:= stb-irva-01
-REL_TFTPDIR	:= $(VERSION)
+REL_TFTPDIR	:= $(TFTPBOOT)/$(VERSION)
 RELOPTS		:= TFTPHOST=$(REL_TFTPHOST) TFTPDIR=$(REL_TFTPDIR)
 
 # note that these are also hard-coded into config.pl
@@ -60,7 +70,7 @@ NONFREE_SRC	:= $(ROOTDIR)/../nonfree_src
 NONFREE_PLAT	:= $(firstword $(subst -, ,$(PLAT)))
 NONFREE_DESTDIR	:= $(NONFREE_BIN)/$(NONFREE_PLAT)
 
-MAKEOPTS	:= TFTPHOST=$(TFTPHOST) TFTPDIR=$(TFTPDIR)
+MAKEOPTS	:= TFTPHOST=$(TFTPHOST) TFTPDIR=$(TFTPDIR) TFTPPATH=$(TFTPPATH)
 
 #############################################################################
 # BASIC KERNEL/ROOTFS BUILDS
@@ -78,7 +88,7 @@ images: .target
 	@echo ""
 	@echo "Build complete.  Images are in images/"
 	@echo ""
-	@echo "To install under $(TFTPBOOT), use \"make install\""
+	@echo "To install under $(TFTPDIR), use \"make install\""
 	@echo ""
 
 .PHONY: initrd_kernel
@@ -98,7 +108,7 @@ initrd_kernel: .target chkpath
 		ln -s /proc/mounts romfs/etc/mtab ; \
 		rm -f romfs/etc/brcmstb.conf ; \
 		echo "TFTPHOST=$(TFTPHOST)" > romfs/etc/brcmstb.conf ; \
-		echo "TFTPDIR=$(TFTPDIR)" >> romfs/etc/brcmstb.conf ; \
+		echo "TFTPPATH=$(TFTPPATH)" >> romfs/etc/brcmstb.conf ; \
 		echo "PLAT=$(PLAT)" >> romfs/etc/brcmstb.conf ; \
 		echo "VERSION=$(VERSION)" >> romfs/etc/brcmstb.conf ; \
 	fi
@@ -278,8 +288,8 @@ defaults-%: chkpath
 	@echo "* Target:                  $*"
 	@echo "* Version:                 $(DOTVERSION)"
 	@echo "* TFTP host:               $(TFTPHOST)"
-	@echo "* Remote TFTP path:        $(TFTPDIR)"
-	@echo "* Local TFTP path:         $(TFTPBOOT)"
+	@echo "* Remote TFTP path:        $(TFTPPATH)"
+	@echo "* Local TFTP path:         $(TFTPDIR)"
 	@if $(CFG) test_vendor CONFIG_USER_NONFREE_MOCA; then \
 		if $(CFG) test_vendor CONFIG_USER_NONFREE_MOCA_SRC; then \
 			echo "* MoCA drivers:            Building from source" ; \
@@ -328,10 +338,10 @@ xconfig-linux: .target
 
 .PHONY: install
 install:
-	mkdir -p $(TFTPBOOT)
-	cp -f -p images/* $(TFTPBOOT)/
+	mkdir -p $(TFTPDIR)
+	cp -f -p images/* $(TFTPDIR)/
 	@echo ""
-	@echo "Images have been copied to $(TFTPBOOT)"
+	@echo "Images have been copied to $(TFTPDIR)"
 	@echo ""
 
 .PHONY: nonfree_clean
@@ -407,7 +417,7 @@ help:
 	@echo "initrd_kernel              - Build initramfs kernel for current target"
 	@echo "kernel                     - Build non-initramfs kernel for current target"
 	@echo ""
-	@echo "install                    - Copy all kernels/images/tarballs to TFTPBOOT"
+	@echo "install                    - Copy all kernels/images/tarballs to TFTPDIR"
 	@echo ""
 	@echo "release                    - Create source tarballs, then build all targets"
 	@echo ""

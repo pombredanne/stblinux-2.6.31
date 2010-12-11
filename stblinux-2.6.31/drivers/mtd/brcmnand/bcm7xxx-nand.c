@@ -87,7 +87,7 @@ int gNumNand = 0;
 int gClearBBT = 0;
 char gClearCET = 0;
 uint32_t gNandTiming1[NAND_MAX_CS], gNandTiming2[NAND_MAX_CS];
-uint32_t gAccControl[NAND_MAX_CS];
+uint32_t gAccControl[NAND_MAX_CS], gNandConfig[NAND_MAX_CS];
 
 static char *cmd = NULL;
 static unsigned long t1[NAND_MAX_CS], t2[NAND_MAX_CS];
@@ -115,6 +115,12 @@ static unsigned long acc[NAND_MAX_CS];
 static int nacc;
 module_param_array(acc, ulong, &nacc, 0444);
 MODULE_PARM_DESC(acc, "Comma separated list of NAND ACC_CONTROL values, 0 for default value"
+			"indexed by CS, values for CS0 will be ignored");
+
+static unsigned long nandcfg[NAND_MAX_CS];
+static int ncfg;
+module_param_array(nandcfg, ulong, &ncfg, 0444);
+MODULE_PARM_DESC(nandcfg, "Comma separated list of NAND_CONFIG_CSn values, 0 for default value"
 			"indexed by CS, values for CS0 will be ignored");
 
 static void* gPageBuffer = NULL;
@@ -448,22 +454,25 @@ static int __init brcmnanddrv_init(void)
 		gNandTiming1[csi] = 0;
 		gNandTiming2[csi] = 0;
 		gAccControl[csi] = 0;
+		gNandConfig[csi] = 0;
 	}
 
-PRINTK("%s: nacc=%d, gAccControl[0]=%08x\n", __FUNCTION__, nacc, acc[0]);
+PRINTK("%s: nacc=%d, gAccControl[0]=%08x, gNandConfig[0]=%08x\n", __FUNCTION__, nacc, acc[0], nandcfg[0]);
+if (nacc>1) PRINTK("%s: nacc=%d, gAccControl[1]=%08x, gNandConfig[1]=%08x\n", __FUNCTION__, nacc, acc[1], nandcfg[1]);
 	for (csi=0; csi<nacc; csi++) {
 		gAccControl[csi] = acc[csi];
 	}
+	for (csi=0; csi<ncfg; csi++) {
+		gNandConfig[csi] = nandcfg[csi];
+	}
 	ncsi = max(nt1, nt2);
 	for (csi=0; csi<ncsi; csi++) {
-		if (nt1)
+		if (nt1 && csi < nt1)
 			gNandTiming1[csi] = t1[csi];
-		if (nt2)
+		if (nt2 && csi < nt2)
 			gNandTiming2[csi] = t2[csi];
 		
 	}
-
-	
 
 	printk (KERN_INFO DRIVER_INFO " (BrcmNand Controller)\n");
 	ret = platform_driver_register(&brcmnand_platform_driver);

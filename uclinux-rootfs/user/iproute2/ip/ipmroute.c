@@ -17,13 +17,14 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <string.h>
+
 #include <linux/netdevice.h>
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <linux/sockios.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
 
 #include "utils.h"
 
@@ -41,7 +42,7 @@ static void usage(void)
 	exit(-1);
 }
 
-char *viftable[32];
+static char *viftable[32];
 
 struct rtfilter
 {
@@ -49,7 +50,7 @@ struct rtfilter
 	inet_prefix msrc;
 } filter;
 
-void read_viftable(void)
+static void read_viftable(void)
 {
 	char buf[256];
 	FILE *fp = fopen("/proc/net/ip_mr_vif", "r");
@@ -65,7 +66,7 @@ void read_viftable(void)
 
 		if (sscanf(buf, "%d%s", &vifi, dev) < 2)
 			continue;
-		
+
 		if (vifi<0 || vifi>31)
 			continue;
 
@@ -74,7 +75,7 @@ void read_viftable(void)
 	fclose(fp);
 }
 
-void read_mroute_list(FILE *ofp)
+static void read_mroute_list(FILE *ofp)
 {
 	char buf[256];
 	FILE *fp = fopen("/proc/net/ip_mr_cache", "r");
@@ -94,7 +95,8 @@ void read_mroute_list(FILE *ofp)
 		char obuf[256];
 
 		oiflist[0] = 0;
-		if (sscanf(buf, "%x%x%d%u%u%u%s", maddr.data, msrc.data, &vifi,
+		if (sscanf(buf, "%x%x%d%u%u%u %[^\n]",
+			   maddr.data, msrc.data, &vifi,
 			   &pkts, &b, &w, oiflist) < 6)
 			continue;
 
@@ -108,9 +110,9 @@ void read_mroute_list(FILE *ofp)
 		if (filter.msrc.family && inet_addr_match(&msrc, &filter.msrc, filter.msrc.bitlen))
 			continue;
 
-		format_host(AF_INET, 4, &msrc.data[0], sbuf, sizeof(sbuf));
-		format_host(AF_INET, 4, &maddr.data[0], mbuf, sizeof(mbuf));
-		snprintf(obuf, sizeof(obuf), "(%s, %s)", sbuf, mbuf);
+		snprintf(obuf, sizeof(obuf), "(%s, %s)",
+			 format_host(AF_INET, 4, &msrc.data[0], sbuf, sizeof(sbuf)),
+			 format_host(AF_INET, 4, &maddr.data[0], mbuf, sizeof(mbuf)));
 
 		fprintf(ofp, "%-32s Iif: ", obuf);
 

@@ -24,7 +24,7 @@
 
 /* _compress returns the compressed size, -1 if bigger */
 static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out,
-		uint32_t *sourcelen, uint32_t *dstlen, void *model)
+		uint32_t *sourcelen, uint32_t *dstlen)
 {
 	short positions[256];
 	int outpos = 0;
@@ -32,7 +32,7 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
 
 	memset(positions,0,sizeof(positions));
 
-	while (pos < (*sourcelen) && outpos <= (*dstlen)-2) {
+	while (pos < (*sourcelen) && outpos+2 <= (*dstlen)) {
 		int backpos, runlen=0;
 		unsigned char value;
 
@@ -64,7 +64,7 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
 
 
 static int jffs2_rtime_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		uint32_t srclen, uint32_t destlen, void *model)
+		__attribute__((unused)) uint32_t srclen, uint32_t destlen)
 {
 	short positions[256];
 	int outpos = 0;

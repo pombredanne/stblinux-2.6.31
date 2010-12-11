@@ -409,7 +409,7 @@ void __init prom_init(void)
 	} while (0);
 
 #if defined(CONFIG_HIGHMEM) && defined(CONFIG_BRCM_HAS_1GB_MEMC1)
-	if (brcm_dram1_size_mb)
+	if (0 /* XXX */ && brcm_dram1_size_mb)
 		add_memory_region(MEMC1_START, brcm_dram1_size_mb << 20,
 			BOOT_MEM_RAM);
 #endif

@@ -21,6 +21,9 @@
  * Author: Artem Bityutskiy
  */
 
+#define PROGRAM_VERSION "1.1"
+#define PROGRAM_NAME    "ubiattach"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <getopt.h>
@@ -29,9 +32,9 @@
 
 #include <libubi.h>
 #include "common.h"
+#include "ubiutils-common.h"
 
-#define PROGRAM_VERSION "1.0"
-#define PROGRAM_NAME    "ubiattach"
+#define DEFAULT_CTRL_DEV "/dev/ubi_ctrl"
 
 /* The variables below are set by command line arguments */
 struct args {
@@ -39,6 +42,7 @@ struct args {
 	int mtdn;
 	int vidoffs;
 	const char *node;
+	const char *dev;
 };
 
 static struct args args = {
@@ -46,31 +50,37 @@ static struct args args = {
 	.mtdn = -1,
 	.vidoffs = 0,
 	.node = NULL,
+	.dev = NULL,
 };
 
-static const char *doc = PROGRAM_NAME " version " PROGRAM_VERSION
+static const char doc[] = PROGRAM_NAME " version " PROGRAM_VERSION
 			 " - a tool to attach MTD device to UBI.";
 
-static const char *optionsstr =
-"-d, --devn=<UBI device number>  the number to assign to the newly created UBI device\n"
-"                                (the number is assigned automatically if this is not\n"
-"                                specified\n"
-"-m, --mtdn=<MTD device number>  MTD device number to attach\n"
-"-O, --vid-hdr-offset            VID header offset (do not specify this unless you\n"
-"                                really know what you do and the optimal defaults will\n"
-"                                be used)\n"
-"-h, --help                      print help message\n"
-"-V, --version                   print program version";
+static const char optionsstr[] =
+"-d, --devn=<number>   the number to assign to the newly created UBI device\n"
+"                      (assigned automatically if this is not specified)\n"
+"-p, --dev-path=<path> path to MTD device node to attach\n"
+"-m, --mtdn=<number>   MTD device number to attach (alternative method, e.g\n"
+"                      if the character device node does not exist)\n"
+"-O, --vid-hdr-offset  VID header offset (do not specify this unless you really\n"
+"                      know what you are doing, the default should be optimal)\n"
+"-h, --help            print help message\n"
+"-V, --version         print program version";
 
-static const char *usage =
-"Usage: " PROGRAM_NAME " <UBI control device node file name> [-m <MTD device number>] [-d <UBI device number>]\n"
-"\t\t[--mtdn=<MTD device number>] [--devn <UBI device number>]\n"
-"Example 1: " PROGRAM_NAME " /dev/ubi_ctrl -m 0 - attach MTD device 0 (mtd0) to UBI\n"
-"Example 2: " PROGRAM_NAME " /dev/ubi_ctrl -m 0 -d 3 - attach MTD device 0 (mtd0) to UBI and\n"
+static const char usage[] =
+"Usage: " PROGRAM_NAME " [<UBI control device node file name>]\n"
+"\t[-m <MTD device number>] [-d <UBI device number>] [-p <path to device>]\n"
+"\t[--mtdn=<MTD device number>] [--devn=<UBI device number>]\n"
+"\t[--dev-path=<path to device>]\n"
+"UBI control device defaults to " DEFAULT_CTRL_DEV " if not supplied.\n"
+"Example 1: " PROGRAM_NAME " -p /dev/mtd0 - attach /dev/mtd0 to UBI\n"
+"Example 2: " PROGRAM_NAME " -m 0 - attach MTD device 0 (mtd0) to UBI\n"
+"Example 3: " PROGRAM_NAME " -m 0 -d 3 - attach MTD device 0 (mtd0) to UBI\n"
 "           and create UBI device number 3 (ubi3)";
 
 static const struct option long_options[] = {
 	{ .name = "devn",           .has_arg = 1, .flag = NULL, .val = 'd' },
+	{ .name = "dev-path",       .has_arg = 1, .flag = NULL, .val = 'p' },
 	{ .name = "mtdn",           .has_arg = 1, .flag = NULL, .val = 'm' },
 	{ .name = "vid-hdr-offset", .has_arg = 1, .flag = NULL, .val = 'O' },
 	{ .name = "help",           .has_arg = 0, .flag = NULL, .val = 'h' },
@@ -84,11 +94,14 @@ static int parse_opt(int argc, char * const argv[])
 		int key;
 		char *endp;
 
-		key = getopt_long(argc, argv, "m:d:O:hV", long_options, NULL);
+		key = getopt_long(argc, argv, "p:m:d:O:hV", long_options, NULL);
 		if (key == -1)
 			break;
 
 		switch (key) {
+		case 'p':
+			args.dev = optarg;
+			break;
 		case 'd':
 			args.devn = strtoul(optarg, &endp, 0);
 			if (*endp != '\0' || endp == optarg || args.devn < 0)
@@ -130,14 +143,15 @@ static int parse_opt(int argc, char * const argv[])
 	}
 
 	if (optind == argc)
-		return errmsg("UBI control device name was not specified (use -h for help)");
+		args.node = DEFAULT_CTRL_DEV;
 	else if (optind != argc - 1)
 		return errmsg("more then one UBI control device specified (use -h for help)");
+	else
+		args.node = argv[optind];
 
-	if (args.mtdn == -1)
-		return errmsg("MTD device number was not specified (use -h for help)");
+	if (args.mtdn == -1 && args.dev == NULL)
+		return errmsg("MTD device to attach was not specified (use -h for help)");
 
-	args.node = argv[optind];
 	return 0;
 }
 
@@ -177,10 +191,14 @@ int main(int argc, char * const argv[])
 	req.dev_num = args.devn;
 	req.mtd_num = args.mtdn;
 	req.vid_hdr_offset = args.vidoffs;
+	req.mtd_dev_node = args.dev;
 
-	err = ubi_attach_mtd(libubi, args.node, &req);
+	err = ubi_attach(libubi, args.node, &req);
 	if (err) {
-		sys_errmsg("cannot attach mtd%d", args.mtdn);
+		if (args.dev)
+			sys_errmsg("cannot attach \"%s\"", args.dev);
+		else
+			sys_errmsg("cannot attach mtd%d", args.mtdn);
 		goto out_libubi;
 	}
 

@@ -20,41 +20,48 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <math.h>
+#include <malloc.h>
 
 #include "utils.h"
 #include "tc_util.h"
 #include "tc_common.h"
 
-static void usage(void) __attribute__((noreturn));
+static int usage(void);
 
-static void usage(void)
+static int usage(void)
 {
-	fprintf(stderr, "Usage: tc qdisc [ add | del | replace | change | get ] dev STRING\n");
+	fprintf(stderr, "Usage: tc qdisc [ add | del | replace | change | show ] dev STRING\n");
 	fprintf(stderr, "       [ handle QHANDLE ] [ root | ingress | parent CLASSID ]\n");
 	fprintf(stderr, "       [ estimator INTERVAL TIME_CONSTANT ]\n");
+	fprintf(stderr, "       [ stab [ help | STAB_OPTIONS] ]\n");
 	fprintf(stderr, "       [ [ QDISC_KIND ] [ help | OPTIONS ] ]\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "       tc qdisc show [ dev STRING ] [ingress]\n");
 	fprintf(stderr, "Where:\n");
 	fprintf(stderr, "QDISC_KIND := { [p|b]fifo | tbf | prio | cbq | red | etc. }\n");
 	fprintf(stderr, "OPTIONS := ... try tc qdisc add <desired QDISC_KIND> help\n");
-	exit(-1);
+	fprintf(stderr, "STAB_OPTIONS := ... try tc qdisc add stab help\n");
+	return -1;
 }
 
 int tc_qdisc_modify(int cmd, unsigned flags, int argc, char **argv)
 {
-	struct rtnl_handle rth;
-	static struct {
-		struct nlmsghdr 	n;
-		struct tcmsg 		t;
-		char   			buf[4096];
-	} req;
 	struct qdisc_util *q = NULL;
 	struct tc_estimator est;
+	struct {
+		struct tc_sizespec	szopts;
+		__u16			*data;
+	} stab;
 	char  d[16];
 	char  k[16];
+	struct {
+		struct nlmsghdr 	n;
+		struct tcmsg 		t;
+		char   			buf[TCA_BUF_MAX];
+	} req;
 
 	memset(&req, 0, sizeof(req));
+	memset(&stab, 0, sizeof(stab));
 	memset(&est, 0, sizeof(est));
 	memset(&d, 0, sizeof(d));
 	memset(&k, 0, sizeof(k));
@@ -81,18 +88,22 @@ int tc_qdisc_modify(int cmd, unsigned flags, int argc, char **argv)
 		} else if (strcmp(*argv, "root") == 0) {
 			if (req.t.tcm_parent) {
 				fprintf(stderr, "Error: \"root\" is duplicate parent ID\n");
-				exit(-1);
+				return -1;
 			}
 			req.t.tcm_parent = TC_H_ROOT;
 #ifdef TC_H_INGRESS
-                } else if (strcmp(*argv, "ingress") == 0) {
-                        if (req.t.tcm_parent) {
-                                fprintf(stderr, "Error: \"ingress\" is a duplicate parent ID\n");
-                                exit(-1);
-                        }
-                        req.t.tcm_parent = TC_H_INGRESS;
-                        strncpy(k, *argv, sizeof(k)-1);
-                        q = get_qdisc_kind(k);
+		} else if (strcmp(*argv, "ingress") == 0) {
+			if (req.t.tcm_parent) {
+				fprintf(stderr, "Error: \"ingress\" is a duplicate parent ID\n");
+				return -1;
+			}
+			req.t.tcm_parent = TC_H_INGRESS;
+			strncpy(k, "ingress", sizeof(k)-1);
+			q = get_qdisc_kind(k);
+			req.t.tcm_handle = 0xffff0000;
+
+			argc--; argv++;
+			break;
 #endif
 		} else if (strcmp(*argv, "parent") == 0) {
 			__u32 handle;
@@ -105,6 +116,10 @@ int tc_qdisc_modify(int cmd, unsigned flags, int argc, char **argv)
 		} else if (matches(*argv, "estimator") == 0) {
 			if (parse_estimator(&argc, &argv, &est))
 				return -1;
+		} else if (matches(*argv, "stab") == 0) {
+			if (parse_size_table(&argc, &argv, &stab.szopts) < 0)
+				return -1;
+			continue;
 		} else if (matches(*argv, "help") == 0) {
 			usage();
 		} else {
@@ -123,70 +138,65 @@ int tc_qdisc_modify(int cmd, unsigned flags, int argc, char **argv)
 		addattr_l(&req.n, sizeof(req), TCA_RATE, &est, sizeof(est));
 
 	if (q) {
+		if (!q->parse_qopt) {
+			fprintf(stderr, "qdisc '%s' does not support option parsing\n", k);
+			return -1;
+		}
 		if (q->parse_qopt(q, argc, argv, &req.n))
-			exit(1);
+			return 1;
 	} else {
 		if (argc) {
 			if (matches(*argv, "help") == 0)
 				usage();
 
 			fprintf(stderr, "Garbage instead of arguments \"%s ...\". Try \"tc qdisc help\".\n", *argv);
-			exit(-1);
+			return -1;
 		}
 	}
 
-	if (rtnl_open(&rth, 0) < 0) {
-		fprintf(stderr, "Cannot open rtnetlink\n");
-		exit(1);
+	if (check_size_table_opts(&stab.szopts)) {
+		struct rtattr *tail;
+
+		if (tc_calc_size_table(&stab.szopts, &stab.data) < 0) {
+			fprintf(stderr, "failed to calculate size table.\n");
+			return -1;
+		}
+
+		tail = NLMSG_TAIL(&req.n);
+		addattr_l(&req.n, sizeof(req), TCA_STAB, NULL, 0);
+		addattr_l(&req.n, sizeof(req), TCA_STAB_BASE, &stab.szopts,
+			  sizeof(stab.szopts));
+		if (stab.data)
+			addattr_l(&req.n, sizeof(req), TCA_STAB_DATA, stab.data,
+				  stab.szopts.tsize * sizeof(__u16));
+		tail->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)tail;
+		if (stab.data)
+			free(stab.data);
 	}
 
 	if (d[0])  {
 		int idx;
 
-		ll_init_map(&rth);
+ 		ll_init_map(&rth);
 
 		if ((idx = ll_name_to_index(d)) == 0) {
 			fprintf(stderr, "Cannot find device \"%s\"\n", d);
-			exit(1);
+			return 1;
 		}
 		req.t.tcm_ifindex = idx;
 	}
 
-	if (rtnl_talk(&rth, &req.n, 0, 0, NULL, NULL, NULL) < 0)
-		exit(2);
+ 	if (rtnl_talk(&rth, &req.n, 0, 0, NULL, NULL, NULL) < 0)
+		return 2;
 
-	rtnl_close(&rth);
 	return 0;
-}
-
-void print_tcstats(FILE *fp, struct tc_stats *st)
-{
-	SPRINT_BUF(b1);
-
-	fprintf(fp, " Sent %llu bytes %u pkts (dropped %u, overlimits %u) ",
-		(unsigned long long)st->bytes, st->packets, st->drops, st->overlimits);
-	if (st->bps || st->pps || st->qlen || st->backlog) {
-		fprintf(fp, "\n ");
-		if (st->bps || st->pps) {
-			fprintf(fp, "rate ");
-			if (st->bps)
-				fprintf(fp, "%s ", sprint_rate(st->bps, b1));
-			if (st->pps)
-				fprintf(fp, "%upps ", st->pps);
-		}
-		if (st->qlen || st->backlog) {
-			fprintf(fp, "backlog ");
-			if (st->backlog)
-				fprintf(fp, "%s ", sprint_size(st->backlog, b1));
-			if (st->qlen)
-				fprintf(fp, "%up ", st->qlen);
-		}
-	}
 }
 
 static int filter_ifindex;
 
-int print_qdisc(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+int print_qdisc(const struct sockaddr_nl *who,
+		       struct nlmsghdr *n,
+		       void *arg)
 {
 	FILE *fp = (FILE*)arg;
 	struct tcmsg *t = NLMSG_DATA(n);
@@ -212,7 +222,7 @@ int print_qdisc(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
 	parse_rtattr(tb, TCA_MAX, TCA_RTA(t), len);
 
 	if (tb[TCA_KIND] == NULL) {
-		fprintf(stderr, "NULL kind\n");
+		fprintf(stderr, "print_qdisc: NULL kind\n");
 		return -1;
 	}
 
@@ -231,27 +241,36 @@ int print_qdisc(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
 	if (t->tcm_info != 1) {
 		fprintf(fp, "refcnt %d ", t->tcm_info);
 	}
-	if ((q = get_qdisc_kind(RTA_DATA(tb[TCA_KIND]))) != NULL)
-		q->print_qopt(q, fp, tb[TCA_OPTIONS]);
+	/* pfifo_fast is generic enough to warrant the hardcoding --JHS */
+
+	if (0 == strcmp("pfifo_fast", RTA_DATA(tb[TCA_KIND])))
+		q = get_qdisc_kind("prio");
 	else
-		fprintf(fp, "[UNKNOWN]");
+		q = get_qdisc_kind(RTA_DATA(tb[TCA_KIND]));
+
+	if (tb[TCA_OPTIONS]) {
+		if (q)
+			q->print_qopt(q, fp, tb[TCA_OPTIONS]);
+		else
+			fprintf(fp, "[cannot parse qdisc parameters]");
+	}
 	fprintf(fp, "\n");
+	if (show_details && tb[TCA_STAB]) {
+		print_size_table(fp, " ", tb[TCA_STAB]);
+		fprintf(fp, "\n");
+	}
 	if (show_stats) {
-		if (tb[TCA_STATS]) {
-			if (RTA_PAYLOAD(tb[TCA_STATS]) < sizeof(struct tc_stats))
-				fprintf(fp, "statistics truncated");
-			else {
-				struct tc_stats st;
-				memcpy(&st, RTA_DATA(tb[TCA_STATS]), sizeof(st));
-				print_tcstats(fp, &st);
-				fprintf(fp, "\n");
-			}
-		}
-		if (q && tb[TCA_XSTATS]) {
-			q->print_xstats(q, fp, tb[TCA_XSTATS]);
+		struct rtattr *xstats = NULL;
+
+		if (tb[TCA_STATS] || tb[TCA_STATS2] || tb[TCA_XSTATS]) {
+			print_tcstats_attr(fp, tb, " ", &xstats);
 			fprintf(fp, "\n");
 		}
-		fprintf(fp, "\n ");
+
+		if (q && xstats && q->print_xstats) {
+			q->print_xstats(q, fp, xstats);
+			fprintf(fp, "\n");
+		}
 	}
 	fflush(fp);
 	return 0;
@@ -261,13 +280,12 @@ int print_qdisc(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
 int tc_qdisc_list(int argc, char **argv)
 {
 	struct tcmsg t;
-	struct rtnl_handle rth;
 	char d[16];
 
 	memset(&t, 0, sizeof(t));
 	t.tcm_family = AF_UNSPEC;
 	memset(&d, 0, sizeof(d));
-	
+
 	while (argc > 0) {
 		if (strcmp(*argv, "dev") == 0) {
 			NEXT_ARG();
@@ -290,32 +308,26 @@ int tc_qdisc_list(int argc, char **argv)
 		argc--; argv++;
 	}
 
-	if (rtnl_open(&rth, 0) < 0) {
-		fprintf(stderr, "Cannot open rtnetlink\n");
-		exit(1);
-	}
-
-	ll_init_map(&rth);
+ 	ll_init_map(&rth);
 
 	if (d[0]) {
 		if ((t.tcm_ifindex = ll_name_to_index(d)) == 0) {
 			fprintf(stderr, "Cannot find device \"%s\"\n", d);
-			exit(1);
+			return 1;
 		}
 		filter_ifindex = t.tcm_ifindex;
 	}
 
-	if (rtnl_dump_request(&rth, RTM_GETQDISC, &t, sizeof(t)) < 0) {
+ 	if (rtnl_dump_request(&rth, RTM_GETQDISC, &t, sizeof(t)) < 0) {
 		perror("Cannot send dump request");
-		exit(1);
+		return 1;
 	}
 
-	if (rtnl_dump_filter(&rth, print_qdisc, stdout, NULL, NULL) < 0) {
+ 	if (rtnl_dump_filter(&rth, print_qdisc, stdout, NULL, NULL) < 0) {
 		fprintf(stderr, "Dump terminated\n");
-		exit(1);
+		return 1;
 	}
 
-	rtnl_close(&rth);
 	return 0;
 }
 
@@ -340,8 +352,10 @@ int do_qdisc(int argc, char **argv)
 	if (matches(*argv, "list") == 0 || matches(*argv, "show") == 0
 	    || matches(*argv, "lst") == 0)
 		return tc_qdisc_list(argc-1, argv+1);
-	if (matches(*argv, "help") == 0)
+	if (matches(*argv, "help") == 0) {
 		usage();
+		return 0;
+        }
 	fprintf(stderr, "Command \"%s\" is unknown, try \"tc qdisc help\".\n", *argv);
 	return -1;
 }

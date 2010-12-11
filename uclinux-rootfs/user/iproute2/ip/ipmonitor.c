@@ -25,6 +25,7 @@
 #include "ip_common.h"
 
 static void usage(void) __attribute__((noreturn));
+int prefix_banner;
 
 static void usage(void)
 {
@@ -33,25 +34,55 @@ static void usage(void)
 }
 
 
-int accept_msg(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
+int accept_msg(const struct sockaddr_nl *who,
+	       struct nlmsghdr *n, void *arg)
 {
 	FILE *fp = (FILE*)arg;
 
+	if (timestamp)
+		print_timestamp(fp);
+
 	if (n->nlmsg_type == RTM_NEWROUTE || n->nlmsg_type == RTM_DELROUTE) {
+		if (prefix_banner)
+			fprintf(fp, "[ROUTE]");
 		print_route(who, n, arg);
 		return 0;
 	}
 	if (n->nlmsg_type == RTM_NEWLINK || n->nlmsg_type == RTM_DELLINK) {
 		ll_remember_index(who, n, NULL);
+		if (prefix_banner)
+			fprintf(fp, "[LINK]");
 		print_linkinfo(who, n, arg);
 		return 0;
 	}
 	if (n->nlmsg_type == RTM_NEWADDR || n->nlmsg_type == RTM_DELADDR) {
+		if (prefix_banner)
+			fprintf(fp, "[ADDR]");
 		print_addrinfo(who, n, arg);
 		return 0;
 	}
+	if (n->nlmsg_type == RTM_NEWADDRLABEL || n->nlmsg_type == RTM_DELADDRLABEL) {
+		if (prefix_banner)
+			fprintf(fp, "[ADDRLABEL]");
+		print_addrlabel(who, n, arg);
+		return 0;
+	}
 	if (n->nlmsg_type == RTM_NEWNEIGH || n->nlmsg_type == RTM_DELNEIGH) {
+		if (prefix_banner)
+			fprintf(fp, "[NEIGH]");
 		print_neigh(who, n, arg);
+		return 0;
+	}
+	if (n->nlmsg_type == RTM_NEWPREFIX) {
+		if (prefix_banner)
+			fprintf(fp, "[PREFIX]");
+		print_prefix(who, n, arg);
+		return 0;
+	}
+	if (n->nlmsg_type == RTM_NEWRULE || n->nlmsg_type == RTM_DELRULE) {
+		if (prefix_banner)
+			fprintf(fp, "[RULE]");
+		print_rule(who, n, arg);
 		return 0;
 	}
 	if (n->nlmsg_type == 15) {
@@ -80,13 +111,15 @@ int accept_msg(struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
 
 int do_ipmonitor(int argc, char **argv)
 {
-	struct rtnl_handle rth;
 	char *file = NULL;
 	unsigned groups = ~RTMGRP_TC;
 	int llink=0;
 	int laddr=0;
 	int lroute=0;
+	int lprefix=0;
+	int lneigh=0;
 
+	rtnl_close(&rth);
 	ipaddr_reset_filter(1);
 	iproute_reset_filter();
 	ipneigh_reset_filter();
@@ -104,8 +137,15 @@ int do_ipmonitor(int argc, char **argv)
 		} else if (matches(*argv, "route") == 0) {
 			lroute=1;
 			groups = 0;
+		} else if (matches(*argv, "prefix") == 0) {
+			lprefix=1;
+			groups = 0;
+		} else if (matches(*argv, "neigh") == 0) {
+			lneigh = 1;
+			groups = 0;
 		} else if (strcmp(*argv, "all") == 0) {
 			groups = ~RTMGRP_TC;
+			prefix_banner=1;
 		} else if (matches(*argv, "help") == 0) {
 			usage();
 		} else {
@@ -116,20 +156,26 @@ int do_ipmonitor(int argc, char **argv)
 	}
 
 	if (llink)
-		groups |= RTMGRP_LINK;
+		groups |= nl_mgrp(RTNLGRP_LINK);
 	if (laddr) {
 		if (!preferred_family || preferred_family == AF_INET)
-			groups |= RTMGRP_IPV4_IFADDR;
+			groups |= nl_mgrp(RTNLGRP_IPV4_IFADDR);
 		if (!preferred_family || preferred_family == AF_INET6)
-			groups |= RTMGRP_IPV6_IFADDR;
+			groups |= nl_mgrp(RTNLGRP_IPV6_IFADDR);
 	}
 	if (lroute) {
 		if (!preferred_family || preferred_family == AF_INET)
-			groups |= RTMGRP_IPV4_ROUTE;
+			groups |= nl_mgrp(RTNLGRP_IPV4_ROUTE);
 		if (!preferred_family || preferred_family == AF_INET6)
-			groups |= RTMGRP_IPV6_ROUTE;
+			groups |= nl_mgrp(RTNLGRP_IPV6_ROUTE);
 	}
-
+	if (lprefix) {
+		if (!preferred_family || preferred_family == AF_INET6)
+			groups |= nl_mgrp(RTNLGRP_IPV6_PREFIX);
+	}
+	if (lneigh) {
+		groups |= nl_mgrp(RTNLGRP_NEIGH);
+	}
 	if (file) {
 		FILE *fp;
 		fp = fopen(file, "r");
@@ -137,16 +183,15 @@ int do_ipmonitor(int argc, char **argv)
 			perror("Cannot fopen");
 			exit(-1);
 		}
-		return rtnl_from_file(fp, accept_msg, (void*)stdout);
+		return rtnl_from_file(fp, accept_msg, stdout);
 	}
 
 	if (rtnl_open(&rth, groups) < 0)
 		exit(1);
-
 	ll_init_map(&rth);
 
-	if (rtnl_listen(&rth, accept_msg, (void*)stdout) < 0)
+	if (rtnl_listen(&rth, accept_msg, stdout) < 0)
 		exit(2);
 
-	exit(0);
+	return 0;
 }

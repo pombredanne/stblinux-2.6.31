@@ -8,10 +8,6 @@
  *
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *
- * Changes:
- *
- * Ole Husgaard <sparre@login.dknet.dk>: 990513: prio2band map was always reset.
- * J Hadi Salim <hadi@cyberus.ca>: 990609: priomap fix.
  */
 
 #include <stdio.h>
@@ -29,7 +25,7 @@
 
 static void explain(void)
 {
-	fprintf(stderr, "Usage: ... prio bands NUMBER priomap P1 P2...\n");
+	fprintf(stderr, "Usage: ... prio bands NUMBER priomap P1 P2...[multiqueue]\n");
 }
 
 #define usage() return(-1)
@@ -40,6 +36,8 @@ static int prio_parse_opt(struct qdisc_util *qu, int argc, char **argv, struct n
 	int pmap_mode = 0;
 	int idx = 0;
 	struct tc_prio_qopt opt={3,{ 1, 2, 2, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 }};
+	struct rtattr *nest;
+	unsigned char mq = 0;
 
 	while (argc > 0) {
 		if (strcmp(*argv, "bands") == 0) {
@@ -57,6 +55,8 @@ static int prio_parse_opt(struct qdisc_util *qu, int argc, char **argv, struct n
 				return -1;
 			}
 			pmap_mode = 1;
+		} else if (strcmp(*argv, "multiqueue") == 0) {
+			mq = 1;
 		} else if (strcmp(*argv, "help") == 0) {
 			explain();
 			return -1;
@@ -90,38 +90,40 @@ static int prio_parse_opt(struct qdisc_util *qu, int argc, char **argv, struct n
 			opt.priomap[idx] = opt.priomap[TC_PRIO_BESTEFFORT];
 	}
 */
-	addattr_l(n, 1024, TCA_OPTIONS, &opt, sizeof(opt));
+	nest = addattr_nest_compat(n, 1024, TCA_OPTIONS, &opt, sizeof(opt));
+	if (mq)
+		addattr_l(n, 1024, TCA_PRIO_MQ, NULL, 0);
+	addattr_nest_compat_end(n, nest);
 	return 0;
 }
 
-static int prio_print_opt(struct qdisc_util *qu, FILE *f, struct rtattr *opt)
+int prio_print_opt(struct qdisc_util *qu, FILE *f, struct rtattr *opt)
 {
 	int i;
 	struct tc_prio_qopt *qopt;
+	struct rtattr *tb[TCA_PRIO_MAX+1];
 
 	if (opt == NULL)
 		return 0;
 
-	if (RTA_PAYLOAD(opt)  < sizeof(*qopt))
-		return -1;
-	qopt = RTA_DATA(opt);
+	if (parse_rtattr_nested_compat(tb, TCA_PRIO_MAX, opt, qopt,
+					sizeof(*qopt)))
+                return -1;
+
 	fprintf(f, "bands %u priomap ", qopt->bands);
 	for (i=0; i<=TC_PRIO_MAX; i++)
 		fprintf(f, " %d", qopt->priomap[i]);
+
+	if (tb[TCA_PRIO_MQ])
+		fprintf(f, " multiqueue: %s ",
+		    *(unsigned char *)RTA_DATA(tb[TCA_PRIO_MQ]) ? "on" : "off");
+
 	return 0;
 }
 
-static int prio_print_xstats(struct qdisc_util *qu, FILE *f, struct rtattr *xstats)
-{
-	return 0;
-}
-
-
-struct qdisc_util prio_util = {
-	NULL,
-	"prio",
-	prio_parse_opt,
-	prio_print_opt,
-	prio_print_xstats,
+struct qdisc_util prio_qdisc_util = {
+	.id	 	= "prio",
+	.parse_qopt	= prio_parse_opt,
+	.print_qopt	= prio_print_opt,
 };
 
