@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Aug  2 14:58:01 2010
- *                 MD5 Checksum         616c5da46e7f2e811fb57b174083665d
+ * Date:           Generated on         Mon Nov 15 18:49:05 2010
+ *                 MD5 Checksum         42fd68445ed16abf6b20ef3fbcea6916
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7346/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/1   8/2/10 5:37p pntruong
- * SW7346-2: Initial version.
+ * Hydra_Software_Devel/2   11/16/10 8:49a pntruong
+ * SW7346-2: Synced with central rdb.
  *
  ***************************************************************************/
 
@@ -499,8 +499,8 @@
 #define BCHP_UHFR_GR_BRIDGE_REG_END                        0x0041630c
 #define BCHP_CLKGEN_REG_START                              0x00420000
 #define BCHP_CLKGEN_REG_END                                0x0042041c
-#define BCHP_PLL_VCXO_RM_REG_START                         0x00422000
-#define BCHP_PLL_VCXO_RM_REG_END                           0x0042202c
+#define BCHP_VCXO_RM_REG_START                             0x00422000
+#define BCHP_VCXO_RM_REG_END                               0x0042202c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00422800
 #define BCHP_AVS_HW_MNTR_REG_END                           0x00422874
 #define BCHP_AVS_PVT_MNTR_CONFIG_REG_START                 0x00422900
@@ -2218,20 +2218,6 @@
 /* XPT_RAVE :: NOTEH_AC3_AUDIO_ES_SETUP :: AUDIO_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_SHIFT 0
-
-/***************************************************************************
- *NOTEH_DVD_AC3_AUDIO_ES_SETUP - ES Setup - DVD_AC3 Audio
- ***************************************************************************/
-/* XPT_RAVE :: NOTEH_DVD_AC3_AUDIO_ES_SETUP :: DVD_AUDIO_AC3_ES_FORMAT [31:00] */
-#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
-#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_SHIFT 0
-
-/***************************************************************************
- *NOTEI_DVD_LPCM_AUDIO_ES_SETUP - ES Setup - DVD_LPCM Audio
- ***************************************************************************/
-/* XPT_RAVE :: NOTEI_DVD_LPCM_AUDIO_ES_SETUP :: DVD_AUDIO_LPCM_ES_FORMAT [31:00] */
-#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_MASK 0xffffffff
-#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
  *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio

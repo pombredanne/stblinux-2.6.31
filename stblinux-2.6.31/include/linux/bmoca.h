@@ -10,6 +10,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -28,6 +29,7 @@
 
 #define MOCA_BAND_HIGHRF	0
 #define MOCA_BAND_MIDRF		1
+#define MOCA_BAND_WANRF		2
 
 #define MOCA_IOC_MAGIC		'M'
 
@@ -39,6 +41,7 @@
 #define MOCA_IOCTL_READMEM	_IOR(MOCA_IOC_MAGIC, 3, struct moca_xfer)
 #define MOCA_IOCTL_WRITEMEM	_IOR(MOCA_IOC_MAGIC, 4, struct moca_xfer)
 
+#define MOCA_IOCTL_CHECK_FOR_DATA	_IOR(MOCA_IOC_MAGIC, 5, int)
 #define MOCA_IOCTL_GET_DRV_INFO	_IOR(MOCA_IOC_MAGIC, 0, struct moca_kdrv_info)
 
 /* this must match MoCAOS_IFNAMSIZE */

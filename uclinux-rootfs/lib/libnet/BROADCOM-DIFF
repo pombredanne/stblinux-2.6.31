@@ -1,10 +1,10 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-11-21
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-12-21
 #
 # Original package: libnet.tar.bz2
 #
 diff -ruNp libnet.orig/.gitignore libnet/.gitignore
 --- libnet.orig/.gitignore	1969-12-31 16:00:00.000000000 -0800
-+++ libnet/.gitignore	2010-11-21 13:40:12.000000000 -0800
++++ libnet/.gitignore	2010-12-21 18:59:26.000000000 -0800
 @@ -0,0 +1 @@
 +*.[oa]

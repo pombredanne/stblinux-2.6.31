@@ -885,11 +885,23 @@ static int ahci_scr_write(struct ata_link *link, unsigned int sc_reg, u32 val)
 
 static void ahci_start_engine(struct ata_port *ap)
 {
+	struct ata_host *host = ap->host;
+	struct pci_dev *pdev = to_pci_dev(host->dev);
 	void __iomem *port_mmio = ahci_port_base(ap);
 	u32 tmp;
 
+	if (pdev->vendor == PCI_VENDOR_ID_BROADCOM) {
+		u32 tf, status;
+		tf = readl(port_mmio + PORT_TFDATA);
+		status = readl(port_mmio + PORT_SCR_STAT);
+
+		if ((tf & (ATA_BUSY | ATA_DRQ)) || (status & 0x0f) != 0x3)
+			return;
+	}	
+
 	/* start DMA */
 	tmp = readl(port_mmio + PORT_CMD);
+
 	tmp |= PORT_CMD_START;
 	writel(tmp, port_mmio + PORT_CMD);
 	readl(port_mmio + PORT_CMD); /* flush */
@@ -2901,6 +2913,12 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		/* disabled/not-implemented port */
 		if (!(hpriv->port_map & (1 << i)))
 			ap->ops = &ata_dummy_port_ops;
+
+#if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0) || \
+	defined(CONFIG_BCM7346A0) || defined(CONFIG_BCM7231A0)
+		/* HW7422-797: default to 3.0Gbps */
+		ap->link.hw_sata_spd_limit = 0x03;
+#endif
 	}
 
 	/* apply workaround for ASUS P5W DH Deluxe mainboard */

@@ -44,6 +44,7 @@
 
 unsigned long brcm_dram0_size_mb;
 unsigned long brcm_dram1_size_mb;
+unsigned long brcm_dram1_linux_mb;
 
 static u8 brcm_primary_macaddr[6] = { 0x00, 0x00, 0xde, 0xad, 0xbe, 0xef };
 
@@ -338,6 +339,8 @@ static void __init brcm_setup_early_printk(void)
 
 void __init prom_init(void)
 {
+	char *ptr;
+
 	cfe_init(cfe_handle, cfe_entry);
 
 	bchip_check_compat();
@@ -366,6 +369,10 @@ void __init prom_init(void)
 	if (strstr(arcs_cmdline, "ubiroot"))
 		strcat(arcs_cmdline, " ubi.mtd=rootfs rootfstype=ubifs "
 			"root=ubi0:rootfs");
+
+	ptr = strstr(arcs_cmdline, "memc1=");
+	if (ptr)
+		brcm_dram1_linux_mb = memparse(ptr + 6, &ptr) >> 20;
 
 	printk(KERN_INFO "Options: sata=%d enet=%d emac_1=%d no_mdio=%d "
 		"docsis=%d pci=%d smp=%d moca=%d usb=%d\n",
@@ -398,7 +405,7 @@ void __init prom_init(void)
 			break;
 #endif
 
-#ifdef CONFIG_HIGHMEM
+#if defined(CONFIG_HIGHMEM)
 		add_memory_region(HIGHMEM_START, dram0_mb << 20, BOOT_MEM_RAM);
 		break;
 #endif
@@ -409,8 +416,8 @@ void __init prom_init(void)
 	} while (0);
 
 #if defined(CONFIG_HIGHMEM) && defined(CONFIG_BRCM_HAS_1GB_MEMC1)
-	if (0 /* XXX */ && brcm_dram1_size_mb)
-		add_memory_region(MEMC1_START, brcm_dram1_size_mb << 20,
+	if (brcm_dram1_linux_mb && brcm_dram1_linux_mb <= brcm_dram1_size_mb)
+		add_memory_region(MEMC1_START, brcm_dram1_linux_mb << 20,
 			BOOT_MEM_RAM);
 #endif
 

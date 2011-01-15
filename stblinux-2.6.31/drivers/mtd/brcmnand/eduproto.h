@@ -59,8 +59,8 @@ extern void EDU_stop_timer(void);
 extern void EDU_print_results(unsigned long data_size);
 extern void EDU_get_status(void);
 
-extern uint32_t EDU_volatileRead(uint32_t);
-extern void EDU_volatileWrite(uint32_t, uint32_t);
+static inline uint32_t EDU_volatileRead(uint32_t reg) { return BDEV_RD(reg); }
+static inline void EDU_volatileWrite(uint32_t reg, uint32_t val) { BDEV_WR(reg, val); }
 
 #ifdef CONFIG_MTD_BRCMNAND_USE_ISR
 extern uint32_t ISR_wait_for_completion(void);

@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed Sep  8 12:00:38 2010
- *                 MD5 Checksum         729d3b7e2ea2ad01024ee45efb75a6bf
+ * Date:           Generated on         Wed Nov 17 15:56:11 2010
+ *                 MD5 Checksum         950f07204aa821c815460a8fcce8d70a
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,11 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7640/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/1   9/8/10 4:33p pntruong
- * SWBLURAY-22428: Initial version.
+ * Hydra_Software_Devel/2   11/18/10 11:51a etrudeau
+ * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
+ * 
+ * Hydra_Software_Devel/2   11/18/10 11:48a etrudeau
+ * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
  *
  ***************************************************************************/
 
@@ -2385,9 +2388,9 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_front_panel_4sec_reset_MASK 0x00000020
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_front_panel_4sec_reset_SHIFT 5
 
-/* SUN_TOP_CTRL :: RESET_HISTORY :: pcie_hot_boot [04:04] */
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_MASK         0x00000010
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_SHIFT        4
+/* SUN_TOP_CTRL :: RESET_HISTORY :: pcie_hot_boot_reset [04:04] */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_reset_MASK   0x00000010
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_reset_SHIFT  4
 
 /* SUN_TOP_CTRL :: RESET_HISTORY :: watchdog_timer_reset [03:03] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_watchdog_timer_reset_MASK  0x00000008
@@ -2397,9 +2400,9 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_smartcard_insert_reset_MASK 0x00000004
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_smartcard_insert_reset_SHIFT 2
 
-/* SUN_TOP_CTRL :: RESET_HISTORY :: pin_reset [01:01] */
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pin_reset_MASK             0x00000002
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pin_reset_SHIFT            1
+/* SUN_TOP_CTRL :: RESET_HISTORY :: main_chip_reset_input [01:01] */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_main_chip_reset_input_MASK 0x00000002
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_main_chip_reset_input_SHIFT 1
 
 /* SUN_TOP_CTRL :: RESET_HISTORY :: power_on_reset [00:00] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_power_on_reset_MASK        0x00000001

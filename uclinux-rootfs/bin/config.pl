@@ -492,6 +492,11 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 			read_cfg("defaults/override.linux-android", \%linux_o);
 			override_cfg(\%linux, \%linux_o);
+
+			# 256MB upper memory is OK, but disable XKS01 (768MB)
+			if(defined($linux{'CONFIG_BRCM_HAS_XKS01'})) {
+				$linux{'CONFIG_BRCM_UPPER_MEMORY'} = 'n';
+			}
 		} elsif($mod eq "newubi") {
 
 			# UBI/UBIFS backport from the mainline MTD tree

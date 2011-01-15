@@ -175,17 +175,25 @@ static int brcmnand_erase_nolock(struct mtd_info *, struct erase_info *, int);
 
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
 
-#define ONFI_RDPARAM_SIGNATURE_OFS	  0			
+#define ONFI_RDPARAM_SIGNATURE_OFS	  0	
+#define ONFI_NBR_PARAM_PAGE_OFS		 14
 #define ONFI_RDPARAM_PAGESIZE_OFS	 80
 #define ONFI_RDPARAM_OOBSIZE_OFS		 84
 #define ONFI_RDPARAM_ECC_LEVEL_OFS	112
+#define ONFI_NBR_BITS_PER_CELL_OFS	102
 
+/* 
+ * The following def is for a dev with 3 replica of the param page
+ * Need to be adjusted according based on the actual nbr of param pages.
+ */
+ 
+#define ONFI_EXTPARAM_OFS				768
 #define ONFI_EXTPARAM_SIG1_OFS		768
 #define ONFI_EXTPARAM_SIG2_OFS		772
 #define ONFI_EXTPARAM_EXT_ECC_OFS	800
 #define ONFI_EXTPARAM_CODEWORK_OFS	801
 
-#define BRCMNAND_FLASH_CACHE_SIZE	512
+
 
 #define ONFI_SIGNATURE 		0x4F4E4649	/* "ONFI" */
 #define ONFI_EXTPARAM_SIG	0x45505053	/* "EPPS" */
@@ -197,6 +205,7 @@ typedef struct brcmnand_chip_Id {
 	uint8 chipId345[3];  /* ID bytes 3,4,5: Resolve ambiguity in chipId */
 	const char* chipIdStr;
 	uint32 eccLevel; /* Only for Samsung Type 2 */
+	uint32 sectorSize; /* Only for Samsung Type 2 */
 	uint32 nbrBlocks; // Only for devices that do not encode Size into ID string.
 	uint32 options;
 	uint32 idOptions;	// Whether chip has all 5 ID bytes
@@ -627,7 +636,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 	},
 
 	{	/* 29a */
-		.chipId = SAMSUNG_K9GA08U0D,
+		.chipId = SAMSUNG_K9GAG08U0D,
 		.chipId345 = {0x94, 0x29, 0x34},
 		.mafId = FLASHTYPE_SAMSUNG,
 		.nbrBlocks = 4096,
@@ -643,12 +652,12 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 	},
 
 	{	/* 29b */
-		.chipId = SAMSUNG_K9GA08U0E,
+		.chipId = SAMSUNG_K9GAG08U0E,
 		.chipId345 = {0x84, 0x72, 0x50},  /* 84h, 72h, 50h, 42h */
 		.mafId = FLASHTYPE_SAMSUNG,
-		.nbrBlocks = 2948,
+		.nbrBlocks = 2048,
 		//.eccLevel = 24 per 1KB,  Will decode from ID string
-		.chipIdStr = "Samsung K9GAG08U0D",
+		.chipIdStr = "Samsung K9GAG08U0E",
 		.options = NAND_USE_FLASH_BBT, 		/* Use BBT on flash */
 				//| NAND_COMPLEX_OOB_WRITE	/* Write data together with OOB for write_oob */
 		.idOptions = BRCMNAND_ID_EXT_BYTES_TYPE2,
@@ -912,28 +921,31 @@ static int inRegisterHoles(uint32_t reg)
 
 static uint32_t brcmnand_ctrl_read(uint32_t nandCtrlReg) 
 {
-	volatile unsigned long* pReg = (volatile unsigned long*) (BRCMNAND_CTRL_REGS 
+	uint32_t pReg = (BRCMNAND_CTRL_REGS 
 		+ nandCtrlReg - BCHP_NAND_REVISION);
 
 	if (nandCtrlReg < BCHP_NAND_REVISION || nandCtrlReg > BCHP_NAND_LAST_REG ||
 		(nandCtrlReg & 0x3) != 0) {
 		printk("brcmnand_ctrl_read: Invalid register value %08x\n", nandCtrlReg);
 	}
-if (gdebug > 3) printk("%s: CMDREG=%08x val=%08x\n", __FUNCTION__, (unsigned int) nandCtrlReg, (unsigned int)*pReg);
-	return (uint32_t) (*pReg);
+if (gdebug > 3) printk("%s: CMDREG=%08x val=%08x\n", __FUNCTION__, 
+(unsigned int) nandCtrlReg, (unsigned int)BDEV_RD(pReg));
+
+	return (uint32_t) BDEV_RD(pReg);
 }
 
 
 static void brcmnand_ctrl_write(uint32_t nandCtrlReg, uint32_t val) 
 {
-	volatile unsigned long* pReg = (volatile unsigned long*) (BRCMNAND_CTRL_REGS 
-		+ nandCtrlReg - BCHP_NAND_REVISION);
+	uint32_t pReg = (uint32_t) (BRCMNAND_CTRL_REGS + nandCtrlReg - BCHP_NAND_REVISION);
 
 	if (nandCtrlReg < BCHP_NAND_REVISION || nandCtrlReg > BCHP_NAND_LAST_REG ||
 		(nandCtrlReg & 0x3) != 0) {
 		printk( "brcmnand_ctrl_read: Invalid register value %08x\n", nandCtrlReg);
 	}
-	*pReg = (volatile unsigned long) (val);
+	
+	BDEV_WR(pReg, val);
+	
 if (gdebug > 3) printk("%s: CMDREG=%08x val=%08x\n", __FUNCTION__, nandCtrlReg, val);
 }
 
@@ -1115,12 +1127,11 @@ static void __maybe_unused print_diagnostics(struct brcmnand_chip* chip)
 	printk("PAGE_EXT_ADDR=%08x\n", pageAddrExt);
 #endif
 	if (chip->ctrl->CS[0] == 0) {
-		uint32_t ebiCSBase0 = * ((volatile unsigned long*) (0xb0000000|BCHP_EBI_CS_BASE_0));
+		uint32_t ebiCSBase0 = BDEV_RD(BCHP_EBI_CS_BASE_0);
 		printk(KERN_INFO "PAGE_ADDR=%08x, \tCS0_BASE=%08x\n", pageAddr, ebiCSBase0);
 	}
 	else {
-		//uint32_t ebiCSBaseN = * ((volatile unsigned long*) (0xb0000000|(BCHP_EBI_CS_BASE_0));
-		uint32_t csNandBaseN = *(volatile unsigned long*) (0xb0000000 + BCHP_EBI_CS_BASE_0 + 8*chip->ctrl->CS[0]);
+		uint32_t csNandBaseN = BDEV_RD(BCHP_EBI_CS_BASE_0 + 8*chip->ctrl->CS[0]);
 
 		printk(KERN_INFO "PAGE_ADDR=%08x, \tCS%-d_BASE=%08x\n", pageAddr, chip->ctrl->CS[0], csNandBaseN);
 		printk(KERN_INFO "pbase=%08lx, vbase=%p\n", chip->pbase, chip->vbase);
@@ -1204,8 +1215,8 @@ void print_NandCtrl_Status(void)
 	uint32_t nand_intfc_stat = brcmnand_ctrl_read(BCHP_NAND_INTFC_STATUS);
 
 
-	uint32_t hif_intr2_status = (uint32_t) *((volatile unsigned long*)(0xb0000000  + BCHP_HIF_INTR2_CPU_STATUS));
-	uint32_t hif_intr2_mask = (uint32_t) *((volatile unsigned long*)(0xb0000000  + BCHP_HIF_INTR2_CPU_MASK_STATUS));
+	uint32_t hif_intr2_status = (uint32_t) BDEV_RD(BCHP_HIF_INTR2_CPU_STATUS);
+	uint32_t hif_intr2_mask = (uint32_t) BDEV_RD(BCHP_HIF_INTR2_CPU_MASK_STATUS);
 	
 	printk("\nNandCtrl_Status: CMD_ADDR=%08x, CMD_START=%08x, INTFC_STATUS=%08x, HIF_INTR2_ST=%08x, HF_MSK=%08x\n", 
 		nand_cmd_addr, nand_cmd_start, nand_intfc_stat, hif_intr2_status, hif_intr2_mask);	
@@ -1397,7 +1408,7 @@ printk("-->%s\n", __FUNCTION__);}
     if ((intr & BCHP_HIF_INTR2_CPU_STATUS_EDU_ERR_INTR_MASK) != 0x00000000)
     { 
         //Check EDU_ERR_STATUS:
-        status = EDU_volatileRead(EDU_BASE_ADDRESS + EDU_ERR_STATUS);
+        status = EDU_volatileRead(EDU_ERR_STATUS);
 //printk("EDU_ERR_STATUS=%08x\n", status);
         if((status & EDU_ERR_STATUS_NandECCuncor) != 0x00000000)
         {
@@ -1455,7 +1466,7 @@ printk("%s: rd_data=0 TIMEOUT\n", __FUNCTION__);
         //err = BRCMNAND_CORRECTABLE_ECC_ERROR;
 
         // Clear the interrupt for next time
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_CLEAR, BCHP_HIF_INTR2_CPU_CLEAR_NAND_CORR_INTR_MASK); 
+        EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, BCHP_HIF_INTR2_CPU_CLEAR_NAND_CORR_INTR_MASK); 
     }
 
     if ((intr & BCHP_HIF_INTR2_CPU_STATUS_NAND_UNC_INTR_MASK) != 0x00000000) 
@@ -1472,7 +1483,7 @@ printk("%s: rd_data=0 TIMEOUT\n", __FUNCTION__);
         //err = BRCMNAND_UNCORRECTABLE_ECC_ERROR;
 
         // Clear the interrupt for next time
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_CLEAR, BCHP_HIF_INTR2_CPU_CLEAR_NAND_UNC_INTR_MASK); 
+        EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, BCHP_HIF_INTR2_CPU_CLEAR_NAND_UNC_INTR_MASK); 
     }
 if (gdebug > 3 ) {
 printk("<-- %s err = %d\n", __FUNCTION__, err);}
@@ -1625,7 +1636,7 @@ static int brcmnand_wait(struct mtd_info *mtd, int state, uint32_t* pStatus)
 		: BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK;	
 
 	/* The 20 msec is enough */
-	timeout = jiffies + msecs_to_jiffies(3000); // THT: 3secs, for now
+	timeout = jiffies + msecs_to_jiffies(10000); // THT: 3secs, for now
 	while (time_before(jiffies, timeout)) {
 		PLATFORM_IOFLUSH_WAR();
 		ready = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
@@ -1647,6 +1658,8 @@ static int brcmnand_wait(struct mtd_info *mtd, int state, uint32_t* pStatus)
 	 */
 	return -ETIMEDOUT;
 }
+
+
 
 /* 
  * Returns 	 1: Success, no errors
@@ -1817,8 +1830,8 @@ printk("%s: intr_status=0 TIMEOUT\n", __FUNCTION__);
         
         //EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DONE, 0x00000000);
         EDU_reset_done();
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);    
+        EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);
+        EDU_volatileWrite(BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);    
 
 	  return error;
 }
@@ -2028,9 +2041,9 @@ void dump_nand_regs(struct brcmnand_chip* chip, loff_t offset, uint32_t pa, int 
  		nandDump.dump[which].nand_regs[i] = regval;
 	}
 	for (i=0; i<NUM_EDU_REGS; i++) {
- 		nandDump.dump[which].edu_regs[i] = EDU_volatileRead(EDU_BASE_ADDRESS  + BCHP_EDU_CONFIG + ( i*4));
+ 		nandDump.dump[which].edu_regs[i] = EDU_volatileRead(BCHP_EDU_CONFIG + ( i*4));
 	}
-	nandDump.dump[which].hif_intr2 = EDU_volatileRead(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS);
+	nandDump.dump[which].hif_intr2 = BDEV_RD(BCHP_HIF_INTR2_CPU_STATUS);
 	brcmnand_from_flash_memcpy32(nandDump.chip, &nandDump.dump[which].data[0], nandDump.offset, 512);
 }
 
@@ -2078,7 +2091,7 @@ static int brcmnand_EDU_write_is_complete(struct mtd_info *mtd, int* outp_needBB
 		return hif_err;
   #endif // Batch mode
 #else
-	hif_err = EDU_poll(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS, 
+	hif_err = EDU_poll(BCHP_HIF_INTR2_CPU_STATUS, 
 		HIF_INTR2_EDU_DONE|HIF_INTR2_CTRL_READY, 
 		HIF_INTR2_EDU_ERR, 
 		HIF_INTR2_EDU_DONE_MASK|HIF_INTR2_CTRL_READY);
@@ -2160,8 +2173,8 @@ printk("hif_err=%08x\n", hif_err);
 out:
 
 	EDU_reset_done();
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);
+	EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);
+	EDU_volatileWrite(BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);
 
 
 	//printk("EDU_write_is_complete(): error 2 hif_err: %08x\n", hif_err);
@@ -2439,7 +2452,7 @@ chip->eccOobSize, chip->eccbytes, erased, allFF);}
 		 * Both case will be handled correctly by the BrcmNand controller in later releases.
 		 */
 		p32 = (uint32_t*) buffer;
-		for (i=0; i < chip->eccsize/4; i++) {
+		for (i=0; i < ECCSIZE(mtd)/4; i++) {
 			p32[i] = 0xFFFFFFFF;
 		}
 		ret = 0; // Success
@@ -3186,11 +3199,11 @@ brcmnand_edu_read_completion(struct mtd_info* mtd,
 		if (wr_preempt_en) {
 			//local_irq_restore(irqflags);
 		}
-		edu_err_status = EDU_volatileRead(EDU_BASE_ADDRESS + EDU_ERR_STATUS);
+		edu_err_status = EDU_volatileRead(EDU_ERR_STATUS);
 
 		// Attemp to clear it, but has no effect, (VLSI PR2389) but we still do it for completeness: 	
-		EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);
-		EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);
+		EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);
+		EDU_volatileWrite(BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);
 
 
 /**** WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR WAR */
@@ -3411,10 +3424,10 @@ brcmnand_edu_read_completion(struct mtd_info* mtd,
 
 	if (intr_status & HIF_INTR2_EDU_ERR) {
 		
-		edu_err_status = EDU_volatileRead(EDU_BASE_ADDRESS + EDU_ERR_STATUS);
+		edu_err_status = EDU_volatileRead(EDU_ERR_STATUS);
 
-		EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);
-		EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);
+		EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);
+		EDU_volatileWrite(BCHP_HIF_INTR2_CPU_STATUS, HIF_INTR2_EDU_CLEAR_MASK);
 
 	}
 		
@@ -3659,7 +3672,7 @@ if (gdebug>3) printk("++++++++++++++++++++++++ %s: buffer not 32B aligned, tryin
 		PLATFORM_IOFLUSH_WAR(); 
 
 		if (intr_status & HIF_INTR2_EBI_TIMEOUT) {
-			EDU_volatileWrite(EDU_BASE_ADDRESS + BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EBI_TIMEOUT);
+			EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EBI_TIMEOUT);
 		}
 		intr_status = EDU_read(buffer, EDU_ldw);
 		
@@ -4277,7 +4290,7 @@ if (gdebug) {printk("%s: oob=\n", __FUNCTION__); print_oobbuf(oobarea, 16);}
 
 
 		if (ret & HIF_INTR2_EBI_TIMEOUT) {
-			EDU_volatileWrite(EDU_BASE_ADDRESS + BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EBI_TIMEOUT);
+			EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EBI_TIMEOUT);
 		}
 		ret = EDU_write(buffer, EDU_ldw, &physAddr);
 
@@ -4862,7 +4875,7 @@ EDU_submit_read(eduIsrNode_t* req)
 	req->intr = HIF_INTR2_EDU_DONE_MASK;
 	req->expired = jiffies + 3*HZ;
 
-	edu_status = EDU_volatileRead(EDU_BASE_ADDRESS+EDU_STATUS);
+	edu_status = EDU_volatileRead(EDU_STATUS);
 	// Enable HIF_INTR2 only when we submit the first job in double buffering scheme
 	if (0 == (edu_status & BCHP_EDU_STATUS_Active_MASK)) {
 		ISR_enable_irq(req);
@@ -4871,9 +4884,9 @@ EDU_submit_read(eduIsrNode_t* req)
         //EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DONE, 0x00000000);
        EDU_reset_done();
 
-       EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);
+       EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);
         
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_LENGTH, EDU_LENGTH_VALUE);
+	EDU_volatileWrite(EDU_LENGTH, EDU_LENGTH_VALUE);
 
 	EDU_waitForNoPendingAndActiveBit();
 
@@ -4938,9 +4951,9 @@ if (gdebug) {printk("%s: oob=\n", __FUNCTION__); print_oobbuf(req->oobarea, 16);
 
 	//EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DONE, 0x00000000); 
 	EDU_reset_done();
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000); 
+	EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000); 
 
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_LENGTH, EDU_LENGTH_VALUE);
+	EDU_volatileWrite(EDU_LENGTH, EDU_LENGTH_VALUE);
 
 	EDU_issue_command(req->physAddr, req->edu_ldw, EDU_WRITE); /* 1: Is a Read, 0 Is a Write */
 	spin_unlock(&req->lock);
@@ -4973,7 +4986,7 @@ brcmnand_isr_submit_job(void)
 		//req = container_of(node, eduIsrNode_t, list);
 		switch (req->opComplete) {
 		case ISR_OP_QUEUED:
-			edu_pending = EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_STATUS); 
+			edu_pending = EDU_volatileRead(EDU_STATUS); 
 			if (!(BCHP_EDU_STATUS_Pending_MASK & edu_pending)) {
 				if (gJobQ.cmd == EDU_READ) {
 					EDU_submit_read(req);
@@ -7739,46 +7752,177 @@ printk("timing2 not adjusted: %08lx\n", nand_timing2);
 	}
 }
 
-static void brcmnand_adjust_acccontrol(struct brcmnand_chip *this, brcmnand_chip_Id* chip)
+
+static int
+is_ecc_strong(int registerEcc, int requiredEcc)
 {
-	int csi = this->csi;
-	int cs = this->ctrl->CS[this->csi];
-	unsigned long nand_acc_b4 = this->ctrl_read(bchp_nand_acc_control(cs));
-	unsigned long nand_acc;
+	if (registerEcc == BRCMNAND_ECC_HAMMING)
+		registerEcc = 1;
+	
+	else if (registerEcc == BRCMNAND_ECC_DISABLE)
+		return 1; // Internal ECC is always stronger
+		
+	if (requiredEcc == BRCMNAND_ECC_HAMMING)
+		requiredEcc = 1;
+	
+	return (registerEcc >= requiredEcc);
+}
+
+
+
+static void
+brcmnand_set_acccontrol(struct brcmnand_chip * chip , unsigned int chipSelect, 
+	uint32_t pageSize, uint16_t oobSizePerPage, int reqEcc, int codeWorkSize, int nbrBitsPerCell)
+{
+	int actualReqEcc = reqEcc;
+	int eccLevel;
+	uint32_t b1Ksector = 0;
+	uint32_t acc0, acc;
+	int oobPerSector = oobSizePerPage/(pageSize/512);
+	uint32_t cellinfo;
+
+
+PRINTK("-->%s(oob=%d, ecc=%d, cw=%d)\n", __FUNCTION__, oobSizePerPage, reqEcc, codeWorkSize);
+
+	if (oobPerSector == 28)
+		oobPerSector = 27; /* Reduce Micron oobsize to match other vendors in order to share codes */
+
+	if (codeWorkSize == 1024) {
+		actualReqEcc = reqEcc/2;
+		b1Ksector = 1;
+	}
+	
+	acc = acc0 = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
+	eccLevel = (acc & BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK) 
+		>> BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
+	if (!is_ecc_strong(eccLevel, actualReqEcc)) {
+		eccLevel = actualReqEcc;
+	}
+
+	acc &= ~(BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+		|BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_MASK
+#endif
+		|BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK);
+
+printk("eccLevel=%d, 1Ksector=%d, oob=%d\n", eccLevel, b1Ksector, oobPerSector);
+
+	acc |= eccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+	acc |= b1Ksector << BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_SHIFT;
+#endif
+	acc |= oobPerSector << BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
+	
+	if (chipSelect == 0) {
+		acc &= ~(BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_MASK
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+			|BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_MASK
+#endif
+			|BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_0_MASK);
+		acc |= eccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT;
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+		acc |= b1Ksector << BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_SHIFT;
+#endif
+		acc |= oobPerSector << BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_0_SHIFT;
+	}
+
+	/* Clear FAST_PGM_RDIN, PARTIAL_PAGE_EN if MLC */
+	cellinfo = ffs(nbrBitsPerCell)-2;
+
+PRINTK("cellinfo=%d\n", cellinfo);
+
+	chip->cellinfo = cellinfo << 2; /* Mask is 0x0C */
+
+printk("nbrBitsPerCell=%d, cellinfo=%d, chip->cellinfo=%08x\n", nbrBitsPerCell, cellinfo, chip->cellinfo);
+	if (NAND_IS_MLC(chip)) {
+		acc  &= ~(BCHP_NAND_ACC_CONTROL_FAST_PGM_RDIN_MASK |
+				BCHP_NAND_ACC_CONTROL_PARTIAL_PAGE_EN_MASK);
+	}
+		
+
+	chip->ctrl_write(bchp_nand_acc_control(chipSelect), acc);
+printk("<--%s: acc b4: %08x, after: %08x\n", __FUNCTION__, acc0, acc);
+	
+}
+
+
+/*
+ * Override database values with kernel command line values and
+ * set internal data structure values - when the flash ID is NOT in the database -
+ * using the values set by the CFE
+ */
+static void brcmnand_adjust_acccontrol(struct brcmnand_chip *chip, int isONFI, int inIdTable, int idTableIdx)
+{
+	int cs = chip->ctrl->CS[chip->csi];
+	unsigned long nand_acc_b4 = chip->ctrl_read(bchp_nand_acc_control(cs));
+	unsigned long nand_acc = nand_acc_b4;
 	int eccLevel;
 	int oobSize;
+	int updateInternalData = 0;
 
 PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n", 
-	__FUNCTION__, cs, gAccControl[csi], nand_acc_b4);
-	/*
-	 * Override database values with kernel command line values
-	 */
-	 if (cs != 0 && 0 != gAccControl[csi]) {
-		nand_acc = gAccControl[csi] ;
-	 	this->ctrl_write(bchp_nand_acc_control(cs), nand_acc);
-		printk("NAND ACC CONTROL on CS%1d changed to %08x, from %08lx,\n", cs, 
-			this->ctrl_read(bchp_nand_acc_control(cs)), nand_acc_b4);
-		/* Update ECC level */
+	__FUNCTION__, cs, gAccControl[chip->csi], nand_acc_b4);
 
+	 if (cs != 0 && 0 != gAccControl[chip->csi]) {
+		nand_acc = gAccControl[chip->csi] ;
+	 	chip->ctrl_write(bchp_nand_acc_control(cs), nand_acc);
+		printk("NAND ACC CONTROL on CS%1d changed to %08x, from %08lx,\n", cs, 
+			chip->ctrl_read(bchp_nand_acc_control(cs)), nand_acc_b4);
+
+		updateInternalData = 1;
+	 }
+	 else if (!inIdTable && !isONFI) {
+	 	updateInternalData = 1;
+	 }
+	 /* Update ACC-CONTROL when not on CS0 */
+	 else if (cs != 0 && inIdTable) {
+	 	int oobSizePerPage = chip->eccOobSize*(chip->pageSize/512);
+		brcmnand_set_acccontrol(chip , cs, 
+			chip->pageSize, oobSizePerPage, chip->reqEccLevel, chip->eccSectorSize, 2+NAND_IS_MLC(chip));
+	 }
+	 
+
+	 
+	/*
+	 * update InternalData is TRUE only when
+	 * (a) We are on CS0, and the chip is not in the database, in which case we use the values
+	 *		used by the CFE.
+	 * (b) an ACC value was passed on the command line
+	 */
+		
+		/* Update ECC level */
+	if (updateInternalData) {
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
 		eccLevel = (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_MASK) >> 
 			BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_SHIFT;
+		oobSize = (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_MASK) >>
+			BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_SHIFT;
+
 #else
 		eccLevel = (nand_acc & BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK) >> 
 			BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
-#endif
-		this->ecclevel = eccLevel;
-		printk("ECC level changed to %d\n", eccLevel);
-
-#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3
-		oobSize = (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_MASK) >>
-			BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_SHIFT;
-#else
 		oobSize = (nand_acc & BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK) >>
 			BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
 #endif
-
-		this->eccOobSize = oobSize;
+	
+		chip->ecclevel = eccLevel;
+		printk("ECC level changed to %d\n", eccLevel);
+		
+		chip->eccOobSize = oobSize;
+		printk("OOB size changed to %d\n", oobSize);
+		
+		/* Assume MLC if both RDIN and PARTIAL_PAGE are disabled */
+		if (0 == (nand_acc & (BCHP_NAND_ACC_CONTROL_FAST_PGM_RDIN_MASK |
+				BCHP_NAND_ACC_CONTROL_PARTIAL_PAGE_EN_MASK))) {
+			chip->cellinfo = 0x04; // MLC NAND
+			printk("Flash type changed to MLC\n");
+		}
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+		if (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK) {
+			chip->eccSectorSize = 1024;
+			printk("Sector size changed to 1024\n");
+		}
+#endif
 	 }
 }
 
@@ -7800,7 +7944,8 @@ brcmnand_read_id(struct mtd_info *mtd, unsigned int chipSelect, unsigned long* d
 		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
   #endif  //
   
-		chip->ctrl_write(BCHP_NAND_CMD_START, BCHP_NAND_CMD_START_OPCODE_FLASH_RESET);
+		chip->ctrl_write(BCHP_NAND_CMD_START, 
+			BCHP_NAND_CMD_START_OPCODE_FLASH_RESET << BCHP_NAND_CMD_START_OPCODE_SHIFT);
 
 	}
 /* Wait for CTRL_Ready */
@@ -8068,7 +8213,8 @@ PRINTK("nandConfigChipSize = %04x\n", nandConfigChipSize);
  */
 static uint32_t
 decode_ID_type2(struct brcmnand_chip * chip, 
-	unsigned char brcmnand_maf_id, unsigned char brcmnand_dev_id, uint32_t nbrBlocks, uint32_t* pEccLevel)
+	unsigned char brcmnand_maf_id, unsigned char brcmnand_dev_id, uint32_t nbrBlocks, 
+	uint32_t* pEccLevel, int* pSectorSize)
 {
 	uint32_t nand_config = chip->ctrl_read(bchp_nand_config(chip->ctrl->CS[chip->csi])); // returned value
 	unsigned char devId4thdByte =  (chip->device_id  & 0xff);
@@ -8077,7 +8223,7 @@ decode_ID_type2(struct brcmnand_chip * chip,
 	//unsigned int oobSize;
 	unsigned int oobSize, oobSizePerPage = 0;
 	uint32_t chipSizeMB, nandConfigChipSize;
-	uint32_t devIdExt, eccShift;
+	uint32_t devIdExt, eccShift, reqEcc;
 	unsigned char devId5thByte;
 
 PRINTK("%s: mafID=%02x, devID=%02x, ID4=%02x\n", 
@@ -8099,6 +8245,14 @@ PRINTK("%s: mafID=%02x, devID=%02x, ID4=%02x\n",
 			
 		case SAMSUNG2_4THID_OOBSIZE_PERPAGE_218:
 			oobSizePerPage = 218;
+			break;
+			
+		case SAMSUNG2_4THID_OOBSIZE_PERPAGE_400:  /* 16 per 512B */
+			oobSizePerPage = 400;
+			break;
+			
+		case SAMSUNG2_4THID_OOBSIZE_PERPAGE_436: /* 27.5 per 512B */
+			oobSizePerPage = 436;
 			break;
 		}
 		oobSize = oobSizePerPage/(pageSize/512);
@@ -8124,6 +8278,11 @@ PRINTK("Updating Config Reg T2: Block & Page Size: B4: %08x\n", nand_config);
 		case 256*1024:
 			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_256KB;
 			break;
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+		case 1024*1024:
+			blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_1024KB;
+			break;
+#endif
 		}
 PRINTK("%s:  blockSizeBits=%08x, NANDCONFIG B4=%08x\n", __FUNCTION__, blockSizeBits, nand_config);
 		nand_config &= ~(BCHP_NAND_CONFIG_BLOCK_SIZE_MASK);
@@ -8141,6 +8300,11 @@ PRINTK("%s:   NANDCONFIG After=%08x\n", __FUNCTION__,  nand_config);
 		case 4096:
 			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_4KB;
 			break;
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_4
+		case 8192:
+			pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_8KB;
+			break;
+#endif
 		}
 PRINTK("%s:  pageSizeBits=%08x, NANDCONFIG B4=%08x\n", __FUNCTION__, pageSizeBits, nand_config);
 		nand_config &= ~(BCHP_NAND_CONFIG_PAGE_SIZE_MASK);
@@ -8172,12 +8336,28 @@ PRINTK("chipSize=%dMB, nandConfigChipSize = %04x\n", chipSizeMB, nandConfigChipS
 PRINTK("Updating Config Reg on CS%1d:  %08x\n", chip->ctrl->CS[chip->csi], nand_config);
 	chip->ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
 
+/*---------------- 5th ID byte: ECC level and plane number ---------------- */
 	devIdExt = chip->ctrl_read(BCHP_NAND_FLASH_DEVICE_ID_EXT);
 	devId5thByte = (devIdExt & 0xff000000) >> 24;
-	eccShift = (devId5thByte & SAMSUNG2_5THID_ECCLVL_MASK) >> 4;
-	*pEccLevel =  1 << eccShift;
+	reqEcc = (devId5thByte & SAMSUNG2_5THID_ECCLVL_MASK);
+	switch(reqEcc) {
+	case SAMSUNG2_5THID_ECCLVL_1BIT: /* 0x00 */
+	case SAMSUNG2_5THID_ECCLVL_2BIT: /*	 0x10 */
+	case SAMSUNG2_5THID_ECCLVL_4BIT: /*	 0x20 */
+	case SAMSUNG2_5THID_ECCLVL_8BIT: /*	 0x30 */
+	case SAMSUNG2_5THID_ECCLVL_16BIT: /* 0x40 */
+		eccShift = reqEcc >> 4;
+		*pEccLevel =  1 << eccShift;
+		*pSectorSize = 512;
+		break;
+		
+	case SAMSUNG2_5THID_ECCLVL_24BIT_1KB: /* 0x50 */
+		*pEccLevel = 24;
+		*pSectorSize = 1024;
+	}
 	
-PRINTK("Required ECC level = %d, devIdExt=%08x, eccShift=%02x\n", *pEccLevel, devIdExt, eccShift);
+PRINTK("Required ECC level = %d, devIdExt=%08x, eccShift=%02x, sector Size=%d\n", 
+	*pEccLevel, devIdExt, eccShift, *pSectorSize);
 	
 #else
 	/* For type 2, ID bytes do not yield flash Size, but CONFIG registers have that info */
@@ -8186,8 +8366,6 @@ PRINTK("Required ECC level = %d, devIdExt=%08x, eccShift=%02x\n", *pEccLevel, de
 	chip->chipSize = 4ULL << (20 + chipSizeShift);
 
 #endif
-
-	
 
 	return nand_config;
 }
@@ -8256,8 +8434,15 @@ PRINTK("Updating Config Reg M61A: Block & Page Size: B4: %08x\n", nand_config);
 
 	/* Update Config Register: Block Size */
 	switch(blockSize) {
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+	case 1024*1024:
+		blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_1024KB;
+		break;
+#else
 	case 1024*1024:
 		/* For version 3.x controller, we don't have a bit defined for this */
+		/* FALLTHROUGH */
+#endif
 	case 512*1024:
 		blockSizeBits = BCHP_NAND_CONFIG_BLOCK_SIZE_BK_SIZE_512KB;
 		break;
@@ -8291,8 +8476,12 @@ PRINTK("%s:   NANDCONFIG After=%08x\n", __FUNCTION__,  nand_config);
 	case 4096:
 		pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_4KB;
 		break;
-
-	//case 8192: TBD
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_4
+	case 8192:
+		pageSizeBits = BCHP_NAND_CONFIG_PAGE_SIZE_PG_SIZE_8KB;
+		break;
+#endif
+	
 	}
 
 
@@ -8331,22 +8520,38 @@ PRINTK("Updating Config Reg on CS%1d: Block & Page Size: After: %08x\n", chip->c
 
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
 
-static inline uint32_t brcmnand_flashcache_read(uint32_t ofs) 
+/* Returns the 32bit integer at the aligned offset */
+static inline uint32_t brcmnand_flashcache_read(void* pDest, uint32_t ofs, int size) 
 {
 	uint32_t aligned_ofs = ofs & 0xFFFFFFFC;
-	volatile uint32_t* pReg = (volatile uint32_t*) (0xb0000000 +
-		BCHP_NAND_FLASH_CACHEi_ARRAY_BASE + aligned_ofs);
+	volatile uint32_t* p32FCache = (volatile uint32_t*) BVIRTADDR(BCHP_NAND_FLASH_CACHEi_ARRAY_BASE);
+	uint32_t pReg = (BCHP_NAND_FLASH_CACHEi_ARRAY_BASE + aligned_ofs);
+	volatile u_char* p8FCache = (volatile u_char*) p32FCache;
+	uint32_t u32;
+	u_char* p8 = (u_char*) &u32;
+	
+	if ((size + ofs) > (aligned_ofs+4)) {
+		printk("%s: Cannot read across DW boundary ofs=%d, size=%d\n", __FUNCTION__, ofs, size);
+		return 0;
+	}
 
-if (gdebug > 3) {
-printk("%s: OFS=%08x, EBIAddr=%08x val=%08x\n", __FUNCTION__, 
-	(unsigned int) aligned_ofs, (unsigned int) pReg, (unsigned int)*pReg);
+	u32 = be32_to_cpu((uint32_t) BDEV_RD(pReg));
+	if (pDest) {
+		memcpy(pDest, &p8[ofs-aligned_ofs], size);
+	}
+	
+if (gdebug > 3) 
+{
+printk("%s: OFS=%d, EBIAddr=%08x val=%08x, p8=%02x%02x%02x%02x\n", __FUNCTION__, 
+	(unsigned int) aligned_ofs, pReg, (unsigned int)BDEV_RD(pReg), 
+	p8FCache[aligned_ofs], p8FCache[aligned_ofs+1], p8FCache[aligned_ofs+2], p8FCache[aligned_ofs+3]);
 }
 
-	return (uint32_t) (*pReg);
+	return ((uint32_t) BDEV_RD(pReg));
 }
 
 
-static void
+static void __maybe_unused
 debug_print_flashcache(struct mtd_info *mtd)
 {
 	struct brcmnand_chip * chip = mtd->priv;
@@ -8369,6 +8574,7 @@ gdebug=0;
 gdebug=saveDebug;
 }
 
+#if 0
 /*
  * Return 0 for ready, TIMEOUT for error
  */
@@ -8377,10 +8583,11 @@ static int brcmnand_wait_for_cache_ready(struct brcmnand_chip* chip)
 	unsigned long timeout;
 	uint32_t ready;
 
+	//udelay(100000); /* 100 ms */
 	/* The 20 msec is enough */
 	timeout = jiffies + msecs_to_jiffies(3000); // 3 sec timeout for now
 	while (time_before(jiffies, timeout)) {
-		PLATFORM_IOFLUSH_WAR();
+		//PLATFORM_IOFLUSH_WAR();
 		ready = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
 
 		if ((ready & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK) 
@@ -8389,7 +8596,10 @@ static int brcmnand_wait_for_cache_ready(struct brcmnand_chip* chip)
 			return BRCMNAND_SUCCESS;
 			
 		}
-		udelay(200);
+		//if ( !in_interrupt())
+		//	cond_resched();
+		//else
+		//	udelay(10000);
 	}
 
 if (gdebug > 3 ) {
@@ -8398,6 +8608,89 @@ print_nand_ctrl_regs();
 }
 	return BRCMNAND_TIMED_OUT; // TimeOut
 }
+#endif
+
+typedef enum {
+		BRCMNAND_READY, 
+		BRCMNAND_CTRL_BUSY, 
+		BRCMNAND_CTRL_READY,
+		BRCMNAND_CACHE_VALID
+		} brcmnand_ctrl_state_t;
+
+static int brcmnand_monitor_intfc(struct mtd_info *mtd, brcmnand_ctrl_state_t waitfor, uint32_t* pStatus)
+{
+	struct brcmnand_chip * chip = mtd->priv;
+	unsigned long timeout;
+	uint32_t ready;
+	brcmnand_ctrl_state_t state = BRCMNAND_READY;
+	int ret =  -ETIMEDOUT;
+	//unsigned long irqflags;
+
+// Dont want printk to cause missing a transition of INTFC
+int save_debug = gdebug;
+uint32_t prev_ready;
+//gdebug = 0;
+
+	//local_irq_save(irqflags);
+	prev_ready = *pStatus = ready = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
+	timeout = jiffies + msecs_to_jiffies(2000); // THT: 1000 msec, for now
+	while (time_before(jiffies, timeout) ) {
+		switch (state) {
+		case BRCMNAND_READY: /* Wait for ctrl-busy */
+			if (!(ready & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK)) {
+				state = BRCMNAND_CTRL_BUSY;
+if (save_debug) printk("%s: waitfor=%d, Got ctrl-busy, intfc=%08x\n", __FUNCTION__, waitfor, ready);
+			}
+			/* If we cgot cache valid, skip ctrl-busy */
+			if ((waitfor == BRCMNAND_CACHE_VALID) 
+			&& (ready & BCHP_NAND_INTFC_STATUS_CACHE_VALID_MASK)) {
+				state = BRCMNAND_CTRL_READY;
+				ret = BRCMNAND_SUCCESS;
+				goto exit_monitor;
+			}
+			break;
+		case BRCMNAND_CTRL_BUSY: /* Wait for ctrl-ready */
+			if ((waitfor == BRCMNAND_CTRL_READY) &&
+			(ready & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK)) {
+				state = BRCMNAND_CTRL_READY;
+				ret = BRCMNAND_SUCCESS;
+				goto exit_monitor;
+			}
+			else if ((waitfor == BRCMNAND_CACHE_VALID) 
+			&& (ready & BCHP_NAND_INTFC_STATUS_CACHE_VALID_MASK)) {
+				state = BRCMNAND_CTRL_READY;
+				ret = BRCMNAND_SUCCESS;
+				goto exit_monitor;
+			}
+			break;
+		case BRCMNAND_CTRL_READY:
+			if (waitfor == BRCMNAND_CTRL_READY) {
+				ret = BRCMNAND_SUCCESS;
+				goto exit_monitor;
+			}
+			break;
+		case BRCMNAND_CACHE_VALID:
+			if (waitfor == BRCMNAND_CACHE_VALID) {
+				ret = BRCMNAND_SUCCESS;
+				goto exit_monitor;
+			}
+			break;
+		}
+if (prev_ready != ready) printk("prev_ready=%08x, ready=%08x\n", prev_ready, ready);
+		prev_ready = ready;
+		*pStatus = ready = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
+	}
+
+exit_monitor:
+gdebug = save_debug;
+
+	//local_irq_restore(irqflags);
+	
+if (save_debug) printk("%s: waitfor=%d, return %d, intfc=%08x\n", __FUNCTION__, waitfor, ret, *pStatus);
+	return ret;
+}
+
+
 
 
 /*
@@ -8406,7 +8699,7 @@ print_nand_ctrl_regs();
  */
 static int
 brcmnand_ONFI_decode(struct mtd_info *mtd, unsigned int chipSelect, 
-	uint32_t* pageSize, uint16_t* oobSize, int* reqEcc, int* codeWorkSize)
+	uint32_t* outp_pageSize, uint16_t* outp_oobSize, int* outp_reqEcc, int* outp_codeWorkSize)
 {
 	int skipDecodeID = 0; /* Returned value */
 	struct brcmnand_chip * chip = mtd->priv;
@@ -8414,193 +8707,285 @@ brcmnand_ONFI_decode(struct mtd_info *mtd, unsigned int chipSelect,
 	uint8_t eccLevel;
 	uint32_t nand_config0, nand_config;
 	uint32_t acc;
-	int status;
+	int status, retries;
 	uint32_t nand_select;
-	//unsigned long irqflags;
+	int ret;
+	uint32_t timing2;
+	uint8_t nbrParamPages, nbrBitsPerCell;
+	uint32_t extParamOffset, extParamFCacheOffset;
 
-	//local_irq_save(irqflags);
-
-/* for now for CoC */
-	return 0;
-
-
-gdebug=4;
+//gdebug=4;
 if (gdebug>3) printk("-->%s, chipSelect=%d\n", __FUNCTION__, chipSelect);
-	
-	/* First check to see if flash is ONFI compliant */
-	if (chipSelect > 0) { // Do not re-initialize when on CS0, Bootloader already done that		
-		chip->vbase = (void*) (0xb0000000+BCHP_NAND_FLASH_CACHEi_ARRAY_BASE); 
 
-
-		status = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
-#if 	0
-		if ((status & (BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK|BCHP_NAND_INTFC_STATUS_FLASH_READY_MASK))
-			!= (BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK|BCHP_NAND_INTFC_STATUS_FLASH_READY_MASK)) 
+#if 1
+	/* Skip ONFI if on CS0, Boot loader already done that */
+	if (chipSelect == 0) { // Do not re-initialize when on CS0, Bootloader already done that	
+		return 0;
+	}
+#else
+	/*
+	 * Even though we cannot boot on CS0 on 7422a0, we still need to go through the
+	 * ONFI decode procedure, in order to initialize internal data structure
+	 */
+	if (chipSelect == 0) { // Do not re-initialize when on CS0, Bootloader already done that	
+		//TBD
+		return 0;
+	}	 
 #endif
-		{
-			brcmnand_wait(mtd, FL_READING, &status);
-			chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
-			chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
-				BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
-		  
-			chip->ctrl_write(BCHP_NAND_CMD_START, 
-				BCHP_NAND_CMD_START_OPCODE_FLASH_RESET);
-			
-			brcmnand_wait(mtd, FL_READING, &status);
-			udelay(10000);
+	
+	chip->vbase = (void*) BVIRTADDR(BCHP_NAND_FLASH_CACHEi_ARRAY_BASE); 
+
+#if 1
+	if (chipSelect != 0) 
+	{
+		uint32_t nand_acc;
+		
+		if (gNandConfig[chip->csi] != 0) {
+			nand_config = gNandConfig[chip->csi];
+			chip->ctrl_write(bchp_nand_config(chipSelect), nand_config);
+
+			if (chip->csi==0) /* No NAND on CS0 */
+				chip->ctrl_write(BCHP_NAND_CONFIG, nand_config);
 		}
 
+		if (0 != gAccControl[chip->csi]) {
+			nand_acc = gAccControl[chip->csi] ;
+		 	chip->ctrl_write(bchp_nand_acc_control(chipSelect), nand_acc);
+			if (chip->csi==0)
+				chip->ctrl_write(BCHP_NAND_ACC_CONTROL, nand_acc);
+		}
+	}
+	
+#endif
 
+
+
+
+	retries = 1;
+	while (retries > 0) {
+
+PRINTK("************  Retries = %d\n", retries);
+
+#if 1
 		nand_config0 = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
+
+
+#endif
+	
 
 		/* Setup READ ID and AUTOCONFIG */
 		nand_select = chip->ctrl_read(BCHP_NAND_CS_NAND_SELECT);
+		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
+		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
+			BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
 		nand_select |= BCHP_NAND_CS_NAND_SELECT_AUTO_DEVICE_ID_CONFIG_MASK;
 		nand_select &= ~(1<<(chipSelect+BCHP_NAND_CS_NAND_SELECT_EBI_CS_0_SEL_SHIFT));
 		chip->ctrl_write(BCHP_NAND_CS_NAND_SELECT, nand_select);
 
+		//udelay(10000); /* 10 ms */
 
-		/* Turn off 1KB sector size  & turn on WR_PREEMPT */
-		acc = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
-		acc &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
-		acc |= (BCHP_NAND_ACC_CONTROL_CS1_WR_PREEMPT_EN_MASK);
-		chip->ctrl_write(bchp_nand_acc_control(chipSelect), acc);
 
-#if 0
 		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
 		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
 			BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
-	  
-		chip->ctrl_write(BCHP_NAND_CMD_START, 
-			BCHP_NAND_CMD_START_OPCODE_DEVICE_ID_READ);
 
-		brcmnand_wait(mtd, FL_READING, &status);
+		chip->ctrl_write(BCHP_NAND_CMD_START, 
+			BCHP_NAND_CMD_START_OPCODE_NULL << BCHP_NAND_CMD_START_OPCODE_SHIFT);
+
+		/* Wait for controller busy then ready */
+		ret = brcmnand_monitor_intfc(mtd, BRCMNAND_CTRL_READY, &status);
+
+
+
+		// udelay(1000);  // 1 sec
+		
+		// Change timing to conform to ONFI
+		timing2 = chip->ctrl_read(bchp_nand_timing2(chipSelect));
+PRINTK("Old timing2 value=%08x\n", timing2);
+		timing2 &= ~(BCHP_NAND_TIMING_2_tWHR_MASK);
+		timing2 |= 11 << BCHP_NAND_TIMING_2_tWHR_SHIFT;
+PRINTK("New timing2 value=%08x\n", timing2);
+		chip->ctrl_write(bchp_nand_timing2(chipSelect), timing2);
+
+
 		nand_config = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
-printk("B4 PARAM READ, nand_config0=%08x, nand_config1=%08x\n", nand_config0, nand_config);
-#endif
-	
+PRINTK("B4 status READ, nand_config0=%08x, nand_config1=%08x, ret=%d\n", nand_config0, nand_config, ret);	
 
+
+
+		nand_config = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
+PRINTK("B4 PARAM READ, nand_config0=%08x, nand_config1=%08x, ret=%d\n", nand_config0, nand_config, ret);	
+
+		
 		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
 		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
 			BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
 
-		chip->ctrl_write(BCHP_NAND_CMD_START, 
-			BCHP_NAND_CMD_START_OPCODE_PARAMETER_READ);
+		chip->ctrl_write(BCHP_NAND_CMD_START, OP_PARAMETER_READ);
 
-		brcmnand_wait_for_cache_ready(chip);
-		//udelay(10000);
+		/* Wait for controller busy then cache-valid */
+		ret = brcmnand_monitor_intfc(mtd, BRCMNAND_CACHE_VALID, &status);
 
-printk("ONFI sig=%08x\n", *((volatile unsigned int*) chip->vbase));
-
+		
 		/*
 		 * Verify ONFI capability
 		 */
-		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_SIGNATURE_OFS);
-gdebug=0;
+		u32 = brcmnand_flashcache_read(NULL, ONFI_RDPARAM_SIGNATURE_OFS, sizeof(u32));
+	
 
-		if (u32 != ONFI_SIGNATURE) {
-			printk("%s: Cannot find ONFI signature.  Looking for %08x found %08x\n",
-				__FUNCTION__, ONFI_SIGNATURE, u32);
+		if (u32 == ONFI_SIGNATURE) {
+			printk("%s: Found ONFI signature.  Looking for %08x found %08x, ret=%d\n",
+				__FUNCTION__, ONFI_SIGNATURE, u32, ret);
 
+			break;
+		}
+
+
+		retries--;
+
+		/* Flash Reset */
+		brcmnand_wait(mtd, FL_READING, &status);
+		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, 0);
+		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
+			BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
+		chip->ctrl_write(BCHP_NAND_CMD_START,  OP_FLASH_RESET);
+		
+		brcmnand_wait(mtd, FL_READING, &status);
+
+	}
+	
+
+PRINTK("ONFI sig=%08x\n", *((volatile unsigned int*) chip->vbase));
+
+
+	/*
+	 * Verify ONFI capability
+	 */
+	u32 = brcmnand_flashcache_read(NULL, ONFI_RDPARAM_SIGNATURE_OFS, sizeof(u32));
+
+
+	if (u32 != ONFI_SIGNATURE) {
+		printk("%s: Cannot find ONFI signature.  Looking for %08x found %08x\n",
+			__FUNCTION__, ONFI_SIGNATURE, u32);
+
+		// debug_print_flashcache(mtd);
+		skipDecodeID = 0;
+		goto onfi_exit;
+	}
+
+	
+	// ONFI read-parameter was successful
+	nand_config = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
+	
+	if (nand_config != nand_config0) {
+		printk("Original nand_config=%08x, ONFI nand_config=%08x\n",
+			nand_config0, nand_config);
+	}
+
+	/* Page Size */
+	u32 = brcmnand_flashcache_read(outp_pageSize, ONFI_RDPARAM_PAGESIZE_OFS, sizeof(u32));
+	
+
+	/* OOB Size */
+	u32 = brcmnand_flashcache_read(outp_oobSize, ONFI_RDPARAM_OOBSIZE_OFS, sizeof(*outp_oobSize));
+	//*outp_oobSize = be16_to_cpu(*outp_oobSize);
+PRINTK("oobSize = %d, u32=%08x\n", *outp_oobSize, u32);
+
+	/* MLC or SLC */
+	u32 = brcmnand_flashcache_read(&nbrBitsPerCell, ONFI_NBR_BITS_PER_CELL_OFS, sizeof(nbrBitsPerCell));
+PRINTK("nbrBitsPerCell = %d, u32=%08x\n", nbrBitsPerCell, u32);
+
+	/* Required ECC level */
+	u32 = brcmnand_flashcache_read(&eccLevel, ONFI_RDPARAM_ECC_LEVEL_OFS, sizeof(eccLevel));
+
+PRINTK("EccLevel = [%08x], %02x, pageSize=%d, oobSize=%d\n", u32, eccLevel, *outp_pageSize, *outp_oobSize);
+
+	if (eccLevel != 0xFF) { /* Codework is 512B */
+		*outp_reqEcc = eccLevel;
+		*outp_codeWorkSize = 512;
+		skipDecodeID = 1;
+	}
+	else { /* Codework is NOT 512B */
+		//int offset = 512;
+		uint32_t extParamSig = 0;
+
+		/* First find out how many param pages there are */
+		(void) brcmnand_flashcache_read(&nbrParamPages, ONFI_NBR_PARAM_PAGE_OFS, sizeof(nbrParamPages));
+
+
+		extParamOffset = (256*nbrParamPages);
+		extParamFCacheOffset = extParamOffset & ~(512-1); // ALign on 512B
+PRINTK("nbrParamPages = %d, offset=%d, extCacheOffset=%d\n", nbrParamPages, extParamOffset, extParamFCacheOffset);		
+		
+//gdebug=4;
+
+			/* Turn off 1KB sector size */
+		acc = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
+		acc &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
+		//acc &= ~(BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_MASK);
+		//acc |= (*oobSize) << BCHP_NAND_ACC_CONTROL_CS1_SPARE_AREA_SIZE_SHIFT;
+		chip->ctrl_write(bchp_nand_acc_control(chipSelect), acc);
+
+		
+		/* Bring in next 512B */
+		chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, extParamFCacheOffset);
+		chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS,  
+			chipSelect << BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
+
+		chip->ctrl_write(BCHP_NAND_CMD_START, OP_PARAMETER_CHANGE_COL);	
+
+		/* Wait for controller busy then ready */
+		ret = brcmnand_monitor_intfc(mtd, BRCMNAND_CACHE_VALID, &status);
+
+		/*
+		 * Verify EXT PARAM signature
+		 * Need to adjust offset based on the number of Read-Param pages 
+		 */
+		
+		u32 = brcmnand_flashcache_read(NULL, 
+			ONFI_EXTPARAM_SIG1_OFS-ONFI_EXTPARAM_OFS+(extParamOffset-extParamFCacheOffset), 2);
+		extParamSig = (u32 & 0xFFFF) << 16;
+PRINTK("EPPS1: u32=%08x, eppsig=%08x\n", u32, extParamSig);
+		u32 = brcmnand_flashcache_read(NULL, 
+			ONFI_EXTPARAM_SIG2_OFS-ONFI_EXTPARAM_OFS+(extParamOffset-extParamFCacheOffset), 2);
+		extParamSig |= (u32 >> 16);
+PRINTK("EPPS2: u32=%08x, eppsig=%08x\n", u32, extParamSig);
+
+		if (ONFI_EXTPARAM_SIG != extParamSig) {
+			printk("%s: EXT PARAM not found, looking for %08x, found %08x\n",
+				__FUNCTION__, ONFI_EXTPARAM_SIG, extParamSig);
 			debug_print_flashcache(mtd);
 			skipDecodeID = 0;
-			goto onfi_exit;
 		}
-else /* if (gdebug>3) */ {
-printk("Found ONFI sig\n");
-debug_print_flashcache(mtd);
-brcmnand_post_mortem_dump(mtd, 0);
-printk("\n");
-}
-		
-		// ONFI read-parameter 90H-20H was successful
-		nand_config = brcmnand_ctrl_read(bchp_nand_config(chipSelect));
-		
-		if (nand_config != nand_config0) {
-			printk("Original nand_config=%08x, ONFI nand_config=%08x\n",
-				nand_config0, nand_config);
-		}
+		else {
+			uint8_t powerOf2;
+			uint8_t eccLevel;
 
-		/* Page Size */
-		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_PAGESIZE_OFS);
-		*pageSize = be32_to_cpu(u32);
-
-		/* OOB Size */
-		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_OOBSIZE_OFS);
-		*oobSize = be16_to_cpu(u32>>16);
-
-		/* Required ECC level */
-		u32 = brcmnand_flashcache_read(ONFI_RDPARAM_ECC_LEVEL_OFS);
-		eccLevel = u32 >> 24;
-
-		printk("EccLevel = [%08x], %02x\n", u32, eccLevel);
-
-		if (eccLevel != 0xFF) { /* Codework is 512B */
-			*reqEcc = eccLevel;
-			*codeWorkSize = 512;
-			skipDecodeID = 1;
-		}
-		else { /* Codework is NOT 512B */
-			int offset = 512;
-			uint32_t extParamSig = 0;
 			
-			//while (offset <= 512 && !skipDecodeID) 
-			{
-				
-
-	gdebug=4;
-
-					/* Turn off 1KB sector size */
-				acc = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
-				acc &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
-				chip->ctrl_write(bchp_nand_acc_control(chipSelect), acc);
-				
-				/* Bring in next 512B */
-				chip->ctrl_write(BCHP_NAND_CMD_ADDRESS, offset);
-				chip->ctrl_write(BCHP_NAND_CMD_EXT_ADDRESS, chipSelect << 
-					BCHP_NAND_CMD_EXT_ADDRESS_CS_SEL_SHIFT);
-
-				chip->ctrl_write(BCHP_NAND_CMD_START, 
-					BCHP_NAND_CMD_START_OPCODE_PARAMETER_CHANGE_COL);	
-
-				brcmnand_wait_for_cache_ready(chip); /* Wait for Flash-Ready */
-				//udelay(10000);
-	gdebug=0;
-
-				/*
-				 * Verify EXT PARAM signature
-				 */
-				u32 = be32_to_cpu(brcmnand_flashcache_read(ONFI_EXTPARAM_SIG1_OFS-offset));
-				extParamSig = (u32 & 0xFFFF) << 16;
-printk("EPPS1: u32=%08x, eppsig=%08x\n", u32, extParamSig);
-				u32 = be32_to_cpu(brcmnand_flashcache_read(ONFI_EXTPARAM_SIG2_OFS-offset));
-				extParamSig |= (u32 >> 16);
-printk("EPPS2: u32=%08x, eppsig=%08x\n", u32, extParamSig);
-
-				if (ONFI_EXTPARAM_SIG != extParamSig) {
-					printk("%s: EXT PARAM not found, looking for %08x, found %08x\n",
-						__FUNCTION__, ONFI_EXTPARAM_SIG, extParamSig);
-					debug_print_flashcache(mtd);
-					skipDecodeID = 0;
-				}
-				else {
-					uint32_t powerOf2;
-					
-					u32 = brcmnand_flashcache_read(ONFI_EXTPARAM_EXT_ECC_OFS-offset);
-					*reqEcc = u32 >> 24;
-					powerOf2 = (u32 & (0x00FF0000)) >> 16;
-					*codeWorkSize = 1 << powerOf2;
-					skipDecodeID = 1;
-					
-				}
-				offset += 512;
-			}
+			u32 = brcmnand_flashcache_read(&powerOf2, 
+					ONFI_EXTPARAM_CODEWORK_OFS-ONFI_EXTPARAM_OFS+(extParamOffset-extParamFCacheOffset), 
+					sizeof(powerOf2));
+		
+			//powerOf2 = (u32 & (0x00FF0000)) >> 16;
+			*outp_codeWorkSize = 1 << powerOf2;
+PRINTK("codeWorkSize power = %d, codeWorkSize=%d, u32=%08x\n", powerOf2, *outp_codeWorkSize, u32);		
+			u32 = brcmnand_flashcache_read(&eccLevel, 
+					ONFI_EXTPARAM_EXT_ECC_OFS-ONFI_EXTPARAM_OFS+(extParamOffset-extParamFCacheOffset), 
+					sizeof(eccLevel));
+			*outp_reqEcc = eccLevel;
+PRINTK("eccLevel=%d, u32=%08x\n", *outp_reqEcc, u32);	
+			skipDecodeID = 1;
+			
 		}
+		
 	}
+	
 	if (skipDecodeID) {
-		printk("reqEcc=%d, codeWork=%d\n", *reqEcc, *codeWorkSize);
+		printk("reqEcc=%d, codeWork=%d\n", *outp_reqEcc, *outp_codeWorkSize);
+		brcmnand_set_acccontrol(chip, chipSelect, 
+			*outp_pageSize, *outp_oobSize, *outp_reqEcc, *outp_codeWorkSize, nbrBitsPerCell);
 	}
-gdebug = 0;
+//gdebug = 0;
 
 onfi_exit:
 
@@ -8635,25 +9020,37 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 	int version_id;
 	//int density;
 	int i = BRCMNAND_MAX_CHIPS+1;
-	int skipDecodeID = 0;
+	int isONFI = 0; 	/* Set when chips (flash & ctrl) are ONFI capable */
+	int foundInIdTable = 0;	/* Set when flash ID found in ID table */
+	int skipIdLookup = 0;
 	uint32_t __maybe_unused pageSize=0;
 	uint16_t __maybe_unused oobSize=0;
 	int __maybe_unused reqEcc=0;
 	uint32_t __maybe_unused codeWork=0;
 
-	skipDecodeID = brcmnand_ONFI_decode(mtd, chipSelect,
+
+	/*
+	 * Special treatment for Spansion OrNand chips which do not conform to standard ID
+	 */
+
+	chip->disableECC = 0;
+	chip->cellinfo = 0; // default to SLC, will read 3rd byte ID later for v3.0+ controller
+	chip->eccOobSize = 16; // Will fix it if we have a Type2 ID flash (from which we know the actual OOB size */
+	
+
+	isONFI = brcmnand_ONFI_decode(mtd, chipSelect,
 		&pageSize, &oobSize, &reqEcc, &codeWork);
 
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
-	if (skipDecodeID) { /* ONFI capable */
+	if (isONFI) { /* ONFI capable */
 		/* NAND CONFIG register already encoded by NAND controller */
-		chip->eccsize = codeWork;
-		chip->eccOobSize = oobSize/(pageSize/512);
-		if (codeWork == 512) {
+		chip->eccSectorSize = codeWork;
+		chip->eccOobSize = oobSize/(pageSize/BRCMNAND_FCACHE_SIZE);
+		if (codeWork == BRCMNAND_FCACHE_SIZE) {
 			chip->reqEccLevel = reqEcc;
 		}
 		else {
-			chip->reqEccLevel = (reqEcc*512)/codeWork;
+			chip->reqEccLevel = (reqEcc*BRCMNAND_FCACHE_SIZE)/codeWork;
 		}
 		/* TBD Check for required ECC level here */
 		nand_config = chip->ctrl_read(bchp_nand_config(chipSelect));
@@ -8679,6 +9076,7 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 				if (brcmnand_chips[i].chipId345[0] == 0x0 
 					&& brcmnand_chips[i].chipId345[1] == 0x0 
 					&& brcmnand_chips[i].chipId345[2] == 0x0) {
+					foundInIdTable = 1;
 					break; 
 				}
 
@@ -8698,12 +9096,16 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 					if (brcmnand_chips[i].chipId345[0] == id3
 						&& brcmnand_chips[i].chipId345[1] == id4
 						&& brcmnand_chips[i].chipId345[2] == id5) {
+
+						foundInIdTable = 1;
 						break;
 					}
 					else if (brcmnand_chips[i+1].chipId345[0] == id3
 						&& brcmnand_chips[i+1].chipId345[1] == id4
 						&& brcmnand_chips[i+1].chipId345[2] == id5) {
+						
 						i = i+1;
+						foundInIdTable = 1;
 						break;
 					}
 					/* Else not match */
@@ -8738,19 +9140,9 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 		}
 
 
-
-		/*
-		 * Special treatment for Spansion OrNand chips which do not conform to standard ID
-		 */
-
-		chip->disableECC = 0;
-		chip->cellinfo = 0; // default to SLC, will read 3rd byte ID later for v3.0+ controller
-		chip->eccOobSize = 16; // Will fix it if we have a Type2 ID flash (from which we know the actual OOB size */
-		
-
 		// If not on CS0 && config is passed as command line, use it and skip decoding ID.
 		if (chip->csi != 0 && gNandConfig[chip->csi] != 0) {
-			skipDecodeID = 1;
+			skipIdLookup = 1;
 			nand_config = gNandConfig[chip->csi];
 			brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
 		}
@@ -8759,7 +9151,7 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 		}
 
 	/*------------- 3rd ID byte --------------------*/	
-		if (!skipDecodeID && FLASHTYPE_SPANSION == brcmnand_maf_id) {
+		if (!skipIdLookup && FLASHTYPE_SPANSION == brcmnand_maf_id) {
 			unsigned char devId3rdByte =  (chip->device_id >> 8) & 0xff;
 
 			switch (devId3rdByte) {
@@ -8781,7 +9173,7 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 			brcmnand_ctrl_write(bchp_nand_config(chip->ctrl->CS[chip->csi]), nand_config);
 		}
 		/* Else if NAND is found in suppported table */
-		else if (i < BRCMNAND_MAX_CHIPS) {
+		else if (foundInIdTable) {
 		
 
 #if CONFIG_MTD_BRCMNAND_VERSION == CONFIG_MTD_BRCMNAND_VERS_0_0
@@ -8861,7 +9253,9 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 				{
 					brcmnand_chips[i].eccLevel = 0;
 					nand_config = decode_ID_type2(chip, brcmnand_maf_id, brcmnand_dev_id, 
-									brcmnand_chips[i].nbrBlocks, &brcmnand_chips[i].eccLevel);
+									brcmnand_chips[i].nbrBlocks, 
+									&brcmnand_chips[i].eccLevel, 
+									&brcmnand_chips[i].sectorSize);
 				}
 
 				else if  ((brcmnand_chips[i].idOptions & BRCMNAND_ID_EXT_MICRON_M61A) == 
@@ -8870,7 +9264,7 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 					nand_config = decode_ID_M61A(chip, brcmnand_maf_id, brcmnand_dev_id);
 				}
 
-				if (!skipDecodeID) {
+				if (!skipIdLookup) {
 
 					/* Make sure that ColAddrBytes bits are correct */
 					nand_config = brcmnand_compute_adr_bytes(chip, nand_config);
@@ -8888,13 +9282,36 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 			}
 			*/
 #endif // V3.0 Controller
-			if (brcmnand_chips[i].eccLevel) {
-				chip->reqEccLevel = brcmnand_chips[i].eccLevel;
+			if (foundInIdTable && brcmnand_chips[i].eccLevel) {
+				if (brcmnand_chips[i].sectorSize == 1024) {
+					chip->reqEccLevel = brcmnand_chips[i].eccLevel;
+					chip->eccSectorSize = 1024;
+				}
+				else {
+					chip->reqEccLevel = brcmnand_chips[i].eccLevel;
+					chip->eccSectorSize = 512;
+				}
+				switch (chip->reqEccLevel) {
+				case 15:
+					chip->ecclevel = BRCMNAND_ECC_HAMMING;
+					break;
+				case 4:
+					chip->ecclevel = BRCMNAND_ECC_BCH_4;
+					break;
+				case 8:
+					chip->ecclevel = BRCMNAND_ECC_BCH_8;
+					break;
+				case 12:
+				case 24:
+					chip->ecclevel = BRCMNAND_ECC_BCH_12;
+					break;
+				}
+printk("%s: Ecc level set to %d, sectorSize=%d from ID table\n", __FUNCTION__, chip->reqEccLevel, chip->eccSectorSize);
 			}
 		}
 
 		/* ID not in table, and no CONFIG REG was passed at command line */
-		else if (!skipDecodeID) {
+		else if (!skipIdLookup && !foundInIdTable) {
 			uint32_t acc;
 			
 			/* 
@@ -8935,9 +9352,10 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 	// Also works for dummy entries, but no adjustments possible
 	brcmnand_adjust_timings(chip, &brcmnand_chips[i]);
 
-	// Adjust perchip NAND ACC CONTROL for CS != 0
-	if (chip->ctrl->CS[chip->csi])
-		brcmnand_adjust_acccontrol(chip, &brcmnand_chips[i]);
+	// Adjust perchip NAND ACC CONTROL 
+	// updateInternalData = not ONFI .or. not in ID table
+	brcmnand_adjust_acccontrol(chip, isONFI, foundInIdTable, i);
+	
 
 	/* Flash device information */
 	brcmnand_print_device_info(&brcmnand_chips[i], mtd);
@@ -8989,7 +9407,7 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 	printk(KERN_INFO "BrcmNAND version = 0x%04x %dMB @%08lx\n", 
 		version_id, mtd64_ll_low(chip->chipSize>>20), chip->pbase);
 
-//gdebug=0;
+gdebug=0;
 
 	return 0;
 }
@@ -9126,11 +9544,11 @@ get_rom_size(unsigned long* outp_cs0Base)
 	uint32_t romSize = 0;
 
 #if defined(BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_ebi_rom_size_MASK)
-	sun_top_ctrl_strap_value = *(volatile unsigned long*) (0xb0000000|BCHP_SUN_TOP_CTRL_STRAP_VALUE_0);
+	sun_top_ctrl_strap_value = (volatile unsigned long) BDEV_RD(BCHP_SUN_TOP_CTRL_STRAP_VALUE_0);
 	strap_ebi_rom_size = sun_top_ctrl_strap_value & BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_ebi_rom_size_MASK;
 	strap_ebi_rom_size >>= BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_ebi_rom_size_SHIFT;
 #elif defined(BCHP_SUN_TOP_CTRL_STRAP_VALUE_strap_ebi_rom_size_MASK)
-	sun_top_ctrl_strap_value = *(volatile unsigned long*) (0xb0000000|BCHP_SUN_TOP_CTRL_STRAP_VALUE);
+	sun_top_ctrl_strap_value = (volatile unsigned long) BDEV_RD(BCHP_SUN_TOP_CTRL_STRAP_VALUE);
 	strap_ebi_rom_size = sun_top_ctrl_strap_value & BCHP_SUN_TOP_CTRL_STRAP_VALUE_strap_ebi_rom_size_MASK;
 	strap_ebi_rom_size >>= BCHP_SUN_TOP_CTRL_STRAP_VALUE_strap_ebi_rom_size_SHIFT;
 #elif defined(BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_bus_mode_MASK)
@@ -9371,7 +9789,7 @@ static void initialize_chip (struct brcmnand_chip* chip)
 	if (!chip->erase_bbt)
 		chip->erase_bbt = brcmnand_erase_bbt;
 
-	chip->eccsize = 512;  // Fixed for Broadcom controller
+	chip->eccsize = BRCMNAND_FCACHE_SIZE;  // Fixed for Broadcom controller
 		
 
 	/*
@@ -9711,6 +10129,16 @@ PRINTK("ECC level threshold set to %d bits\n", corr_threshold);
 		}
 PRINTK("ECC level %d, threshold at %d bits\n", 
 chip->ecclevel, brcmnand_ctrl_read(BCHP_NAND_CORR_STAT_THRESHOLD));
+
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+		acc_control &= ~(BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_MASK |
+			BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_MASK);
+		if (chip->eccSectorSize == 1024) {
+			acc_control |= (BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_MASK |
+				BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_MASK);
+		}
+		brcmnand_ctrl_write(bchp_nand_acc_control(0), acc_control );
+#endif
 	}
 	
 	else {  // CS != 0
@@ -9719,8 +10147,15 @@ chip->ecclevel, brcmnand_ctrl_read(BCHP_NAND_CORR_STAT_THRESHOLD));
 			BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_SHIFT;
 		chip->ecclevel = eccLevel;
 	
-		//csi++; // Look at next CS
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+		acc_control &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
+		if (chip->eccSectorSize == 1024) {
+			acc_control |= (BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
+		}
+		brcmnand_ctrl_write(bchp_nand_acc_control(cs), acc_control );
+#endif
 	}
+
 
 	switch (eccLevel) {
 	case BRCMNAND_ECC_HAMMING:
@@ -9909,7 +10344,7 @@ PRINTK("brcmnand_scan: Done brcmnand_probe\n");
 		chip->pbase = 0; 
 
 	// vbase is the address of the flash cache array
-	chip->vbase = (void*) (0xb0000000+BCHP_NAND_FLASH_CACHEi_ARRAY_BASE);  // Start of Buffer Cache
+	chip->vbase = (void*) BVIRTADDR(BCHP_NAND_FLASH_CACHEi_ARRAY_BASE);  // Start of Buffer Cache
 	// Already set in probe mtd->size = chip->chipSize * chip->ctrl->numchips;
 	// Make sure we use Buffer Array access, not direct access, Clear CS0
 	nand_select = brcmnand_ctrl_read(BCHP_NAND_CS_NAND_SELECT);
@@ -10066,9 +10501,11 @@ PRINTK("%s 230\n", __FUNCTION__);
 	 * If no default placement scheme is given, select an appropriate one
 	 * We should make a table for this convoluted mess. (TBD)
 	 */
-PRINTK("%s 40, mtd->oobsize=%d\n", __FUNCTION__, mtd->oobsize);
+PRINTK("%s 40, mtd->oobsize=%d, chip->ecclayout=%08x\n", __FUNCTION__, mtd->oobsize, 
+	(unsigned int) chip->ecclayout);
 	if (!chip->ecclayout) {
-PRINTK("%s 42, mtd->oobsize=%d\n", __FUNCTION__, mtd->oobsize);
+PRINTK("%s 42, mtd->oobsize=%d, chip->ecclevel=%d, isMLC=%d, chip->cellinfo=%d\n", __FUNCTION__, 
+	mtd->oobsize, chip->ecclevel, NAND_IS_MLC(chip), chip->cellinfo);
 		switch (mtd->oobsize) {
 		case 16: /* Small size NAND */
 			if (chip->ecclevel == BRCMNAND_ECC_HAMMING) {
@@ -10219,10 +10656,36 @@ printk(KERN_INFO "ECC layout=brcmnand_oob_bch12_27_4k\n");
 				}
 
 			}
-			else { // 8KB page TBD
+			else if (mtd->writesize == 8192) { // 8KB page 
 			
-				printk(KERN_WARNING "No oob scheme defined for oobsize %d\n", mtd->oobsize);
-				BUG();
+PRINTK("300 chip->ecclevel=%d, acc=%08x\n", chip->ecclevel, 
+				brcmnand_ctrl_read(bchp_nand_acc_control(chip->ctrl->CS[chip->csi])));
+				switch(chip->ecclevel) {
+				case BRCMNAND_ECC_BCH_4:
+printk(KERN_INFO "ECC layout=brcmnand_oob_bch4_8k\n");
+					chip->ecclayout = &brcmnand_oob_bch4_8k;
+					break;
+				case BRCMNAND_ECC_BCH_8:
+					if (chip->eccOobSize == 16) {
+printk(KERN_INFO "ECC layout=brcmnand_oob_bch8_16_8k\n");
+						chip->ecclayout = &brcmnand_oob_bch8_16_8k;
+					}
+					else if (chip->eccOobSize >=27) {
+printk(KERN_INFO "ECC layout=brcmnand_oob_bch8_27_8k\n");
+						chip->ecclayout = &brcmnand_oob_bch8_27_8k;
+					}
+					break;
+				case BRCMNAND_ECC_BCH_12:
+printk(KERN_INFO "ECC layout=brcmnand_oob_bch12_27_8k\n");
+					chip->ecclayout = &brcmnand_oob_bch12_27_8k;
+					break;
+				default:
+					printk(KERN_ERR "Unsupported ECC code %d for MLC with pageSize=%d\n", chip->ecclevel, mtd->writesize);
+					BUG();
+				}
+
+			
+			
 			}
 			break; /* 27B OOB */
 		}
@@ -10386,14 +10849,7 @@ PRINTK("300 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip-
 //	if (!lastChip)
 //		return 0;
 
-#if 0
-//gdebug=4;
-	printk("-----------------------------------------------------\n");
-	//print_nand_ctrl_regs();
-	brcmnand_post_mortem_dump(mtd, device_size(mtd) - mtd->erasesize);
-	printk("-----------------------------------------------------\n");
-gdebug=0;	
-#endif
+
 
 //gdebug = 4;
 PRINTK("500 chip=%p, CS=%d, chip->ctrl->CS[%d]=%d\n", chip, cs, chip->csi, chip->ctrl->CS[chip->csi]);
@@ -10432,14 +10888,14 @@ HANDLE_MISB_WAR_BEGIN(void)
 	if(brcm_ebi_war)
 	{	
 		spin_lock_irqsave(&bcm9XXXX_lock, misb_war_flags);
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
-		*(volatile unsigned long*)0xb0400b1c = 0xFFFF;
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
+		BDEV_WR(0x00400b1c, 0xFFFF);
 	}
 }
 

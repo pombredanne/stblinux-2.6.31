@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Aug 13 10:53:31 2010
- *                 MD5 Checksum         2b2f8ab1a27185ac1ac960e1d39c59b6
+ * Date:           Generated on         Mon Nov 22 12:34:21 2010
+ *                 MD5 Checksum         082dfd5d17e3af90ed154624d5df510d
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7344/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/3   8/13/10 5:45p pntruong
- * HW7344-97: Resync with central rdb.
+ * Hydra_Software_Devel/4   11/22/10 4:37p pntruong
+ * HW7344-97: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -95,8 +95,8 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00020800
 #define BCHP_CLKGEN_REG_START                              0x00040000
 #define BCHP_CLKGEN_REG_END                                0x000403fc
-#define BCHP_PLL_VCXO_RM_REG_START                         0x00042800
-#define BCHP_PLL_VCXO_RM_REG_END                           0x0004282c
+#define BCHP_VCXO_RM_REG_START                             0x00042800
+#define BCHP_VCXO_RM_REG_END                               0x0004282c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00043000
 #define BCHP_AVS_HW_MNTR_REG_END                           0x00043074
 #define BCHP_AVS_PVT_MNTR_CONFIG_REG_START                 0x00043100

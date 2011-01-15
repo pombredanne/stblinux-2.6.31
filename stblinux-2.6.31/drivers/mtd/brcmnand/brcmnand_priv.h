@@ -67,7 +67,9 @@ typedef u8 uint8;
 typedef u16 uint16;
 typedef u32 uint32;
 
-#define ECCSIZE(mtd)		512
+#define BRCMNAND_FCACHE_SIZE		512
+#define ECCSIZE(chip)					BRCMNAND_FCACHE_SIZE	/* Always 512B for Brcm NAND controller */
+
 #define MTD_OOB_NOT_WRITEABLE	0x8000
 #define MTD_CAP_MLC_NANDFLASH	(MTD_WRITEABLE | MTD_OOB_NOT_WRITEABLE)
 #define MTD_IS_MLC(mtd) ((((mtd)->flags & MTD_CAP_MLC_NANDFLASH) == MTD_CAP_MLC_NANDFLASH) &&\
@@ -107,7 +109,7 @@ typedef u32 uint32;
 
 #ifdef CONFIG_MTD_BRCMNAND_USE_ISR
 
-#define BCM_BASE_ADDRESS				0xb0000000
+//#define BCM_BASE_ADDRESS				0xb0000000
 
 /* CP0 hazard avoidance. */
 #define BARRIER __asm__ __volatile__(".set noreorder\n\t" \
@@ -240,19 +242,14 @@ int ISR_cache_is_valid(void);
 
 static __inline__ uint32_t ISR_volatileRead(uint32_t addr)
 {
-        volatile uint32_t* pAddr;
         
-        pAddr = (volatile uint32_t *)addr;
         
-        return *(uint32_t *)pAddr;
+        return (uint32_t) BDEV_RD(addr);
 }
 
 static __inline__ void ISR_volatileWrite(uint32_t addr, uint32_t data)
 {
-        volatile uint32_t* pAddr;
-
-        pAddr = (volatile uint32_t *)addr;
-        *pAddr = (volatile uint32_t)data;
+        BDEV_WR(addr, data);
 }
 
 static __inline__ void ISR_enable_irq(eduIsrNode_t* req)
@@ -263,10 +260,10 @@ static __inline__ void ISR_enable_irq(eduIsrNode_t* req)
 	//spin_lock_irqsave(&gEduIsrData.lock, flags);
 	
 	// Clear status bits
-	ISR_volatileWrite(BCM_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_CLEAR, req->mask);
+	ISR_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, req->mask);
 
 	// Enable interrupt
-	ISR_volatileWrite(BCM_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_MASK_CLEAR, req->intr);
+	ISR_volatileWrite(BCHP_HIF_INTR2_CPU_MASK_CLEAR, req->intr);
 
 	//spin_unlock_irqrestore(&gEduIsrData.lock, flags);
 }
@@ -275,7 +272,7 @@ static __inline__ void ISR_disable_irq(uint32_t mask)
 {
 
 	/* Disable L2 interrupts */
-	ISR_volatileWrite(BCM_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_MASK_SET, mask);
+	ISR_volatileWrite(BCHP_HIF_INTR2_CPU_MASK_SET, mask);
 
 }
 
@@ -388,7 +385,10 @@ void brcmnand_post_mortem_dump(struct mtd_info* mtd, loff_t offset);
 
 static unsigned int __maybe_unused brcmnand_get_bbt_size(struct mtd_info* mtd)
 {
-	return ((device_size(mtd) > (512 << 20)) ? 4<<20 : 1<<20);
+	struct brcmnand_chip * chip = mtd->priv;
+	
+	// return ((device_size(mtd) > (512 << 20)) ? 4<<20 : 1<<20);
+	return chip->bbtSize;
 }
 
 	

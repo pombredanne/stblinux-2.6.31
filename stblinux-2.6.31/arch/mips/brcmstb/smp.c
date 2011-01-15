@@ -25,6 +25,7 @@
 #include <linux/spinlock.h>
 #include <linux/init.h>
 #include <linux/cpu.h>
+#include <linux/cpumask.h>
 #include <linux/reboot.h>
 #include <linux/io.h>
 
@@ -49,19 +50,17 @@ static void brcmstb_ack_ipi(unsigned int irq);
 /* Early cpumask setup - runs on TP0 */
 static void brcmstb_smp_setup(void)
 {
-	cpus_clear(cpu_possible_map);
-
 	__cpu_number_map[0] = 0;
 	__cpu_logical_map[0] = 0;
-	cpu_set(0, cpu_possible_map);
+	set_cpu_possible(0, 1);
+	set_cpu_present(0, 1);
 
 	if (brcm_smp_enabled) {
 		__cpu_number_map[1] = 1;
 		__cpu_logical_map[1] = 1;
-		cpu_set(1, cpu_possible_map);
+		set_cpu_possible(1, 1);
+		set_cpu_present(1, 1);
 	}
-
-	cpu_present_map = cpu_possible_map;
 
 #if defined(CONFIG_BMIPS4380)
 	/* NBK and weak order flags */
@@ -260,6 +259,11 @@ static void brcmstb_cpu_die(unsigned int cpu)
 void play_dead(void)
 {
 	idle_task_exit();
+
+	/* Drop all mm context TLB entries on this cpu */
+	local_flush_tlb_all_mm();
+	/* flush data cache */
+	_dma_cache_wback_inv(0, ~0);
 
 	/*
 	 * Wakeup is on SW0 or SW1; disable everything else

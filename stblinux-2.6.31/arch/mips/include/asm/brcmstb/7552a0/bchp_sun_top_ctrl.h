@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Oct  9 13:42:32 2010
- *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
+ * Date:           Generated on         Mon Nov  8 16:13:14 2010
+ *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_sun_top_ctrl.h $
+ * 
+ * Hydra_Software_Devel/3   11/8/10 4:47p yuxiaz
+ * SW7552-2: updated rdb.
  *
  ***************************************************************************/
 
@@ -1925,9 +1928,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_GPIO_76           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_RMX0_SYNC         1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_PKT1_SYNC         2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_SDS0_BERT_SYNC    3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_SDS0_DEMOD_SYNC   4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_PM_GPIO_76        5
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_SDS0_DEMOD_SYNC   3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_76_PM_GPIO_76        4
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_9 :: gpio_75 [27:24] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_MASK              0x0f000000
@@ -1936,9 +1938,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_RMX0_DATA         1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_PKT1_DATA         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_CLK_OBSRV3        3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_SDS0_BERT_DATA    4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_SDS0_DEMOD_DATA   5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_PM_GPIO_75        6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_SDS0_DEMOD_DATA   4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_75_PM_GPIO_75        5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_9 :: gpio_74 [23:20] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_MASK              0x00f00000
@@ -1947,9 +1948,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_RMX0_CLK          1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_PKT1_CLK          2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_CLK_OBSRV2        3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_SDS0_BERT_CLK     4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_SDS0_DEMOD_CLK    5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_PM_GPIO_74        6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_SDS0_DEMOD_CLK    4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_74_PM_GPIO_74        5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_9 :: gpio_73 [19:16] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_73_MASK              0x000f0000
@@ -2053,9 +2053,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_PKT3_DATA        3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_I2S_LR0_IN       4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_SDS0_DSEC_VCTL   5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_SDS0_BERT_ERR    6
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_SDS0_DEMOD_ERR   7
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_PM_GPIO_78       8
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_SDS0_DEMOD_ERR   6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_78_PM_GPIO_78       7
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_10 :: gpio_77 [03:00] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_MASK             0x0000000f
@@ -2066,9 +2065,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_PKT3_CLK         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_SPI_M_SS1B       4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_SDS0_DSEC_SELVTOP 5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_SDS0_BERT_VALID  6
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_SDS0_DEMOD_VALID 7
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_PM_GPIO_77       8
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_SDS0_DEMOD_VALID 6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_77_PM_GPIO_77       7
 
 /***************************************************************************
  *PIN_MUX_CTRL_11 - Pinmux control register 11
@@ -2406,8 +2404,9 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_GPIO_112        0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_RGMII_RX_CLK    1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_EBI_ADDR17      2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_TP_OUT_21       3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_PM_GPIO_112     4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_SDIO_VCTL       3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_TP_OUT_21       4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_112_PM_GPIO_112     5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_14 :: gpio_111 [03:00] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_14_gpio_111_MASK            0x0000000f
@@ -2600,9 +2599,19 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_sf_miso_pad_ctrl_PULL_DOWN 1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_sf_miso_pad_ctrl_PULL_UP 2
 
-/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_0 :: reserved1 [03:00] */
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_reserved1_MASK        0x0000000f
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_reserved1_SHIFT       0
+/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_0 :: gpio_24_pad_ctrl [03:02] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_24_pad_ctrl_MASK 0x0000000c
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_24_pad_ctrl_SHIFT 2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_24_pad_ctrl_PULL_NONE 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_24_pad_ctrl_PULL_DOWN 1
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_24_pad_ctrl_PULL_UP 2
+
+/* SUN_TOP_CTRL :: PIN_MUX_PAD_CTRL_0 :: gpio_23_pad_ctrl [01:00] */
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_23_pad_ctrl_MASK 0x00000003
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_23_pad_ctrl_SHIFT 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_23_pad_ctrl_PULL_NONE 0
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_23_pad_ctrl_PULL_DOWN 1
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_0_gpio_23_pad_ctrl_PULL_UP 2
 
 /***************************************************************************
  *PIN_MUX_PAD_CTRL_1 - Pad pull-up/pull-down control register 1
@@ -3680,9 +3689,9 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_front_panel_4sec_reset_MASK 0x00000020
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_front_panel_4sec_reset_SHIFT 5
 
-/* SUN_TOP_CTRL :: RESET_HISTORY :: pcie_hot_boot [04:04] */
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_MASK         0x00000010
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_SHIFT        4
+/* SUN_TOP_CTRL :: RESET_HISTORY :: pcie_hot_boot_reset [04:04] */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_reset_MASK   0x00000010
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_reset_SHIFT  4
 
 /* SUN_TOP_CTRL :: RESET_HISTORY :: watchdog_timer_reset [03:03] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_watchdog_timer_reset_MASK  0x00000008
@@ -3692,9 +3701,9 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_smartcard_insert_reset_MASK 0x00000004
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_smartcard_insert_reset_SHIFT 2
 
-/* SUN_TOP_CTRL :: RESET_HISTORY :: pin_reset [01:01] */
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pin_reset_MASK             0x00000002
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pin_reset_SHIFT            1
+/* SUN_TOP_CTRL :: RESET_HISTORY :: main_chip_reset_input [01:01] */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_main_chip_reset_input_MASK 0x00000002
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_main_chip_reset_input_SHIFT 1
 
 /* SUN_TOP_CTRL :: RESET_HISTORY :: power_on_reset [00:00] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_power_on_reset_MASK        0x00000001
@@ -5394,12 +5403,12 @@
 /***************************************************************************
  *EJTAG_INPUT_EN - EJTAG input bus enables
  ***************************************************************************/
-/* SUN_TOP_CTRL :: EJTAG_INPUT_EN :: reserved0 [31:04] */
-#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_reserved0_MASK            0xfffffff0
-#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_reserved0_SHIFT           4
+/* SUN_TOP_CTRL :: EJTAG_INPUT_EN :: reserved0 [31:03] */
+#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_reserved0_MASK            0xfffffff8
+#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_reserved0_SHIFT           3
 
-/* SUN_TOP_CTRL :: EJTAG_INPUT_EN :: ejtag_input_enable [03:00] */
-#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_MASK   0x0000000f
+/* SUN_TOP_CTRL :: EJTAG_INPUT_EN :: ejtag_input_enable [02:00] */
+#define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_MASK   0x00000007
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_SHIFT  0
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_DO_NOT_USE_CPU_ONE_HOT 1
 #define BCHP_SUN_TOP_CTRL_EJTAG_INPUT_EN_ejtag_input_enable_MAIN_MIPS_CPU_ONE_HOT 2
@@ -5425,102 +5434,22 @@
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_7_cpu_sel [31:28] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_MASK      0xf0000000
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_SHIFT     28
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_NO_CPU    0
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_AUDIO_FP  1
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_AVD0_OL   2
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_AVD0_IL   3
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_04 4
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_05 5
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_06 6
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_07 7
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_08 8
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_09 9
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_10 10
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_11 11
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_12 12
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_13 13
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_14 14
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_7_cpu_sel_UNUSED_15 15
 
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_6_cpu_sel [27:24] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_MASK      0x0f000000
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_SHIFT     24
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_NO_CPU    0
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_AUDIO_FP  1
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_AVD0_OL   2
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_AVD0_IL   3
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_04 4
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_05 5
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_06 6
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_07 7
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_08 8
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_09 9
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_10 10
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_11 11
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_12 12
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_13 13
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_14 14
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_6_cpu_sel_UNUSED_15 15
 
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_5_cpu_sel [23:20] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_MASK      0x00f00000
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_SHIFT     20
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_NO_CPU    0
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_AUDIO_FP  1
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_AVD0_OL   2
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_AVD0_IL   3
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_04 4
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_05 5
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_06 6
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_07 7
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_08 8
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_09 9
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_10 10
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_11 11
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_12 12
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_13 13
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_14 14
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_5_cpu_sel_UNUSED_15 15
 
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_4_cpu_sel [19:16] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_MASK      0x000f0000
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_SHIFT     16
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_NO_CPU    0
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_AUDIO_FP  1
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_AVD0_OL   2
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_AVD0_IL   3
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_04 4
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_05 5
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_06 6
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_07 7
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_08 8
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_09 9
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_10 10
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_11 11
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_12 12
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_13 13
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_14 14
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_4_cpu_sel_UNUSED_15 15
 
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_3_cpu_sel [15:12] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_MASK      0x0000f000
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_SHIFT     12
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_NO_CPU    0
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_AUDIO_FP  1
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_AVD0_OL   2
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_AVD0_IL   3
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_04 4
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_05 5
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_06 6
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_07 7
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_08 8
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_09 9
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_10 10
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_11 11
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_12 12
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_13 13
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_14 14
-#define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_3_cpu_sel_UNUSED_15 15
 
 /* SUN_TOP_CTRL :: UART_ROUTER_SEL :: port_2_cpu_sel [11:08] */
 #define BCHP_SUN_TOP_CTRL_UART_ROUTER_SEL_port_2_cpu_sel_MASK      0x00000f00
@@ -5796,9 +5725,19 @@
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_reserved0_MASK         0xffffffe0
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_reserved0_SHIFT        5
 
-/* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_sub_block_select [04:02] */
-#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_MASK 0x0000001c
+/* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_pwenb [04:04] */
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_MASK     0x00000010
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_SHIFT    4
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_ENABLED  0
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_DISABLED 1
+
+/* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_sub_block_select [03:02] */
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_MASK 0x0000000c
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_SHIFT 2
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_HVT_MIN_LOAD 0
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_HVT_MED_LOAD 1
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_HVT_MAX_LOAD 2
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_SVT_MIN_LOAD 3
 
 /* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_block_select [01:00] */
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_block_select_MASK 0x00000003

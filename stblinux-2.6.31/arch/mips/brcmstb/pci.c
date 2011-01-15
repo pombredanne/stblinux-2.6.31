@@ -279,7 +279,8 @@ static inline void brcm_setup_sata_bridge(void)
 
 #elif defined(CONFIG_BRCM_HAS_SATA3)
 
-	/* XXX */
+	BDEV_WR(BCHP_SATA_TOP_CTRL_BUS_CTRL, (DATA_ENDIAN << 4) |
+		(DATA_ENDIAN << 2) | (MMIO_ENDIAN << 0));
 
 #endif
 }

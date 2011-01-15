@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Aug 21 02:55:42 2010
- *                 MD5 Checksum         7503bcc37fa293871cc40ba51c24c24f
+ * Date:           Generated on         Wed Nov 17 15:57:18 2010
+ *                 MD5 Checksum         950f07204aa821c815460a8fcce8d70a
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,13 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7640/rdb/a0/bchp_aon_ctrl.h $
+ * 
+ * Hydra_Software_Devel/2   11/18/10 11:51a etrudeau
+ * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
+ * 
+ * Hydra_Software_Devel/2   11/18/10 11:48a etrudeau
+ * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
  *
  ***************************************************************************/
 
@@ -1585,61 +1591,61 @@
 #define BCHP_AON_CTRL_RESET_HISTORY_reserved0_MASK                 0xfff80000
 #define BCHP_AON_CTRL_RESET_HISTORY_reserved0_SHIFT                19
 
-/* AON_CTRL :: RESET_HISTORY :: aux_level_1 [18:18] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_level_1_MASK               0x00040000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_level_1_SHIFT              18
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_level_reset_1 [18:18] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_MASK    0x00040000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_SHIFT   18
 
-/* AON_CTRL :: RESET_HISTORY :: aux_level_0 [17:17] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_level_0_MASK               0x00020000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_level_0_SHIFT              17
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_level_reset_0 [17:17] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_MASK    0x00020000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_SHIFT   17
 
-/* AON_CTRL :: RESET_HISTORY :: aux_edge_1 [16:16] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_edge_1_MASK                0x00010000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_edge_1_SHIFT               16
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_edge_reset_1 [16:16] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_MASK     0x00010000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_SHIFT    16
 
-/* AON_CTRL :: RESET_HISTORY :: aux_edge_0 [15:15] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_edge_0_MASK                0x00008000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_edge_0_SHIFT               15
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_edge_reset_0 [15:15] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_MASK     0x00008000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_SHIFT    15
 
-/* AON_CTRL :: RESET_HISTORY :: cpu_ejtag [14:14] */
-#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_MASK                 0x00004000
-#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_SHIFT                14
+/* AON_CTRL :: RESET_HISTORY :: cpu_ejtag_reset [14:14] */
+#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_MASK           0x00004000
+#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_SHIFT          14
 
-/* AON_CTRL :: RESET_HISTORY :: overtemp [13:13] */
-#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_MASK                  0x00002000
-#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_SHIFT                 13
+/* AON_CTRL :: RESET_HISTORY :: overtemp_reset [13:13] */
+#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_MASK            0x00002000
+#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_SHIFT           13
 
-/* AON_CTRL :: RESET_HISTORY :: overvoltage [12:12] */
-#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_MASK               0x00001000
-#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_SHIFT              12
+/* AON_CTRL :: RESET_HISTORY :: overvoltage_reset [12:12] */
+#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_reset_MASK         0x00001000
+#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_reset_SHIFT        12
 
-/* AON_CTRL :: RESET_HISTORY :: undervoltage [11:11] */
-#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_MASK              0x00000800
-#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_SHIFT             11
+/* AON_CTRL :: RESET_HISTORY :: undervoltage_reset [11:11] */
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_reset_MASK        0x00000800
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_reset_SHIFT       11
 
-/* AON_CTRL :: RESET_HISTORY :: sec_dl_sw [10:10] */
-#define BCHP_AON_CTRL_RESET_HISTORY_sec_dl_sw_MASK                 0x00000400
-#define BCHP_AON_CTRL_RESET_HISTORY_sec_dl_sw_SHIFT                10
+/* AON_CTRL :: RESET_HISTORY :: security_dl_sw_reset [10:10] */
+#define BCHP_AON_CTRL_RESET_HISTORY_security_dl_sw_reset_MASK      0x00000400
+#define BCHP_AON_CTRL_RESET_HISTORY_security_dl_sw_reset_SHIFT     10
 
-/* AON_CTRL :: RESET_HISTORY :: sec_master [09:09] */
-#define BCHP_AON_CTRL_RESET_HISTORY_sec_master_MASK                0x00000200
-#define BCHP_AON_CTRL_RESET_HISTORY_sec_master_SHIFT               9
+/* AON_CTRL :: RESET_HISTORY :: security_master_reset [09:09] */
+#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_MASK     0x00000200
+#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_SHIFT    9
 
-/* AON_CTRL :: RESET_HISTORY :: sw_master [08:08] */
-#define BCHP_AON_CTRL_RESET_HISTORY_sw_master_MASK                 0x00000100
-#define BCHP_AON_CTRL_RESET_HISTORY_sw_master_SHIFT                8
+/* AON_CTRL :: RESET_HISTORY :: software_master_reset [08:08] */
+#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_MASK     0x00000100
+#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_SHIFT    8
 
-/* AON_CTRL :: RESET_HISTORY :: pcie_hot_boot [07:07] */
-#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_MASK             0x00000080
-#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_SHIFT            7
+/* AON_CTRL :: RESET_HISTORY :: pcie_hot_boot_reset [07:07] */
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_reset_MASK       0x00000080
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_reset_SHIFT      7
 
-/* AON_CTRL :: RESET_HISTORY :: wg_timeout [06:06] */
-#define BCHP_AON_CTRL_RESET_HISTORY_wg_timeout_MASK                0x00000040
-#define BCHP_AON_CTRL_RESET_HISTORY_wg_timeout_SHIFT               6
+/* AON_CTRL :: RESET_HISTORY :: watchdog_timer_reset [06:06] */
+#define BCHP_AON_CTRL_RESET_HISTORY_watchdog_timer_reset_MASK      0x00000040
+#define BCHP_AON_CTRL_RESET_HISTORY_watchdog_timer_reset_SHIFT     6
 
-/* AON_CTRL :: RESET_HISTORY :: sc_insert [05:05] */
-#define BCHP_AON_CTRL_RESET_HISTORY_sc_insert_MASK                 0x00000020
-#define BCHP_AON_CTRL_RESET_HISTORY_sc_insert_SHIFT                5
+/* AON_CTRL :: RESET_HISTORY :: smartcard_insert_reset [05:05] */
+#define BCHP_AON_CTRL_RESET_HISTORY_smartcard_insert_reset_MASK    0x00000020
+#define BCHP_AON_CTRL_RESET_HISTORY_smartcard_insert_reset_SHIFT   5
 
 /* AON_CTRL :: RESET_HISTORY :: s3_wakeup_reset [04:04] */
 #define BCHP_AON_CTRL_RESET_HISTORY_s3_wakeup_reset_MASK           0x00000010

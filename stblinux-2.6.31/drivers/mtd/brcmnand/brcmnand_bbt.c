@@ -2222,17 +2222,27 @@ printk("%s: bbt_td = bbt_slc_bch4_main_descr\n", __FUNCTION__);
 	 * Only applies to flash with 512MB or less, since we don't have the extra reserved space at the
 	 * end of the flash (1FF0_0000 - 1FFF_FFFF).
 	 */
-	if (device_size(mtd) <= ( 512ULL << 20))
+	if (device_size(mtd) <= ( 512ULL << 20)) {
 		this->bbt_td->maxblocks = this->bbt_md->maxblocks = (1<<20) / this->blockSize;
+		
+	}
 
 	/*
 	 * THT: 8/18/08: For MLC flashes with block size of 512KB, allocate 8 blocks or 4MB,
 	 * (this is possible because this region is outside of the CFE allocated space of 1MB at 1FF0_0000).
 	 */
-	else {
+	else  if (this->blockSize == (512*1024)) {
 		this->bbt_td->maxblocks = this->bbt_md->maxblocks = 
 			max(this->bbt_td->maxblocks, (int)((4<<20) / this->blockSize));
 	}
+
+	/* Reserve at least 8 blocks */
+	else if (this->blockSize >= (1<<20)) {
+		this->bbt_td->maxblocks = this->bbt_md->maxblocks = 
+			max(this->bbt_td->maxblocks, 8);
+	}
+
+	this->bbtSize = this->bbt_td->maxblocks * this->blockSize;
 PRINTK("%s: gClearBBT = %d\n", __FUNCTION__, gClearBBT);
 	if (gClearBBT) {
 		(void) brcmnand_preprocessKernelArg(mtd);

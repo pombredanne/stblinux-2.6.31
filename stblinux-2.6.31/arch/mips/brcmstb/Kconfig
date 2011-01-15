@@ -54,20 +54,6 @@ config BCM35125A0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
-config BCM35230A0
-	bool "35230 Ax"
-	select BRCM_PLATFORM_DEFAULTS
-	select BCM35230
-	select BMIPS4380
-	select BRCM_UARTA_IS_16550
-	select BRCM_UARTB_IS_16550
-	select BRCM_HAS_PCU_UARTS
-	select BRCM_HAS_GENET_0
-	select BRCM_GENET_V2
-	select BRCM_HAS_WKTMR
-	select BRCM_HAS_UPPER_MEMORY
-	select BRCM_HAS_1GB_MEMC0
-
 config BCM35230C0
 	bool "35230 Cx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -81,6 +67,22 @@ config BCM35230C0
 	select BRCM_HAS_WKTMR
 	# 35230 has nonstandard SDIO_EMMC_CTRL registers
 	#select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
+
+config BCM35330A0
+	bool "35330 Ax"
+	select BRCM_PLATFORM_DEFAULTS
+	select BCM35330
+	select BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_HAS_PCU_UARTS
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -142,6 +144,7 @@ config BCM7125C0
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_PCI23
+	select BRCM_HAS_MOCA_11
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V1
 	select BRCM_HAS_NOR
@@ -167,6 +170,7 @@ config BCM7135A0
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_MOCA_20
 	select BRCM_MOCA_ON_GENET_0
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
@@ -196,6 +200,7 @@ config BCM7231A0
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_SATA3
+	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
@@ -263,15 +268,19 @@ config BCM7340B0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_PCI23
 	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11
+	select BRCM_HAS_MOCA_MIDRF
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V1
-	select BRCM_HAS_MOCA_MIDRF
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_3
 	select BRCM_HAS_NAND_MINOR_3
 	select BRCM_HAS_EDU
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_PWR_HANDSHAKE_V0
+	select BRCM_HAS_ANALOG_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -285,15 +294,19 @@ config BCM7342B0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_PCI23
 	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11
+	select BRCM_HAS_MOCA_MIDRF
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V1
-	select BRCM_HAS_MOCA_MIDRF
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_3
 	select BRCM_HAS_NAND_MINOR_3
 	select BRCM_HAS_BSPI_V3
 	select BRCM_HAS_SATA2
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_STANDBY
+	select BRCM_PWR_HANDSHAKE_V0
+	select BRCM_HAS_ANALOG_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
@@ -307,8 +320,9 @@ config BCM7344A0
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_GENET_0
-	select BRCM_MOCA_ON_GENET_1
+	select BRCM_HAS_MOCA_11_PLUS
 	select BRCM_HAS_MOCA_MIDRF
+	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_5
@@ -328,8 +342,9 @@ config BCM7346A0
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_GENET_0
-	select BRCM_MOCA_ON_GENET_1
+	select BRCM_HAS_MOCA_11_PLUS
 	select BRCM_HAS_MOCA_MIDRF
+	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_5
@@ -448,25 +463,6 @@ config BCM7405D0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
-config BCM7408A0
-	bool "7408 Ax"
-	select BRCM_PLATFORM_DEFAULTS
-	select BCM7408
-	select BMIPS4380
-	select BRCM_UARTA_IS_16550
-	select BRCM_UARTB_IS_16550
-	select BRCM_UARTC_IS_16550
-	select BRCM_MOCA_ON_GENET_1
-	select BRCM_GENET_V2
-	select BRCM_HAS_NAND_MAJOR_3
-	select BRCM_HAS_NAND_MINOR_4
-	select BRCM_HAS_BSPI_V3
-	select BRCM_HAS_WKTMR
-	select BRCM_HAS_STANDBY
-	select BRCM_HAS_DIGITAL_DDR_PHY
-	select BRCM_HAS_UPPER_MEMORY
-	select BRCM_HAS_1GB_MEMC0
-
 config BCM7408B0
 	bool "7408 Bx"
 	select BRCM_PLATFORM_DEFAULTS
@@ -475,6 +471,7 @@ config BCM7408B0
 	select BRCM_UARTA_IS_16550
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_MOCA_11_LITE
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V2
 	select BRCM_HAS_NAND_MAJOR_3
@@ -497,6 +494,7 @@ config BCM7420C0
 	select BRCM_HAS_PCI23
 	select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V1
 	select BRCM_HAS_NOR
@@ -524,6 +522,7 @@ config BCM7422A0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11_PLUS
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
@@ -550,6 +549,7 @@ config BCM7425A0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11_PLUS
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V2
 	select BRCM_HAS_NOR
@@ -1399,17 +1399,35 @@ config BRCM_HAS_GENET_1
 config BRCM_HAS_MOCA
 	bool
 
+# Original MoCA 1.1
+config BRCM_HAS_MOCA_11
+	bool
+	select BRCM_HAS_MOCA
+
+# Cost-reduced MoCA 1.1 with limited TX RAM
+config BRCM_HAS_MOCA_11_LITE
+	bool
+	select BRCM_HAS_MOCA
+
+# MoCA 1.1 with selected 2.0 features
+config BRCM_HAS_MOCA_11_PLUS
+	bool
+	select BRCM_HAS_MOCA
+
+# MoCA 2.0
+config BRCM_HAS_MOCA_20
+	bool
+	select BRCM_HAS_MOCA
+
 # select for MoCA on GENET_0
 config BRCM_MOCA_ON_GENET_0
 	bool
 	select BRCM_HAS_GENET_0
-	select BRCM_HAS_MOCA
 
 # select for MoCA on GENET_1
 config BRCM_MOCA_ON_GENET_1
 	bool
 	select BRCM_HAS_GENET_1
-	select BRCM_HAS_MOCA
 
 # MoCA is MidRF (default is HighRF)
 config BRCM_HAS_MOCA_MIDRF
@@ -1642,6 +1660,9 @@ config BCM35125
 	bool
 
 config BCM35230
+	bool
+
+config BCM35330
 	bool
 
 config BCM3563

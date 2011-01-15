@@ -77,7 +77,7 @@
 
 #define NUMBER_OF_PASS                  256 * 8 * 10 
 
-#define EDU_BASE_ADDRESS                0xb0000000
+//#define EDU_BASE_ADDRESS                0
 
 //#define BCHP_SUN_TOP_CTRL_STRAP_VALUE   0x0040401c
 

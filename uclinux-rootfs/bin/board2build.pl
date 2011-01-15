@@ -80,17 +80,35 @@ if($chip eq "3549" || $chip eq "3556") {
 	$chip = "7401";
 } elsif($chip eq "7404" || $chip eq "7452") {
 	$chip = "7403";
-} elsif($chip eq "7410") {
+} elsif($chip eq "3320" || $chip eq "7409" || $chip eq "7410") {
 	$chip = "7420";
 } elsif($chip eq "7208" || $chip eq "7469") {
 	$chip = "7468";
 } elsif($chip eq "7119" || $chip eq "7019" || $chip eq "7116" ||
 		$chip eq "7117") {
 	$chip = "7125";
+} elsif($chip eq "7350") {
+	$chip = "7340";
+} elsif($chip eq "7352") {
+	$chip = "7342";
+} elsif($chip eq "7354") {
+	$chip = "7344";
+} elsif($chip eq "7356") {
+	$chip = "7346";
+} elsif($chip eq "7421") {
+	$chip = "7425";
 }
 
 if($chip eq "7125" && $rev eq "b0") {
 	$rev = "a0";
+}
+
+if($chip eq "7418" && $rev eq "a0") {
+	$chip = "7344";
+}
+
+if($chip eq "7422" && $rev ne "a0") {
+	$chip = "7425";
 }
 
 print "${chip}${rev}\n";

@@ -160,6 +160,7 @@ EXPORT_SYMBOL(brcm_usb_remove);
 
 void brcm_usb_suspend(struct usb_hcd *hcd)
 {
+	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
 	clk_disable(usb_clk);
 }
 EXPORT_SYMBOL(brcm_usb_suspend);
@@ -167,6 +168,7 @@ EXPORT_SYMBOL(brcm_usb_suspend);
 void brcm_usb_resume(struct usb_hcd *hcd)
 {
 	clk_enable(usb_clk);
+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
 }
 EXPORT_SYMBOL(brcm_usb_resume);
 

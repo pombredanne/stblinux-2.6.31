@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed Sep  8 11:43:36 2010
- *                 MD5 Checksum         729d3b7e2ea2ad01024ee45efb75a6bf
+ * Date:           Generated on         Mon Dec  6 15:52:34 2010
+ *                 MD5 Checksum         f0e969535926b03886e5276f1b3538ba
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,9 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7640/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/1   9/8/10 2:47p pntruong
- * SWBLURAY-22428: Initial version.
+ * Hydra_Software_Devel/3   12/8/10 6:02p etrudeau
+ * SWBLURAY-23514: update now that Central RDB is rsync-ed to Andover and
+ * xpt_public directory is used now
  *
  ***************************************************************************/
 

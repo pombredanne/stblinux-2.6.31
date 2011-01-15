@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Aug 21 02:53:14 2010
- *                 MD5 Checksum         7503bcc37fa293871cc40ba51c24c24f
+ * Date:           Generated on         Wed Nov 17 15:54:45 2010
+ *                 MD5 Checksum         950f07204aa821c815460a8fcce8d70a
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,13 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7640/rdb/a0/bchp_clk.h $
+ * 
+ * Hydra_Software_Devel/2   11/18/10 11:51a etrudeau
+ * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
+ * 
+ * Hydra_Software_Devel/2   11/18/10 11:48a etrudeau
+ * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
  *
  ***************************************************************************/
 
@@ -60,7 +66,7 @@
 #define BCHP_CLK_CLOCK_OBSERVE_CTRL              0x00070108 /* Clock Observation Control */
 #define BCHP_CLK_GPIO_PAD_CTRL                   0x00070180 /* GPIO pad control */
 #define BCHP_CLK_SDIO_PAD_CTRL                   0x00070184 /* SDIO pad control */
-#define BCHP_CLK_DVO_PAD_CTRL                    0x00070188 /* DVO pad control */
+#define BCHP_CLK_DVO_PAD_CTRL                    0x00070188 /* DVI/DVO pad control */
 #define BCHP_CLK_I2C_PAD_CTRL                    0x0007018c /* I2C pad control */
 #define BCHP_CLK_SYS0_CTRL                       0x00070200 /* SYS0 PLL control */
 #define BCHP_CLK_SYS0_GAIN                       0x00070204 /* SYS0 PLL gain */
@@ -981,7 +987,7 @@
 #define BCHP_CLK_SDIO_PAD_CTRL_SDIO_SLEW_Normal                    1
 
 /***************************************************************************
- *DVO_PAD_CTRL - DVO pad control
+ *DVO_PAD_CTRL - DVI/DVO pad control
  ***************************************************************************/
 /* CLK :: DVO_PAD_CTRL :: reserved0 [31:06] */
 #define BCHP_CLK_DVO_PAD_CTRL_reserved0_MASK                       0xffffffc0

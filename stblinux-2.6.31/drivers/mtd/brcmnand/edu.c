@@ -353,7 +353,7 @@ void EDU_waitForNoPendingAndActiveBit(void)
 
         //PRINTK("Start Polling!\n");
         __sync();
-        rd_data = EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_STATUS);
+        rd_data = EDU_volatileRead(EDU_STATUS);
 
 //edu_debug = 0;
         timeout = jiffies + msecs_to_jiffies(3000); // 3 sec timeout for now (testing)
@@ -361,7 +361,7 @@ void EDU_waitForNoPendingAndActiveBit(void)
         {
          
                 __sync(); //PLATFORM_IOFLUSH_WAR();
-                rd_data = EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_STATUS);
+                rd_data = EDU_volatileRead(EDU_STATUS);
                 i++;
                 if(!time_before(jiffies, timeout))
                 {
@@ -381,14 +381,14 @@ void EDU_reset_done(void)
 
 //int saveDbgLvl = edu_debug;
 
-	rd_data = EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_DONE);
+	rd_data = EDU_volatileRead(EDU_DONE);
 
 //edu_debug = 0;
 	while (rd_data & 0x3) {		
 		// Each Write decrement DONE by 1
-		EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DONE, 0);
+		EDU_volatileWrite(EDU_DONE, 0);
 		__sync();
-		rd_data = EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_DONE);
+		rd_data = EDU_volatileRead(EDU_DONE);
 	} 
 //edu_debug = saveDbgLvl;
 }
@@ -588,15 +588,15 @@ void EDU_issue_command(uint32_t dram_addr, uint32_t ext_addr,uint8 cmd)
 
 
 
-    EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DRAM_ADDR, dram_addr);
+    EDU_volatileWrite(EDU_DRAM_ADDR, dram_addr);
     //EDU_volatileWrite(EDU_PATCH_GLOBAL_REG_RBUS_START + CPU_REGISTER_ADDRESS + EDU_DRAM_ADDR, dram_addr);        
     //PRINTK("\tINFO: EDU_DRAM_ADDR = 0x%08x\n",dram_addr);
 
-    EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_EXT_ADDR, ext_addr);
+    EDU_volatileWrite(EDU_EXT_ADDR, ext_addr);
     //EDU_volatileWrite(EDU_PATCH_GLOBAL_REG_RBUS_START + CPU_REGISTER_ADDRESS + EDU_EXT_ADDR, ext_addr);
     //PRINTK("\tINFO: EDU_EXT_ADDR = 0x%08x\n",ext_addr);
 
-    EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_CMD, cmd);
+    EDU_volatileWrite(EDU_CMD, cmd);
     //EDU_volatileWrite(EDU_PATCH_GLOBAL_REG_RBUS_START + CPU_REGISTER_ADDRESS + EDU_CMD, cmd);
     //if (cmd == 1)
         //PRINTK("\tINFO: EDU_CMD = READ operation\n");
@@ -605,30 +605,13 @@ void EDU_issue_command(uint32_t dram_addr, uint32_t ext_addr,uint8 cmd)
 }
 
 
-uint32_t EDU_volatileRead(uint32_t addr)
-{
-        
-         volatile uint32_t* pAddr;
-        
-        pAddr = (volatile uint32_t *)addr;
-        
-        return *(uint32_t *)pAddr;
-}
-
-void EDU_volatileWrite(uint32_t addr, uint32_t data)
-{
-        volatile uint32_t* pAddr;
-
-        pAddr = (volatile uint32_t *)addr;
-        *pAddr = (volatile uint32_t)data;
-}
 
 uint32_t EDU_get_error_status_register(void)
 {
-        uint32_t valueOfReg = EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_ERR_STATUS);  
+        uint32_t valueOfReg = EDU_volatileRead(EDU_ERR_STATUS);  
 
         // Clear the error
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);   
+        EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);   
 
         return(valueOfReg);
 }
@@ -641,9 +624,9 @@ void EDU_init(void)
 printk(KERN_INFO "-->%s:\n", __FUNCTION__);
 
 //edu_debug = 4;
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_CONFIG, EDU_CONFIG_VALUE);
+        EDU_volatileWrite(EDU_CONFIG, EDU_CONFIG_VALUE);
 
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_LENGTH, EDU_LENGTH_VALUE);
+        EDU_volatileWrite(EDU_LENGTH, EDU_LENGTH_VALUE);
 
  #ifdef CONFIG_BCM7440
  // THT: *** Caution: These hard-coded values only work on 7440bx
@@ -652,37 +635,36 @@ printk(KERN_INFO "-->%s:\n", __FUNCTION__);
         
 	  // THT: PCI_GEN_GISB_WINDOW_SIZE = ENABLE_256MB_GISB_WINDOW
 	  // Enable 256MB GISB Window to allow PCI to get on the EBI bus
-        EDU_volatileWrite(0xb0000128, 0x00000001);
+        EDU_volatileWrite(0x128, 0x00000001);
 
  	  // THT: Initiate watchdog timeout for GISB Arbiter
  	  // SUN_GISB_ARB_TIMER = 0x10000
-        EDU_volatileWrite(0xb040600c, 0x00010000);
+        EDU_volatileWrite(0x040600c, 0x00010000);
 
 #elif defined( CONFIG_BCM7601 ) || defined( CONFIG_BCM7635 )
 	{
 #define ENABLE_256MB_GISB_WINDOW 0x1
-		volatile unsigned long* PCI_GEN_GISB_WINDOW_SIZE = 
-			(volatile unsigned long*) KSEG1ADDR(0x1000011c);
-		volatile unsigned long* SUN_GISB_ARB_TIMER = 
-			(volatile unsigned long*) KSEG1ADDR(0x1040600c);
+		uint32_t PCI_GEN_GISB_WINDOW_SIZE = 0x0000011c;
+		uint32_t SUN_GISB_ARB_TIMER = 0x0040600c;
         
 	  	// THT: PCI_GEN_GISB_WINDOW_SIZE = ENABLE_256MB_GISB_WINDOW
 	  	// Enable 256MB GISB Window to allow PCI to get on the EBI bus
-        	EDU_volatileWrite((uint32_t)PCI_GEN_GISB_WINDOW_SIZE, ENABLE_256MB_GISB_WINDOW);
+        	EDU_volatileWrite(PCI_GEN_GISB_WINDOW_SIZE, ENABLE_256MB_GISB_WINDOW);
 
  	 	 // THT: Initiate watchdog timeout for GISB Arbiter
-        	EDU_volatileWrite((uint32_t)SUN_GISB_ARB_TIMER, 0x00010000);
+        	EDU_volatileWrite(SUN_GISB_ARB_TIMER, 0x00010000);
 	}
 		
 #elif defined( CONFIG_BCM3548 )
 	// Make sure that RTS grant some cycle to EDU, or we have to steal some
 	{
-		volatile unsigned long* MEMC_0_1_CLIENT_INFO_45 = (volatile unsigned long*) KSEG1ADDR(0x101610b8);
+		uint32_t MEMC_0_1_CLIENT_INFO_45 = 0x001610b8;
 
 		/* Bits 08-20 are all 1 == Blocked */
-		if (((*MEMC_0_1_CLIENT_INFO_45) & 0x001fff00) == 0x001fff00) {
-			printk("%s: MEMC_0_1_CLIENT_INFO_45 = %08lx overwritten.  Please fix your RTS\n", __FUNCTION__, * MEMC_0_1_CLIENT_INFO_45);
-			*MEMC_0_1_CLIENT_INFO_45 = 0x001a92bc;
+		if ((BDEV_RD(MEMC_0_1_CLIENT_INFO_45) & 0x001fff00) == 0x001fff00) {
+			printk("%s: MEMC_0_1_CLIENT_INFO_45 = %08lx overwritten.  Please fix your RTS\n", __FUNCTION__, 
+				BDEV_RD(MEMC_0_1_CLIENT_INFO_45));
+			BDEV_WR(MEMC_0_1_CLIENT_INFO_45, 0x001a92bc);
 		}
 	}
 
@@ -691,73 +673,47 @@ printk(KERN_INFO "-->%s:\n", __FUNCTION__);
 	{
 #define BLOCKED_OUT 0x001fff00
 #define RR_ENABLED	0x80   /* Bit 7 */
-		volatile unsigned long* MEMC_0_1_CLIENT_INFO_17= 
-			(volatile unsigned long*) KSEG1ADDR(0x103c1048);
+		uint32_t MEMC_0_1_CLIENT_INFO_17= 0x003c1048;
 		volatile unsigned long memc_client_17;
 #define ENABLE_256MB_GISB_WINDOW 0x1
-		volatile unsigned long* PCI_GEN_GISB_WINDOW_SIZE = 
-			(volatile unsigned long*) KSEG1ADDR(0x1044011c);
-		volatile unsigned long* SUN_GISB_ARB_TIMER = 
-			(volatile unsigned long*) KSEG1ADDR(0x1040000c);
+		uint32_t PCI_GEN_GISB_WINDOW_SIZE = 0x0044011c;
+		uint32_t SUN_GISB_ARB_TIMER = 0x0040000c;
 #define PARK_ON_EBI (1 << 7)
 #define PARK_ON_MASK (0xFE)
-		volatile unsigned long* PCI_GEN_PCI_CTRL = 
-			(volatile unsigned long*) KSEG1ADDR(0x10440104);
+		uint32_t PCI_GEN_PCI_CTRL = 0x00440104;
 		volatile unsigned long pci_gen_pci_ctrl;
 
-#if 0 // Block out MoCA
-		volatile unsigned long* MEMC_0_1_CLIENT_INFO_59= 
-			(volatile unsigned long*) KSEG1ADDR(0x103b10f0);
-		volatile unsigned long memc_client_59;
-		volatile unsigned long* MEMC_0_1_CLIENT_INFO_62= 
-			(volatile unsigned long*) KSEG1ADDR(0x103b10fc);
-		volatile unsigned long memc_client_62;
-
-		/* Bits 08-20 are all 1 == Blocked */
-		memc_client_59 = *MEMC_0_1_CLIENT_INFO_59;
-		printk("MEMC_0_1_CLIENT_INFO_59 Before=%08lx\n", memc_client_59);
-		*MEMC_0_1_CLIENT_INFO_59 = memc_client_59|0x001fff00;
-		*MEMC_0_1_CLIENT_INFO_59 &= ~RR_ENABLED;
-		printk("MEMC_0_1_CLIENT_INFO_59 After blocked out=%08lx\n", *MEMC_0_1_CLIENT_INFO_59);
-
-		memc_client_62 = *MEMC_0_1_CLIENT_INFO_62;
-		printk("MEMC_0_1_CLIENT_INFO_62 Before=%08lx\n", memc_client_62);
-		*MEMC_0_1_CLIENT_INFO_62 = memc_client_62|0x001fff00;
-		*MEMC_0_1_CLIENT_INFO_62 &= ~RR_ENABLED;
-		printk("MEMC_0_1_CLIENT_INFO_62 After blocked out=%08lx\n", *MEMC_0_1_CLIENT_INFO_62);
-		
-#endif
         
 		/* Bits 08-20 are all 1 == Blocked */
-		memc_client_17 = *MEMC_0_1_CLIENT_INFO_17;
+		memc_client_17 = BDEV_RD(MEMC_0_1_CLIENT_INFO_17);
 		printk("MEMC_0_1_CLIENT_INFO_17 Before=%08lx\n", memc_client_17);
 		if (((memc_client_17 & 0x001fff00) == 0x001fff00) && !(memc_client_17 & RR_ENABLED)) {
-			printk("%s: MEMC_0_1_CLIENT_INFO_17 = %08lx overwritten.  Please fix your RTS\n", __FUNCTION__, * MEMC_0_1_CLIENT_INFO_17);
-			*MEMC_0_1_CLIENT_INFO_17 = memc_client_17|RR_ENABLED;
-			printk("MEMC_0_1_CLIENT_INFO_17 After=%08lx\n", *MEMC_0_1_CLIENT_INFO_17);
+			printk("%s: MEMC_0_1_CLIENT_INFO_17 = %08lx overwritten.  Please fix your RTS\n", __FUNCTION__, 
+				memc_client_17);
+			BDEV_WR(MEMC_0_1_CLIENT_INFO_17, memc_client_17|RR_ENABLED);
+			printk("MEMC_0_1_CLIENT_INFO_17 After=%08lx\n", BDEV_RD(MEMC_0_1_CLIENT_INFO_17));
 		}
 
 		  // THT: PCI_GEN_GISB_WINDOW_SIZE = ENABLE_256MB_GISB_WINDOW
 		  // Enable 256MB GISB Window to allow PCI to get on the EBI bus
-	        EDU_volatileWrite((uint32_t)PCI_GEN_GISB_WINDOW_SIZE,
-			ENABLE_256MB_GISB_WINDOW);
+	        EDU_volatileWrite(PCI_GEN_GISB_WINDOW_SIZE, ENABLE_256MB_GISB_WINDOW);
 
 	 	  // THT: Initiate watchdog timeout for GISB Arbiter
 	 	  // SUN_GISB_ARB_TIMER = 0x10000
-	        EDU_volatileWrite((uint32_t)SUN_GISB_ARB_TIMER, 0x00010000);
+	        EDU_volatileWrite(SUN_GISB_ARB_TIMER, 0x00010000);
 
 		  // Park PCI bus on EBI
-		  pci_gen_pci_ctrl = *PCI_GEN_PCI_CTRL;
+		  pci_gen_pci_ctrl = BDEV_RD(PCI_GEN_PCI_CTRL);
 		  pci_gen_pci_ctrl &= ~PARK_ON_MASK;
 		  pci_gen_pci_ctrl |= PARK_ON_EBI;
-		  EDU_volatileWrite((uint32_t)PCI_GEN_PCI_CTRL, pci_gen_pci_ctrl);
+		  EDU_volatileWrite(PCI_GEN_PCI_CTRL, pci_gen_pci_ctrl);
 	}
 #endif
 
 DisplayMemDebug();
 
         // Clear the interrupt for next time
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK|HIF_INTR2_CTRL_READY); 
+        EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK|HIF_INTR2_CTRL_READY); 
 PRINTK("<--%s:\n", __FUNCTION__);
 
 #ifdef CONFIG_MTD_BRCMNAND_USE_ISR
@@ -824,14 +780,14 @@ edu_debug = gdebug;
 	ISR_enable_irq(&gEduIsrData);
 
 #else
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK);
+	EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK);
 #endif
 
-	//EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DONE, 0x00000000); 
+	//EDU_volatileWrite(EDU_DONE, 0x00000000); 
 	EDU_reset_done();
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000); 
+	EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000); 
 
-	EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_LENGTH, EDU_LENGTH_VALUE);
+	EDU_volatileWrite(EDU_LENGTH, EDU_LENGTH_VALUE);
 
 	//EDU_waitForNoPendingAndActiveBit();
 
@@ -912,22 +868,15 @@ virtual_addr_buffer, external_physical_device_address, phys_mem);
 	ISR_enable_irq(&gEduIsrData);
 #else
 
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK);
+        EDU_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK);
 #endif
 
-#if 0
 
-        if( (EDU_volatileRead(EDU_BASE_ADDRESS  + EDU_DONE) && 0x00000003) > 1)
-        {
-                PRINTK("EDU_DONE > 1!!!\n");
-        }
-#endif
-        //EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_DONE, 0x00000000);
         EDU_reset_done();
 
-        EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_ERR_STATUS, 0x00000000);
+        EDU_volatileWrite(EDU_ERR_STATUS, 0x00000000);
         
-	 EDU_volatileWrite(EDU_BASE_ADDRESS  + EDU_LENGTH, EDU_LENGTH_VALUE);
+	 EDU_volatileWrite(EDU_LENGTH, EDU_LENGTH_VALUE);
 
 	 EDU_waitForNoPendingAndActiveBit();
 
@@ -947,7 +896,7 @@ virtual_addr_buffer, external_physical_device_address, phys_mem);
 
 #else
 	EDU_issue_command(phys_mem, external_physical_device_address, EDU_READ); /* 1: Is a Read, 0 Is a Write */
-	ret = EDU_poll(EDU_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS, 
+	ret = EDU_poll(BCHP_HIF_INTR2_CPU_STATUS, 
         	HIF_INTR2_EDU_DONE, 
         	HIF_INTR2_EDU_ERR, 
         	HIF_INTR2_EDU_DONE_MASK);

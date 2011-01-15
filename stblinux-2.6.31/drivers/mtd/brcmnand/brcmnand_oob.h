@@ -182,7 +182,6 @@ static struct nand_ecclayout brcmnand_oob_bch4_2k = {
 			}
 };
 
-#if 1
 
 /*
  * 2K page SLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and only have 16B OOB
@@ -238,7 +237,6 @@ static struct nand_ecclayout brcmnand_oob_bch8_16_4k = {
 			}
 };
 
-#endif
 
 /*
  * 4K page MLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and requires OOB size of 27B+
@@ -299,6 +297,207 @@ static struct nand_ecclayout brcmnand_oob_bch12_27_4k = {
 				{.offset=162, .length=7},		/* 7th slice */
 				{.offset=189, .length=7},		/* 8th slice */
 	            		//{.offset=0, .length=0}			/* End marker */
+			}
+};
+
+
+
+/*
+ * 4K page MLC with BCH-4 ECC, uses 7 ECC bytes per 512B ECC step
+ */
+static struct nand_ecclayout brcmnand_oob_bch4_8k = {
+	.eccbytes	= 7*16,  /* 7*16 = 112 bytes */
+	.eccpos		= { 
+		9,10,11,12,13,14,15,
+		25,26,27,28,29,30,31,
+		41,42,43,44,45,46,47,
+		57,58,59,60,61,62,63,
+		73,74,75,76,77,78,79,
+		89,90,91,92,93,94,95,
+		105,106,107,108,109,110,111,
+		121,122,123,124,125,126,127,
+#if ! defined(UNDERSIZED_ECCPOS_API)		
+		137,138,139,140,141,142,142,
+		153,154,155,156,157,158,159,
+		169,170,171,172,173,174,175,
+		185,186,187,188,189,190,191,
+		201,202,203,204,205,206,207,
+		217,208,209,210,211,212,218,
+		233,204,205,206,207,208,209,
+		249,250,251,252,253,254,255
+#endif
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=8}, 		/* 1st slice loses byte 0 */
+				{.offset=16,.length=9}, 		/* 2nd slice  */
+				{.offset=32, .length=9},		/* 3rd slice  */
+				{.offset=48, .length=9},		/* 4th slice */
+				{.offset=64, .length=9},		/* 5th slice */
+				{.offset=80, .length=9},		/* 6th slice */
+				{.offset=96, .length=9},		/* 7th slice */
+				{.offset=112, .length=9},		/* 8th slice */
+#if ! defined(UNDERSIZED_ECCPOS_API)	
+				{.offset=128, .length=9},		/* 9th slice */
+				{.offset=144, .length=9},		/* 10th slice */
+				{.offset=160, .length=9},		/* 11th slice */
+				{.offset=176, .length=9},		/* 12th slice */
+				{.offset=192, .length=9},		/* 13th slice */
+				{.offset=208, .length=9},		/* 14th slice */
+				{.offset=240, .length=9},		/* 15th slice */	
+#endif
+	            		//{.offset=0, .length=0}			/* End marker */
+			}
+};
+
+
+/*
+ * 4K page SLC/MLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and only have 16B OOB
+ * Rely on the fact that the UBI/UBIFS layer does not store anything in the OOB
+ */
+static struct nand_ecclayout brcmnand_oob_bch8_16_8k = {
+	.eccbytes	= 13*16,  /* 13*8 = 208 bytes */
+	.eccpos		= { 
+		3,4,5,6,7,8,9,10,11,12,13,14,15,
+		19,20,21,22,23,24,25,26,27,28,29,30,31,
+		35,36,37,38,39,40,41,42,43,44,45,46,47,
+		51,52,53,54,55,56,57,58,59,60,61,62,63,
+#if ! defined(UNDERSIZED_ECCPOS_API)
+		67,68,69,70,71,72,73,74,75,76,77,78,79,
+		83,84,85,86,87,88,89,90,91,92,93,94,95,
+		99,100,101,102,103,104,105,106,107,108,109,110,111,
+		115,116,117,118,119,120,121,122,123,124,125,126,127,
+
+		131,132,133,134,135,136,137,138,139,140,141,142,143,
+		147,148,149,150,151,152,153,154,155,156,157,158,159,
+		163,164,165,166,167,168,169,170,171,172,173,174,175,
+		179,180,181,182,183,184,185,186,187,188,189,190,191,
+		195,196,197,198,199,200,201,202,203,204,205,206,207,
+		211,212,213,214,215,216,217,218,219,220,221,222,223,
+		227,228,229,230,231,232,233,234,235,236,237,238,239,
+		243,244,245,246,247,248,249,250,251,252,253,254,255
+#endif
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=2}, 		/* 1st slice loses byte 0 */
+				{.offset=16,.length=3}, 		/* 2nd slice  */
+				{.offset=32, .length=3},		/* 3rd slice  */
+				{.offset=48, .length=3},		/* 4th slice */
+				{.offset=64, .length=3},		/* 5th slice */
+				{.offset=80, .length=3},		/* 6th slice */
+				{.offset=96, .length=3},		/* 7th slice */
+				{.offset=112, .length=3},		/* 8th slice */
+#if ! defined(UNDERSIZED_ECCPOS_API)
+				{.offset=128, .length=3},		/* 9th slice */
+				{.offset=144, .length=3},		/* 10th slice */
+				{.offset=128, .length=3},		/* 11th slice */
+				{.offset=144, .length=3},		/* 12th slice */
+				{.offset=160, .length=3},		/* 13th slice */
+				{.offset=176, .length=3},		/* 14th slice */
+				{.offset=192, .length=3},		/* 15th slice */
+				{.offset=208, .length=3},		/* 16th slice */	
+#endif
+	            		//{.offset=0, .length=0}			/* End marker */
+			}
+};
+
+
+/*
+ * 4K page MLC with BCH-8 ECC, uses 13 ECC bytes per 512B ECC step, and requires OOB size of 27B+
+ */
+static struct nand_ecclayout brcmnand_oob_bch8_27_8k = {
+	.eccbytes	= 13*16,  /* 13*16 = 208 bytes */
+	.eccpos		= { 
+		14,15,16,17,18,19,20,21,22,23,24,25,26,
+		41,42,43,44,45,46,47,48,49,50,51,52,53,
+		68,69,70,71,72,73,74,75,76,77,78,79,80,
+		95,96,97,98,99,100,101,102,103,104,105,106,107,
+#if ! defined(UNDERSIZED_ECCPOS_API)
+		122,123,124,125,126,127,128,129,130,131,132,133,134,
+		149,150,151,152,153,154,155,156,157,158,159,160,161,
+		176,177,178,179,180,181,182,183,184,185,186,187,188,
+		203,204,205,206,207,208,209,210,211,212,213,214,215,
+
+		230,231,232,233,234,235,236,237,238,239,240,241,242,
+		257,258,259,260,261,262,263,264,265,266,267,268,269,
+		284,285,286,287,288,289,290,291,292,293,294,295,296,
+		311,312,313,314,315,316,317,318,319,320,321,322,323,
+		338,339,340,341,342,343,344,345,346,347,348,349,350,
+		365,366,367,368,369,370,371,372,373,374,375,376,377,
+		392,393,394,395,396,397,398,399,400,401,402,403,404,
+		419,420,421,422,423,424,425,426,427,428,429,430,431
+#endif
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=13}, 		/* 1st slice loses byte 0 */
+				{.offset=27,.length=14}, 		/* 2nd slice  */
+				{.offset=54, .length=14},		/* 3rd slice  */
+				{.offset=81, .length=14},		/* 4th slice */
+				{.offset=108, .length=14},		/* 5th slice */
+				{.offset=135, .length=14},		/* 6th slice */
+				{.offset=162, .length=14},		/* 7th slice */
+				{.offset=189, .length=14},		/* 8th slice */
+#if ! defined(UNDERSIZED_ECCPOS_API)
+				{.offset=216, .length=14},		/* 9th slice */
+				{.offset=243, .length=14},		/* 10th slice */
+				{.offset=270, .length=14},		/* 11th slice */
+				{.offset=297, .length=14},		/* 12th slice */
+				{.offset=324, .length=14},		/* 13th slice */
+				{.offset=351, .length=14},		/* 14th slice */
+				{.offset=378, .length=14},		/* 15th slice */
+				{.offset=405, .length=14},		/* 16th slice */
+#endif
+			}
+};
+
+/*
+ * 4K page MLC with BCH-12 ECC, uses 20 ECC bytes per 512B ECC step, and requires OOB size of 27B+
+ */
+static struct nand_ecclayout brcmnand_oob_bch12_27_8k = {
+	.eccbytes	= 20*16,  /* 20*8 = 320 bytes */
+	.eccpos		= { 
+		 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,
+		34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,
+		61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,
+		88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,
+#if ! defined(UNDERSIZED_ECCPOS_API)
+		115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,
+		142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,
+		169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,
+		196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,
+
+		223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,
+		250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,
+		277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,
+		304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,
+		331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,
+		358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,
+		385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,
+		412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431
+#endif
+		},
+	.oobfree	= { /* 0  used for BBT and/or manufacturer bad block marker, 
+	                    * first slice loses 1 byte for BBT */
+				{.offset=1, .length=6}, 		/* 1st slice loses byte 0 */
+				{.offset=27,.length=7}, 		/* 2nd slice  */
+				{.offset=54, .length=7},		/* 3rd slice  */
+				{.offset=81, .length=7},		/* 4th slice */
+				{.offset=108, .length=7},		/* 5th slice */
+				{.offset=135, .length=7},		/* 6th slice */
+				{.offset=162, .length=7},		/* 7th slice */
+				{.offset=189, .length=7},		/* 8th slice */
+#if ! defined(UNDERSIZED_ECCPOS_API)
+				{.offset=216, .length=7},		/* 5th slice */
+				{.offset=243, .length=7},		/* 6th slice */
+				{.offset=270, .length=7},		/* 7th slice */
+				{.offset=297, .length=7},		/* 8th slice */
+				{.offset=324, .length=7},		/* 5th slice */
+				{.offset=351, .length=7},		/* 6th slice */
+				{.offset=378, .length=7},		/* 7th slice */
+				{.offset=405, .length=7},		/* 8th slice */
+#endif
 			}
 };
 

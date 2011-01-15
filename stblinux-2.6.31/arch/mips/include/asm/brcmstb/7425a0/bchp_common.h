@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Oct 22 17:49:49 2010
- *                 MD5 Checksum         f40f91089a3edc0f50e339c7d9e4d52d
+ * Date:           Generated on         Tue Nov 23 15:04:55 2010
+ *                 MD5 Checksum         43b66cff1b04bcd4828310303806df60
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,15 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7425/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/5   10/25/10 9:03a pntruong
- * SW7425-6: Synced up with central rdb.
+ * Hydra_Software_Devel/8   11/23/10 6:59p hongtaoz
+ * SW7425-29: added ViCE2 mailbox interface revision ID;
+ * 
+ * Hydra_Software_Devel/7   11/18/10 3:27p vanessah
+ * SW7425-29:  STG support for 7425 & 7422. Temporarily manual hijack. To
+ * be fixed after RDB changes
+ * 
+ * Hydra_Software_Devel/6   11/17/10 2:50p vanessah
+ * SW7425-6:  Synced up with central rdb
  *
  ***************************************************************************/
 
@@ -939,8 +946,8 @@
 #define BCHP_VICE2_L2_REG_END                              0x0078112c
 #define BCHP_VICE2_ARCSS_MISC_REG_START                    0x00782000
 #define BCHP_VICE2_ARCSS_MISC_REG_END                      0x00782018
-#define BCHP_VICE2_SEC_REG_START                           0x00800000
-#define BCHP_VICE2_SEC_REG_END                             0x00800080
+#define BCHP_VICE2_SEC_CTRL_REG_START                      0x00800000
+#define BCHP_VICE2_SEC_CTRL_REG_END                        0x00800080
 #define BCHP_XPT_BUS_IF_REG_START                          0x00900000
 #define BCHP_XPT_BUS_IF_REG_END                            0x00900078
 #define BCHP_XPT_XMEMIF_REG_START                          0x00901000
@@ -1729,109 +1736,6 @@
 #define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_BLUE_SHIFT                  0
 
 /***************************************************************************
- *MBOX
- ***************************************************************************/
-/***************************************************************************
- *BVB_PIC_SIZE - BVB Picture Size
- ***************************************************************************/
-/* MBOX :: BVB_PIC_SIZE :: H_SIZE [31:16] */
-#define BCHP_MBOX_BVB_PIC_SIZE_H_SIZE_MASK                         0xffff0000
-#define BCHP_MBOX_BVB_PIC_SIZE_H_SIZE_SHIFT                        16
-
-/* MBOX :: BVB_PIC_SIZE :: V_SIZE [15:00] */
-#define BCHP_MBOX_BVB_PIC_SIZE_V_SIZE_MASK                         0x0000ffff
-#define BCHP_MBOX_BVB_PIC_SIZE_V_SIZE_SHIFT                        0
-
-/***************************************************************************
- *ORIGINAL_PTS - Source PTS Value
- ***************************************************************************/
-/* MBOX :: ORIGINAL_PTS :: VAL [31:00] */
-#define BCHP_MBOX_ORIGINAL_PTS_VAL_MASK                            0xffffffff
-#define BCHP_MBOX_ORIGINAL_PTS_VAL_SHIFT                           0
-
-/***************************************************************************
- *PAN_SCAN_OFFSET - Pan and Scan Vector
- ***************************************************************************/
-/* MBOX :: PAN_SCAN_OFFSET :: HORIZ [31:16] */
-#define BCHP_MBOX_PAN_SCAN_OFFSET_HORIZ_MASK                       0xffff0000
-#define BCHP_MBOX_PAN_SCAN_OFFSET_HORIZ_SHIFT                      16
-
-/* MBOX :: PAN_SCAN_OFFSET :: VERT [15:00] */
-#define BCHP_MBOX_PAN_SCAN_OFFSET_VERT_MASK                        0x0000ffff
-#define BCHP_MBOX_PAN_SCAN_OFFSET_VERT_SHIFT                       0
-
-/***************************************************************************
- *PAN_SCAN_SIZE - Pan and Scan Display Size
- ***************************************************************************/
-/* MBOX :: PAN_SCAN_SIZE :: H_SIZE [31:16] */
-#define BCHP_MBOX_PAN_SCAN_SIZE_H_SIZE_MASK                        0xffff0000
-#define BCHP_MBOX_PAN_SCAN_SIZE_H_SIZE_SHIFT                       16
-
-/* MBOX :: PAN_SCAN_SIZE :: V_SIZE [15:00] */
-#define BCHP_MBOX_PAN_SCAN_SIZE_V_SIZE_MASK                        0x0000ffff
-#define BCHP_MBOX_PAN_SCAN_SIZE_V_SIZE_SHIFT                       0
-
-/***************************************************************************
- *PICTURE_ID - Picture ID
- ***************************************************************************/
-/* MBOX :: PICTURE_ID :: VAL [31:00] */
-#define BCHP_MBOX_PICTURE_ID_VAL_MASK                              0xffffffff
-#define BCHP_MBOX_PICTURE_ID_VAL_SHIFT                             0
-
-/***************************************************************************
- *PIC_INFO - Picture Information
- ***************************************************************************/
-/* MBOX :: PIC_INFO :: FRAME_RATE [31:16] */
-#define BCHP_MBOX_PIC_INFO_FRAME_RATE_MASK                         0xffff0000
-#define BCHP_MBOX_PIC_INFO_FRAME_RATE_SHIFT                        16
-
-/* MBOX :: PIC_INFO :: SRC_PIC_TYPE [15:12] */
-#define BCHP_MBOX_PIC_INFO_SRC_PIC_TYPE_MASK                       0x0000f000
-#define BCHP_MBOX_PIC_INFO_SRC_PIC_TYPE_SHIFT                      12
-#define BCHP_MBOX_PIC_INFO_SRC_PIC_TYPE_UNKNOWN                    0
-#define BCHP_MBOX_PIC_INFO_SRC_PIC_TYPE_I                          1
-#define BCHP_MBOX_PIC_INFO_SRC_PIC_TYPE_P                          2
-#define BCHP_MBOX_PIC_INFO_SRC_PIC_TYPE_B                          3
-
-/* MBOX :: PIC_INFO :: CHANNEL_ID [11:08] */
-#define BCHP_MBOX_PIC_INFO_CHANNEL_ID_MASK                         0x00000f00
-#define BCHP_MBOX_PIC_INFO_CHANNEL_ID_SHIFT                        8
-
-/* MBOX :: PIC_INFO :: POLARITY [07:06] */
-#define BCHP_MBOX_PIC_INFO_POLARITY_MASK                           0x000000c0
-#define BCHP_MBOX_PIC_INFO_POLARITY_SHIFT                          6
-#define BCHP_MBOX_PIC_INFO_POLARITY_TOP                            0
-#define BCHP_MBOX_PIC_INFO_POLARITY_BOT                            1
-#define BCHP_MBOX_PIC_INFO_POLARITY_FRAME                          2
-
-/* MBOX :: PIC_INFO :: REPEAT [05:05] */
-#define BCHP_MBOX_PIC_INFO_REPEAT_MASK                             0x00000020
-#define BCHP_MBOX_PIC_INFO_REPEAT_SHIFT                            5
-#define BCHP_MBOX_PIC_INFO_REPEAT_DISABLE                          0
-#define BCHP_MBOX_PIC_INFO_REPEAT_ENABLE                           1
-
-/* MBOX :: PIC_INFO :: IGNORE [04:04] */
-#define BCHP_MBOX_PIC_INFO_IGNORE_MASK                             0x00000010
-#define BCHP_MBOX_PIC_INFO_IGNORE_SHIFT                            4
-#define BCHP_MBOX_PIC_INFO_IGNORE_DISABLE                          0
-#define BCHP_MBOX_PIC_INFO_IGNORE_ENABLE                           1
-
-/* MBOX :: PIC_INFO :: reserved0 [03:00] */
-#define BCHP_MBOX_PIC_INFO_reserved0_MASK                          0x0000000f
-#define BCHP_MBOX_PIC_INFO_reserved0_SHIFT                         0
-
-/***************************************************************************
- *SAMPLE_ASPECT_RATIO - Sample Aspect Ratio
- ***************************************************************************/
-/* MBOX :: SAMPLE_ASPECT_RATIO :: H_SIZE [31:16] */
-#define BCHP_MBOX_SAMPLE_ASPECT_RATIO_H_SIZE_MASK                  0xffff0000
-#define BCHP_MBOX_SAMPLE_ASPECT_RATIO_H_SIZE_SHIFT                 16
-
-/* MBOX :: SAMPLE_ASPECT_RATIO :: V_SIZE [15:00] */
-#define BCHP_MBOX_SAMPLE_ASPECT_RATIO_V_SIZE_MASK                  0x0000ffff
-#define BCHP_MBOX_SAMPLE_ASPECT_RATIO_V_SIZE_SHIFT                 0
-
-/***************************************************************************
  *MEM_DMA
  ***************************************************************************/
 /***************************************************************************
@@ -2616,6 +2520,107 @@
 /* SPDIF_RCVR_ESR :: ABSTRACT_INTERRUPT_HANDLING :: MORE_INFORMATION [31:00] */
 #define BCHP_SPDIF_RCVR_ESR_ABSTRACT_INTERRUPT_HANDLING_MORE_INFORMATION_MASK 0xffffffff
 #define BCHP_SPDIF_RCVR_ESR_ABSTRACT_INTERRUPT_HANDLING_MORE_INFORMATION_SHIFT 0
+
+/***************************************************************************
+ *VICE2_REGSET_MISC
+ ***************************************************************************/
+/***************************************************************************
+ *DWORD_00_BVB_PIC_SIZE - BVB Picture Size
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: DWORD_00_BVB_PIC_SIZE :: H_SIZE [31:16] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_00_BVB_PIC_SIZE_H_SIZE_MASK   0xffff0000
+#define BCHP_VICE2_REGSET_MISC_DWORD_00_BVB_PIC_SIZE_H_SIZE_SHIFT  16
+
+/* VICE2_REGSET_MISC :: DWORD_00_BVB_PIC_SIZE :: V_SIZE [15:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_00_BVB_PIC_SIZE_V_SIZE_MASK   0x0000ffff
+#define BCHP_VICE2_REGSET_MISC_DWORD_00_BVB_PIC_SIZE_V_SIZE_SHIFT  0
+
+/***************************************************************************
+ *DWORD_01_SAMPLE_ASPECT_RATIO - Sample Aspect Ratio
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: DWORD_01_SAMPLE_ASPECT_RATIO :: H_SIZE [31:16] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_01_SAMPLE_ASPECT_RATIO_H_SIZE_MASK 0xffff0000
+#define BCHP_VICE2_REGSET_MISC_DWORD_01_SAMPLE_ASPECT_RATIO_H_SIZE_SHIFT 16
+
+/* VICE2_REGSET_MISC :: DWORD_01_SAMPLE_ASPECT_RATIO :: V_SIZE [15:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_01_SAMPLE_ASPECT_RATIO_V_SIZE_MASK 0x0000ffff
+#define BCHP_VICE2_REGSET_MISC_DWORD_01_SAMPLE_ASPECT_RATIO_V_SIZE_SHIFT 0
+
+/***************************************************************************
+ *DWORD_02_PIC_INFO - Picture Information
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: FRAME_RATE [31:16] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_FRAME_RATE_MASK   0xffff0000
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_FRAME_RATE_SHIFT  16
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: SRC_PIC_TYPE [15:12] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_MASK 0x0000f000
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_SHIFT 12
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_UNKNOWN 0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_I    1
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_P    2
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_B    3
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: CHANNEL_ID [11:08] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNEL_ID_MASK   0x00000f00
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNEL_ID_SHIFT  8
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: POLARITY [07:06] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_MASK     0x000000c0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_SHIFT    6
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_TOP      0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_BOT      1
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_FRAME    2
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: REPEAT [05:05] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_MASK       0x00000020
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_SHIFT      5
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_DISABLE    0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_ENABLE     1
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: IGNORE [04:04] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_MASK       0x00000010
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_SHIFT      4
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_DISABLE    0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_ENABLE     1
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: reserved0 [03:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_reserved0_MASK    0x0000000f
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_reserved0_SHIFT   0
+
+/***************************************************************************
+ *DWORD_03_ORIGINAL_PTS - Source PTS Value
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: DWORD_03_ORIGINAL_PTS :: VAL [31:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_03_ORIGINAL_PTS_VAL_MASK      0xffffffff
+#define BCHP_VICE2_REGSET_MISC_DWORD_03_ORIGINAL_PTS_VAL_SHIFT     0
+
+/***************************************************************************
+ *DWORD_04_PICTURE_ID - Picture ID
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: DWORD_04_PICTURE_ID :: VAL [31:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_04_PICTURE_ID_VAL_MASK        0xffffffff
+#define BCHP_VICE2_REGSET_MISC_DWORD_04_PICTURE_ID_VAL_SHIFT       0
+
+/***************************************************************************
+ *MBOX - MBOX registers interface address offset.
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: MBOX :: INTERFACE [31:16] */
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_MASK                 0xffff0000
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_SHIFT                16
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_HOST2VICE_OFFSET     0
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_VICE2HOST_OFFSET     4
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_BVN2VICE_OFFSET      8
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_00_BVB_PIC_SIZE_OFFSET 16
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_01_SAMPLE_ASPECT_RATIO_OFFSET 20
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_02_PIC_INFO_OFFSET 24
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_03_ORIGINAL_PTS_OFFSET 28
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_04_PICTURE_ID_OFFSET 32
+
+/* VICE2_REGSET_MISC :: MBOX :: REVISION [15:00] */
+#define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_MASK                  0x0000ffff
+#define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_SHIFT                 0
+#define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_ID                    0
 
 /***************************************************************************
  *XPT_PB

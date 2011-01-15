@@ -322,13 +322,13 @@ ISR_isr(int irq, void *devid)
 		printk("%s: Impossible no job to process\n", __FUNCTION__);
 		//BUG();
 		// CLear interrupt and return
-		intrMask = ISR_volatileRead(BCM_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_MASK_STATUS);
+		intrMask = ISR_volatileRead(BCHP_HIF_INTR2_CPU_MASK_STATUS);
 		ISR_disable_irq(intrMask);
 		spin_unlock_irqrestore(&gJobQ.lock, flags);
 		return IRQ_HANDLED;
 	} 
 	
-	flashAddr = EDU_volatileRead(EDU_BASE_ADDRESS+EDU_EXT_ADDR) - (EDU_LENGTH_VALUE-1);
+	flashAddr = EDU_volatileRead(EDU_EXT_ADDR) - (EDU_LENGTH_VALUE-1);
 
 	flashAddr &= ~(EDU_LENGTH_VALUE-1);
 	
@@ -347,8 +347,8 @@ ISR_isr(int irq, void *devid)
 	 * Grab the lock first, we don't want any race condition.
 	 */
 	// spin_lock(&req->lock);  Already locked by ISR_find_request
-	intrMask = ISR_volatileRead(BCM_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_MASK_STATUS);
-	rd_data = ISR_volatileRead(BCM_BASE_ADDRESS  + BCHP_HIF_INTR2_CPU_STATUS);
+	intrMask = ISR_volatileRead(BCHP_HIF_INTR2_CPU_MASK_STATUS);
+	rd_data = ISR_volatileRead(BCHP_HIF_INTR2_CPU_STATUS);
 	
 PRINTK("==> %s: Awaken rd_data=%08x, intrMask=%08x, cmd=%d, flashAddr=%08x\n", __FUNCTION__, 
 	rd_data, intrMask, gJobQ.cmd, req->edu_ldw);
@@ -699,7 +699,7 @@ ISR_cache_is_valid(void)
 	unsigned long expired = jiffies + HZ/10000; /* 100 usec, enough for any flash op to complete */
 
 	do {
-		rd_data = ISR_volatileRead(BCM_BASE_ADDRESS+BCHP_HIF_INTR2_CPU_STATUS);
+		rd_data = ISR_volatileRead(BCHP_HIF_INTR2_CPU_STATUS);
 
 	} while (!(rd_data & HIF_INTR2_CTRL_READY) && time_before(jiffies, expired));
 	return (0 != (rd_data & HIF_INTR2_CTRL_READY)) ;

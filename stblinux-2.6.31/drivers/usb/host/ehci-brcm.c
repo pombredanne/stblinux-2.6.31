@@ -47,6 +47,14 @@ static int ehci_brcm_reset(struct usb_hcd *hcd)
 	ehci_writel(ehci, CMD_RESET, &ehci->regs->command);
 	mdelay(10);
 
+	/*
+	 * SWLINUX-1705: Avoid OUT packet underflows during high memory
+	 *   bus usage
+	 * port_status[0x0f] = Broadcom-proprietary USB_EHCI_INSNREG00 @ 0x90
+	 */
+	ehci_writel(ehci, 0x00800040, &ehci->regs->port_status[0x10]);
+	ehci_writel(ehci, 0x00000001, &ehci->regs->port_status[0x12]);
+
 	/* force HC to halt state */
 	ehci_halt(ehci);
 

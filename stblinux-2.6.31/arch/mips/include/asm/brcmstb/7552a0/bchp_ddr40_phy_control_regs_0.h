@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Oct  9 13:33:58 2010
- *                 MD5 Checksum         e2a1f506c16ef1e3f589a63a51524b07
+ * Date:           Generated on         Mon Nov  8 16:02:55 2010
+ *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_ddr40_phy_control_regs_0.h $
+ * 
+ * Hydra_Software_Devel/3   11/8/10 4:46p yuxiaz
+ * SW7552-2: updated rdb.
  *
  ***************************************************************************/
 
@@ -54,6 +57,7 @@
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_IDLE_PAD_CONTROL 0x003b6038 /* Idle mode SSTL pad control register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_ZQ_PVT_COMP_CTL 0x003b603c /* PVT Compensation control and status register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL 0x003b6040 /* SSTL pad drive characteristics control register */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS 0x003b6044 /* PHY Auto Init rd_data_dly result register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIBRATE 0x003b6048 /* PHY VDL calibration control register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_CALIB_STATUS 0x003b604c /* PHY VDL calibration status register */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_DQ_CALIB_STATUS 0x003b6050 /* PHY DQ VDL calibration status register */
@@ -461,6 +465,25 @@
 /* DDR40_PHY_CONTROL_REGS_0 :: DRIVE_PAD_CTL :: g_ddr [00:00] */
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL_g_ddr_MASK     0x00000001
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_DRIVE_PAD_CTL_g_ddr_SHIFT    0
+
+/***************************************************************************
+ *VDL_RD_DATA_DLY_STATUS - PHY Auto Init rd_data_dly result register
+ ***************************************************************************/
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: reserved0 [31:12] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_reserved0_MASK 0xfffff000
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_reserved0_SHIFT 12
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: auto_init_state [11:06] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_auto_init_state_MASK 0x00000fc0
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_auto_init_state_SHIFT 6
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: rd_data_dly_max [05:03] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_max_MASK 0x00000038
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_max_SHIFT 3
+
+/* DDR40_PHY_CONTROL_REGS_0 :: VDL_RD_DATA_DLY_STATUS :: rd_data_dly_min [02:00] */
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_min_MASK 0x00000007
+#define BCHP_DDR40_PHY_CONTROL_REGS_0_VDL_RD_DATA_DLY_STATUS_rd_data_dly_min_SHIFT 0
 
 /***************************************************************************
  *VDL_CALIBRATE - PHY VDL calibration control register

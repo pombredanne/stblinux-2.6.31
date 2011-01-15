@@ -168,8 +168,8 @@
 #define SAMSUNG_K9LBG08U0D	0xD7	/* D5h, 29h, 41h */
 #define SAMSUNG_K9LBG08U0E	0xD7	/* C5h, 72h, 54h, 42h */
 
-#define SAMSUNG_K9GA08U0D		0xD5	/* 94h, 29h, 34h */
-#define SAMSUNG_K9GA08U0E		0xD5	/* 84h, 72h, 50h, 42h */
+#define SAMSUNG_K9GAG08U0D	0xD5	/* 94h, 29h, 34h */
+#define SAMSUNG_K9GAG08U0E	0xD5	/* 84h, 72h, 50h, 42h */
 
 #define SAMSUNG_3RDID_INT_CHIPNO_MASK	NAND_CI_CHIPNR_MSK
 
@@ -469,19 +469,22 @@
 
 
 //Command Opcode
-#define OP_PAGE_READ                0x01000000
-#define OP_SPARE_AREA_READ          0x02000000
-#define OP_STATUS_READ              0x03000000
-#define OP_PROGRAM_PAGE             0x04000000
+#define OP_PAGE_READ                		0x01000000
+#define OP_SPARE_AREA_READ          	0x02000000
+#define OP_STATUS_READ              		0x03000000
+#define OP_PROGRAM_PAGE             	0x04000000
 #define OP_PROGRAM_SPARE_AREA       0x05000000
-#define OP_COPY_BACK                0x06000000
-#define OP_DEVICE_ID_READ           0x07000000
-#define OP_BLOCK_ERASE              0x08000000
-#define OP_FLASH_RESET              0x09000000
-#define OP_BLOCKS_LOCK              0x0A000000
-#define OP_BLOCKS_LOCK_DOWN         0x0B000000
-#define OP_BLOCKS_UNLOCK            0x0C000000
+#define OP_COPY_BACK                		0x06000000
+#define OP_DEVICE_ID_READ           	0x07000000
+#define OP_BLOCK_ERASE              		0x08000000
+#define OP_FLASH_RESET              		0x09000000
+#define OP_BLOCKS_LOCK              		0x0A000000
+#define OP_BLOCKS_LOCK_DOWN         	0x0B000000
+#define OP_BLOCKS_UNLOCK            	0x0C000000
 #define OP_READ_BLOCKS_LOCK_STATUS  0x0D000000
+#define OP_PARAMETER_READ  		0x0E000000
+#define OP_PARAMETER_CHANGE_COL 	0x0F000000
+#define OP_LOW_LEVEL_OP 			0x10000000
 
 //NAND flash controller 
 #define NFC_FLASHCACHE_SIZE     512
@@ -500,8 +503,8 @@
 #define BCHP_NAND_LAST_REG		BCHP_NAND_SPARE_AREA_READ_OFS_1C 
 #endif
 
-#define BRCMNAND_CTRL_REGS		(KSEG1ADDR(0x10000000 + BCHP_NAND_REVISION))
-#define BRCMNAND_CTRL_REGS_END	(KSEG1ADDR(0x10000000 + BCHP_NAND_LAST_REG))
+#define BRCMNAND_CTRL_REGS		(BCHP_NAND_REVISION)
+#define BRCMNAND_CTRL_REGS_END	(BCHP_NAND_LAST_REG)
 
 
 /**
@@ -735,6 +738,8 @@ struct brcmnand_chip {
 	int			eccbytes; // How many bytes are used for ECC per eccsize (3 for Hamming)
 	int			eccsteps; // How many ECC block per page (4 for 2K page, 1 for 512B page, 8 for 4K page etc...
 	int			eccOobSize; // # of oob byte per ECC step, mostly 16, 27 for BCH-8
+
+	int			eccSectorSize; // Sector size, not necessarily 512B for new flashes
 	
 
 	//struct nand_hw_control hwcontrol;
@@ -742,13 +747,14 @@ struct brcmnand_chip {
 	struct mtd_oob_ops ops;
 
 	
-	uint8_t		*bbt;
+	uint8_t*		bbt;
+	uint32_t		bbtSize;
 	int (*isbad_bbt)(struct mtd_info *mtd, loff_t ofs, int allowbbt);
-	struct nand_bbt_descr	*bbt_td;
-	struct nand_bbt_descr	*bbt_md;
-	struct nand_bbt_descr	*badblock_pattern;
+	struct nand_bbt_descr*	bbt_td;
+	struct nand_bbt_descr*	bbt_md;
+	struct nand_bbt_descr*	badblock_pattern;
 #ifdef CONFIG_MTD_BRCMNAND_CORRECTABLE_ERR_HANDLING
-	struct brcmnand_cet_descr *cet;		/* CET descriptor */
+	struct brcmnand_cet_descr* cet;		/* CET descriptor */
 #endif
 
 	void				*priv;

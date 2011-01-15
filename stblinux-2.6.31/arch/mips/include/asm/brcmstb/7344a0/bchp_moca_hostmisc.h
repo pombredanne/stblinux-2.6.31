@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 11 18:42:58 2010
- *                 MD5 Checksum         ee72a305164b46276d7d023348716295
+ * Date:           Generated on         Mon Nov 15 18:11:07 2010
+ *                 MD5 Checksum         ce17e88abf896738c887c99cc655deb8
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7344/rdb/a0/bchp_moca_hostmisc.h $
  * 
- * Hydra_Software_Devel/1   6/11/10 8:55p albertl
- * HW7344-97: Initial revision.
+ * Hydra_Software_Devel/2   11/16/10 8:47a pntruong
+ * HW7344-97: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -49,9 +49,9 @@
 #define BCHP_MOCA_HOSTMISC_SCRATCH               0x002a2044 /* Moca Scratch Register */
 #define BCHP_MOCA_HOSTMISC_MOCA_VERSION_REG      0x002a204c /* MoCA version register */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP0             0x002a2050 /* Moca Host Messaging Register 0 */
-#define BCHP_MOCA_HOSTMISC_HOST_MMP1             0x002a2054 /* Moca Host Messaging Register 0 */
-#define BCHP_MOCA_HOSTMISC_HOST_MMP2             0x002a2058 /* Moca Host Messaging Register 0 */
-#define BCHP_MOCA_HOSTMISC_HOST_MMP3             0x002a205c /* Moca Host Messaging Register 0 */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP1             0x002a2054 /* Moca Host Messaging Register 1 */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP2             0x002a2058 /* Moca Host Messaging Register 2 */
+#define BCHP_MOCA_HOSTMISC_HOST_MMP3             0x002a205c /* Moca Host Messaging Register 3 */
 #define BCHP_MOCA_HOSTMISC_H2M_INT_TRIG          0x002a2060 /* Host-to-MoCA Interrupt Trigger */
 #define BCHP_MOCA_HOSTMISC_WAKEUP                0x002a2064 /* Host-to-MoCA Wakeup Interrupt */
 
@@ -62,17 +62,9 @@
 #define BCHP_MOCA_HOSTMISC_SW_RESET_spare_control_MASK             0xffff8000
 #define BCHP_MOCA_HOSTMISC_SW_RESET_spare_control_SHIFT            15
 
-/* MOCA_HOSTMISC :: SW_RESET :: moca_cpu_freq [14:10] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_freq_MASK             0x00007c00
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_freq_SHIFT            10
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_cpu_clk_ratio [09:09] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_clk_ratio_MASK        0x00000200
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_clk_ratio_SHIFT       9
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_standalone [08:08] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_MASK           0x00000100
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_SHIFT          8
+/* MOCA_HOSTMISC :: SW_RESET :: spare_status [14:08] */
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_status_MASK              0x00007f00
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_status_SHIFT             8
 
 /* MOCA_HOSTMISC :: SW_RESET :: moca_disable_clocks [07:07] */
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_disable_clocks_MASK       0x00000080
@@ -128,21 +120,21 @@
 #define BCHP_MOCA_HOSTMISC_HOST_MMP0_MMP_SHIFT                     0
 
 /***************************************************************************
- *HOST_MMP1 - Moca Host Messaging Register 0
+ *HOST_MMP1 - Moca Host Messaging Register 1
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP1 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP1_MMP_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_HOST_MMP1_MMP_SHIFT                     0
 
 /***************************************************************************
- *HOST_MMP2 - Moca Host Messaging Register 0
+ *HOST_MMP2 - Moca Host Messaging Register 2
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP2 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP2_MMP_MASK                      0xffffffff
 #define BCHP_MOCA_HOSTMISC_HOST_MMP2_MMP_SHIFT                     0
 
 /***************************************************************************
- *HOST_MMP3 - Moca Host Messaging Register 0
+ *HOST_MMP3 - Moca Host Messaging Register 3
  ***************************************************************************/
 /* MOCA_HOSTMISC :: HOST_MMP3 :: MMP [31:00] */
 #define BCHP_MOCA_HOSTMISC_HOST_MMP3_MMP_MASK                      0xffffffff

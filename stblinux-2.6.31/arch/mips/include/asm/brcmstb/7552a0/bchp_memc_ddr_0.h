@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Sep  4 11:26:05 2010
- *                 MD5 Checksum         5c793fc92372a5588d6af292f0d1b0c0
+ * Date:           Generated on         Mon Nov  8 16:24:56 2010
+ *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_memc_ddr_0.h $
+ * 
+ * Hydra_Software_Devel/2   11/8/10 4:47p yuxiaz
+ * SW7552-2: updated rdb.
  *
  ***************************************************************************/
 
@@ -231,6 +234,8 @@
 #define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL 0x003b22e8 /* MEMSYS Auto Init Control. */
 #define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_STATUS  0x003b22ec /* MEMSYS Auto Init Status. */
 #define BCHP_MEMC_DDR_0_PHY_VDL_CALIB_AUTO_INIT_OVERRIDE 0x003b22f0 /* PHY VDL calibrate override from memc auto init. */
+#define BCHP_MEMC_DDR_0_SHIM_PLL_PNDIV_AUTO_INIT_OVERRIDE 0x003b22f4 /* SHIM PLL pndiv override from memc auto init. */
+#define BCHP_MEMC_DDR_0_SHIM_PLL_MDIV_AUTO_INIT_OVERRIDE 0x003b22f8 /* SHIM PLL mdiv override from memc auto init. */
 
 /***************************************************************************
  *CNTRLR_CONFIG - Memory Controller Mode-Configuration Register.
@@ -2223,9 +2228,13 @@
 /***************************************************************************
  *MEMSYS_AUTO_INIT_CONTROL - MEMSYS Auto Init Control.
  ***************************************************************************/
-/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: reserved0 [31:09] */
-#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_reserved0_MASK    0xfffffe00
-#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_reserved0_SHIFT   9
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: reserved0 [31:10] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_reserved0_MASK    0xfffffc00
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_reserved0_SHIFT   10
+
+/* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_SHIM_PLL_DIVIDER [09:09] */
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_SHIM_PLL_DIVIDER_MASK 0x00000200
+#define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_SHIM_PLL_DIVIDER_SHIFT 9
 
 /* MEMC_DDR_0 :: MEMSYS_AUTO_INIT_CONTROL :: OVERRIDE_PHY_VDL_CALIB_AUTO_INIT [08:08] */
 #define BCHP_MEMC_DDR_0_MEMSYS_AUTO_INIT_CONTROL_OVERRIDE_PHY_VDL_CALIB_AUTO_INIT_MASK 0x00000100
@@ -2304,6 +2313,20 @@
 /* MEMC_DDR_0 :: PHY_VDL_CALIB_AUTO_INIT_OVERRIDE :: PHY_VDL_CALIB_OVERRIDE_VAL [31:00] */
 #define BCHP_MEMC_DDR_0_PHY_VDL_CALIB_AUTO_INIT_OVERRIDE_PHY_VDL_CALIB_OVERRIDE_VAL_MASK 0xffffffff
 #define BCHP_MEMC_DDR_0_PHY_VDL_CALIB_AUTO_INIT_OVERRIDE_PHY_VDL_CALIB_OVERRIDE_VAL_SHIFT 0
+
+/***************************************************************************
+ *SHIM_PLL_PNDIV_AUTO_INIT_OVERRIDE - SHIM PLL pndiv override from memc auto init.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: SHIM_PLL_PNDIV_AUTO_INIT_OVERRIDE :: SHIM_PLL_PNDIV_OVERRIDE_VAL [31:00] */
+#define BCHP_MEMC_DDR_0_SHIM_PLL_PNDIV_AUTO_INIT_OVERRIDE_SHIM_PLL_PNDIV_OVERRIDE_VAL_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_SHIM_PLL_PNDIV_AUTO_INIT_OVERRIDE_SHIM_PLL_PNDIV_OVERRIDE_VAL_SHIFT 0
+
+/***************************************************************************
+ *SHIM_PLL_MDIV_AUTO_INIT_OVERRIDE - SHIM PLL mdiv override from memc auto init.
+ ***************************************************************************/
+/* MEMC_DDR_0 :: SHIM_PLL_MDIV_AUTO_INIT_OVERRIDE :: SHIM_PLL_MDIV_OVERRIDE_VAL [31:00] */
+#define BCHP_MEMC_DDR_0_SHIM_PLL_MDIV_AUTO_INIT_OVERRIDE_SHIM_PLL_MDIV_OVERRIDE_VAL_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_SHIM_PLL_MDIV_AUTO_INIT_OVERRIDE_SHIM_PLL_MDIV_OVERRIDE_VAL_SHIFT 0
 
 #endif /* #ifndef BCHP_MEMC_DDR_0_H__ */
 

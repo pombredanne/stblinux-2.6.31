@@ -126,6 +126,15 @@ extern struct kmem_cache *skbuff_head_cache __read_mostly;
 int brcm_pm_register_cb(char *name, int (*fn)(int, void *), void *arg);
 int brcm_pm_unregister_cb(char *name);
 
+struct brcm_wakeup_ops {
+	int	(*enable)(void *ref);
+	int	(*disable)(void *ref);
+	int	(*poll)(void *ref);	/* returns 1 if a wakeup event has happened */
+};
+
+int brcm_pm_wakeup_register(struct brcm_wakeup_ops *ops, void* ref, char* name);
+int brcm_pm_wakeup_unregister(struct brcm_wakeup_ops *ops, void* ref);
+
 #endif /* __KERNEL__ */
 
 #endif /* _ASM_BRCMSTB_BRCMAPI_H */

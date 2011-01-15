@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-11-21
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-12-21
 #
 # Original package: procps-3.2.8.tar.bz2
 #
 diff -ruNp procps.orig/.gitignore procps/.gitignore
 --- procps.orig/.gitignore	1969-12-31 16:00:00.000000000 -0800
-+++ procps/.gitignore	2010-11-21 13:40:17.000000000 -0800
++++ procps/.gitignore	2010-12-21 18:59:32.000000000 -0800
 @@ -0,0 +1,20 @@
 +*.[ao]
 +*.so
@@ -29,7 +29,7 @@ diff -ruNp procps.orig/.gitignore procps/.gitignore
 +watch
 diff -ruNp procps.orig/makefile procps/makefile
 --- procps.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ procps/makefile	2010-11-21 13:40:17.000000000 -0800
++++ procps/makefile	2010-12-21 18:59:32.000000000 -0800
 @@ -0,0 +1,56 @@
 +#
 +# General settings
@@ -89,7 +89,7 @@ diff -ruNp procps.orig/makefile procps/makefile
 +	$(MAKE) -f Makefile $@
 diff -ruNp procps.orig/proc/sysinfo.c procps/proc/sysinfo.c
 --- procps.orig/proc/sysinfo.c	2008-03-23 21:33:43.000000000 -0700
-+++ procps/proc/sysinfo.c	2010-11-21 13:40:17.000000000 -0800
++++ procps/proc/sysinfo.c	2010-12-21 18:59:32.000000000 -0800
 @@ -219,7 +219,40 @@ static void init_libproc(void){
    // appears to have a non-SMP kernel on a 2-way SMP box.
    // _SC_NPROCESSORS_CONF returns 2, resulting in HZ=512

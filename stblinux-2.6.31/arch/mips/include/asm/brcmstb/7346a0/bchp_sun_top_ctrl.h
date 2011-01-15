@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Aug  2 15:18:47 2010
- *                 MD5 Checksum         616c5da46e7f2e811fb57b174083665d
+ * Date:           Generated on         Mon Nov 15 19:09:36 2010
+ *                 MD5 Checksum         42fd68445ed16abf6b20ef3fbcea6916
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7346/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/1   8/2/10 7:50p pntruong
- * SW7346-2: Initial version.
+ * Hydra_Software_Devel/2   11/16/10 8:50a pntruong
+ * SW7346-2: Synced with central rdb.
  *
  ***************************************************************************/
 
@@ -2009,7 +2009,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_GPIO_016         0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_UART_RTS_0       1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_I2S_DATA0        2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_LED_KD_3         3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_RESERVED         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_PKT_ERROR2       4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_EXT_IRQB_8       5
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_016_VEC_HSYNC_1      6
@@ -2022,7 +2022,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_GPIO_015         0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_UART_CTS_0       1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_I2S_CLK0         2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_LED_KD_2         3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_RESERVED         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_PKT_DATA2        4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_EXT_IRQB_7       5
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_015_VEC_HSYNC_0      6
@@ -2036,7 +2036,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_GPIO_014         0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_UART_RXD_0       1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_PWM_1            2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_LED_KD_1         3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_RESERVED         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_PKT_CLK2         4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_EXT_IRQB_6       5
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_014_IR_IN1           6
@@ -2049,7 +2049,7 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_GPIO_013         0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_UART_TXD_0       1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_PWM_0            2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_LED_KD_0         3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_RESERVED         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_PKT_VALID2       4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_EXT_IRQB_5       5
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_9_gpio_013_IR_INT           6
@@ -3722,9 +3722,9 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_front_panel_4sec_reset_MASK 0x00000020
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_front_panel_4sec_reset_SHIFT 5
 
-/* SUN_TOP_CTRL :: RESET_HISTORY :: pcie_hot_boot [04:04] */
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_MASK         0x00000010
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_SHIFT        4
+/* SUN_TOP_CTRL :: RESET_HISTORY :: pcie_hot_boot_reset [04:04] */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_reset_MASK   0x00000010
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pcie_hot_boot_reset_SHIFT  4
 
 /* SUN_TOP_CTRL :: RESET_HISTORY :: watchdog_timer_reset [03:03] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_watchdog_timer_reset_MASK  0x00000008
@@ -3734,9 +3734,9 @@
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_smartcard_insert_reset_MASK 0x00000004
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_smartcard_insert_reset_SHIFT 2
 
-/* SUN_TOP_CTRL :: RESET_HISTORY :: pin_reset [01:01] */
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pin_reset_MASK             0x00000002
-#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_pin_reset_SHIFT            1
+/* SUN_TOP_CTRL :: RESET_HISTORY :: main_chip_reset_input [01:01] */
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_main_chip_reset_input_MASK 0x00000002
+#define BCHP_SUN_TOP_CTRL_RESET_HISTORY_main_chip_reset_input_SHIFT 1
 
 /* SUN_TOP_CTRL :: RESET_HISTORY :: power_on_reset [00:00] */
 #define BCHP_SUN_TOP_CTRL_RESET_HISTORY_power_on_reset_MASK        0x00000001

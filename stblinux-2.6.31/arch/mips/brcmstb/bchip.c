@@ -172,7 +172,7 @@ void __init bchip_check_compat(void)
 	ALT_CHIP_ID(7413, a0);
 	MAIN_CHIP_ID(7405, b0);
 #elif defined(CONFIG_BCM7408)
-	MAIN_CHIP_ID(7408, a0);
+	MAIN_CHIP_ID(7408, b0);
 #elif defined(CONFIG_BCM7420)
 	ALT_CHIP_ID(3320, c0);
 	ALT_CHIP_ID(7220, c0);
@@ -290,10 +290,8 @@ void __init bchip_mips_setup(void)
 #endif
 
 #define USB_ENDIAN_MASK		0x0f
-#define USB_IOC			0x10
-#define USB_IPP			0x20
-
-#define USB_OBR_SEQ_EN		0x01
+#define USB_IOC			BCHP_USB_CTRL_SETUP_IOC_MASK
+#define USB_IPP			BCHP_USB_CTRL_SETUP_IPP_MASK
 
 #define USB_REG(x, y)		(x + BCHP_USB_CTRL_##y - \
 				 BCHP_USB_CTRL_REG_START)
@@ -323,7 +321,18 @@ static void bchip_usb_init_one(uintptr_t base)
 #endif /* CONFIG_BRCM_OVERRIDE_USB_PWR */
 
 	/* PR45703 - for OHCI->SCB bridge lockup */
-	BDEV_UNSET(USB_REG(base, OBRIDGE), USB_OBR_SEQ_EN);
+	BDEV_UNSET(USB_REG(base, OBRIDGE),
+		BCHP_USB_CTRL_OBRIDGE_OBR_SEQ_EN_MASK);
+
+	/* Disable EHCI transaction combining */
+	BDEV_UNSET(USB_REG(base, EBRIDGE),
+		BCHP_USB_CTRL_EBRIDGE_EBR_SEQ_EN_MASK);
+
+	/* SWLINUX-1705: Avoid OUT packet underflows */
+	BDEV_UNSET(USB_REG(base, EBRIDGE),
+		BCHP_USB_CTRL_EBRIDGE_EBR_SCB_SIZE_MASK);
+	BDEV_SET(USB_REG(base, EBRIDGE),
+		0x08 << BCHP_USB_CTRL_EBRIDGE_EBR_SCB_SIZE_SHIFT);
 }
 
 void __init bchip_usb_init(void)
@@ -353,12 +362,8 @@ void __init bchip_moca_init(void)
 #elif defined(CONFIG_BCM7340)
 	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_ENET_CG_MOCA, 1);
 	BDEV_WR_F_RB(CLKGEN_MISC_CLOCK_SELECTS, CLOCK_SEL_GMII_CG_MOCA, 0);
-#elif defined(CONFIG_BCM7342)
-	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
-#elif defined(CONFIG_BCM7408A0)
-	BDEV_WR_F_RB(CLK_MOCA_PHY_DIV, M3DIV, 11);
-	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
-#elif defined(CONFIG_BCM7420)
+#elif defined(CONFIG_BCM7342) || defined(CONFIG_BCM7408) || \
+	defined(CONFIG_BCM7420)
 	BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
 #elif defined(CONFIG_BCM7422A0)
 	BDEV_WR_F(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL_CH_1, MDIV_CH1, 90);

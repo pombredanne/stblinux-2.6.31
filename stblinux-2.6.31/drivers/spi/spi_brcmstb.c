@@ -436,8 +436,13 @@ static void write_to_hw(struct bcmspi_priv *priv)
 			(BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & ~0xff) |
 			(1 << msg->spi->chip_select));
 
-#if defined(CONFIG_BCM7422) || defined(CONFIG_BCM7425A0)
-		/* add delay after CS drop due to glitch on HOLDb line */
+#if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0) || \
+	defined(CONFIG_BCM7344A0) || defined(CONFIG_BCM7346A0) || \
+	defined(CONFIG_BCM7231A0)
+		/*
+		 * A0 errata (HW7422-730): add delay after CS drop due to
+		 * glitch on HOLDb line
+		 */
 		priv->mspi_hw->spcr1_lsb = 0x80;
 		priv->mspi_hw->cdram[0] |= 0x10;	/* dsck */
 #endif

@@ -153,10 +153,6 @@ static void bcmgenet_irq_task(struct work_struct *work);
 /* power management */
 static void bcmgenet_power_down(struct BcmEnet_devctrl *pDevCtrl, int mode);
 static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode);
-/* Display hex base data */
-static void __maybe_unused dumpHexData(unsigned char *head, int len);
-/* dumpMem32 dump out the number of 32 bit hex data  */
-static void __maybe_unused dumpMem32(unsigned int * pMemAddr, int iNumWords);
 /* allocate an skb, the data comes from ring buffer */
 static struct sk_buff *__bcmgenet_alloc_skb_from_buf(unsigned char *buf,
 		int len, int headroom);
@@ -176,96 +172,6 @@ static unsigned int hfb_arp[] = {
 	0x000F0000,	0x000F0000,	0x000F0000,	0x000F0000,
 	0x000F0000
 };
-#ifdef CONFIG_BCM35230A0
-static inline void bcmgenet_35230_100Tx_fixup(struct BcmEnet_devctrl *pDevCtrl)
-{
-	struct net_device *dev;
-
-	dev = pDevCtrl->dev;
-	/* PHY bug workaround - A0 only */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
-		BMCR_RESET);
-	mdelay(10);
-	/* Tx config (47:45) */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6000);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* classab_en/classab_mode for 100Tx */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x15, 0x5100);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* bias config */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x17, 0x0010);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1a, 0x36c0);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* rx config */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x11, 0x2958);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5555);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x14, 0x0c00);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* rise/fall time-> new step control = { 6,4,3,0,0} */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x04e3);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x00e3);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* 100BT Rx input impedence test --> "i_txconfig<43 == 1" */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6800);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-
-	/* restart autonegotiation */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, MII_BMCR,
-		BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100);
-}
-static inline void bcmgenet_35230_10BT_fixup(struct BcmEnet_devctrl *pDevCtrl)
-{
-	struct net_device *dev;
-
-	dev = pDevCtrl->dev;
-	/* PHY bug workaround - A0 only */
-	/* Tx config (47:45) */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6000);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* classab_en/classab_mode for 10BT */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x008b);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x15, 0x5900);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* bias config */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x17, 0x0010);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1a, 0x36c0);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* rx config */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x11, 0x2958);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x12, 0xdf55);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x13, 0x5555);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x14, 0x0c00);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* rise/fall time-> new step control = { 6,4,3,0,0} */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x04e3);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x18, 0x00e3);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-	/* 100BT Rx input impedence test --> "i_txconfig<43 == 1" */
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000f);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x16, 0x6800);
-	pDevCtrl->mii.mdio_write(dev, pDevCtrl->phyAddr, 0x1f, 0x000b);
-}
-#else
-static inline void bcmgenet_35230_100Tx_fixup(struct BcmEnet_devctrl *pDevCtrl)
-{
-	/* Nothing */
-}
-static inline void bcmgenet_35230_10BT_fixup(struct BcmEnet_devctrl *pDevCtrl)
-{
-	/* NOthing */
-}
-#endif
 /* -------------------------------------------------------------------------
  *  The following bcmemac_xxxx() functions are legacy netaccel hook, will be
  *  replaced!
@@ -385,7 +291,8 @@ int bcmemac_xmit_fragment(int ch, unsigned char *buf, int buf_len,
 
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 	TRACE(("%s: len %d", __func__, buf_len));
-	dumpHexData(buf, buf_len);
+	print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+			16, 1, buf, buf_len, 0);
 #endif
 
 	/* Decrement total BD count and advance our write pointer */
@@ -471,44 +378,6 @@ int bcmemac_xmit_multibuf(int ch, unsigned char *hdr, int hdr_len,
 	return 0;
 }
 EXPORT_SYMBOL(bcmemac_xmit_multibuf);
-/*
- * dumpHexData dump out the hex base binary data
- */
-static void __maybe_unused dumpHexData(unsigned char *head, int len)
-{
-	int i;
-	unsigned char *curPtr = head;
-
-	for (i = 0; i < len; ++i) {
-		if (i % 16 == 0)
-			printk("\n");
-		printk("0x%02X, ", *curPtr++);
-	}
-	printk("\n");
-}
-
-/*
- * dumpMem32 dump out the number of 32 bit hex data
- */
-static void __maybe_unused dumpMem32(unsigned int * pMemAddr, int iNumWords)
-{
-	int i = 0;
-	static char buffer[80];
-
-	sprintf(buffer, "%08X: ", (unsigned int)pMemAddr);
-	printk(buffer);
-	while (iNumWords) {
-		sprintf(buffer, "%08X ", (unsigned int)*pMemAddr++);
-		printk(buffer);
-		iNumWords--;
-		i++;
-		if ((i % 4) == 0 && iNumWords) {
-			sprintf(buffer, "\n%08X: ", (unsigned int)pMemAddr);
-			printk(KERN_NOTICE "%s", buffer);
-		}
-	}
-	printk(KERN_NOTICE "\n");
-}
 static inline void handleAlignment(struct BcmEnet_devctrl *pDevCtrl,
 		struct sk_buff *skb)
 {
@@ -1207,9 +1076,10 @@ static int bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
 		txCBPtr->BdAddr->length_status |= (DMA_TX_QTAG_MASK <<
 				DMA_TX_QTAG_SHIFT);
 #ifdef CONFIG_BCMGENET_DUMP_DATA
-		printk(KERN_NOTICE "%s: data %p len %d",
+		printk(KERN_NOTICE "%s: data 0x%p len %d",
 				__func__, skb->data, skb->len);
-		dumpHexData(skb->data, skb->len);
+		print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+				16, 1, skb->data, skb->len, 0);
 #endif
 		/* Decrement total BD count and advance our write pointer */
 #if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
@@ -1249,7 +1119,8 @@ static int bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 		printk(KERN_NOTICE "%s: frag head len %d",
 				__func__, skb_headlen(skb));
-		dumpHexData(skb->data, skb_headlen(skb));
+		print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+				16, 1, skb->data, skb_headlen(skb), 0);
 #endif
 		/* Decrement total BD count and advance our write pointer */
 #if defined(CONFIG_BRCM_GENET_V2) && defined(CONFIG_NET_SCH_MULTIQ)
@@ -1289,9 +1160,10 @@ static int bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 			printk(KERN_NOTICE "%s: frag%d len %d",
 					__func__, i, frag->size);
-			dumpHexData(
-				(page_address(frag->page)+frag->page_offset),
-				frag->size);
+			print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+				16, 1
+				page_address(frag->page)+frag->page_offset,
+				frag->size, 0);
 #endif
 			txCBPtr->BdAddr->length_status = (
 					(unsigned long)frag->size << 16);
@@ -1480,7 +1352,8 @@ int __maybe_unused bcmgenet_ring_xmit(struct sk_buff *skb,
 
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 	printk(KERN_NOTICE "bcmgenet_xmit: len %d", skb->len);
-	dumpHexData(skb->head, skb->len + 64);
+	print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+				16, 1, skb->head, skb->len + 64, 0);
 #endif
 
 	/*
@@ -1602,7 +1475,6 @@ static void bcmgenet_irq_task(struct work_struct *work)
 		printk(KERN_CRIT "%s cable plugged in, powering up\n",
 				pDevCtrl->dev->name);
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_CABLE_SENSE);
-		bcmgenet_35230_100Tx_fixup(pDevCtrl);
 	} else if (pDevCtrl->irq0_stat & UMAC_IRQ_PHY_DET_F) {
 		pDevCtrl->irq0_stat &= ~UMAC_IRQ_PHY_DET_F;
 		printk(KERN_CRIT "%s cable unplugged, powering down\n",
@@ -1639,11 +1511,6 @@ static void bcmgenet_irq_task(struct work_struct *work)
 			printk(KERN_CRIT "Auto config phy\n");
 			mii_setup(pDevCtrl->dev);
 		}
-#ifdef CONFIG_BCM35230A0
-		/* 35230A0 fix up */
-		if (!(pDevCtrl->umac->mode & 0x3))
-			bcmgenet_35230_10BT_fixup(pDevCtrl);
-#endif
 		if (!netif_carrier_ok(pDevCtrl->dev)) {
 			pDevCtrl->dev->flags |= IFF_RUNNING;
 			netif_carrier_on(pDevCtrl->dev);
@@ -1846,7 +1713,8 @@ static unsigned int bcmgenet_ring_rx(void *ptr, unsigned int budget)
 			}
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 			printk(KERN_NOTICE "%s:\n", __func__);
-			dumpHexData(skb->data, skb->len);
+			print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+				16, 1, skb->data, skb->len, 0);
 #endif
 			/*
 			 * Finish setting up the received SKB and send it
@@ -2072,7 +1940,8 @@ static unsigned int bcmgenet_desc_rx(void *ptr, unsigned int budget)
 		}
 #ifdef CONFIG_BCMGENET_DUMP_DATA
 		printk(KERN_NOTICE "bcmgenet_desc_rx : len=%d", skb->len);
-		dumpHexData(skb->data, skb->len);
+		print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
+			16, 1, skb->data, skb->len, 0);
 #endif
 
 		/*Finish setting up the received SKB and send it to the kernel*/
@@ -3435,7 +3304,6 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		pDevCtrl->timer.data = (unsigned long)pDevCtrl;
 		pDevCtrl->timer.function = bcmgenet_gphy_link_timer;
 	} else {
-		bcmgenet_35230_100Tx_fixup(pDevCtrl);
 		/* check link status */
 		mii_setup(dev);
 	}

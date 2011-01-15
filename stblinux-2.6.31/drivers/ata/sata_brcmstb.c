@@ -64,8 +64,8 @@
 
 #include <asm/brcmstb/brcmstb.h>
 
-static int ssc = 0;	/* aka: bcmssc, gSataInterpolation */
-static int s2 = 0;	/* aka: bcmsata2, gSata2_3Gbps */
+static int ssc;	/* aka: bcmssc, gSataInterpolation */
+static int s2;	/* aka: bcmsata2, gSata2_3Gbps */
 
 module_param(ssc, int, 0444);
 module_param(s2, int, 0444);
@@ -76,6 +76,7 @@ struct k2_host_priv {
 	struct clk		*clk;
 	void __iomem		*mmio_base;
 	unsigned long		hp_jif;
+	struct pci_ops		*ops;
 };
 
 #define SLEEP_FLAG(host) ({ \
@@ -88,7 +89,7 @@ struct k2_host_priv {
 	struct ata_host *h = (host); \
 	struct k2_host_priv *hp = h->private_data; \
 	hp->sleep_flag = (val); \
-	} while(0)
+	} while (0)
 
 #define K2_AWAKE	0
 #define K2_SLEEPING	1
@@ -96,14 +97,17 @@ struct k2_host_priv {
 static int k2_power_on(void *arg);
 
 #define K2_POWER_ON(host) do { \
-	if(SLEEP_FLAG(host) != K2_AWAKE) \
+	if (SLEEP_FLAG(host) != K2_AWAKE) \
 		k2_power_on(host); \
-	} while(0)
+	} while (0)
 
-/* jipeng - if bcmsata2=1, but device only support SATA I, then downgrade to SATA I and reset SATA core */
-#define	AUTO_NEG_SPEED			
+/*
+ * if bcmsata2=1, but device only support SATA I,
+ * then downgrade to SATA I and reset SATA core
+ */
+#define	AUTO_NEG_SPEED
 
-static unsigned int new_speed_mask = 0;
+static unsigned int new_speed_mask;
 
 enum {
 	/* ap->flags bits */
@@ -131,7 +135,7 @@ enum {
 	K2_SATA_SCR_STATUS_OFFSET	= 0x40,	/* aka SCR0 */
 	K2_SATA_SCR_ERROR_OFFSET	= 0x44,	/* aka SCR1 */
 	K2_SATA_SCR_CONTROL_OFFSET	= 0x48,	/* aka SCR2 */
-	K2_SATA_SCR_ACTIVE_OFFSET	= 0x4c,	/* aka SCR3 (but not compatible) */
+	K2_SATA_SCR_ACTIVE_OFFSET	= 0x4c,	/* aka SCR3 */
 
 	/* Others */
 	K2_SATA_SICR1_OFFSET		= 0x80,
@@ -176,107 +180,111 @@ enum {
 #define CMD_DONE			(1 << 15)
 #define SATA_MMIO			0x24
 
-// 1. port is SATA port ( 0 or 1)
-// 2. reg is the address of the MDIO register ( see spec )
-// 3. MMIO_BASE_ADDR  is MMIO base address from SATA PCI configuration
-// registers addr 24-27
-static uint16_t mdio_read_reg(void __iomem *mmio_base, int port,
+/*
+ * 1. port is SATA port ( 0 or 1)
+ * 2. reg is the address of the MDIO register ( see spec )
+ * 3. MMIO_BASE_ADDR  is MMIO base address from SATA PCI configuration
+ * registers addr 24-27
+ */
+static int mdio_read_reg(void __iomem *mmio_base, int port,
 	int reg)
 {
 	void __iomem *mdio = mmio_base + K2_SATA_MDIO_OFFSET;
-	volatile unsigned int pSel = 1 << port;
+	unsigned int pSel = 1 << port;
 	uint32_t cmd  = WRITE_CMD;
-	
-	if( reg > 0x13 )
-	return( -1 );
 
-	//Select Port
-	writel(pSel<<16 | (cmd << 13) | 7, mdio);             //using dev_addr 0
-	while( !(readl(mdio) & CMD_DONE) )
-	udelay( 1);     //wait
+	if (reg > 0x13)
+		return -1;
+
+	/* Select Port */
+	writel(pSel<<16 | (cmd << 13) | 7, mdio);
+	while (!(readl(mdio) & CMD_DONE))
+		udelay(1);
 
 	writel((READ_CMD << 13) + reg, mdio);
-	while( !(readl(mdio) & CMD_DONE) )
-	udelay( 1 );    //wait
+	while (!(readl(mdio) & CMD_DONE))
+		udelay(1);
 
-	return( readl(mdio) >> 16 );
+	return	readl(mdio) >> 16;
 }
 
 static void mdio_write_reg(void __iomem *mmio_base, int port,
-	int reg, uint16_t val )
+	int reg, uint16_t val)
 {
 	void __iomem *mdio = mmio_base + K2_SATA_MDIO_OFFSET;
-	volatile unsigned int pSel = 1 << port;
+	unsigned int pSel = 1 << port;
 	uint32_t cmd  = WRITE_CMD;
-	
-	if( reg > 0x13 )
-	return;
 
-	//Select Port
-	writel(pSel<<16 | (cmd << 13) | 7, mdio);             //using dev_addr 0
-	while( !(readl(mdio) & CMD_DONE) )
-	udelay( 1);     //wait
+	if (reg > 0x13)
+		return;
 
-	writel((val << 16) + (WRITE_CMD << 13) + reg, mdio);          //using dev_addr 0
-	while( !(readl(mdio) & CMD_DONE) )
-	udelay( 1 );    //wait
+	/* Select Port */
+	writel(pSel<<16 | (cmd << 13) | 7, mdio);
+	while (!(readl(mdio) & CMD_DONE))
+		udelay(1);
+
+	writel((val << 16) + (WRITE_CMD << 13) + reg, mdio);
+	while (!(readl(mdio) & CMD_DONE))
+		udelay(1);
 }
 
 static void DisablePHY(void __iomem *mmio_base, int port)
 {
-	uint32_t *pScr2 = PORT_BASE(mmio_base, port) + K2_SATA_SCR_CONTROL_OFFSET;
+	uint32_t *pScr2 = PORT_BASE(mmio_base, port) +
+				K2_SATA_SCR_CONTROL_OFFSET;
 	writel(1, pScr2);
 }
 
 static void EnablePHY(void __iomem *mmio_base, int port)
 {
-	uint32_t *pScr2 = PORT_BASE(mmio_base, port) + K2_SATA_SCR_CONTROL_OFFSET;
+	uint32_t *pScr2 = PORT_BASE(mmio_base, port) +
+				K2_SATA_SCR_CONTROL_OFFSET;
 	writel(0, pScr2);
 }
 
 static void bcm_sg_workaround(void __iomem *mmio_base, int port)
 {
 	int tmp16;
- 
+
 	DisablePHY(mmio_base, port);
- 
-	/* 
-	 * Do Interpolation when 
-	  * spread spectrucm clocking (SSC) is NOT enabled. But, the code must
-	  * be used for a system with SSC-enabled drive.
-	  * ssc is not zero when the argument bcmssc=1 is specified
-	  */
 
- 	if (ssc) {
+	/*
+	 * Do Interpolation when
+	 * spread spectrucm clocking (SSC) is NOT enabled. But, the code must
+	 * be used for a system with SSC-enabled drive.
+	 * ssc is not zero when the argument bcmssc=1 is specified
+	 */
+	if (ssc) {
 		tmp16 = mdio_read_reg(mmio_base, port, 9);
-    		mdio_write_reg(mmio_base, port, 9, tmp16 | 1); //Bump up interpolation
- 	}
+		mdio_write_reg(mmio_base, port, 9, tmp16 | 1);
+	}
 
-	//Do analog reset
-	tmp16 = mdio_read_reg(mmio_base, port,4);
+	/* Do analog reset */
+	tmp16 = mdio_read_reg(mmio_base, port, 4);
 	tmp16 |= 8;
-	mdio_write_reg(mmio_base, port,4,tmp16);
- 
-	udelay( 1000 );      //wait 1 ms
+	mdio_write_reg(mmio_base, port, 4, tmp16);
+
+	udelay(1000);
 	tmp16 &= 0xFFF7;
-	mdio_write_reg(mmio_base, port,4,tmp16 ); // Take reset out
-	udelay( 1000 );      //wait
- 
-	//Enable PHY
+	mdio_write_reg(mmio_base, port, 4, tmp16);
+	udelay(1000);
+
+	/* Enable PHY */
 	EnablePHY(mmio_base, port);
 }
 
-// Fix to turn on 3Gbps 
-
-//This routine change (lower) bandwidth of SATA PLL to lower jitter from main internal // ref clk in attempt to use on chip refclock.
+/*
+ * This routine change (lower) bandwidth of SATA PLL to lower jitter
+ * from main internal ref clk in attempt to use on chip refclock
+ */
 static void brcm_SetPllTxRxCtrl(void __iomem *mmio_base, int port)
 {
-	uint16_t tmp16;
+	int tmp16;
 
-	//Change Tx control
+	/* Change Tx control */
 	mdio_write_reg(mmio_base, port, 0xa, 0x0260);
 	mdio_write_reg(mmio_base, port, 0x11, 0x0a10);
-	//Change Rx control
+	/* Change Rx control */
 	tmp16 = mdio_read_reg(mmio_base, port, 0xF);
 	tmp16 &= 0xc000;
 	tmp16 |= 0x1000;
@@ -285,25 +293,25 @@ static void brcm_SetPllTxRxCtrl(void __iomem *mmio_base, int port)
 
 static void brcm_TunePLL(void __iomem *mmio_base, int port)
 {
-	volatile uint16_t tmp;
+	int tmp;
 	int i;
 
-	//program VCO step bit [12:10] start with 111
+	/* program VCO step bit [12:10] start with 111 */
 	mdio_write_reg(mmio_base, port, 0x13, 0x1c00);
 
 	udelay(100000);
 
-	//start pll tuner
-	mdio_write_reg(mmio_base, port, 0x13, 0x1e00); // 
+	/* start pll tuner */
+	mdio_write_reg(mmio_base, port, 0x13, 0x1e00);
 
-	udelay(10000); // wait
+	udelay(10000);
 
-	//check lock bit
-	tmp = mdio_read_reg(mmio_base, port,0x7);
+	/* check lock bit */
+	tmp = mdio_read_reg(mmio_base, port, 0x7);
 
-	for(i = 0; i < 10000; i++) {
+	for (i = 0; i < 10000; i++) {
 		tmp = mdio_read_reg(mmio_base, port, 0x7);
-		if((tmp & 0x8000) == 0x8000)
+		if ((tmp & 0x8000) == 0x8000)
 			return;
 		udelay(1);
 	}
@@ -312,57 +320,55 @@ static void brcm_TunePLL(void __iomem *mmio_base, int port)
 
 static void brcm_EnableOOBWindowFix(void __iomem *mmio_base, int port)
 {
-	volatile uint16_t sval;
+	int sval;
 
 	/* Port 0 Transmit Control Register */
 	sval = mdio_read_reg(mmio_base, port, 0x0D);
 	sval |= 0x400;
-	mdio_write_reg (mmio_base, port, 0x0D, sval);
+	mdio_write_reg(mmio_base, port, 0x0D, sval);
 }
 
 static void brcm_AnalogReset(void __iomem *mmio_base, int port)
-{  
-	//do analog reset
+{
+	/* do analog reset */
 	mdio_write_reg(mmio_base, port, 0x4, 8);
-	udelay(10000); // wait
+	udelay(10000);
 	mdio_write_reg(mmio_base, port, 0x4, 0);
 
-	bcm_sg_workaround(mmio_base,port);
+	bcm_sg_workaround(mmio_base, port);
 }
 
 static void brcm_InitSata_1_5Gb(void __iomem *mmio_base, int port)
 {
-	volatile uint16_t tmp;
+	int tmp;
 	volatile uint32_t tmp32;
 	void __iomem *port_mmio;
 
 	port_mmio = PORT_BASE(mmio_base, port);
 
-	//reset deskew TX FIFO
-	//1. select port
+	/* reset deskew TX FIFO */
 	mdio_write_reg(mmio_base, port, 7, 1<<port);
-	//toggle reset bit
 	mdio_write_reg(mmio_base, port, 0xd, 0x4800);
-	udelay(10000); // wait
+	udelay(10000);
 	mdio_write_reg(mmio_base, port, 0xd, 0x0800);
-	udelay(10000); // wait
+	udelay(10000);
 
-	//Enable low speed (1.5G) mode
+	/* Enable low speed (1.5G) mode */
 	tmp = mdio_read_reg(mmio_base, port, 8);
 	mdio_write_reg(mmio_base, port, 8, tmp | 0x10);
 
-	//Enable lock monitor.. if not set the lock bit is not updated
+	/* Enable lock monitor.. if not set the lock bit is not updated */
 	tmp = mdio_read_reg(mmio_base, port, 0x13);
 
 	mdio_write_reg(mmio_base, port, 0x13, tmp|2);
 	udelay(10000);
 
-	// disable 3G feature
+	/* disable 3G feature */
 	tmp32 = readl(port_mmio + K2_SATA_F0_OFFSET);
 	writel(tmp32 & 0xfffffbff, port_mmio + K2_SATA_F0_OFFSET);
 	udelay(10000);
 
-	//enable 4G addressing support
+	/* enable 4G addressing support */
 	tmp32 = readl(port_mmio + K2_SATA_SICR2_OFFSET);
 	writel(tmp32 | 0x20009400, port_mmio + K2_SATA_SICR2_OFFSET);
 
@@ -370,16 +376,14 @@ static void brcm_InitSata_1_5Gb(void __iomem *mmio_base, int port)
 	tmp32 &= 0xffff0000;
 	writel(tmp32 | 0x00000f10, port_mmio + K2_SATA_SICR1_OFFSET);
 
-	//Clean up the fifo -- per Ajay
+	/* Clean up the fifo */
 	tmp32 = readl(port_mmio + K2_SATA_E0_OFFSET);
 	writel(tmp32 | 2, port_mmio + K2_SATA_E0_OFFSET);
 
 	brcm_SetPllTxRxCtrl(mmio_base, port);
 	brcm_EnableOOBWindowFix(mmio_base, port);
 
-	if(!port)
-	{
-		//Lower BW
+	if (!port) {
 #ifdef CONFIG_BRCM_SATA_75MHZ_PLL
 		/* use 75Mhz PLL clock */
 		mdio_write_reg(mmio_base, port, 0, 0x2004);
@@ -389,7 +393,7 @@ static void brcm_InitSata_1_5Gb(void __iomem *mmio_base, int port)
 #endif
 		brcm_TunePLL(mmio_base, port);
 		brcm_AnalogReset(mmio_base, port);
-		udelay(10000); // wait
+		udelay(10000);
 	}
 
 	writel(0, port_mmio + K2_SATA_SCR_CONTROL_OFFSET);
@@ -403,30 +407,28 @@ static void brcm_InitSata2_3Gb(void __iomem *mmio_base, int port)
 
 	port_base = PORT_BASE(mmio_base, port);
 
-	//reset deskew TX FIFO
-	//1. select port
+	/* reset deskew TX FIFO */
 	mdio_write_reg(mmio_base, port, 7, 1<<port);
-	//toggle reset bit
 	mdio_write_reg(mmio_base, port, 0xd, 0x4800);
-	udelay(10000); // wait
+	udelay(10000);
 	mdio_write_reg(mmio_base, port, 0xd, 0x0800);
-	udelay(10000); // wait
+	udelay(10000);
 
-	//run at 3G mode
+	/* run at 3G mode */
 	tmp = mdio_read_reg(mmio_base, port, 8);
 	mdio_write_reg(mmio_base, port, 8, tmp & ~(0x10));
-	udelay(10000); // wait
+	udelay(10000);
 
-	//Enable lock monitor.. if not set the lock bit is not updated
+	/* Enable lock monitor. if not set the lock bit is not updated */
 	tmp = mdio_read_reg(mmio_base, port, 0x13);
 	mdio_write_reg(mmio_base, port, 0x13, tmp|2);
 
-	//Enable 3Gb interface
+	/* Enable 3Gb interface */
 	tmp32 = readl(port_base + K2_SATA_F0_OFFSET);
 	writel(tmp32 | 0x10500, port_base + K2_SATA_F0_OFFSET);
-	udelay(10000); // wait
+	udelay(10000);
 
-	//enable 4G addressing support
+	/* enable 4G addressing support */
 	tmp32 = readl(port_base + K2_SATA_SICR2_OFFSET);
 	writel(tmp32 | 0x20009400, port_base + K2_SATA_SICR2_OFFSET);
 
@@ -434,17 +436,15 @@ static void brcm_InitSata2_3Gb(void __iomem *mmio_base, int port)
 	tmp32 &= 0xffff0000;
 	writel(tmp32 | 0x00000f10, port_base + K2_SATA_SICR1_OFFSET);
 
-	//Clean up the fifo -- per Ajay
+	/* Clean up the fifo */
 	tmp32 = readl(port_base + K2_SATA_E0_OFFSET);
 	writel(tmp32|2, port_base + K2_SATA_E0_OFFSET);
 
-	//Tweak PLL, Tx, and Rx
+	/* Tweak PLL, Tx, and Rx */
 	brcm_SetPllTxRxCtrl(mmio_base, port);
 	brcm_EnableOOBWindowFix(mmio_base, port);
 
-	if(!port)
-	{
-		//Lower BW
+	if (!port) {
 #ifdef CONFIG_BRCM_SATA_75MHZ_PLL
 		/* use 75Mhz PLL clock */
 		mdio_write_reg(mmio_base, port, 0, 0x2004);
@@ -454,55 +454,57 @@ static void brcm_InitSata2_3Gb(void __iomem *mmio_base, int port)
 #endif
 		brcm_TunePLL(mmio_base, port);
 		brcm_AnalogReset(mmio_base, port);
-		udelay(10000); // wait
+		udelay(10000);
 	}
-	
+
 	writel(0, port_base + K2_SATA_SCR_CONTROL_OFFSET);
 }
 
 /* Kernel argument bcmsata2=0|1 */
 static inline void brcm_initsata2(void __iomem *mmio_base, int num_ports)
 {
-        int port;
-        unsigned int first=1;
+	int port;
+	unsigned int first = 1;
 
 retry_brcm_initsata2:
-        for (port=0; port < num_ports; port++) 
-	writel(1, (void *)(mmio_base + port*K2_SATA_PORT_OFFSET + K2_SATA_SCR_CONTROL_OFFSET));
+	for (port = 0; port < num_ports; port++)
+		writel(1, (void *)(mmio_base + port*K2_SATA_PORT_OFFSET +
+				K2_SATA_SCR_CONTROL_OFFSET));
 
-        for (port=0; port < num_ports; port++) {
-                /*
-                 * Turn on 3Gbps if bcmsata2=1 is specified as kernel argument
-                 * during bootup
-                 */
-                if(s2) {
-                        if(new_speed_mask == 0)
-                                brcm_InitSata2_3Gb(mmio_base, port);
-                        else if(new_speed_mask & (1<<port))
-                                brcm_InitSata_1_5Gb(mmio_base, port);
-                }
-                else
-                        brcm_InitSata_1_5Gb(mmio_base, port);
-        }
+	for (port = 0; port < num_ports; port++) {
+		/*
+		 * Turn on 3Gbps if bcmsata2=1 is specified as kernel argument
+		 * during bootup
+		 */
+		if (s2) {
+			if (new_speed_mask == 0)
+				brcm_InitSata2_3Gb(mmio_base, port);
+			else if (new_speed_mask & (1<<port))
+				brcm_InitSata_1_5Gb(mmio_base, port);
+		} else
+			brcm_InitSata_1_5Gb(mmio_base, port);
+	}
 
-#ifdef  AUTO_NEG_SPEED
-        if(s2 && first)
-        {
-                int port;
-                msleep(10);
+#ifdef AUTO_NEG_SPEED
+	if (s2 && first) {
+		int port;
+		msleep(10);
 
-                for (port=0; port < num_ports; port++)
-                {
-                        unsigned int status = readl((void *)(mmio_base + port*K2_SATA_PORT_OFFSET + K2_SATA_SCR_STATUS_OFFSET));
-                        if( (status & 0xf) >= 0x5 && (status & 0xf0) == 0 && (status & 0xf00) == 0 ) 
-			new_speed_mask |= 1<<port;
-                }
-                first = 0;
-                if(new_speed_mask)
-                goto retry_brcm_initsata2;
-        }
+		for (port = 0; port < num_ports; port++) {
+			unsigned int status = readl((void *)(mmio_base +
+						port*K2_SATA_PORT_OFFSET +
+						K2_SATA_SCR_STATUS_OFFSET));
+			if ((status & 0xf) >= 0x5 &&
+				(status & 0xf0) == 0 &&
+				(status & 0xf00) == 0)
+				new_speed_mask |= 1<<port;
+		}
 
-	
+		first = 0;
+		if (new_speed_mask)
+			goto retry_brcm_initsata2;
+	}
+
 	new_speed_mask = 0;
 #endif
 }
@@ -514,23 +516,25 @@ void k2_sata_postreset(struct ata_link *link, unsigned int *classes)
 	unsigned int reg = readl(port + K2_SATA_SIMR_OFFSET);
 
 	if (ap->ops->freeze)
-	ap->ops->freeze(ap);
+		ap->ops->freeze(ap);
 
 	writel(reg | SERR_PHYRDY_CHG, port + K2_SATA_SIMR_OFFSET);
 
 	if (ap->ops->thaw)
-	ap->ops->thaw(ap);
+		ap->ops->thaw(ap);
 
 	return ata_std_postreset(link, classes);
 }
 
-static void bcm97xxx_sata_init(struct pci_dev *dev, void __iomem *mmio_base, int n_ports,
-	int sata2_core)
+static void bcm97xxx_sata_init(struct pci_dev *dev,
+				void __iomem *mmio_base,
+				int n_ports,
+				int sata2_core)
 {
-	unsigned int reg;
+	int reg;
 	int port;
 	void __iomem *port_base;
-	
+
 	/* minimum grant, to avoid Latency being reset to lower value */
 	pci_write_config_byte(dev, PCI_MIN_GNT, 0x0f);
 
@@ -539,43 +543,47 @@ static void bcm97xxx_sata_init(struct pci_dev *dev, void __iomem *mmio_base, int
 
 	if (sata2_core) {
 		brcm_initsata2(mmio_base, n_ports);
-		return; /* Skip all workarounds.  Those have been fixed with 65nm */
+		/* Skip all workarounds.  Those have been fixed with 65nm */
+		return;
 	}
-	
+
 	/*
-	* Before accessing the MDIO registers through pci space disable external MDIO access.
-	* write MDIO register at offset 0x07 with (1 << port number) where port number starts at 0.
+	* Before accessing the MDIO registers through pci space disable
+	* external MDIO access. write MDIO register at offset 0x07 with
+	* (1 << port number) where port number starts at 0.
 	* Read MDIO register at offset 0x0D into variable reg.
-	- reg_0d = reg_0d | 0x04
-	- Write reg_0d to MDIO register at offset 0x0D.
+	* reg_0d = reg_0d | 0x04
+	* Write reg_0d to MDIO register at offset 0x0D.
 	*/
 	for (port = 0; port < n_ports; port++) {
-		// Put PHY in reset
+		/* Put PHY in reset */
 		port_base = PORT_BASE(mmio_base, 0);
 		reg = readl(port_base+K2_SATA_SCR_CONTROL_OFFSET);
 		writel((reg & ~0xf) | 1, port_base+K2_SATA_SCR_CONTROL_OFFSET);
 
-		// Choose the port and read reg 0xd
+		/* Choose the port and read reg 0xd */
 		reg = mdio_read_reg(mmio_base, port, 0xd);
 		reg |= 0x4;
 		mdio_write_reg(mmio_base, port, 0xd, reg);
 		reg = mdio_read_reg(mmio_base, port, 0xd);
 
-		// Re-enable PHY
+		/* Re-enable PHY */
 		reg = readl(port_base+K2_SATA_SCR_CONTROL_OFFSET);
 		writel(reg & ~0xf, port_base+K2_SATA_SCR_CONTROL_OFFSET);
 	}
 
-//PR22401: Identify Seagate drives with ST controllers.
-	for (port=0; port < n_ports; port++)
-		bcm_sg_workaround(mmio_base,port);
+	/* PR22401: Identify Seagate drives with ST controllers */
+	for (port = 0; port < n_ports; port++)
+		bcm_sg_workaround(mmio_base, port);
 }
 
 /*
  * Common (legacy/QDMA) functions
  */
 
-static int k2_sata_scr_read (struct ata_link *link, unsigned int sc_reg, u32 *val)
+static int k2_sata_scr_read(struct ata_link *link,
+				unsigned int sc_reg,
+				u32 *val)
 {
 	if (sc_reg > SCR_CONTROL)
 		return -EINVAL;
@@ -584,8 +592,9 @@ static int k2_sata_scr_read (struct ata_link *link, unsigned int sc_reg, u32 *va
 }
 
 
-static int k2_sata_scr_write (struct ata_link *link, unsigned int sc_reg,
-			       u32 val)
+static int k2_sata_scr_write(struct ata_link *link,
+				unsigned int sc_reg,
+				u32 val)
 {
 	if (sc_reg > SCR_CONTROL)
 		return -EINVAL;
@@ -595,7 +604,7 @@ static int k2_sata_scr_write (struct ata_link *link, unsigned int sc_reg,
 
 static u8 k2_stat_check_status(struct ata_port *ap)
 {
-       	return readl((void *) ap->ioaddr.status_addr);
+	return readl((void *) ap->ioaddr.status_addr);
 }
 
 static void k2_sata_tf_read(struct ata_port *ap, struct ata_taskfile *tf)
@@ -608,22 +617,21 @@ static void k2_sata_tf_read(struct ata_port *ap, struct ata_taskfile *tf)
 	qcr = readl(port_mmio + K2_SATA_QCR_OFFSET);
 
 	/* QDMA active, unpaused - pause the queue to read taskfile */
-	if((qcr & 3) == 1)
-	{
+	if ((qcr & 3) == 1) {
 		int i = 0;
 
 		writel(qcr | 2, port_mmio + K2_SATA_QCR_OFFSET);
 		do {
 			qsr = readl(port_mmio + K2_SATA_QSR_OFFSET);
-			if(qsr & 2)
+			if (qsr & 2)
 				break;
-			if(++i == 1000) {
+			if (++i == 1000) {
 				ata_port_printk(ap, KERN_WARNING,
 					"error pausing queue for taskfile read\n");
 				break;
 			}
 			udelay(1);
-		} while(1);
+		} while (1);
 	}
 
 	tf->command = k2_stat_check_status(ap);
@@ -646,9 +654,9 @@ static void k2_sata_tf_read(struct ata_port *ap, struct ata_taskfile *tf)
 		tf->hob_lbal = lbal >> 8;
 		tf->hob_lbam = lbam >> 8;
 		tf->hob_lbah = lbah >> 8;
-        }
+	}
 	/* unpause queue */
-	if((qcr & 3) == 1)
+	if ((qcr & 3) == 1)
 		writel(qcr, port_mmio + K2_SATA_QCR_OFFSET);
 }
 
@@ -714,11 +722,16 @@ static void k2_sata_tf_load(struct ata_port *ap, const struct ata_taskfile *tf)
 		ata_wait_idle(ap);
 	}
 	if (is_addr && (tf->flags & ATA_TFLAG_LBA48)) {
-		writew(tf->feature | (((u16)tf->hob_feature) << 8), (void *)ioaddr->feature_addr);
-		writew(tf->nsect | (((u16)tf->hob_nsect) << 8), (void *)ioaddr->nsect_addr);
-		writew(tf->lbal | (((u16)tf->hob_lbal) << 8), (void *)ioaddr->lbal_addr);
-		writew(tf->lbam | (((u16)tf->hob_lbam) << 8), (void *)ioaddr->lbam_addr);
-		writew(tf->lbah | (((u16)tf->hob_lbah) << 8), (void *)ioaddr->lbah_addr);
+		writew(tf->feature | (((u16)tf->hob_feature) << 8),
+			(void *)ioaddr->feature_addr);
+		writew(tf->nsect | (((u16)tf->hob_nsect) << 8),
+			(void *)ioaddr->nsect_addr);
+		writew(tf->lbal | (((u16)tf->hob_lbal) << 8),
+			(void *)ioaddr->lbal_addr);
+		writew(tf->lbam | (((u16)tf->hob_lbam) << 8),
+			(void *)ioaddr->lbam_addr);
+		writew(tf->lbah | (((u16)tf->hob_lbah) << 8),
+			(void *)ioaddr->lbah_addr);
 	} else if (is_addr) {
 		writew(tf->feature, (void *)ioaddr->feature_addr);
 		writew(tf->nsect, (void *)ioaddr->nsect_addr);
@@ -741,7 +754,7 @@ static void k2_sata_tf_load(struct ata_port *ap, const struct ata_taskfile *tf)
  *	spin_lock_irqsave(host lock)
  */
 
-static void k2_bmdma_setup_mmio (struct ata_queued_cmd *qc)
+static void k2_bmdma_setup_mmio(struct ata_queued_cmd *qc)
 {
 	struct ata_port *ap = qc->ap;
 	unsigned int rw = (qc->tf.flags & ATA_TFLAG_WRITE);
@@ -775,7 +788,7 @@ static void k2_bmdma_setup_mmio (struct ata_queued_cmd *qc)
  *	spin_lock_irqsave(host lock)
  */
 
-static void k2_bmdma_start_mmio (struct ata_queued_cmd *qc)
+static void k2_bmdma_start_mmio(struct ata_queued_cmd *qc)
 {
 	struct ata_port *ap = qc->ap;
 	void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
@@ -785,21 +798,25 @@ static void k2_bmdma_start_mmio (struct ata_queued_cmd *qc)
 	dmactl = readb(mmio + ATA_DMA_CMD);
 	writeb(dmactl | ATA_DMA_START, mmio + ATA_DMA_CMD);
 	/* There is a race condition in certain SATA controllers that can
-	   be seen when the r/w command is given to the controller before the
-	   host DMA is started. On a Read command, the controller would initiate
-	   the command to the drive even before it sees the DMA start. When there
-	   are very fast drives connected to the controller, or when the data request
-	   hits in the drive cache, there is the possibility that the drive returns a part
-	   or all of the requested data to the controller before the DMA start is issued.
-	   In this case, the controller would become confused as to what to do with the data.
-	   In the worst case when all the data is returned back to the controller, the
-	   controller could hang. In other cases it could return partial data returning
-	   in data corruption. This problem has been seen in PPC systems and can also appear
-	   on an system with very fast disks, where the SATA controller is sitting behind a
-	   number of bridges, and hence there is significant latency between the r/w command
-	   and the start command. */
+	 * be seen when the r/w command is given to the controller before the
+	 * host DMA is started. On a Read command, the controller would initiate
+	 * the command to the drive even before it sees the DMA start.
+	 * When there are very fast drives connected to the controller,
+	 * or when the data request hits in the drive cache, there is the
+	 * possibility that the drive returns a part or all of the requested
+	 * data to the controller before the DMA start is issued.
+	 * In this case, the controller would become confused as to what to do
+	 * with the data.
+	 * In the worst case when all the data is returned back to
+	 * the controller, the controller could hang. In other cases it could
+	 * return partial data returning in data corruption. This problem has
+	 * been seen in PPC systems and can also appear on an system with very
+	 * fast disks, where the SATA controller is sitting behind a
+	 * number of bridges, and hence there is significant latency between
+	 * the r/w command and the start command.
+	 */
 
-	/* issue r/w command if the access is to ATA*/
+	/* issue r/w command if the access is to ATA */
 	if (qc->tf.protocol == ATA_PROT_DMA)
 		ap->ops->sff_exec_command(ap, &qc->tf);
 }
@@ -811,13 +828,12 @@ static int k2_sata_port_start(struct ata_port *ap)
 #else
 	ata_port_start(ap);
 #endif
-	
 	return 0;
 }
 
 static void k2_sata_error_handler(struct ata_port *ap)
 {
-		ata_sff_error_handler(ap);
+	ata_sff_error_handler(ap);
 }
 
 static irqreturn_t k2_sata_interrupt(int irq, void *dev_instance)
@@ -840,51 +856,93 @@ static irqreturn_t k2_sata_interrupt(int irq, void *dev_instance)
 		{
 			int rc;
 			unsigned int serror;
- 				
+
 			rc = sata_scr_read(link, SCR_ERROR, &serror);
 
-			if(rc == 0)
-			if(serror & (SERR_PHYRDY_CHG | SERR_DEV_XCHG))
-			{
-				if( time_after(jiffies, hp->hp_jif) )
-				{
-					struct ata_eh_info *ehi = &ap->link.eh_info;
-					unsigned long hp_flags;
-	
-					sata_scr_write(link, SCR_ERROR, serror);
+			if (rc == 0) {
+				if (serror & (SERR_PHYRDY_CHG | SERR_DEV_XCHG)) {
+					if (time_after(jiffies, hp->hp_jif)) {
+						struct ata_eh_info *ehi =
+								&ap->link.eh_info;
+						unsigned long hp_flags;
 
-					spin_lock_irqsave(&hp->lock, hp_flags);
-					hp->hp_jif = jiffies + 2*HZ;
-					spin_unlock_irqrestore(&hp->lock, hp_flags);
+						sata_scr_write(link, SCR_ERROR, serror);
 
-					ata_ehi_hotplugged(ehi);
-					ata_ehi_push_desc(ehi, "hotplug");
-					ata_port_freeze(ap);
-					handled |= IRQ_HANDLED;
-				}
-				else
-				{
-					sata_scr_write(link, SCR_ERROR, serror);
-					handled |= IRQ_HANDLED;
+						spin_lock_irqsave(&hp->lock, hp_flags);
+						hp->hp_jif = jiffies + 2*HZ;
+						spin_unlock_irqrestore(&hp->lock,
+								hp_flags);
+
+						ata_ehi_hotplugged(ehi);
+						ata_ehi_push_desc(ehi, "hotplug");
+						ata_port_freeze(ap);
+						handled |= IRQ_HANDLED;
+					} else {
+						sata_scr_write(link, SCR_ERROR, serror);
+						handled |= IRQ_HANDLED;
+					}
 				}
 			}
 		}
 	}
 
 	spin_unlock_irqrestore(&host->lock, flags);
-	if(handled & IRQ_HANDLED)
-	return handled;
+
+	if (handled & IRQ_HANDLED)
+		return handled;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
 	return ata_bmdma_interrupt(irq, dev_instance);
 #else
 	return	ata_sff_interrupt(irq, dev_instance);
-#endif	
+#endif
 }
 
 /*
  * Power management
  */
+static int brcm_pci_write_config_no_clk(struct pci_bus *bus,
+					unsigned int devfn,
+					int where,
+					int size,
+					u32 data)
+{
+	return PCIBIOS_SUCCESSFUL;
+}
+
+static int brcm_pci_read_config_no_clk(struct pci_bus *bus,
+					unsigned int devfn,
+					int where,
+					int size,
+					u32 *data)
+{
+	return PCIBIOS_SUCCESSFUL;
+}
+
+struct pci_ops brcmstb_pci_ops_no_clk = {
+	.read = brcm_pci_read_config_no_clk,
+	.write = brcm_pci_write_config_no_clk,
+};
+
+static void k2_sata_clk_disable(struct device *dev)
+{
+	struct pci_dev *pci_dev = to_pci_dev(dev);
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct k2_host_priv *hp = host->private_data;
+	clk_disable(hp->clk);
+	hp->ops = pci_bus_set_ops(pci_dev->bus, &brcmstb_pci_ops_no_clk);
+}
+
+static void k2_sata_clk_enable(struct device *dev)
+{
+	struct pci_dev *pci_dev = to_pci_dev(dev);
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct k2_host_priv *hp = host->private_data;
+
+	clk_enable(hp->clk);
+	/* Now restore pci configuration register accessors */
+	(void)pci_bus_set_ops(pci_dev->bus, hp->ops);
+}
 
 static int k2_power_off(void *arg)
 {
@@ -911,8 +969,9 @@ static int k2_power_off(void *arg)
 
 			/*
 			 * dev->sdev is set to NULL in ata_scsi_slave_destroy()
-			 * upon hot or warm unplug.  If it is non-NULL, the device
-			 * is still enabled and it is unsafe to power off the core.
+			 * upon hot or warm unplug.  If it is non-NULL,
+			 * the device is still enabled and it is unsafe to
+			 * power off the core.
 			 */
 			ata_for_each_link(link, ap, EDGE) {
 				ata_for_each_dev(dev, link, ALL) {
@@ -922,12 +981,12 @@ static int k2_power_off(void *arg)
 			}
 		}
 
-		if(!active)
+		if (!active)
 			break;
 
 		active = 0;
 		msleep(100);
-	} while(retries--);
+	} while (retries--);
 
 	if (active) {
 		spin_unlock_irqrestore(&hp->lock, flags);
@@ -953,7 +1012,7 @@ static int k2_power_off(void *arg)
 		}
 
 		disable_irq(pdev->irq);
-		clk_disable(hp->clk);
+		k2_sata_clk_disable(host->dev);
 		spin_unlock_irqrestore(&hp->lock, flags);
 
 		return 0;
@@ -975,7 +1034,7 @@ static int k2_power_on(void *arg)
 		return 0;
 	}
 
-	clk_enable(hp->clk);
+	k2_sata_clk_enable(host->dev);
 	brcm_initsata2(hp->mmio_base, host->n_ports);
 	enable_irq(pdev->irq);
 
@@ -1026,23 +1085,20 @@ static void k2_sata_remove_one(struct pci_dev *pdev)
 	kfree(hp);
 }
 
-static int k2_sata_suspend(struct pci_dev *pdev, pm_message_t mesg)
+static int k2_sata_suspend(struct device *dev)
 {
-	struct device *dev = &pdev->dev;
-	struct ata_host *host = dev_get_drvdata(dev);
-	struct k2_host_priv *hp = host->private_data;
+	struct pci_dev *pci_dev = to_pci_dev(dev);
 
-	clk_disable(hp->clk);
+	dev_printk(KERN_INFO, dev, "%s\n", __func__);
+	pci_save_state(pci_dev);
+	k2_sata_clk_disable(dev);
 	return 0;
 }
 
-static int k2_sata_resume(struct pci_dev *pdev)
+static int k2_sata_resume(struct device *dev)
 {
-	struct device *dev = &pdev->dev;
-	struct ata_host *host = dev_get_drvdata(dev);
-	struct k2_host_priv *hp = host->private_data;
-
-	clk_enable(hp->clk);
+	dev_printk(KERN_INFO, dev, "%s:%d\n", __func__, __LINE__);
+	k2_sata_clk_enable(dev);
 	return 0;
 }
 
@@ -1128,7 +1184,8 @@ static void k2_sata_setup_port(struct ata_ioports *port, void __iomem *base)
 	port->scr_addr		= base + K2_SATA_SCR_STATUS_OFFSET;
 }
 
-static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+static int k2_sata_init_one(struct pci_dev *pdev,
+				const struct pci_device_id *ent)
 {
 	static int printed_version;
 	const struct ata_port_info *ppi[] =
@@ -1177,9 +1234,9 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	 */
 	if (pci_resource_len(pdev, bar_pos) == 0) {
 		/* In IDE mode we need to pin the device to ensure that
-			pcim_release does not clear the busmaster bit in config
-			space, clearing causes busmaster DMA to fail on
-			ports 3 & 4 */
+		 * pcim_release does not clear the busmaster bit in config
+		 * space, clearing causes busmaster DMA to fail on ports 3 & 4
+		 */
 		pcim_pin_device(pdev);
 		return -ENODEV;
 	}
@@ -1193,9 +1250,11 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	host->iomap = pcim_iomap_table(pdev);
 	hp->mmio_base = mmio_base = host->iomap[bar_pos];
 
-	/* different controllers have different number of ports - currently 4 or 8 */
-	/* All ports are on the same function. Multi-function device is no
-	 * longer available. This should not be seen in any system. */
+	/* different controllers have different number of ports -
+	 *  currently 4 or 8
+	 * All ports are on the same function. Multi-function device is no
+	 * longer available. This should not be seen in any system.
+	 */
 	for (i = 0; i < host->n_ports; i++) {
 		struct ata_port *ap = host->ports[i];
 		unsigned int offset = i * K2_SATA_PORT_OFFSET;
@@ -1218,7 +1277,7 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 	 * set by the firmware on the machines I had access to)
 	 */
 	writel(readl(mmio_base + K2_SATA_SICR1_OFFSET) & ~0x00040000,
-	       mmio_base + K2_SATA_SICR1_OFFSET);
+			mmio_base + K2_SATA_SICR1_OFFSET);
 
 	/* Clear SATA error & interrupts we don't use */
 	writel(0xffffffff, mmio_base + K2_SATA_SCR_ERROR_OFFSET);
@@ -1226,7 +1285,8 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 
 	pci_set_master(pdev);
 
-        bcm97xxx_sata_init(pdev, mmio_base, n_ports, ppi[0]->flags & K2_FLAG_BRCM_SATA2);
+	bcm97xxx_sata_init(pdev, mmio_base, n_ports,
+				ppi[0]->flags & K2_FLAG_BRCM_SATA2);
 	hp->hp_jif = jiffies;
 
 	rc = ata_host_activate(host, pdev->irq, k2_sata_interrupt,
@@ -1239,9 +1299,14 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 }
 
 static const struct pci_device_id k2_sata_pci_tbl[] = {
-	{ PCI_VDEVICE(SERVERWORKS, 0x0242), chip_sata1 },	/* 7401 and older */
-	{ PCI_VDEVICE(BROADCOM,    0x8602), chip_sata2 },	/* 7400 and newer */
+	{ PCI_VDEVICE(SERVERWORKS, 0x0242), chip_sata1 }, /* 7401 and older */
+	{ PCI_VDEVICE(BROADCOM,    0x8602), chip_sata2 }, /* 7400 and newer */
 	{ }
+};
+
+static struct dev_pm_ops k2_sata_pm_ops = {
+	.suspend		= k2_sata_suspend,
+	.resume			= k2_sata_resume,
 };
 
 static struct pci_driver k2_sata_pci_driver = {
@@ -1249,8 +1314,7 @@ static struct pci_driver k2_sata_pci_driver = {
 	.id_table		= k2_sata_pci_tbl,
 	.probe			= k2_sata_init_one,
 	.remove			= k2_sata_remove_one,
-	.suspend		= k2_sata_suspend,
-	.resume			= k2_sata_resume,
+	.driver.pm		= &k2_sata_pm_ops,
 };
 
 static int __init k2_sata_init(void)

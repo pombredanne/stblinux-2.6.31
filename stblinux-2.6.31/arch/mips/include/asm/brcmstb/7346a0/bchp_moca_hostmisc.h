@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Aug  2 15:09:00 2010
- *                 MD5 Checksum         616c5da46e7f2e811fb57b174083665d
+ * Date:           Generated on         Mon Nov 15 19:00:02 2010
+ *                 MD5 Checksum         42fd68445ed16abf6b20ef3fbcea6916
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7346/rdb/a0/bchp_moca_hostmisc.h $
  * 
- * Hydra_Software_Devel/1   8/2/10 6:58p pntruong
- * SW7346-2: Initial version.
+ * Hydra_Software_Devel/2   11/16/10 8:50a pntruong
+ * SW7346-2: Synced with central rdb.
  *
  ***************************************************************************/
 
@@ -62,17 +62,9 @@
 #define BCHP_MOCA_HOSTMISC_SW_RESET_spare_control_MASK             0xffff8000
 #define BCHP_MOCA_HOSTMISC_SW_RESET_spare_control_SHIFT            15
 
-/* MOCA_HOSTMISC :: SW_RESET :: moca_cpu_freq [14:10] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_freq_MASK             0x00007c00
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_freq_SHIFT            10
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_cpu_clk_ratio [09:09] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_clk_ratio_MASK        0x00000200
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_cpu_clk_ratio_SHIFT       9
-
-/* MOCA_HOSTMISC :: SW_RESET :: moca_standalone [08:08] */
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_MASK           0x00000100
-#define BCHP_MOCA_HOSTMISC_SW_RESET_moca_standalone_SHIFT          8
+/* MOCA_HOSTMISC :: SW_RESET :: spare_status [14:08] */
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_status_MASK              0x00007f00
+#define BCHP_MOCA_HOSTMISC_SW_RESET_spare_status_SHIFT             8
 
 /* MOCA_HOSTMISC :: SW_RESET :: moca_disable_clocks [07:07] */
 #define BCHP_MOCA_HOSTMISC_SW_RESET_moca_disable_clocks_MASK       0x00000080

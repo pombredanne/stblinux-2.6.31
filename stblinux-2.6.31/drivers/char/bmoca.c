@@ -36,7 +36,7 @@
 #include <linux/io.h>
 
 #define DRV_VERSION		0x00040000
-#define DRV_BUILD_NUMBER	0x20100828
+#define DRV_BUILD_NUMBER	0x20101015
 
 #if defined(CONFIG_BRCMSTB)
 #define MOCA6816		0
@@ -46,7 +46,7 @@
 #include "bmoca.h"
 #include <boardparms.h>
 #include <bcm3450.h>
-#include <bcmenet.h>
+#include <linux/netdevice.h>
 #else
 #define MOCA6816		1
 #include <linux/bmoca.h>
@@ -92,6 +92,7 @@
 
 #define DATA_MEM_END		(OFF_DATA_MEM + DATA_MEM_SIZE)
 #define CNTL_MEM_END		(OFF_CNTL_MEM + CNTL_MEM_SIZE)
+
 #define PKT_REINIT_MEM_END	(OFF_PKT_REINIT_MEM  + PKT_REINIT_MEM_SIZE)
 
 /* mailbox layout */
@@ -129,6 +130,7 @@
 #define NO_FLUSH_IRQ		0
 #define FLUSH_IRQ		1
 #define FLUSH_DMA_ONLY		2
+#define FLUSH_REQRESP_ONLY	3
 
 /* DMA buffers may not share a cache line with anything else */
 #define __DMA_ALIGN__		__attribute__((__aligned__(L1_CACHE_BYTES)))
@@ -375,6 +377,11 @@ static u32 moca_irq_status(struct moca_priv_data *priv, int flush)
 	if (flush == FLUSH_DMA_ONLY) {
 		MOCA_WR(priv->base + OFF_L2_CLEAR,
 			stat & (M2H_DMA | M2H_NEXTCHUNK));
+		MOCA_RD(priv->base + OFF_L2_CLEAR);
+	}
+	if (flush == FLUSH_REQRESP_ONLY) {
+		MOCA_WR(priv->base + OFF_L2_CLEAR,
+			stat & (M2H_RESP | M2H_REQ));
 		MOCA_RD(priv->base + OFF_L2_CLEAR);
 	}
 	return stat;
@@ -1034,6 +1041,7 @@ static irqreturn_t moca_interrupt(int irq, void *arg)
 	}
 	moca_disable_irq(priv);
 	schedule_work(&priv->work);
+
 	return IRQ_HANDLED;
 }
 
@@ -1285,6 +1293,48 @@ static int moca_ioctl_get_drv_info(struct moca_priv_data *priv,
 	return 0;
 }
 
+static int moca_ioctl_check_for_data(struct moca_priv_data *priv,
+	unsigned long arg)
+{
+	int data_avail = 0;
+	int ret;
+	u32 mask;
+
+	moca_disable_irq(priv);
+
+	/* If an IRQ is pending, process it here rather than waiting for it to
+	   ensure the results are ready. Clear the ones we are currently
+	   processing */
+	mask = moca_irq_status(priv, FLUSH_REQRESP_ONLY);
+
+	if (mask & M2H_REQ) {
+		ret = moca_recvmsg(priv, CORE_REQ_OFFSET,
+			CORE_REQ_SIZE, CORE_RESP_OFFSET);
+		if (ret == -ENOMEM)
+			priv->core_req_pending = 1;
+	}
+	if (mask & M2H_RESP) {
+		ret = moca_recvmsg(priv, HOST_RESP_OFFSET, HOST_RESP_SIZE, 0);
+		if (ret == -ENOMEM)
+			priv->host_resp_pending = 1;
+		if (ret == 0) {
+			priv->host_mbx_busy = 0;
+			moca_sendmsg(priv);
+		}
+	}
+
+	moca_enable_irq(priv);
+
+	spin_lock_bh(&priv->list_lock);
+	data_avail = !list_empty(&priv->core_msg_pend_list);
+	spin_unlock_bh(&priv->list_lock);
+
+	if (copy_to_user((void *)arg, &data_avail, sizeof(data_avail)))
+		return -EFAULT;
+
+	return 0;
+}
+
 static long moca_file_ioctl(struct file *file, unsigned int cmd,
 	unsigned long arg)
 {
@@ -1330,6 +1380,9 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 		break;
 	case MOCA_IOCTL_GET_DRV_INFO:
 		ret = moca_ioctl_get_drv_info(priv, arg);
+		break;
+	case MOCA_IOCTL_CHECK_FOR_DATA:
+		ret = moca_ioctl_check_for_data(priv, arg);
 		break;
 	}
 	mutex_unlock(&priv->dev_mutex);
@@ -1562,6 +1615,7 @@ static int moca_probe(struct platform_device *pdev)
 	mutex_init(&priv->dev_mutex);
 	mutex_init(&priv->copy_mutex);
 	mutex_init(&priv->moca_i2c_mutex);
+
 	INIT_WORK(&priv->work, moca_work_handler);
 
 	priv->minor = -1;

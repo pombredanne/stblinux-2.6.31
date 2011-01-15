@@ -77,7 +77,13 @@
 /* BASE and END must be 4MB-aligned (PGDIR_SIZE) */
 #define CONSISTENT_BASE		_AC(0xff400000, UL)
 #define CONSISTENT_END		_AC(0xff800000, UL)
+
+#if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0)
+/* A0 TLB bug */
+#define BRCM_MAX_UPPER_MB	_AC(512, UL)
+#else
 #define BRCM_MAX_UPPER_MB	_AC(768, UL)
+#endif
 
 #endif /* CONFIG_BRCM_UPPER_MEMORY */
 
