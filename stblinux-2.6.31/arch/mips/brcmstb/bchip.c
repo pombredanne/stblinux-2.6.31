@@ -22,6 +22,7 @@
 #include <linux/sched.h>
 #include <linux/spinlock.h>
 #include <linux/module.h>
+#include <linux/version.h>
 
 #include <asm/mipsregs.h>
 #include <asm/barrier.h>
@@ -333,6 +334,21 @@ static void bchip_usb_init_one(uintptr_t base)
 		BCHP_USB_CTRL_EBRIDGE_EBR_SCB_SIZE_MASK);
 	BDEV_SET(USB_REG(base, EBRIDGE),
 		0x08 << BCHP_USB_CTRL_EBRIDGE_EBR_SCB_SIZE_SHIFT);
+
+#if defined(BCHP_USB_CTRL_GENERIC_CTL_1_PLL_SUSPEND_EN_MASK)
+	BDEV_SET(USB_REG(base, GENERIC_CTL_1),
+		BCHP_USB_CTRL_GENERIC_CTL_1_PLL_SUSPEND_EN_MASK);
+#elif defined(BCHP_USB_CTRL_GENERIC_CTL_PLL_SUSPEND_EN_MASK)
+	BDEV_SET(USB_REG(base, GENERIC_CTL),
+		BCHP_USB_CTRL_GENERIC_CTL_PLL_SUSPEND_EN_MASK);
+#elif defined(BCHP_USB_CTRL_PLL_CTL_1_PLL_SUSPEND_EN_MASK)
+	BDEV_SET(USB_REG(base, PLL_CTL_1),
+		BCHP_USB_CTRL_PLL_CTL_1_PLL_SUSPEND_EN_MASK);
+#elif defined(BCHP_USB_CTRL_PLL_CTL_PLL_SUSPEND_EN_MASK)
+	BDEV_SET(USB_REG(base, PLL_CTL),
+		BCHP_USB_CTRL_PLL_CTL_PLL_SUSPEND_EN_MASK);
+#endif
+
 }
 
 void __init bchip_usb_init(void)
@@ -399,6 +415,11 @@ int __init bchip_sdio_init(int id, uintptr_t cfg_base)
 		printk(KERN_INFO "SDIO_%d: disabled by bootloader\n", id);
 		return -ENODEV;
 	}
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 37)
+	printk(KERN_INFO "SDIO_%d: this core requires Linux 2.6.37 or higher; "
+		"disabling\n", id);
+	return -ENODEV;
+#endif
 	printk(KERN_INFO "SDIO_%d: enabling controller\n", id);
 
 	BDEV_UNSET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0xf000);
@@ -413,6 +434,21 @@ int __init bchip_sdio_init(int id, uintptr_t cfg_base)
 	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL2), 0x005f);
 #endif
 #endif /* CONFIG_BRCM_HAS_SDIO_V1 */
+
+#if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0) || \
+	defined(CONFIG_BCM7231A0)
+
+	/* Disable SDHCI capabilities that are broken in A0 silicon */
+	BDEV_UNSET(SDIO_REG(cfg_base, CAP_REG0), 1 << 18);	/* ADMA=0 */
+	BDEV_UNSET(SDIO_REG(cfg_base, CAP_REG0), 1 << 24);	/* 1.8V=0 */
+	BDEV_UNSET(SDIO_REG(cfg_base, CAP_REG1), 1 << 7);	/* Tuning=0 */
+	BDEV_SET(SDIO_REG(cfg_base, CAP_REG1), 1 << 31);	/* Override=1 */
+
+	/* Use better defaults for timing */
+	BDEV_WR(SDIO_REG(cfg_base, IP_DLY), 0);
+	BDEV_WR(SDIO_REG(cfg_base, OP_DLY), 0);
+#endif
+
 	return 0;
 }
 #endif

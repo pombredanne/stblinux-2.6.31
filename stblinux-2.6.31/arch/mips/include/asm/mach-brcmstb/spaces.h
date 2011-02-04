@@ -28,6 +28,8 @@
  * ff1f_8000 - ff1f_ffff: FIXMAP
  */
 
+#define KSEG0_SIZE		_AC(0x20000000, UL)
+#define KSEG1_SIZE		_AC(0x20000000, UL)
 #define MAP_BASE		_AC(0xc0000000, UL)
 #define FIXADDR_TOP		_AC(0xff200000, UL)
 #define BRCM_MAX_UPPER_MB	_AC(0, UL)
@@ -51,6 +53,8 @@
 
 #define CAC_BASE_UPPER		_AC(0xc0000000, UL)
 #define UNCAC_BASE_UPPER	_AC(0xd0000000, UL)
+#define KSEG0_SIZE		_AC(0x20000000, UL)
+#define KSEG1_SIZE		_AC(0x20000000, UL)
 #define MAP_BASE		_AC(0xe0000000, UL)
 #define BRCM_MAX_UPPER_MB	_AC(256, UL)
 
@@ -72,6 +76,8 @@
 
 #define TLB_UPPERMEM_VA		_AC(0xc0000000, UL)
 #define TLB_UPPERMEM_PA		_AC(0x40000000, UL)
+#define KSEG0_SIZE		_AC(0x40000000, UL)
+#define KSEG1_SIZE		_AC(0x00000000, UL)
 #define MAP_BASE		_AC(0xe0000000, UL)
 #define FIXADDR_TOP		_AC(0xff200000, UL)
 /* BASE and END must be 4MB-aligned (PGDIR_SIZE) */
@@ -79,7 +85,7 @@
 #define CONSISTENT_END		_AC(0xff800000, UL)
 
 #if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0)
-/* A0 TLB bug */
+/* HW7425-451: don't use 256MB pages with XKS01 enabled on A0 silicon */
 #define BRCM_MAX_UPPER_MB	_AC(512, UL)
 #else
 #define BRCM_MAX_UPPER_MB	_AC(768, UL)

@@ -2834,6 +2834,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* prepare host */
 	if (hpriv->cap & HOST_CAP_NCQ)
 		pi.flags |= ATA_FLAG_NCQ;
+#if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0) || \
+	defined(CONFIG_BCM7346A0) || defined(CONFIG_BCM7231A0)
+	/* HW7425-442: NCQ broken on A0 silicon */
+	pi.flags &= ~ATA_FLAG_NCQ;
+#endif
 
 	if (hpriv->cap & HOST_CAP_PMP)
 		pi.flags |= ATA_FLAG_PMP;
@@ -2913,12 +2918,6 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		/* disabled/not-implemented port */
 		if (!(hpriv->port_map & (1 << i)))
 			ap->ops = &ata_dummy_port_ops;
-
-#if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0) || \
-	defined(CONFIG_BCM7346A0) || defined(CONFIG_BCM7231A0)
-		/* HW7422-797: default to 3.0Gbps */
-		ap->link.hw_sata_spd_limit = 0x03;
-#endif
 	}
 
 	/* apply workaround for ASUS P5W DH Deluxe mainboard */

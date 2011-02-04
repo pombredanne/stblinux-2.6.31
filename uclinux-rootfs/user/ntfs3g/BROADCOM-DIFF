@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2010-12-21
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-01-24
 #
 # Original package: ntfs3g-2009.4.4.tar.bz2
 #
 diff -ruNp ntfs3g.orig/makefile ntfs3g/makefile
 --- ntfs3g.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ ntfs3g/makefile	2010-12-21 18:59:32.000000000 -0800
++++ ntfs3g/makefile	2011-01-24 11:52:28.000000000 -0800
 @@ -0,0 +1,30 @@
 +include $(ROOTDIR)/config.arch
 +

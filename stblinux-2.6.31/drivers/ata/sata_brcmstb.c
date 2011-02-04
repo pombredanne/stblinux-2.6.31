@@ -53,6 +53,9 @@
 #include <linux/pm.h>
 #include <linux/clk.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+#include <linux/pm_runtime.h>
+#endif
 
 #ifdef CONFIG_PPC_OF
 #include <asm/prom.h>
@@ -76,7 +79,6 @@ struct k2_host_priv {
 	struct clk		*clk;
 	void __iomem		*mmio_base;
 	unsigned long		hp_jif;
-	struct pci_ops		*ops;
 };
 
 #define SLEEP_FLAG(host) ({ \
@@ -535,12 +537,6 @@ static void bcm97xxx_sata_init(struct pci_dev *dev,
 	int port;
 	void __iomem *port_base;
 
-	/* minimum grant, to avoid Latency being reset to lower value */
-	pci_write_config_byte(dev, PCI_MIN_GNT, 0x0f);
-
-	/* SATA master latency timer */
-	pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0xff);
-
 	if (sata2_core) {
 		brcm_initsata2(mmio_base, n_ports);
 		/* Skip all workarounds.  Those have been fixed with 65nm */
@@ -901,47 +897,19 @@ static irqreturn_t k2_sata_interrupt(int irq, void *dev_instance)
 /*
  * Power management
  */
-static int brcm_pci_write_config_no_clk(struct pci_bus *bus,
-					unsigned int devfn,
-					int where,
-					int size,
-					u32 data)
-{
-	return PCIBIOS_SUCCESSFUL;
-}
-
-static int brcm_pci_read_config_no_clk(struct pci_bus *bus,
-					unsigned int devfn,
-					int where,
-					int size,
-					u32 *data)
-{
-	return PCIBIOS_SUCCESSFUL;
-}
-
-struct pci_ops brcmstb_pci_ops_no_clk = {
-	.read = brcm_pci_read_config_no_clk,
-	.write = brcm_pci_write_config_no_clk,
-};
-
 static void k2_sata_clk_disable(struct device *dev)
 {
-	struct pci_dev *pci_dev = to_pci_dev(dev);
 	struct ata_host *host = dev_get_drvdata(dev);
 	struct k2_host_priv *hp = host->private_data;
 	clk_disable(hp->clk);
-	hp->ops = pci_bus_set_ops(pci_dev->bus, &brcmstb_pci_ops_no_clk);
 }
 
 static void k2_sata_clk_enable(struct device *dev)
 {
-	struct pci_dev *pci_dev = to_pci_dev(dev);
 	struct ata_host *host = dev_get_drvdata(dev);
 	struct k2_host_priv *hp = host->private_data;
 
 	clk_enable(hp->clk);
-	/* Now restore pci configuration register accessors */
-	(void)pci_bus_set_ops(pci_dev->bus, hp->ops);
 }
 
 static int k2_power_off(void *arg)
@@ -1077,6 +1045,10 @@ static void k2_sata_remove_one(struct pci_dev *pdev)
 
 	brcm_pm_unregister_cb("sata");
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+	pm_runtime_get_noresume(&pdev->dev);
+#endif
+
 	K2_POWER_ON(host);
 	ata_pci_remove_one(pdev);
 
@@ -1087,20 +1059,110 @@ static void k2_sata_remove_one(struct pci_dev *pdev)
 
 static int k2_sata_suspend(struct device *dev)
 {
-	struct pci_dev *pci_dev = to_pci_dev(dev);
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct pci_dev *pdev = to_pci_dev(host->dev);
+	struct k2_host_priv *hp = host->private_data;
+	int i;
+	void __iomem *port_base;
+	unsigned long flags;
 
-	dev_printk(KERN_INFO, dev, "%s\n", __func__);
-	pci_save_state(pci_dev);
+	spin_lock_irqsave(&hp->lock, flags);
+
+	if (SLEEP_FLAG(host) == K2_SLEEPING) {
+		spin_unlock_irqrestore(&hp->lock, flags);
+		return 0;
+	}
+
+	SET_SLEEP_FLAG(host, K2_SLEEPING);
+
+	/* put all ports in Slumber mode */
+	for (i = 0; i < host->n_ports; i++) {
+		port_base = PORT_BASE(hp->mmio_base, i);
+		writel(readl(port_base + K2_SATA_SICR1_OFFSET) |
+			(1 << 25), port_base + K2_SATA_SICR1_OFFSET);
+		udelay(10);
+		writel((readl(port_base + K2_SATA_SICR2_OFFSET) &
+			~(7 << 18)) | (2 << 18),
+			port_base + K2_SATA_SICR2_OFFSET);
+		udelay(50);
+		writel((readl(port_base + K2_SATA_SICR2_OFFSET) &
+			~(7 << 18)) | (0 << 18),
+			port_base + K2_SATA_SICR2_OFFSET);
+	}
+
+	disable_irq(pdev->irq);
 	k2_sata_clk_disable(dev);
+	spin_unlock_irqrestore(&hp->lock, flags);
 	return 0;
 }
 
 static int k2_sata_resume(struct device *dev)
 {
-	dev_printk(KERN_INFO, dev, "%s:%d\n", __func__, __LINE__);
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct pci_dev *pdev = to_pci_dev(host->dev);
+	struct k2_host_priv *hp = host->private_data;
+	void __iomem *port_base;
+	int i;
+	unsigned long flags;
+
+	spin_lock_irqsave(&hp->lock, flags);
+	if (SLEEP_FLAG(host) == K2_AWAKE) {
+		spin_unlock_irqrestore(&hp->lock, flags);
+		return 0;
+	}
+
 	k2_sata_clk_enable(dev);
+	brcm_initsata2(hp->mmio_base, host->n_ports);
+	enable_irq(pdev->irq);
+
+	/* wake up all ports */
+	for (i = 0; i < host->n_ports; i++) {
+		struct ata_port *ap;
+		struct ata_link *link;
+
+		port_base = PORT_BASE(hp->mmio_base, i);
+		writel(readl(port_base + K2_SATA_SICR1_OFFSET) &
+			~(1 << 25), port_base + K2_SATA_SICR1_OFFSET);
+		udelay(10);
+		writel((readl(port_base + K2_SATA_SICR2_OFFSET) &
+			~(7 << 18)) | (4 << 18),
+			port_base + K2_SATA_SICR2_OFFSET);
+		udelay(50);
+		writel((readl(port_base + K2_SATA_SICR2_OFFSET) &
+			~(7 << 18)) | (0 << 18),
+			port_base + K2_SATA_SICR2_OFFSET);
+
+		ap = host->ports[i];
+
+		ata_for_each_link(link, ap, EDGE) {
+			sata_std_hardreset(link, NULL, 1000);
+		}
+	}
+
+	SET_SLEEP_FLAG(host, K2_AWAKE);
+	spin_unlock_irqrestore(&hp->lock, flags);
 	return 0;
 }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+static int k2_sata_runtime_suspend(struct device *dev)
+{
+	return k2_sata_suspend(dev);
+}
+
+static int k2_sata_runtime_resume(struct device *dev)
+{
+	return k2_sata_resume(dev);
+}
+
+static int k2_sata_runtime_idle(struct device *dev)
+{
+	dev_printk(KERN_DEBUG, dev, "%s [%lu] disabling the SATA clock\n",
+		__func__, jiffies);
+	return 0; /* ignored by pm core */
+}
+
+#endif
 
 /*
  * Driver initialization
@@ -1295,6 +1357,14 @@ static int k2_sata_init_one(struct pci_dev *pdev,
 		return rc;
 
 	brcm_pm_register_cb("sata", k2_sata_pm_cb, host);
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+	/* pci core incremented pm counter before calling probe,
+	 * we are decrementing it to enable runtime pm */
+	pm_runtime_put_noidle(&pdev->dev);
+
+#endif
+
 	return 0;
 }
 
@@ -1305,8 +1375,13 @@ static const struct pci_device_id k2_sata_pci_tbl[] = {
 };
 
 static struct dev_pm_ops k2_sata_pm_ops = {
-	.suspend		= k2_sata_suspend,
-	.resume			= k2_sata_resume,
+	.suspend_noirq		= k2_sata_suspend,
+	.resume_noirq		= k2_sata_resume,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+	.runtime_suspend	= k2_sata_runtime_suspend,
+	.runtime_resume		= k2_sata_runtime_resume,
+	.runtime_idle		= k2_sata_runtime_idle,
+#endif
 };
 
 static struct pci_driver k2_sata_pci_driver = {

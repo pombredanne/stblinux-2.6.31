@@ -1,4 +1,3 @@
-
 /********************************************
 bi_vars.h
 copyright 1991, Michael D. Brennan
@@ -10,8 +9,9 @@ Mawk is distributed without warranty under the terms of
 the GNU General Public License, version 2, 1991.
 ********************************************/
 
-
-/* $Log: bi_vars.h,v $
+/*
+ * $MawkId: bi_vars.h,v 1.6 2009/12/16 23:32:06 tom Exp $
+ * @Log: bi_vars.h,v @
  * Revision 1.1.1.1  1993/07/03  18:58:09  mike
  * move source to cvs
  *
@@ -21,22 +21,22 @@ the GNU General Public License, version 2, 1991.
  * Revision 5.1  1991/12/05  07:59:05  brennan
  * 1.1 pre-release
  *
-*/
-
+ */
 
 /* bi_vars.h */
 
 #ifndef  BI_VARS_H
 #define  BI_VARS_H  1
 
+#include "types.h"
 
 /* builtin variables NF, RS, FS, OFMT are stored
    internally in field[], so side effects of assignment can
-   be handled 
+   be handled
 */
 
 /* NR and FNR must be next to each other */
-#define  NR	   bi_vars  
+#define  NR	   bi_vars
 #define  FNR	   (bi_vars+1)
 #define  ARGC      (bi_vars+2)
 #define  FILENAME  (bi_vars+3)
@@ -46,14 +46,13 @@ the GNU General Public License, version 2, 1991.
 #define  RSTART    (bi_vars+7)
 #define  SUBSEP    (bi_vars+8)
 
-#if  MSDOS 
+#if USE_BINMODE
 #define  BINMODE   (bi_vars+9)
 #define  NUM_BI_VAR  10
 #else
 #define  NUM_BI_VAR  9
 #endif
 
-extern CELL bi_vars[NUM_BI_VAR] ;
-
+extern CELL bi_vars[NUM_BI_VAR];
 
 #endif

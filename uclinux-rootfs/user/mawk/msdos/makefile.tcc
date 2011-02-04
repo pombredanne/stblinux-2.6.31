@@ -9,7 +9,7 @@
 #
 #  e.g. -DREARGV=argvmks
 
-#$Log: makefile.tcc,v $
+#@Log: makefile.tcc,v @
 # Revision 1.1  1995/08/20  17:44:37  mike
 # minor fixes to msc and lower case makefile names
 #

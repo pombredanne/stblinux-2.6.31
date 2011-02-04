@@ -495,11 +495,11 @@ static const unsigned short yyrline[] =
      438,   440,   444,   446,   452,   458,   457,   463,   465,   470,
      487,   489,   494,   495,   497,   499,   500,   504,   509,   514,
      515,   516,   517,   519,   521,   525,   530,   535,   536,   538,
-     540,   544,   548,   569,   577,   578,   580,   582,   587,   588,
-     590,   595,   596,   598,   604,   605,   607,   609,   611,   617,
-     618,   620,   625,   626,   631,   632,   636,   637,   642,   643,
-     648,   649,   654,   655,   660,   661,   665,   667,   674,   676,
-     678,   679,   684
+     540,   544,   548,   568,   576,   577,   579,   581,   586,   587,
+     589,   594,   595,   597,   603,   604,   606,   608,   610,   616,
+     617,   619,   624,   625,   630,   631,   635,   636,   641,   642,
+     647,   648,   653,   654,   659,   660,   664,   666,   673,   675,
+     677,   678,   683
 };
 #endif
 
@@ -1705,7 +1705,6 @@ yyreduce:
   case 92:
 #line 549 "jv-exp.y"
     {
-		  int exp_size = expout_ptr;
 		  int last_exp_size = length_of_subexp(expout, expout_ptr);
 		  struct type *type;
 		  int i;
@@ -1727,121 +1726,121 @@ yyreduce:
     break;
 
   case 93:
-#line 570 "jv-exp.y"
+#line 569 "jv-exp.y"
     { write_exp_elt_opcode (UNOP_CAST);
 		  write_exp_elt_type (java_array_type (java_type_from_name (yyvsp[-3].sval), yyvsp[-2].lval));
 		  write_exp_elt_opcode (UNOP_CAST); }
     break;
 
   case 95:
-#line 579 "jv-exp.y"
+#line 578 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_MUL); }
     break;
 
   case 96:
-#line 581 "jv-exp.y"
+#line 580 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_DIV); }
     break;
 
   case 97:
-#line 583 "jv-exp.y"
+#line 582 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_REM); }
     break;
 
   case 99:
-#line 589 "jv-exp.y"
+#line 588 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_ADD); }
     break;
 
   case 100:
-#line 591 "jv-exp.y"
+#line 590 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_SUB); }
     break;
 
   case 102:
-#line 597 "jv-exp.y"
+#line 596 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_LSH); }
     break;
 
   case 103:
-#line 599 "jv-exp.y"
+#line 598 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_RSH); }
     break;
 
   case 105:
-#line 606 "jv-exp.y"
+#line 605 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_LESS); }
     break;
 
   case 106:
-#line 608 "jv-exp.y"
+#line 607 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_GTR); }
     break;
 
   case 107:
-#line 610 "jv-exp.y"
+#line 609 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_LEQ); }
     break;
 
   case 108:
-#line 612 "jv-exp.y"
+#line 611 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_GEQ); }
     break;
 
   case 110:
-#line 619 "jv-exp.y"
+#line 618 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_EQUAL); }
     break;
 
   case 111:
-#line 621 "jv-exp.y"
+#line 620 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_NOTEQUAL); }
     break;
 
   case 113:
-#line 627 "jv-exp.y"
+#line 626 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_BITWISE_AND); }
     break;
 
   case 115:
-#line 633 "jv-exp.y"
+#line 632 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_BITWISE_XOR); }
     break;
 
   case 117:
-#line 638 "jv-exp.y"
+#line 637 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_BITWISE_IOR); }
     break;
 
   case 119:
-#line 644 "jv-exp.y"
+#line 643 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_LOGICAL_AND); }
     break;
 
   case 121:
-#line 650 "jv-exp.y"
+#line 649 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_LOGICAL_OR); }
     break;
 
   case 123:
-#line 656 "jv-exp.y"
+#line 655 "jv-exp.y"
     { write_exp_elt_opcode (TERNOP_COND); }
     break;
 
   case 126:
-#line 666 "jv-exp.y"
+#line 665 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_ASSIGN); }
     break;
 
   case 127:
-#line 668 "jv-exp.y"
+#line 667 "jv-exp.y"
     { write_exp_elt_opcode (BINOP_ASSIGN_MODIFY);
 		  write_exp_elt_opcode (yyvsp[-1].opcode);
 		  write_exp_elt_opcode (BINOP_ASSIGN_MODIFY); }
     break;
 
   case 128:
-#line 675 "jv-exp.y"
+#line 674 "jv-exp.y"
     { push_expression_name (yyvsp[0].sval); }
     break;
 
@@ -1849,7 +1848,7 @@ yyreduce:
     }
 
 /* Line 1000 of yacc.c.  */
-#line 1853 "jv-exp.c.tmp"
+#line 1852 "jv-exp.c.tmp"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -2074,7 +2073,7 @@ yyreturn:
 }
 
 
-#line 687 "jv-exp.y"
+#line 686 "jv-exp.y"
 
 /* Take care of parsing a number (anything that starts with a digit).
    Set yylval and return the token type; update lexptr.
@@ -2289,7 +2288,7 @@ yylex (void)
       lexptr++;
       c = *lexptr++;
       if (c == '\\')
-	c = parse_escape (&lexptr);
+	c = parse_escape (parse_gdbarch, &lexptr);
       else if (c == '\'')
 	error (_("Empty character constant"));
 
@@ -2452,7 +2451,7 @@ yylex (void)
 	    break;
 	  case '\\':
 	    tokptr++;
-	    c = parse_escape (&tokptr);
+	    c = parse_escape (parse_gdbarch, &tokptr);
 	    if (c == -1)
 	      {
 		continue;
@@ -2749,7 +2748,6 @@ push_expression_name (struct stoken name)
 {
   char *tmp;
   struct type *typ;
-  char *ptr;
   int i;
 
   for (i = 0;  i < name.length;  i++)

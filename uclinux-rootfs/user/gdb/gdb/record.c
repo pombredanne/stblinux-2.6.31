@@ -152,6 +152,10 @@ struct record_entry
 /* This is the debug switch for process record.  */
 int record_debug = 0;
 
+/* If true, query if PREC cannot record memory
+   change of next instruction.  */
+int record_memory_query = 0;
+
 struct record_core_buf_entry
 {
   struct record_core_buf_entry *prev;
@@ -544,6 +548,7 @@ record_check_insn_num (int set_terminal)
 	  if (record_stop_at_limit)
 	    {
 	      int q;
+
 	      if (set_terminal)
 		target_terminal_ours ();
 	      q = yquery (_("Do you want to auto delete previous execution "
@@ -838,8 +843,6 @@ record_core_open_1 (char *name, int from_tty)
 static void
 record_open_1 (char *name, int from_tty)
 {
-  struct target_ops *t;
-
   if (record_debug)
     fprintf_unfiltered (gdb_stdlog, "Process record: record_open\n");
 
@@ -867,6 +870,10 @@ record_open_1 (char *name, int from_tty)
     error (_("Could not find 'to_insert_breakpoint' method on the target stack."));
   if (!tmp_to_remove_breakpoint)
     error (_("Could not find 'to_remove_breakpoint' method on the target stack."));
+  if (!tmp_to_stopped_by_watchpoint)
+    error (_("Could not find 'to_stopped_by_watchpoint' method on the target stack."));
+  if (!tmp_to_stopped_data_address)
+    error (_("Could not find 'to_stopped_data_address' method on the target stack."));
 
   push_target (&record_ops);
 }
@@ -897,6 +904,8 @@ record_open (char *name, int from_tty)
   tmp_to_xfer_partial = NULL;
   tmp_to_insert_breakpoint = NULL;
   tmp_to_remove_breakpoint = NULL;
+  tmp_to_stopped_by_watchpoint = NULL;
+  tmp_to_stopped_data_address = NULL;
 
   /* Set the beneath function pointers.  */
   for (t = current_target.beneath; t != NULL; t = t->beneath)
@@ -1064,6 +1073,9 @@ record_wait (struct target_ops *ops,
 			"record_resume_step = %d\n",
 			record_resume_step);
 
+  record_get_sig = 0;
+  signal (SIGINT, record_sig_handler);
+
   if (!RECORD_IS_REPLAY && ops != &record_core_ops)
     {
       if (record_resume_step)
@@ -1082,6 +1094,9 @@ record_wait (struct target_ops *ops,
 	    {
 	      ret = record_beneath_to_wait (record_beneath_to_wait_ops,
 					    ptid, status, options);
+
+	      if (record_resume_step)
+	        return ret;
 
 	      /* Is this a SIGTRAP?  */
 	      if (status->kind == TARGET_WAITKIND_STOPPED
@@ -1178,8 +1193,6 @@ record_wait (struct target_ops *ops,
 	    }
 	}
 
-      record_get_sig = 0;
-      signal (SIGINT, record_sig_handler);
       /* If GDB is in terminal_inferior mode, it will not get the signal.
          And in GDB replay mode, GDB doesn't need to be in terminal_inferior
          mode, because inferior will not executed.
@@ -1293,8 +1306,6 @@ Process record: hit hw watchpoint.\n");
 	}
       while (continue_flag);
 
-      signal (SIGINT, handle_sigint);
-
 replay_out:
       if (record_get_sig)
 	status->value.sig = TARGET_SIGNAL_INT;
@@ -1306,6 +1317,8 @@ replay_out:
 
       discard_cleanups (old_cleanups);
     }
+
+  signal (SIGINT, handle_sigint);
 
   do_cleanups (set_cleanups);
   return inferior_ptid;
@@ -1392,6 +1405,7 @@ record_registers_change (struct regcache *regcache, int regnum)
   if (regnum < 0)
     {
       int i;
+
       for (i = 0; i < gdbarch_num_regs (get_regcache_arch (regcache)); i++)
 	{
 	  if (record_arch_list_add_reg (regcache, i))
@@ -1458,6 +1472,7 @@ record_store_registers (struct target_ops *ops, struct regcache *regcache,
 	      if (regno < 0)
 		{
 		  int i;
+
 		  for (i = 0;
 		       i < gdbarch_num_regs (get_regcache_arch (regcache));
 		       i++)
@@ -1743,85 +1758,84 @@ record_core_xfer_partial (struct target_ops *ops, enum target_object object,
 		          const gdb_byte *writebuf, ULONGEST offset,
                           LONGEST len)
 {
-   if (object == TARGET_OBJECT_MEMORY)
-     {
-       if (record_gdb_operation_disable || !writebuf)
-         {
-           struct target_section *p;
-           for (p = record_core_start; p < record_core_end; p++)
-             {
-               if (offset >= p->addr)
-                 {
-                   struct record_core_buf_entry *entry;
-		   ULONGEST sec_offset;
+  if (object == TARGET_OBJECT_MEMORY)
+    {
+      if (record_gdb_operation_disable || !writebuf)
+	{
+	  struct target_section *p;
 
-                   if (offset >= p->endaddr)
-                     continue;
+	  for (p = record_core_start; p < record_core_end; p++)
+	    {
+	      if (offset >= p->addr)
+		{
+		  struct record_core_buf_entry *entry;
+		  ULONGEST sec_offset;
 
-                   if (offset + len > p->endaddr)
-                     len = p->endaddr - offset;
+		  if (offset >= p->endaddr)
+		    continue;
 
-                   sec_offset = offset - p->addr;
+		  if (offset + len > p->endaddr)
+		    len = p->endaddr - offset;
 
-                   /* Read readbuf or write writebuf p, offset, len.  */
-                   /* Check flags.  */
-                   if (p->the_bfd_section->flags & SEC_CONSTRUCTOR
-                       || (p->the_bfd_section->flags & SEC_HAS_CONTENTS) == 0)
-                     {
-                       if (readbuf)
-                         memset (readbuf, 0, len);
-                       return len;
-                     }
-                   /* Get record_core_buf_entry.  */
-                   for (entry = record_core_buf_list; entry;
-                        entry = entry->prev)
-                     if (entry->p == p)
-                       break;
-                   if (writebuf)
-                     {
-                       if (!entry)
-                         {
-                           /* Add a new entry.  */
-                           entry
-                             = (struct record_core_buf_entry *)
-                                 xmalloc
-                                   (sizeof (struct record_core_buf_entry));
-                           entry->p = p;
-                           if (!bfd_malloc_and_get_section (p->bfd,
-                                                            p->the_bfd_section,
-                                                            &entry->buf))
-                             {
-                               xfree (entry);
-                               return 0;
-                             }
-                           entry->prev = record_core_buf_list;
-                           record_core_buf_list = entry;
-                         }
+		  sec_offset = offset - p->addr;
 
-                        memcpy (entry->buf + sec_offset, writebuf,
-				(size_t) len);
-                     }
-                   else
-                     {
-                       if (!entry)
-                         return record_beneath_to_xfer_partial
-                                  (record_beneath_to_xfer_partial_ops,
-                                   object, annex, readbuf, writebuf,
-                                   offset, len);
+		  /* Read readbuf or write writebuf p, offset, len.  */
+		  /* Check flags.  */
+		  if (p->the_bfd_section->flags & SEC_CONSTRUCTOR
+		      || (p->the_bfd_section->flags & SEC_HAS_CONTENTS) == 0)
+		    {
+		      if (readbuf)
+			memset (readbuf, 0, len);
+		      return len;
+		    }
+		  /* Get record_core_buf_entry.  */
+		  for (entry = record_core_buf_list; entry;
+		       entry = entry->prev)
+		    if (entry->p == p)
+		      break;
+		  if (writebuf)
+		    {
+		      if (!entry)
+			{
+			  /* Add a new entry.  */
+			  entry = (struct record_core_buf_entry *)
+			    xmalloc (sizeof (struct record_core_buf_entry));
+			  entry->p = p;
+			  if (!bfd_malloc_and_get_section (p->bfd,
+							   p->the_bfd_section,
+							   &entry->buf))
+			    {
+			      xfree (entry);
+			      return 0;
+			    }
+			  entry->prev = record_core_buf_list;
+			  record_core_buf_list = entry;
+			}
 
-                       memcpy (readbuf, entry->buf + sec_offset,
-			       (size_t) len);
-                     }
+		      memcpy (entry->buf + sec_offset, writebuf,
+			      (size_t) len);
+		    }
+		  else
+		    {
+		      if (!entry)
+			return record_beneath_to_xfer_partial
+			  (record_beneath_to_xfer_partial_ops,
+			   object, annex, readbuf, writebuf,
+			   offset, len);
 
-                   return len;
-                 }
-             }
+		      memcpy (readbuf, entry->buf + sec_offset,
+			      (size_t) len);
+		    }
 
-           return -1;
-         }
-       else
-         error (_("You can't do that without a process to debug."));
-     }
+		  return len;
+		}
+	    }
+
+	  return -1;
+	}
+      else
+	error (_("You can't do that without a process to debug."));
+    }
 
   return record_beneath_to_xfer_partial (record_beneath_to_xfer_partial_ops,
                                          object, annex, readbuf, writebuf,
@@ -1857,7 +1871,7 @@ record_core_has_execution (struct target_ops *ops)
 static void
 init_record_core_ops (void)
 {
-  record_core_ops.to_shortname = "record_core";
+  record_core_ops.to_shortname = "record-core";
   record_core_ops.to_longname = "Process record and replay target";
   record_core_ops.to_doc =
     "Log program while executing and replay execution from log.";
@@ -2168,17 +2182,16 @@ record_restore (void)
 
   while (1)
     {
-      int ret;
-      uint8_t tmpu8;
+      uint8_t rectype;
       uint32_t regnum, len, signal, count;
       uint64_t addr;
 
       /* We are finished when offset reaches osec_size.  */
       if (bfd_offset >= osec_size)
 	break;
-      bfdcore_read (core_bfd, osec, &tmpu8, sizeof (tmpu8), &bfd_offset);
+      bfdcore_read (core_bfd, osec, &rectype, sizeof (rectype), &bfd_offset);
 
-      switch (tmpu8)
+      switch (rectype)
         {
         case record_reg: /* reg */
           /* Get register number to regnum.  */
@@ -2315,6 +2328,7 @@ record_save_cleanups (void *data)
 {
   bfd *obfd = data;
   char *pathname = xstrdup (bfd_get_filename (obfd));
+
   bfd_close (obfd);
   unlink (pathname);
   xfree (pathname);
@@ -2327,7 +2341,6 @@ static void
 cmd_record_save (char *args, int from_tty)
 {
   char *recfilename, recfilename_buffer[40];
-  int recfd;
   struct record_entry *cur_record_list;
   uint32_t magic;
   struct regcache *regcache;
@@ -2721,4 +2734,16 @@ record/replay buffer.  Zero means unlimited.  Default is 200000."),
 Restore the program to its state at instruction number N.\n\
 Argument is instruction number, as shown by 'info record'."),
 	   &record_cmdlist);
+
+  add_setshow_boolean_cmd ("memory-query", no_class,
+			   &record_memory_query, _("\
+Set whether query if PREC cannot record memory change of next instruction."),
+                           _("\
+Show whether query if PREC cannot record memory change of next instruction."),
+                           _("\
+Default is OFF.\n\
+When ON, query if PREC cannot record memory change of next instruction."),
+			   NULL, NULL,
+			   &set_record_cmdlist, &show_record_cmdlist);
+
 }

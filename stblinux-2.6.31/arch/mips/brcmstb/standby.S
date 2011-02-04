@@ -167,6 +167,9 @@
 wait_loop:
 # enable int2 and then wait for an interrupt
 	mfc0	t0, CP0_STATUS
+# save cp0 sr
+	move	s2, t0
+
 	li	t1, ~(ST0_IM | ST0_IE)
 	and	t0, t1
 	ori	t0, STATUSF_IP2
@@ -219,6 +222,7 @@ wait_loop:
 	bal	dputc
 	li	a0, 'B'
 
+	li	t0, REG(BCHP_SUN_TOP_CTRL_PM_CTRL)
 	li	t2, BCHP_SUN_TOP_CTRL_PM_CTRL_pm_bsp_ready_for_pwrdn_MASK
 1:
 	lw	t1, 0(t0)
@@ -264,6 +268,13 @@ rtn_from_wait:
 	li	a0, 0x0d
 	bal	dputc
 	li	a0, 0x0a
+
+# restore sr
+	sync
+	nop
+
+	mtc0	s2, CP0_STATUS
+	nop
 
 	li	v0, 0
 

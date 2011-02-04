@@ -68,20 +68,18 @@ static int ehci_brcm_reset(struct usb_hcd *hcd)
 
 static void ehci_brcm_shutdown(struct usb_hcd *hcd)
 {
-	if (!brcm_usb_is_inactive())
+	if (test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags))
 		ehci_shutdown(hcd);
 }
 
+#ifdef CONFIG_PM
 static int ehci_brcm_suspend(struct usb_hcd *hcd)
 {
 	int ret;
 
-#ifdef CONFIG_PM
-	if (brcm_usb_is_inactive())
-		return 0;
 	ret = ehci_bus_suspend(hcd);
 	brcm_usb_suspend(hcd);
-#endif
+
 	return ret;
 }
 
@@ -89,14 +87,11 @@ static int ehci_brcm_resume(struct usb_hcd *hcd)
 {
 	int ret = 0;
 
-#ifdef CONFIG_PM
-	if (brcm_usb_is_inactive())
-		return 0;
 	brcm_usb_resume(hcd);
 	ret = ehci_bus_resume(hcd);
-#endif
 	return ret;
 }
+#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -138,8 +133,10 @@ static const struct hc_driver ehci_brcm_hc_driver = {
 	 */
 	.hub_status_data =	ehci_hub_status_data,
 	.hub_control =		ehci_hub_control,
+#ifdef	CONFIG_PM
 	.bus_suspend =		ehci_brcm_suspend,
 	.bus_resume =		ehci_brcm_resume,
+#endif
 	.relinquish_port =	ehci_relinquish_port,
 	.port_handed_over =	ehci_port_handed_over,
 	.clear_tt_buffer_complete = ehci_clear_tt_buffer_complete,

@@ -1,4 +1,3 @@
-
 /********************************************
 sizes.h
 copyright 1991, 1992.  Michael D. Brennan
@@ -10,7 +9,9 @@ Mawk is distributed without warranty under the terms of
 the GNU General Public License, version 2, 1991.
 ********************************************/
 
-/* $Log: sizes.h,v $
+/*
+ * $MawkId: sizes.h,v 1.6 2010/02/21 22:37:21 tom Exp $
+ * @Log: sizes.h,v @
  * Revision 1.8  1995/10/14  22:09:51  mike
  * getting MAX__INT from values.h didn't really work since the value was
  * unusable in an #if MAX__INT <= 0x7fff
@@ -52,39 +53,64 @@ the GNU General Public License, version 2, 1991.
 #ifndef  SIZES_H
 #define  SIZES_H
 
-#ifndef  MAX__INT
+#include "config.h"
+
+#ifndef MAX__INT
 #include <limits.h>
 #define  MAX__INT  INT_MAX
 #define  MAX__LONG LONG_MAX
-#endif   /* MAX__INT */
+#define  MAX__UINT UINT_MAX
+#endif /* MAX__INT */
 
 #if  MAX__INT <= 0x7fff
 #define  SHORT_INTS
 #define  INT_FMT "%ld"
-typedef  long Int ;
+typedef long Int;
 #define  Max_Int MAX__LONG
 #else
 #define  INT_FMT "%d"
-typedef  int Int ;
+typedef int Int;
 #define  Max_Int  MAX__INT
 #endif
 
-#define EVAL_STACK_SIZE  256  /* initial size , can grow */
-/* number of fields at startup, must be a power of 2 
-   and FBANK_SZ-1 must be divisible by 3! */
-#define  FBANK_SZ	256
-#define  FB_SHIFT	  8   /* lg(FBANK_SZ) */
-#define  NUM_FBANK	128   /* see MAX_FIELD below */
+#if  MAX__UINT <= 0xffff
+#define  SHORT_UINTS
+#define  UINT_FMT "%lu"
+typedef unsigned long UInt;
+#define  Max_UInt MAX__ULONG
+#else
+#define  UINT_FMT "%u"
+typedef unsigned UInt;
+#define  Max_UInt  MAX__UINT
+#endif
 
+#define EVAL_STACK_SIZE  256	/* initial size , can grow */
 
-#define  MAX_SPLIT	(FBANK_SZ-1)   /* needs to be divisble by 3*/
+/*
+ * FBANK_SZ, the number of fields at startup, must be a power of 2.
+ * Also, FBANK_SZ-1 must be divisible by 3, since it is used for MAX_SPLIT.
+ *
+ * That means that FBANK_SZ can be 256, 1024, 4096, 16384, etc. (growing by
+ * a factor of four for each next possible value).
+ */
+#if 1
+#define  FBANK_SZ	 256
+#define  FB_SHIFT	   8	/* lg(FBANK_SZ) */
+#else
+#define  FBANK_SZ	1024
+#define  FB_SHIFT	  10	/* lg(FBANK_SZ) */
+#endif
+#define  NUM_FBANK	 128	/* see MAX_FIELD below */
+
+#define  MAX_SPLIT	(FBANK_SZ-1)	/* needs to be divisble by 3 */
 #define  MAX_FIELD	(NUM_FBANK*FBANK_SZ - 1)
-
-#define  MIN_SPRINTF	400
-
+/*
+ * mawk stores a union of MAX_SPLIT pointers and MIN_SPRINTF characters.
+ */
+#define  MIN_SPRINTF	(MAX_SPLIT * 4)
 
 #define  BUFFSZ         4096
-  /* starting buffer size for input files, grows if 
+  /* starting buffer size for input files, grows if
      necessary */
 
 #ifdef  MSDOS
@@ -98,7 +124,6 @@ typedef  int Int ;
 #define  HASH_PRIME  53
 #define  A_HASH_PRIME 199
 
+#define  MAX_COMPILE_ERRORS  5	/* quit if more than 4 errors */
 
-#define  MAX_COMPILE_ERRORS  5 /* quit if more than 4 errors */
-
-#endif   /* SIZES_H */
+#endif /* SIZES_H */

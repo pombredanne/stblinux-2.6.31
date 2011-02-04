@@ -1,11 +1,11 @@
 Name		: ethtool
-Version		: 3
+Version		: 2.6.37
 Release		: 1
 Group		: Utilities
 
 Summary		: A tool for setting ethernet parameters
 
-Copyright	: GPL
+License		: GPL
 URL		: http://sourceforge.net/projects/gkernel/
 
 Buildroot	: %{_tmppath}/%{name}-%{version}

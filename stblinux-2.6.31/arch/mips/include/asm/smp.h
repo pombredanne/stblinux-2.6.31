@@ -54,7 +54,10 @@ static inline void smp_send_reschedule(int cpu)
 {
 	extern struct plat_smp_ops *mp_ops;	/* private */
 
-	mp_ops->send_ipi_single(cpu, SMP_RESCHEDULE_YOURSELF);
+#ifdef CONFIG_HOTPLUG_CPU
+	if (likely(cpu_isset(cpu, cpu_callin_map)))
+#endif
+		mp_ops->send_ipi_single(cpu, SMP_RESCHEDULE_YOURSELF);
 }
 
 #ifdef CONFIG_HOTPLUG_CPU

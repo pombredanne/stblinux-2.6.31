@@ -1,4 +1,0 @@
-#!/bin/sh
-# Script to launch the tracedaemon
-
-tracedaemon -ts$1 /dev/tracer $2.trace $2.proc

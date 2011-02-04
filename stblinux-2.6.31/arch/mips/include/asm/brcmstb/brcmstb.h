@@ -246,6 +246,7 @@
 
 #elif defined(CONFIG_BCM7231A0)
 #include <asm/brcmstb/7231a0/bchp_aon_ctrl.h>
+#include <asm/brcmstb/7231a0/bchp_aon_pin_ctrl.h>
 #include <asm/brcmstb/7231a0/bchp_aon_pm_l2.h>
 #include <asm/brcmstb/7231a0/bchp_bspi.h>
 #include <asm/brcmstb/7231a0/bchp_bspi_raf.h>
@@ -479,7 +480,6 @@
 #include <asm/brcmstb/7358a0/bchp_common.h>
 #include <asm/brcmstb/7358a0/bchp_ddr40_phy_control_regs_0.h>
 #include <asm/brcmstb/7358a0/bchp_ddr40_phy_word_lane_0_0.h>
-#include <asm/brcmstb/7358a0/bchp_ddr40_phy_word_lane_1_0.h>
 #include <asm/brcmstb/7358a0/bchp_ebi.h>
 #include <asm/brcmstb/7358a0/bchp_hif_cpu_intr1.h>
 #include <asm/brcmstb/7358a0/bchp_hif_intr2.h>
@@ -643,6 +643,8 @@
 #include <asm/brcmstb/7408b0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7408b0/bchp_clk.h>
 #include <asm/brcmstb/7408b0/bchp_common.h>
+#include <asm/brcmstb/7408b0/bchp_ddr23_phy_byte_lane_0_0.h>
+#include <asm/brcmstb/7408b0/bchp_ddr23_phy_byte_lane_1_0.h>
 #include <asm/brcmstb/7408b0/bchp_ddr23_phy_control_regs_0.h>
 #include <asm/brcmstb/7408b0/bchp_ebi.h>
 #include <asm/brcmstb/7408b0/bchp_hif_cpu_intr1.h>
@@ -653,6 +655,7 @@
 #include <asm/brcmstb/7408b0/bchp_hif_top_ctrl.h>
 #include <asm/brcmstb/7408b0/bchp_irq0.h>
 #include <asm/brcmstb/7408b0/bchp_irq1.h>
+#include <asm/brcmstb/7408b0/bchp_memc_ddr23_shim_addr_cntl.h>
 #include <asm/brcmstb/7408b0/bchp_memc_ddr_0.h>
 #include <asm/brcmstb/7408b0/bchp_moca_hostmisc.h>
 #include <asm/brcmstb/7408b0/bchp_nand.h>
@@ -665,6 +668,7 @@
 #include <asm/brcmstb/7408b0/bchp_usb_ctrl.h>
 #include <asm/brcmstb/7408b0/bchp_usb_ehci.h>
 #include <asm/brcmstb/7408b0/bchp_usb_ohci.h>
+#include <asm/brcmstb/7408b0/bchp_vcxo_ctl_misc.h>
 #include <asm/brcmstb/7408b0/bchp_wktmr.h>
 #include <asm/brcmstb/7408b0/brcmirq.h>
 
@@ -731,6 +735,8 @@
 #include <asm/brcmstb/7422a0/bchp_ddr40_phy_word_lane_1_0.h>
 #include <asm/brcmstb/7422a0/bchp_ebi.h>
 #include <asm/brcmstb/7422a0/bchp_edu.h>
+#include <asm/brcmstb/7422a0/bchp_gio.h>
+#include <asm/brcmstb/7422a0/bchp_gio_aon.h>
 #include <asm/brcmstb/7422a0/bchp_hif_cpu_intr1.h>
 #include <asm/brcmstb/7422a0/bchp_hif_cpu_tp1_intr1.h>
 #include <asm/brcmstb/7422a0/bchp_hif_intr2.h>
@@ -772,6 +778,8 @@
 #include <asm/brcmstb/7425a0/bchp_ddr40_phy_word_lane_1_0.h>
 #include <asm/brcmstb/7425a0/bchp_ebi.h>
 #include <asm/brcmstb/7425a0/bchp_edu.h>
+#include <asm/brcmstb/7425a0/bchp_gio.h>
+#include <asm/brcmstb/7425a0/bchp_gio_aon.h>
 #include <asm/brcmstb/7425a0/bchp_hif_cpu_intr1.h>
 #include <asm/brcmstb/7425a0/bchp_hif_cpu_tp1_intr1.h>
 #include <asm/brcmstb/7425a0/bchp_hif_intr2.h>
@@ -1223,6 +1231,10 @@ struct brcmspi_platform_data {
 	u32 reg = BDEV_RD(BCHP_SUN_TOP_CTRL_CHIP_FAMILY_ID); \
 	(reg >> 28 ? reg >> 16 : reg >> 8); \
 	})
+#define BRCM_PROD_ID()		({ \
+	u32 reg = BDEV_RD(BCHP_SUN_TOP_CTRL_PRODUCT_ID); \
+	(reg >> 28 ? reg >> 16 : reg >> 8); \
+	})
 #define BRCM_CHIP_REV()		\
 	((u32)BDEV_RD(BCHP_SUN_TOP_CTRL_CHIP_FAMILY_ID) & 0xff)
 
@@ -1234,6 +1246,7 @@ struct brcmspi_platform_data {
 	u32 reg = BDEV_RD(BCHP_SUN_TOP_CTRL_PROD_REVISION); \
 	(reg >> 28 ? reg >> 16 : reg >> 8); \
 	})
+#define BRCM_PROD_ID()		BRCM_CHIP_ID()
 #define BRCM_CHIP_REV()		\
 	((u32)BDEV_RD(BCHP_SUN_TOP_CTRL_PROD_REVISION) & 0xff)
 

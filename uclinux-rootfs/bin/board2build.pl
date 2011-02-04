@@ -99,8 +99,8 @@ if($chip eq "3549" || $chip eq "3556") {
 	$chip = "7425";
 }
 
-if($chip eq "7125" && $rev eq "b0") {
-	$rev = "a0";
+if($chip eq "7125" && $rev eq "d0") {
+	$rev = "c0";
 }
 
 if($chip eq "7418" && $rev eq "a0") {

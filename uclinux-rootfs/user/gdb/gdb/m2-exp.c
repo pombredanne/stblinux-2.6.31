@@ -2188,22 +2188,6 @@ yyreturn:
 #line 652 "m2-exp.y"
 
 
-#if 0  /* FIXME! */
-int
-overflow(a,b)
-   long a,b;
-{
-   return (MAX_OF_TYPE(parse_m2_type->builtin_int) - b) < a;
-}
-
-int
-uoverflow(a,b)
-   unsigned long a,b;
-{
-   return (MAX_OF_TYPE(parse_m2_type->builtin_card) - b) < a;
-}
-#endif /* FIXME */
-
 /* Take care of parsing a number (anything that starts with a digit).
    Set yylval and return the token type; update lexptr.
    LEN is the number of characters in it.  */
@@ -2559,7 +2543,7 @@ yylex ()
     char *tmp = copy_name (yylval.sval);
     struct symbol *sym;
 
-    if (lookup_partial_symtab (tmp))
+    if (lookup_symtab (tmp))
       return BLOCKNAME;
     sym = lookup_symbol (tmp, expression_context_block, VAR_DOMAIN, 0);
     if (sym && SYMBOL_CLASS (sym) == LOC_BLOCK)

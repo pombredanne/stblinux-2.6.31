@@ -36,7 +36,7 @@
 #include <linux/io.h>
 
 #define DRV_VERSION		0x00040000
-#define DRV_BUILD_NUMBER	0x20101015
+#define DRV_BUILD_NUMBER	0x20110102
 
 #if defined(CONFIG_BRCMSTB)
 #define MOCA6816		0
@@ -61,7 +61,13 @@
 
 /* offsets from the start of the MoCA core */
 #define OFF_DATA_MEM		0x00000000
+
+#if defined(CONFIG_BRCM_HAS_MOCA_11_PLUS)
 #define OFF_CNTL_MEM		0x00040000
+#else
+#define OFF_CNTL_MEM		0x0004c000
+#endif
+
 #define OFF_PKT_REINIT_MEM	0x00a08000
 #define OFF_M2M_SRC		0x000a2000
 #define OFF_M2M_DST		0x000a2004
@@ -81,13 +87,18 @@
 #define OFF_L2_MASK_CLEAR	0x000a2094
 
 /* region size */
-#ifdef CONFIG_BCM7408
+#if defined(CONFIG_BRCM_HAS_MOCA_11_LITE)
 #define DATA_MEM_SIZE		(96 * 1024)
 #else
 #define DATA_MEM_SIZE		(256 * 1024)
 #endif
 
+#if defined(CONFIG_BRCM_HAS_MOCA_11_PLUS)
 #define CNTL_MEM_SIZE		(128 * 1024)
+#else
+#define CNTL_MEM_SIZE		(80 * 1024)
+#endif
+
 #define PKT_REINIT_MEM_SIZE	(32 * 1024)
 
 #define DATA_MEM_END		(OFF_DATA_MEM + DATA_MEM_SIZE)
@@ -767,8 +778,8 @@ static int moca_recvmsg(struct moca_priv_data *priv, uintptr_t offset,
 
 			/* Only concatenate traps from the core */
 			if (((be32_to_cpu(m->data[0]) & 0xff000000) !=
-					0x09000000) ||
-					((d0 & 0xff000000) != 0x09000000))
+				0x09000000) ||
+				((d0 & 0xff000000) != 0x09000000))
 				ml = NULL;
 			else {
 				/*
@@ -791,7 +802,6 @@ static int moca_recvmsg(struct moca_priv_data *priv, uintptr_t offset,
 					&priv->core_msg_temp.data[1],
 					priv->core_msg_temp.len - 4);
 				m->len += priv->core_msg_temp.len - 4;
-
 				attach = 0;
 			}
 		}
@@ -1370,10 +1380,12 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 		ret = 0;
 		break;
 	case MOCA_IOCTL_READMEM:
-		ret = moca_ioctl_readmem(priv, arg);
+		if (priv->running)
+			ret = moca_ioctl_readmem(priv, arg);
 		break;
 	case MOCA_IOCTL_WRITEMEM:
-		ret = moca_ioctl_writemem(priv, arg);
+		if (priv->running)
+			ret = moca_ioctl_writemem(priv, arg);
 		break;
 	case MOCA_IOCTL_GET_DRV_INFO_V1:
 		ret = moca_ioctl_get_drv_info_v1(priv, arg);
@@ -1702,12 +1714,52 @@ static int moca_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_PM
+static int moca_suspend(struct device *dev)
+{
+	struct moca_priv_data *priv = dev_get_drvdata(dev);
+
+	/* make sure all pending work is complete */
+	cancel_work_sync(&priv->work);
+
+	/* full reset */
+	mutex_lock(&priv->dev_mutex);
+	moca_msg_reset(priv);
+	moca_3450_init(priv, MOCA_DISABLE);
+	moca_hw_init(priv, MOCA_DISABLE);
+	priv->running = 0;
+	clk_disable(priv->clk);
+	mutex_unlock(&priv->dev_mutex);
+
+	return 0;
+}
+
+static int moca_resume(struct device *dev)
+{
+	struct moca_priv_data *priv = dev_get_drvdata(dev);
+	/* We assume moca daemon will reload the firmware
+	 * when it realizes the h/w has been reset
+	 */
+	clk_enable(priv->clk);
+	return 0;
+}
+
+static struct dev_pm_ops moca_pm_ops = {
+	.suspend		= moca_suspend,
+	.resume			= moca_resume,
+};
+
+#endif
+
 static struct platform_driver moca_plat_drv = {
 	.probe =		moca_probe,
 	.remove =		moca_remove,
 	.driver = {
 		.name =		"bmoca",
 		.owner =	THIS_MODULE,
+#ifdef CONFIG_PM
+		.pm =		&moca_pm_ops,
+#endif
 	},
 };
 

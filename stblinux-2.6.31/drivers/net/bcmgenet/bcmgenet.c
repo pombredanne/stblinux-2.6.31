@@ -3232,6 +3232,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	}
 	dev->base_addr = (unsigned long)base;
 	pDevCtrl = (struct BcmEnet_devctrl *)netdev_priv(dev);
+	SET_NETDEV_DEV(dev, &pdev->dev);
 	dev_set_drvdata(&pdev->dev, pDevCtrl);
 	memcpy(dev->dev_addr, cfg->macaddr, 6);
 	dev->irq = pDevCtrl->irq0;

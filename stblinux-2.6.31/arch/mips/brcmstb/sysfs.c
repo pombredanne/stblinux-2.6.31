@@ -286,8 +286,6 @@ static struct device_attribute brcmstb_attr_list[] = {
 #endif
 	__ATTR(sata_power, 0644, brcm_pm_show_sata_power,
 		brcm_pm_store_sata_power),
-	__ATTR(usb_power, 0644, brcm_pm_show_usb_power,
-		brcm_pm_store_usb_power),
 	__ATTR(ddr_timeout, 0644, brcm_pm_show_ddr_timeout,
 		brcm_pm_store_ddr_timeout),
 	__ATTR(standby_flags, 0644, brcm_pm_show_standby_flags,

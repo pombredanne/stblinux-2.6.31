@@ -56,9 +56,40 @@ static int ohci_brcm_start(struct usb_hcd *hcd)
 
 static void ohci_brcm_shutdown(struct usb_hcd *hcd)
 {
-	if (!brcm_usb_is_inactive())
+	if (test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags))
 		ohci_shutdown(hcd);
 }
+
+#ifdef CONFIG_PM
+static int ohci_brcm_suspend(struct usb_hcd *hcd)
+{
+	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
+
+	if (time_before(jiffies, ohci->next_statechange))
+		msleep(5);
+	ohci->next_statechange = jiffies;
+
+	ohci_to_hcd(ohci)->state = HC_STATE_SUSPENDED;
+	ohci_bus_suspend(hcd);
+	brcm_usb_suspend(hcd);
+	return 0;
+}
+
+static int ohci_brcm_resume(struct usb_hcd *hcd)
+{
+	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
+
+	brcm_usb_resume(hcd);
+	if (time_before(jiffies, ohci->next_statechange))
+		msleep(5);
+	ohci->next_statechange = jiffies;
+
+	ohci_finish_controller_resume(hcd);
+	ohci_bus_resume(hcd);
+	return 0;
+}
+
+#endif
 
 static const struct hc_driver ohci_brcm_hc_driver = {
 	.description =		hcd_name,
@@ -97,8 +128,8 @@ static const struct hc_driver ohci_brcm_hc_driver = {
 	.hub_status_data =	ohci_hub_status_data,
 	.hub_control =		ohci_hub_control,
 #ifdef	CONFIG_PM
-	.bus_suspend =		ohci_bus_suspend,
-	.bus_resume =		ohci_bus_resume,
+	.bus_suspend =		ohci_brcm_suspend,
+	.bus_resume =		ohci_brcm_resume,
 #endif
 	.start_port_reset =	ohci_start_port_reset,
 };
@@ -115,48 +146,11 @@ static int ohci_hcd_brcm_remove(struct platform_device *pdev)
 	return brcm_usb_remove(pdev);
 }
 
-static int ohci_brcm_suspend(struct platform_device *dev, pm_message_t message)
-{
-#ifdef CONFIG_PM
-	struct usb_hcd *hcd = platform_get_drvdata(dev);
-	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
-
-	if (brcm_usb_is_inactive())
-		return 0;
-	if (time_before(jiffies, ohci->next_statechange))
-		msleep(5);
-	ohci->next_statechange = jiffies;
-
-	ohci_to_hcd(ohci)->state = HC_STATE_SUSPENDED;
-	brcm_usb_suspend(hcd);
-#endif
-	return 0;
-}
-
-static int ohci_brcm_resume(struct platform_device *dev)
-{
-#ifdef CONFIG_PM
-	struct usb_hcd	*hcd = platform_get_drvdata(dev);
-	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
-
-	if (brcm_usb_is_inactive())
-		return 0;
-	brcm_usb_resume(hcd);
-	if (time_before(jiffies, ohci->next_statechange))
-		msleep(5);
-	ohci->next_statechange = jiffies;
-
-	ohci_finish_controller_resume(hcd);
-#endif
-	return 0;
-}
 
 static struct platform_driver ohci_hcd_brcm_driver = {
 	.probe		= ohci_hcd_brcm_probe,
 	.remove		= ohci_hcd_brcm_remove,
 	.shutdown	= usb_hcd_platform_shutdown,
-	.suspend	= ohci_brcm_suspend,
-	.resume		= ohci_brcm_resume,
 	.driver		= {
 		.name	= "ohci-brcm",
 		.owner	= THIS_MODULE,

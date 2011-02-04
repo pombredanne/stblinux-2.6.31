@@ -44,15 +44,6 @@
 #define PCI_CFG_INDEX		0x04
 #define PCI_CFG_DATA		0x08
 
-#if   defined(BCHP_PCIX_BRIDGE_SATA_CFG_INDEX)
-#define SATA_IO_REG_START	BPHYSADDR(BCHP_PCIX_BRIDGE_SATA_CFG_INDEX)
-#elif defined(BCHP_PCI_BRIDGE_SATA_CFG_INDEX)
-#define SATA_IO_REG_START	BPHYSADDR(BCHP_PCI_BRIDGE_SATA_CFG_INDEX)
-#endif
-#define SATA_IO_REG_SIZE	0x00000008
-#define SATA_CFG_INDEX		0x00
-#define SATA_CFG_DATA		0x04
-
 #define PCIE_CFG_INDEX		0x00
 #define PCIE_CFG_DATA		0x04
 
@@ -92,9 +83,9 @@ static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 static int brcm_pci_write_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 data);
 
-static int brcm_sata3_read_config(struct pci_bus *bus, unsigned int devfn,
+static int brcm_sata_read_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 *data);
-static int brcm_sata3_write_config(struct pci_bus *bus, unsigned int devfn,
+static int brcm_sata_write_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 data);
 
 static inline int get_busno_pci23(void) { return BRCM_BUSNO_PCI23; }
@@ -106,10 +97,12 @@ static struct pci_ops brcmstb_pci_ops = {
 	.write = brcm_pci_write_config,
 };
 
-static struct pci_ops __maybe_unused brcmstb_sata3_ops = {
-	.read = brcm_sata3_read_config,
-	.write = brcm_sata3_write_config,
+static struct pci_ops brcmstb_sata_ops = {
+	.read = brcm_sata_read_config,
+	.write = brcm_sata_write_config,
 };
+
+static u32 sata_pci_reg[] = { [PCI_INTERRUPT_PIN] = 0x01 };
 
 /*
  * Notes on PCI IO space:
@@ -182,7 +175,7 @@ static struct pci_controller brcmstb_pci_controller = {
 };
 
 static struct pci_controller brcmstb_sata_controller = {
-	.pci_ops		= &brcmstb_pci_ops,
+	.pci_ops		= &brcmstb_sata_ops,
 	.io_resource		= &sata_io_resource,
 	.mem_resource		= &sata_mem_resource,
 	.get_busno		= &get_busno_sata,
@@ -260,6 +253,25 @@ static inline void brcm_setup_sata_bridge(void)
 
 	BDEV_WR(BCHP_PCI_BRIDGE_CPU_TO_SATA_IO_WIN_BASE, 0 | MMIO_ENDIAN);
 
+	/* Set up MMIO BAR in PCI configuration space */
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_INDEX, PCI_BASE_ADDRESS_5);
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_DATA, SATA_MEM_START);
+
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_INDEX, PCI_COMMAND);
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_DATA,
+		PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+
+	/* PCI latency settings */
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_INDEX, PCI_INTERRUPT_LINE);
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_DATA, 0x000f0100);
+
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_INDEX, PCI_CACHE_LINE_SIZE);
+	BDEV_WR_RB(BCHP_PCI_BRIDGE_SATA_CFG_DATA, 0x0080ff00);
+
+	/* Device ID in the emulated PCI configuration registers */
+	sata_pci_reg[PCI_CLASS_REVISION] = 0x01010f00;
+	sata_pci_reg[PCI_VENDOR_ID] = 0x02421166;
+
 #elif defined(CONFIG_BRCM_HAS_SATA2)
 
 	/* Internal PCI-X SATA bridge setup for 7400, 7405, 7335 */
@@ -277,10 +289,33 @@ static inline void brcm_setup_sata_bridge(void)
 		SATA_MEM_START | MMIO_ENDIAN);
 	BDEV_WR(BCHP_PCIX_BRIDGE_CPU_TO_SATA_IO_WIN_BASE, MMIO_ENDIAN);
 
+	/* Set up MMIO BAR in PCI configuration space */
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_INDEX, PCI_BASE_ADDRESS_5);
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_DATA, SATA_MEM_START);
+
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_INDEX, PCI_COMMAND);
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_DATA,
+		PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+
+	/* PCI latency settings */
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_INDEX, PCI_INTERRUPT_LINE);
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_DATA, 0x000f0100);
+
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_INDEX, PCI_CACHE_LINE_SIZE);
+	BDEV_WR_RB(BCHP_PCIX_BRIDGE_SATA_CFG_DATA, 0x0080ff00);
+
+	/* Device ID in the emulated PCI configuration registers */
+	sata_pci_reg[PCI_CLASS_REVISION] = 0x01010f00;
+	sata_pci_reg[PCI_VENDOR_ID] = 0x860214e4;
+
 #elif defined(CONFIG_BRCM_HAS_SATA3)
 
 	BDEV_WR(BCHP_SATA_TOP_CTRL_BUS_CTRL, (DATA_ENDIAN << 4) |
 		(DATA_ENDIAN << 2) | (MMIO_ENDIAN << 0));
+
+	/* Device ID in the emulated PCI configuration registers */
+	sata_pci_reg[PCI_CLASS_REVISION] = 0x01060100;
+	sata_pci_reg[PCI_VENDOR_ID] = 0x860314e4;
 
 #endif
 }
@@ -503,18 +538,6 @@ static int __init brcmstb_pci_init(void)
 #endif
 #ifdef CONFIG_BRCM_HAS_SATA
 	if (brcm_sata_enabled) {
-#ifdef CONFIG_BRCM_HAS_SATA3
-		brcm_buses[BRCM_BUSNO_SATA].controller->pci_ops =
-			&brcmstb_sata3_ops;
-#else
-		request_mem_region(SATA_IO_REG_START, SATA_IO_REG_SIZE,
-			"Internal SATA PCI-X registers");
-		reg_base = (unsigned long)
-			ioremap(SATA_IO_REG_START, SATA_IO_REG_SIZE);
-
-		brcm_buses[BRCM_BUSNO_SATA].idx_reg = reg_base + SATA_CFG_INDEX;
-		brcm_buses[BRCM_BUSNO_SATA].data_reg = reg_base + SATA_CFG_DATA;
-#endif
 		brcm_setup_sata_bridge();
 		register_pci_controller(&brcmstb_sata_controller);
 	}
@@ -613,38 +636,37 @@ static int brcm_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 	return PCIBIOS_SUCCESSFUL;
 }
 
-static u32 sata3_pci_reg[] = {
-	[PCI_VENDOR_ID] = 0x860314e4,
-	[PCI_CLASS_REVISION] = 0x01060100,
-	[PCI_INTERRUPT_PIN] = 0x01,
-};
-
 /*
  * SATA3 is just a memory-mapped device; PCI config accesses are spoofed.
  *
- * BAR5 (AHCI MMIO registers) will be 4KB @ SATA_MEM_START.  This is the
- * only active BAR.
+ * SATA2/SATA1 have real PCI configuration registers, but they are set up
+ * once at boot time then subsequently emulated because they interfere with
+ * power management.  i.e. SATA PCI registers are inaccessible when the
+ * SATA core is clock gated.
+ *
+ * BAR5 (MMIO registers) will be 4KB @ SATA_MEM_START.  This is the
+ * only active BAR, on both AHCI and Serverworks "K2" cores.
  */
 
-static int brcm_sata3_write_config(struct pci_bus *bus, unsigned int devfn,
+static int brcm_sata_write_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 data)
 {
 	if (!devfn_ok(bus, devfn))
 		return PCIBIOS_FUNC_NOT_SUPPORTED;
 	if (where == PCI_BASE_ADDRESS_5)
-		sata3_pci_reg[where] = data & ~0x0fff;
+		sata_pci_reg[where] = data & ~0x0fff;
 	else if (where <= PCI_INTERRUPT_PIN)
-		sata3_pci_reg[where] = data;
+		sata_pci_reg[where] = data;
 	return PCIBIOS_SUCCESSFUL;
 }
 
-static int brcm_sata3_read_config(struct pci_bus *bus, unsigned int devfn,
+static int brcm_sata_read_config(struct pci_bus *bus, unsigned int devfn,
 	int where, int size, u32 *data)
 {
 	if (!devfn_ok(bus, devfn))
 		return PCIBIOS_FUNC_NOT_SUPPORTED;
 	if (where <= PCI_INTERRUPT_PIN)
-		*data = sata3_pci_reg[where];
+		*data = sata_pci_reg[where];
 	else
 		*data = 0;
 	return PCIBIOS_SUCCESSFUL;

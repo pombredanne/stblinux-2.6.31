@@ -106,7 +106,11 @@
 
 #define CKUSEG			0x00000000
 #define CKSEG0			0x80000000
+#if defined(CONFIG_BRCM_UPPER_768MB)
+#define CKSEG1			CKSEG0
+#else
 #define CKSEG1			0xa0000000
+#endif
 #define CKSEG2			0xc0000000
 #define CKSEG3			0xe0000000
 

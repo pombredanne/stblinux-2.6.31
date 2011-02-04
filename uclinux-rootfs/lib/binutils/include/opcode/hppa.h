@@ -1,26 +1,27 @@
 /* Table of opcodes for the PA-RISC.
    Copyright 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000,
-   2001, 2002, 2003, 2004, 2005
+   2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010
    Free Software Foundation, Inc.
 
    Contributed by the Center for Software Science at the
    University of Utah (pa-gdb-bugs@cs.utah.edu).
 
-This file is part of GAS, the GNU Assembler, and GDB, the GNU disassembler.
+   This file is part of GAS, the GNU Assembler, and GDB, the GNU disassembler.
 
-GAS/GDB is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 1, or (at your option)
-any later version.
+   GAS/GDB is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
 
-GAS/GDB is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   GAS/GDB is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with GAS or GDB; see the file COPYING.  If not, write to
-the Free Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   You should have received a copy of the GNU General Public License
+   along with GAS or GDB; see the file COPYING3.  If not, write to
+   the Free Software Foundation, 51 Franklin Street - Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
 #if !defined(__STDC__) && !defined(const)
 #define const
@@ -597,6 +598,7 @@ static const struct pa_opcode pa_opcodes[] =
 { "bb",		0xc0006000, 0xffe06000, "?Bnx,!,w", pa20, FLAG_STRICT}, 
 { "bb",		0xc4004000, 0xfc006000, "?bnx,Q,w", pa10, FLAG_STRICT}, 
 { "bb",		0xc4004000, 0xfc004000, "?Bnx,B,w", pa20, FLAG_STRICT}, 
+{ "bb",		0xc4004000, 0xfc006000, "?bnx,Q,w", pa10, 0}, 
 { "bvb",	0xc0004000, 0xffe04000, "?bnx,w", pa10, 0},
 { "clrbts",	0xe8004005, 0xffffffff, "", pa20, FLAG_STRICT},
 { "popbts",	0xe8004005, 0xfffff007, "$", pa20, FLAG_STRICT},

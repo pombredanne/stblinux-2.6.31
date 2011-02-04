@@ -1,4 +1,3 @@
-
 /********************************************
 memory.h
 copyright 1991, Michael D. Brennan
@@ -10,8 +9,9 @@ Mawk is distributed without warranty under the terms of
 the GNU General Public License, version 2, 1991.
 ********************************************/
 
-
-/* $Log: memory.h,v $
+/*
+ * $MawkId: memory.h,v 1.7 2010/05/07 00:41:27 tom Exp $
+ * @Log: memory.h,v @
  * Revision 1.1.1.1  1993/07/03  18:58:17  mike
  * move source to cvs
  *
@@ -21,30 +21,32 @@ the GNU General Public License, version 2, 1991.
  * Revision 5.1  1991/12/05  07:59:28  brennan
  * 1.1 pre-release
  *
-*/
-
+ */
 
 /*  memory.h  */
 
-#ifndef  MEMORY_H
-#define  MEMORY_H
+#ifndef  MAWK_MEMORY_H
+#define  MAWK_MEMORY_H
 
+#include "types.h"
 #include "zmalloc.h"
 
-
-STRING *PROTO(new_STRING, (char*)) ;
-STRING *PROTO(new_STRING0, (unsigned)) ;
+STRING *new_STRING(const char *);
+STRING *new_STRING0(size_t);
+STRING *new_STRING1(const char *, size_t);
 
 #ifdef   DEBUG
-void  PROTO( DB_free_STRING , (STRING *) ) ;
+void DB_free_STRING(STRING *);
 
 #define  free_STRING(s)  DB_free_STRING(s)
 
 #else
 
-#define  free_STRING(sval)   if ( -- (sval)->ref_cnt == 0 )\
-                                zfree(sval, (sval)->len+STRING_OH) ; else
+#define  free_STRING(sval) \
+	    do { \
+		if ( -- (sval)->ref_cnt == 0 ) \
+		    zfree(sval, (sval)->len+STRING_OH) ; \
+	    } while (0)
 #endif
 
-
-#endif   /* MEMORY_H */
+#endif /* MAWK_MEMORY_H */

@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.31-3.1
-# Fri Dec 10 12:12:49 2010
+# Linux kernel version: 2.6.31-3.2
+# Tue Dec 21 11:37:07 2010
 #
 CONFIG_MIPS=y
 
@@ -1147,7 +1147,7 @@ CONFIG_USB=y
 CONFIG_USB_DEVICEFS=y
 CONFIG_USB_DEVICE_CLASS=y
 # CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_SUSPEND is not set
+CONFIG_USB_SUSPEND=y
 # CONFIG_USB_OTG is not set
 # CONFIG_USB_OTG_WHITELIST is not set
 # CONFIG_USB_OTG_BLACKLIST_HUB is not set

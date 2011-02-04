@@ -42,6 +42,7 @@
 #include <asm/types.h>
 #include "mtd/mtd-user.h"
 #include "common.h"
+#include <libmtd.h>
 
 // oob layouts to pass into the kernel as default
 static struct nand_oobinfo none_oobinfo = {
@@ -108,7 +109,7 @@ static void display_version(void)
 
 static const char	*standard_input = "-";
 static const char	*mtd_device, *img;
-static int		mtdoffset = 0;
+static long long	mtdoffset = 0;
 static bool		quiet = false;
 static bool		writeoob = false;
 static bool		rawoob = false;
@@ -120,7 +121,7 @@ static bool		forcelegacy = false;
 static bool		noecc = false;
 static bool		noskipbad = false;
 static bool		pad = false;
-static int		blockalign = 1; /* default to using 16K block size */
+static int		blockalign = 1; /* default to using actual block size */
 
 static void process_options(int argc, char * const argv[])
 {
@@ -200,7 +201,7 @@ static void process_options(int argc, char * const argv[])
 				writeoob = true;
 				break;
 			case 's':
-				mtdoffset = strtol(optarg, NULL, 0);
+				mtdoffset = simple_strtoll(optarg, &error);
 				break;
 			case 'b':
 				blockalign = atoi(optarg);
@@ -211,11 +212,13 @@ static void process_options(int argc, char * const argv[])
 		}
 	}
 
-	if (mtdoffset < 0) {
-		fprintf(stderr, "Can't specify a negative device offset `%d'\n",
-				mtdoffset);
-		exit(EXIT_FAILURE);
-	}
+	if (mtdoffset < 0)
+		errmsg_die("Can't specify negative device offset with option"
+				" -s: %lld", mtdoffset);
+
+	if (blockalign < 0)
+		errmsg_die("Can't specify negative blockalign with option -b:"
+				" %d", blockalign);
 
 	argc -= optind;
 	argv += optind;
@@ -258,10 +261,9 @@ int main(int argc, char * const argv[])
 	int ifd = -1;
 	int imglen = 0, pagelen;
 	bool baderaseblock = false;
-	int blockstart = -1;
-	struct mtd_info_user meminfo;
-	struct mtd_oob_buf oob;
-	loff_t offs;
+	long long blockstart = -1;
+	struct mtd_dev_info mtd;
+	long long offs;
 	int ret;
 	int oobinfochanged = 0;
 	struct nand_oobinfo old_oobinfo;
@@ -275,6 +277,8 @@ int main(int argc, char * const argv[])
 	// points to the OOB for the current page in filebuf
 	unsigned char *oobreadbuf = NULL;
 	unsigned char *oobbuf = NULL;
+	libmtd_t mtd_desc;
+	int ebsize_aligned;
 
 	process_options(argc, argv);
 
@@ -289,21 +293,24 @@ int main(int argc, char * const argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	mtd_desc = libmtd_open();
+	if (!mtd_desc)
+		return errmsg("can't initialize libmtd");
 	/* Fill in MTD device capability structure */
-	if (ioctl(fd, MEMGETINFO, &meminfo) != 0) {
-		perror("MEMGETINFO");
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
+	if (mtd_get_dev_info(mtd_desc, mtd_device, &mtd) < 0)
+		return errmsg("mtd_get_dev_info failed");
 
-	/* Set erasesize to specified number of blocks - to match jffs2
-	 * (virtual) block size */
-	meminfo.erasesize *= blockalign;
+	/*
+	 * Pretend erasesize is specified number of blocks - to match jffs2
+	 *   (virtual) block size
+	 * Use this value throughout unless otherwise necessary
+	 */
+	ebsize_aligned = mtd.eb_size * blockalign;
 
-	if (mtdoffset & (meminfo.writesize - 1)) {
+	if (mtdoffset & (mtd.min_io_size - 1)) {
 		fprintf(stderr, "The start address is not page-aligned !\n"
 				"The pagesize of this NAND Flash is 0x%x.\n",
-				meminfo.writesize);
+				mtd.min_io_size);
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
@@ -369,7 +376,7 @@ int main(int argc, char * const argv[])
 			fprintf(stderr, "Use -f option to enforce legacy placement on autoplacement enabled mtd device\n");
 			goto restoreoob;
 		}
-		if (meminfo.oobsize == 8) {
+		if (mtd.oob_size == 8) {
 			if (forceyaffs) {
 				fprintf(stderr, "YAFSS cannot operate on 256 Byte page size");
 				goto restoreoob;
@@ -384,9 +391,6 @@ int main(int argc, char * const argv[])
 		}
 	}
 
-	oob.length = meminfo.oobsize;
-	oob.ptr = noecc ? oobreadbuf : oobbuf;
-
 	/* Determine if we are reading from standard input or from a file. */
 	if (strcmp(img, standard_input) == 0) {
 		ifd = STDIN_FILENO;
@@ -399,7 +403,7 @@ int main(int argc, char * const argv[])
 		goto restoreoob;
 	}
 
-	pagelen = meminfo.writesize + ((writeoob) ? meminfo.oobsize : 0);
+	pagelen = mtd.min_io_size + ((writeoob) ? mtd.oob_size : 0);
 
 	/*
 	 * For the standard input case, the input size is merely an
@@ -427,20 +431,26 @@ int main(int argc, char * const argv[])
 	}
 
 	// Check, if length fits into device
-	if (((imglen / pagelen) * meminfo.writesize) > (meminfo.size - mtdoffset)) {
-		fprintf(stderr, "Image %d bytes, NAND page %d bytes, OOB area %u bytes, device size %u bytes\n",
-				imglen, pagelen, meminfo.writesize, meminfo.size);
+	if (((imglen / pagelen) * mtd.min_io_size) > (mtd.size - mtdoffset)) {
+		fprintf(stderr, "Image %d bytes, NAND page %d bytes, OOB area %d"
+				" bytes, device size %lld bytes\n",
+				imglen, pagelen, mtd.oob_size, mtd.size);
 		perror("Input file does not fit into device");
 		goto closeall;
 	}
 
-	// Allocate a buffer big enough to contain all the data (OOB included) for one eraseblock
-	filebuf_max = pagelen * meminfo.erasesize / meminfo.writesize;
+	/*
+	 * Allocate a buffer big enough to contain all the data (OOB included)
+	 * for one eraseblock. The order of operations here matters; if ebsize
+	 * and pagelen are large enough, then "ebsize_aligned * pagelen" could
+	 * overflow a 32-bit data type.
+	 */
+	filebuf_max = ebsize_aligned / mtd.min_io_size * pagelen;
 	filebuf = xmalloc(filebuf_max);
 	erase_buffer(filebuf, filebuf_max);
 
-	oobbuf = xmalloc(meminfo.oobsize);
-	erase_buffer(oobbuf, meminfo.oobsize);
+	oobbuf = xmalloc(mtd.oob_size);
+	erase_buffer(oobbuf, mtd.oob_size);
 
 	/*
 	 * Get data from input and write to the device while there is
@@ -450,7 +460,7 @@ int main(int argc, char * const argv[])
 	 * length or zero.
 	 */
 	while (((imglen > 0) || (writebuf < (filebuf + filebuf_len)))
-		&& (mtdoffset < meminfo.size)) {
+		&& (mtdoffset < mtd.size)) {
 		/*
 		 * New eraseblock, check for bad block(s)
 		 * Stay in the loop to be sure that, if mtdoffset changes because
@@ -459,8 +469,8 @@ int main(int argc, char * const argv[])
 		 * skipped block(s) is also bad (number of blocks depending on
 		 * the blockalign).
 		 */
-		while (blockstart != (mtdoffset & (~meminfo.erasesize + 1))) {
-			blockstart = mtdoffset & (~meminfo.erasesize + 1);
+		while (blockstart != (mtdoffset & (~ebsize_aligned + 1))) {
+			blockstart = mtdoffset & (~ebsize_aligned + 1);
 			offs = blockstart;
 
 			// if writebuf == filebuf, we are rewinding so we must not
@@ -473,36 +483,35 @@ int main(int argc, char * const argv[])
 
 			baderaseblock = false;
 			if (!quiet)
-				fprintf(stdout, "Writing data to block %d at offset 0x%x\n",
-						 blockstart / meminfo.erasesize, blockstart);
+				fprintf(stdout, "Writing data to block %lld at offset 0x%llx\n",
+						 blockstart / ebsize_aligned, blockstart);
 
 			/* Check all the blocks in an erase block for bad blocks */
 			if (noskipbad)
 				continue;
 			do {
-				if ((ret = ioctl(fd, MEMGETBADBLOCK, &offs)) < 0) {
-					perror("ioctl(MEMGETBADBLOCK)");
+				if ((ret = mtd_is_bad(&mtd, fd, offs / ebsize_aligned)) < 0) {
+					sys_errmsg("%s: MTD get bad block failed", mtd_device);
 					goto closeall;
-				}
-				if (ret == 1) {
+				} else if (ret == 1) {
 					baderaseblock = true;
 					if (!quiet)
-						fprintf(stderr, "Bad block at %x, %u block(s) "
-								"from %x will be skipped\n",
-								(int) offs, blockalign, blockstart);
+						fprintf(stderr, "Bad block at %llx, %u block(s) "
+								"from %llx will be skipped\n",
+								offs, blockalign, blockstart);
 				}
 
 				if (baderaseblock) {
-					mtdoffset = blockstart + meminfo.erasesize;
+					mtdoffset = blockstart + ebsize_aligned;
 				}
-				offs +=  meminfo.erasesize / blockalign;
-			} while (offs < blockstart + meminfo.erasesize);
+				offs +=  ebsize_aligned / blockalign;
+			} while (offs < blockstart + ebsize_aligned);
 
 		}
 
 		// Read more data from the input if there isn't enough in the buffer
-		if ((writebuf + meminfo.writesize) > (filebuf + filebuf_len)) {
-			int readlen = meminfo.writesize;
+		if ((writebuf + mtd.min_io_size) > (filebuf + filebuf_len)) {
+			int readlen = mtd.min_io_size;
 
 			int alreadyread = (filebuf + filebuf_len) - writebuf;
 			int tinycnt = alreadyread;
@@ -520,9 +529,11 @@ int main(int argc, char * const argv[])
 
 			/* No padding needed - we are done */
 			if (tinycnt == 0) {
-				// For standard input, set the imglen to 0 to signal
-				// the end of the "file". For non standard input, leave
-				// it as-is to detect an early EOF
+				/*
+				 * For standard input, set imglen to 0 to signal
+				 * the end of the "file". For nonstandard input,
+				 * leave it as-is to detect an early EOF.
+				 */
 				if (ifd == STDIN_FILENO) {
 					imglen = 0;
 				}
@@ -551,11 +562,11 @@ int main(int argc, char * const argv[])
 		}
 
 		if (writeoob) {
-			oobreadbuf = writebuf + meminfo.writesize;
+			oobreadbuf = writebuf + mtd.min_io_size;
 
 			// Read more data for the OOB from the input if there isn't enough in the buffer
-			if ((oobreadbuf + meminfo.oobsize) > (filebuf + filebuf_len)) {
-				int readlen = meminfo.oobsize;
+			if ((oobreadbuf + mtd.oob_size) > (filebuf + filebuf_len)) {
+				int readlen = mtd.oob_size;
 				int alreadyread = (filebuf + filebuf_len) - oobreadbuf;
 				int tinycnt = alreadyread;
 
@@ -586,9 +597,7 @@ int main(int argc, char * const argv[])
 				}
 			}
 
-			if (noecc) {
-				oob.ptr = oobreadbuf;
-			} else {
+			if (!noecc) {
 				int i, start, len;
 				int tags_pos = 0;
 				/*
@@ -614,57 +623,58 @@ int main(int argc, char * const argv[])
 				} else {
 					/* Set at least the ecc byte positions to 0xff */
 					start = old_oobinfo.eccbytes;
-					len = meminfo.oobsize - start;
+					len = mtd.oob_size - start;
 					memcpy(oobbuf + start,
 							oobreadbuf + start,
 							len);
 				}
 			}
 			/* Write OOB data first, as ecc will be placed in there */
-			oob.start = mtdoffset;
-			if (ioctl(fd, MEMWRITEOOB, &oob) != 0) {
-				perror("ioctl(MEMWRITEOOB)");
+			if (mtd_write_oob(mtd_desc, &mtd, fd, mtdoffset,
+						mtd.oob_size,
+						noecc ? oobreadbuf : oobbuf)) {
+				sys_errmsg("%s: MTD writeoob failure", mtd_device);
 				goto closeall;
 			}
 		}
 
 		/* Write out the Page data */
-		if (pwrite(fd, writebuf, meminfo.writesize, mtdoffset) != meminfo.writesize) {
-			erase_info_t erase;
-
+		if (mtd_write(&mtd, fd, mtdoffset / mtd.eb_size, mtdoffset % mtd.eb_size,
+					writebuf, mtd.min_io_size)) {
+			int i;
 			if (errno != EIO) {
-				perror("pwrite");
+				sys_errmsg("%s: MTD write failure", mtd_device);
 				goto closeall;
 			}
 
 			/* Must rewind to blockstart if we can */
 			writebuf = filebuf;
 
-			erase.start = blockstart;
-			erase.length = meminfo.erasesize;
-			fprintf(stderr, "Erasing failed write from %08lx-%08lx\n",
-				(long)erase.start, (long)erase.start+erase.length-1);
-			if (ioctl(fd, MEMERASE, &erase) != 0) {
-				int errno_tmp = errno;
-				perror("MEMERASE");
-				if (errno_tmp != EIO) {
-					goto closeall;
+			fprintf(stderr, "Erasing failed write from %#08llx to %#08llx\n",
+				blockstart, blockstart + ebsize_aligned - 1);
+			for (i = blockstart; i < blockstart + ebsize_aligned; i += mtd.eb_size) {
+				if (mtd_erase(mtd_desc, &mtd, fd, mtd.eb_size)) {
+					int errno_tmp = errno;
+					sys_errmsg("%s: MTD Erase failure", mtd_device);
+					if (errno_tmp != EIO) {
+						goto closeall;
+					}
 				}
 			}
 
 			if (markbad) {
-				loff_t bad_addr = mtdoffset & (~(meminfo.erasesize / blockalign) + 1);
-				fprintf(stderr, "Marking block at %08lx bad\n", (long)bad_addr);
-				if (ioctl(fd, MEMSETBADBLOCK, &bad_addr)) {
-					perror("MEMSETBADBLOCK");
+				fprintf(stderr, "Marking block at %08llx bad\n",
+						mtdoffset & (~mtd.eb_size + 1));
+				if (mtd_mark_bad(&mtd, fd, mtdoffset / mtd.eb_size)) {
+					sys_errmsg("%s: MTD Mark bad block failure", mtd_device);
 					goto closeall;
 				}
 			}
-			mtdoffset = blockstart + meminfo.erasesize;
+			mtdoffset = blockstart + ebsize_aligned;
 
 			continue;
 		}
-		mtdoffset += meminfo.writesize;
+		mtdoffset += mtd.min_io_size;
 		writebuf += pagelen;
 	}
 
@@ -674,6 +684,7 @@ closeall:
 	close(ifd);
 
 restoreoob:
+	libmtd_close(mtd_desc);
 	free(filebuf);
 	free(oobbuf);
 

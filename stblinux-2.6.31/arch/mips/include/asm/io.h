@@ -207,6 +207,7 @@ static inline void __iomem * __ioremap_mode(phys_t offset, unsigned long size,
 		if (!size || last_addr < phys_addr)
 			return NULL;
 
+#if !defined(CONFIG_BRCM_UPPER_768MB)
 		/*
 		 * Map uncached objects in the low 512MB of address
 		 * space using KSEG1.
@@ -215,6 +216,7 @@ static inline void __iomem * __ioremap_mode(phys_t offset, unsigned long size,
 		    flags == _CACHE_UNCACHED)
 			return (void __iomem *)
 				(unsigned long)CKSEG1ADDR(phys_addr);
+#endif
 	}
 
 	return __ioremap(offset, size, flags);

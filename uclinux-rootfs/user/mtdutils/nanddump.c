@@ -82,8 +82,8 @@ static bool			pretty_print = false;	// print nice
 static bool			noecc = false;		// don't error correct
 static bool			noskipbad = false;	// don't skip bad blocks
 static bool			omitoob = false;	// omit oob data
-static unsigned long long	start_addr;		// start address
-static unsigned long		length;			// dump length
+static long long		start_addr;		// start address
+static long long		length;			// dump length
 static const char		*mtddev;		// mtd device name
 static const char		*dumpfile;		// dump file name
 static bool			omitbad = false;
@@ -136,7 +136,7 @@ static void process_options(int argc, char * const argv[])
 				omitbad = true;
 				break;
 			case 's':
-				start_addr = strtoull(optarg, NULL, 0);
+				start_addr = simple_strtoll(optarg, &error);
 				break;
 			case 'f':
 				if (!(dumpfile = strdup(optarg))) {
@@ -145,7 +145,7 @@ static void process_options(int argc, char * const argv[])
 				}
 				break;
 			case 'l':
-				length = strtoull(optarg, NULL, 0);
+				length = simple_strtoll(optarg, &error);
 				break;
 			case 'o':
 				omitoob = true;
@@ -172,6 +172,13 @@ static void process_options(int argc, char * const argv[])
 				break;
 		}
 	}
+
+	if (start_addr < 0)
+		errmsg_die("Can't specify negative offset with option -s: %lld",
+				start_addr);
+
+	if (length < 0)
+		errmsg_die("Can't specify negative length with option -l: %lld", length);
 
 	if (quiet && pretty_print) {
 		fprintf(stderr, "The quiet and pretty print options are mutually-\n"
@@ -252,9 +259,10 @@ static void pretty_dump_to_buffer(const unsigned char *buf, size_t len,
 	if (!ascii)
 		goto nil;
 
-	do {
-		linebuf[lx++] = ' ';
-	} while (lx < (linebuflen - 1) && lx < (ascii_column - 1));
+	/* Spacing between hex and ASCII - ensure at least one space */
+	lx += sprintf(linebuf + lx, "%*s",
+			MAX((int)MIN(linebuflen, ascii_column) - 1 - lx, 1),
+			" ");
 
 	linebuf[lx++] = '|';
 	for (j = 0; (j < len) && (lx + 2) < linebuflen; j++)
@@ -272,8 +280,8 @@ nil:
  */
 int main(int argc, char * const argv[])
 {
-	unsigned long long ofs, end_addr = 0;
-	unsigned long long blockstart = 1;
+	long long ofs, end_addr = 0;
+	long long blockstart = 1;
 	int ret, i, fd, ofd = 0, bs, badblock = 0;
 	struct mtd_dev_info mtd;
 	char pretty_buf[PRETTY_BUF_LEN];
@@ -373,7 +381,7 @@ int main(int argc, char * const argv[])
 
 	/* Print informative message */
 	if (!quiet) {
-		fprintf(stderr, "Block size %u, page size %u, OOB size %u\n",
+		fprintf(stderr, "Block size %d, page size %d, OOB size %d\n",
 				mtd.eb_size, mtd.min_io_size, mtd.oob_size);
 		fprintf(stderr,
 				"Dumping data starting at 0x%08llx and ending at 0x%08llx...\n",

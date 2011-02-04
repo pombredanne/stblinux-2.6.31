@@ -1,4 +1,3 @@
-
 /********************************************
 files.h
 copyright 1991, Michael D. Brennan
@@ -10,7 +9,9 @@ Mawk is distributed without warranty under the terms of
 the GNU General Public License, version 2, 1991.
 ********************************************/
 
-/*$Log: files.h,v $
+/*
+ * $MawkId: files.h,v 1.8 2009/12/16 23:45:58 tom Exp $
+ * @Log: files.h,v @
  * Revision 1.3  1996/01/14  17:14:11  mike
  * flush_all_output()
  *
@@ -29,8 +30,11 @@ the GNU General Public License, version 2, 1991.
  *
 */
 
-#ifndef   FILES_H
-#define   FILES_H
+#ifndef   MAWK_FILES_H
+#define   MAWK_FILES_H
+
+#include "nstd.h"
+#include "types.h"
 
 /* IO redirection types */
 #define  F_IN           (-5)
@@ -40,28 +44,31 @@ the GNU General Public License, version 2, 1991.
 #define  F_TRUNC        (-1)
 #define  IS_OUTPUT(type)  ((type)>=PIPE_OUT)
 
-extern char *shell ; /* for pipes and system() */
+extern const char *shell;	/* for pipes and system() */
 
-PTR  PROTO(file_find, (STRING *, int)) ;
-int  PROTO(file_close, (STRING *)) ;
-int  PROTO(file_flush, (STRING *)) ;
-void PROTO(flush_all_output, (void)) ;
-PTR  PROTO(get_pipe, (char *, int, int *) ) ;
-int  PROTO(wait_for, (int) ) ;
-void  PROTO( close_out_pipes, (void) ) ;
+PTR file_find(STRING *, int);
+int file_close(STRING *);
+int file_flush(STRING *);
+void flush_all_output(void);
+PTR get_pipe(char *, int, int *);
+int wait_for(int);
+void close_out_pipes(void);
 
-#if  HAVE_FAKE_PIPES
-void PROTO(close_fake_pipes, (void)) ;
-int  PROTO(close_fake_outpipe, (char *,int)) ;
-char *PROTO(tmp_file_name, (int, char*)) ;
+#ifdef  HAVE_FAKE_PIPES
+void close_fake_pipes(void);
+int close_fake_outpipe(char *, int);
+char *tmp_file_name(int, char *);
 #endif
 
-#if MSDOS
-int  PROTO(DOSexec, (char *)) ;
-int  PROTO(binmode, (void)) ;
-void PROTO(set_binmode, (int)) ;
-void PROTO(enlarge_output_buffer, (FILE*)) ;
+#ifdef MSDOS
+int DOSexec(char *);
+void enlarge_output_buffer(FILE *);
 #endif
 
-
+#if USE_BINMODE
+int binmode(void);
+void set_binmode(int);
+void stdout_init(void);
 #endif
+
+#endif /* MAWK_FILES_H */

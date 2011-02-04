@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Nov 22 12:34:21 2010
- *                 MD5 Checksum         082dfd5d17e3af90ed154624d5df510d
+ * Date:           Generated on         Tue Dec 21 12:23:39 2010
+ *                 MD5 Checksum         fd2e309a85cdb2129dc419715080c085
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,10 +32,7 @@
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7344/rdb/a0/bchp_common.h $
- * 
- * Hydra_Software_Devel/4   11/22/10 4:37p pntruong
- * HW7344-97: Synced up with central rdb.
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -519,8 +516,8 @@
 #define BCHP_BSCA_REG_END                                  0x00406254
 #define BCHP_BSCB_REG_START                                0x00406280
 #define BCHP_BSCB_REG_END                                  0x004062d4
-#define BCHP_BSCC_REG_START                                0x00406300
-#define BCHP_BSCC_REG_END                                  0x00406354
+#define BCHP_BSCD_REG_START                                0x00406300
+#define BCHP_BSCD_REG_END                                  0x00406354
 #define BCHP_PWM_REG_START                                 0x00406580
 #define BCHP_PWM_REG_END                                   0x004065a4
 #define BCHP_GIO_REG_START                                 0x00406700
@@ -573,8 +570,8 @@
 #define BCHP_KBD2_REG_END                                  0x0040893c
 #define BCHP_KBD3_REG_START                                0x00408940
 #define BCHP_KBD3_REG_END                                  0x0040897c
-#define BCHP_BSCD_REG_START                                0x00408980
-#define BCHP_BSCD_REG_END                                  0x004089d4
+#define BCHP_BSCC_REG_START                                0x00408980
+#define BCHP_BSCC_REG_END                                  0x004089d4
 #define BCHP_MSPI_REG_START                                0x00408a00
 #define BCHP_MSPI_REG_END                                  0x00408b7c
 #define BCHP_IRQ0_AON_REG_START                            0x00408b80
@@ -1602,7 +1599,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1621,7 +1618,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1640,7 +1637,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

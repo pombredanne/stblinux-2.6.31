@@ -12,7 +12,7 @@ the GNU General Public License, version 2, 1991.
 
 /* Zortech C++ under MSDOS */
 
-/* $Log: ztc.h,v $
+/* @Log: ztc.h,v @
  * Revision 1.3  1994/10/08  19:12:08  mike
  * SET_PROGNAME
  *

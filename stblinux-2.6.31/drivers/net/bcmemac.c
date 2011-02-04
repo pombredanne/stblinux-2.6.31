@@ -416,6 +416,13 @@ static void bcmemac_net_timeout(struct net_device *dev)
 static void bcm_set_multicast_list(struct net_device *dev)
 {
 	BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+	struct netdev_hw_addr *ha;
+	int mc_count = netdev_mc_count(dev);
+#else
+	struct dev_mc_list *dmi;
+	int mc_count = dev->mc_count;
+#endif
 
 	TRACE(("%s: bcm_set_multicast_list: %08X\n", dev->name, dev->flags));
 
@@ -428,17 +435,16 @@ static void bcm_set_multicast_list(struct net_device *dev)
 
 #ifndef MULTICAST_HW_FILTER
 	/* All Multicast packets (PR10861 Check for any multicast request) */
-	if (dev->flags & IFF_ALLMULTI || dev->mc_count) {
+	if (dev->flags & IFF_ALLMULTI || mc_count) {
 		pDevCtrl->emac->rxControl |= EMAC_ALL_MCAST;
 	} else {
 		pDevCtrl->emac->rxControl &= ~EMAC_ALL_MCAST;
 	}
 #else
 	{
-		struct dev_mc_list *dmi = dev->mc_list;
 		/* PR10861 - Filter specific group Multicast packets (R&C 2nd Ed., p463) */
 		if (dev->flags & IFF_ALLMULTI
-		    || dev->mc_count > (MAX_PMADDR - 1)) {
+		    || mc_count > (MAX_PMADDR - 1)) {
 			perfectmatch_clean(pDevCtrl, dev->dev_addr);
 			pDevCtrl->emac->rxControl |= EMAC_ALL_MCAST;
 			return;
@@ -447,13 +453,18 @@ static void bcm_set_multicast_list(struct net_device *dev)
 		}
 
 		/* No multicast? Just get our own stuff */
-		if (dev->mc_count == 0)
+		if (mc_count == 0)
 			return;
 
 		/* Store multicast addresses in the prefect match registers */
 		perfectmatch_clean(pDevCtrl, dev->dev_addr);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+		netdev_for_each_mc_addr(ha, dev)
+			perfectmatch_update(pDevCtrl, ha->addr, 1);
+#else
 		for (dmi = dev->mc_list; dmi; dmi = dmi->next)
 			perfectmatch_update(pDevCtrl, dmi->dmi_addr, 1);
+#endif
 	}
 #endif
 }
@@ -963,6 +974,8 @@ static int bcmemac_rx(BcmEnet_devctrl * pDevCtrl, int budget)
 		}
 
 		skb_put(cb->skb, size);
+		if (pDevCtrl->bIPHdrOptimize)
+			skb_trim(cb->skb, size - ETH_FCS_LEN - 2);
 		cb->skb->protocol = eth_type_trans(cb->skb, dev);
 		netif_receive_skb(cb->skb);
 		cb->skb = NULL;
@@ -1573,6 +1586,7 @@ static int __devinit bcmemac_drv_probe(struct platform_device *pdev)
 		goto out;
 	}
 	pDevCtrl = netdev_priv(dev);
+	SET_NETDEV_DEV(dev, &pdev->dev);
 	dev_set_drvdata(&pdev->dev, pDevCtrl);
 
 	pDevCtrl->rxIrq = dev->irq = platform_get_irq(pdev, 0);

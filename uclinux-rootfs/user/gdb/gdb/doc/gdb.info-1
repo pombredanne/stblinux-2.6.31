@@ -10,7 +10,7 @@ END-INFO-DIR-ENTRY
 2010 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the GNU Free Documentation License, Version 1.3 or
 any later version published by the Free Software Foundation; with the
 Invariant Sections being "Free Software" and "Free Software Needs Free
 Documentation", with the Front-Cover Texts being "A GNU Manual," and
@@ -23,14 +23,14 @@ developing GNU and promoting software freedom."
    This file documents the GNU debugger GDB.
 
    This is the Ninth Edition, of `Debugging with GDB: the GNU
-Source-Level Debugger' for GDB (GDB) Version 7.1.
+Source-Level Debugger' for GDB (GDB) Version 7.2.
 
    Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
 2010 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the GNU Free Documentation License, Version 1.3 or
 any later version published by the Free Software Foundation; with the
 Invariant Sections being "Free Software" and "Free Software Needs Free
 Documentation", with the Front-Cover Texts being "A GNU Manual," and
@@ -48,7 +48,7 @@ Debugging with GDB
 
 This file describes GDB, the GNU symbolic debugger.
 
-   This is the Ninth Edition, for GDB (GDB) Version 7.1.
+   This is the Ninth Edition, for GDB (GDB) Version 7.2.
 
    Copyright (C) 1988-2010 Free Software Foundation, Inc.
 
@@ -137,6 +137,8 @@ these) to help you catch bugs in the act:
    You can use GDB to debug programs written in C and C++.  For more
 information, see *Note Supported Languages: Supported Languages.  For
 more information, see *Note C and C++: C.
+
+   Support for D is partial.  For information on D, see *Note D: D.
 
    Support for Modula-2 is partial.  For information on Modula-2, see
 *Note Modula-2: Modula-2.
@@ -481,7 +483,7 @@ Let us use GDB to try to see what is going on.
      There is absolutely no warranty for GDB; type "show warranty"
       for details.
 
-     GDB 7.1, Copyright 1999 Free Software Foundation, Inc...
+     GDB 7.2, Copyright 1999 Free Software Foundation, Inc...
      (gdb)
 
 GDB reads only enough symbol data to know where to find the rest when
@@ -841,7 +843,9 @@ mode or quiet mode.
      command files specified with `-x' (and all commands from
      initialization files, if not inhibited with `-n').  Exit with
      nonzero status if an error occurs in executing the GDB commands in
-     the command files.
+     the command files.  Batch mode also disables pagination, sets
+     unlimited terminal width and height *note Screen Size::, and acts
+     as if `set confirm off' were in effect (*note Messages/Warnings::).
 
      Batch mode may be useful for running GDB as a filter, for example
      to download and run a program on another computer; in order to
@@ -2072,12 +2076,15 @@ current inferior, you can either detach from it by using the
 using the `kill inferior' command:
 
 `detach inferior INFNO'
-     Detach from the inferior identified by GDB inferior number INFNO,
-     and remove it from the inferior list.
+     Detach from the inferior identified by GDB inferior number INFNO.
+     Note that the inferior's entry still stays on the list of
+     inferiors shown by `info inferiors', but its Description will show
+     `<null>'.
 
 `kill inferior INFNO'
-     Kill the inferior identified by GDB inferior number INFNO, and
-     remove it from the inferior list.
+     Kill the inferior identified by GDB inferior number INFNO.  Note
+     that the inferior's entry still stays on the list of inferiors
+     shown by `info inferiors', but its Description will show `<null>'.
 
    After the successful completion of a command such as `detach',
 `detach inferior', `kill' or `kill inferior', or after a normal process
@@ -2297,6 +2304,12 @@ a Solaris-specific command:
      As with the `[New ...]' message, the form of the text after
      `Switching to' depends on your system's conventions for identifying
      threads.
+
+     The debugger convenience variable `$_thread' contains the number
+     of the current thread.  You may find this useful in writing
+     breakpoint conditional expressions, command scripts, and so forth.
+     See *Note Convenience Variables: Convenience Vars, for general
+     information on convenience variables.
 
 `thread apply [THREADNO] [ALL] COMMAND'
      The `thread apply' command allows you to apply the named COMMAND
@@ -2705,6 +2718,7 @@ in that range are operated on.
 * Disabling::                   Disabling breakpoints
 * Conditions::                  Break conditions
 * Break Commands::              Breakpoint command lists
+* Save Breakpoints::            How to save breakpoints in a file
 * Error in Breakpoints::        ``Cannot insert breakpoints''
 * Breakpoint-related Warnings:: ``Breakpoint address adjusted...''
 
@@ -2825,9 +2839,19 @@ variables.
 
           (gdb) rbreak .
 
+`rbreak FILE:REGEX'
+     If `rbreak' is called with a filename qualification, it limits the
+     search for functions matching the given regular expression to the
+     specified FILE.  This can be used, for example, to set breakpoints
+     on every function in a given file:
+
+          (gdb) rbreak file.c:.
+
+     The colon separating the filename qualifier from the regex may
+     optionally be surrounded by spaces.
+
 `info breakpoints [N]'
 `info break [N]'
-`info watchpoints [N]'
      Print a table of all breakpoints, watchpoints, and catchpoints set
      and not deleted.  Optional argument N means print information only
      about the specified breakpoint (or watchpoint or catchpoint).  For
@@ -3109,8 +3133,18 @@ do not slow down the running of your program.
      written into by the program.
 
 `info watchpoints'
-     This command prints a list of watchpoints, breakpoints, and
-     catchpoints; it is the same as `info break' (*note Set Breaks::).
+     This command prints a list of watchpoints, using the same format as
+     `info break' (*note Set Breaks::).
+
+   If you watch for a change in a numerically entered address you need
+to dereference it, as the address itself is just a constant number
+which will never change.  GDB refuses to create a watchpoint that
+watches a never-changing value:
+
+     (gdb) watch 0x600850
+     Cannot watch constant value 0x600850.
+     (gdb) watch *(int *) 0x600850
+     Watchpoint 1: *(int *) 6293584
 
    GDB sets a "hardware watchpoint" if possible.  Hardware watchpoints
 execute very quickly, and the debugger reports a change in value at the
@@ -3490,9 +3524,9 @@ that you can "enable" it again later.
 
    You disable and enable breakpoints, watchpoints, and catchpoints with
 the `enable' and `disable' commands, optionally specifying one or more
-breakpoint numbers as arguments.  Use `info break' or `info watch' to
-print a list of breakpoints, watchpoints, and catchpoints if you do not
-know which numbers to use.
+breakpoint numbers as arguments.  Use `info break' to print a list of
+all breakpoints, watchpoints, and catchpoints if you do not know which
+numbers to use.
 
    Disabling and enabling a breakpoint that has multiple locations
 affects all of its locations.
@@ -3647,7 +3681,7 @@ it.
    Ignore counts apply to breakpoints, watchpoints, and catchpoints.
 
 
-File: gdb.info,  Node: Break Commands,  Next: Error in Breakpoints,  Prev: Conditions,  Up: Breakpoints
+File: gdb.info,  Node: Break Commands,  Next: Save Breakpoints,  Prev: Conditions,  Up: Breakpoints
 
 5.1.7 Breakpoint Command Lists
 ------------------------------
@@ -3657,19 +3691,24 @@ commands to execute when your program stops due to that breakpoint.  For
 example, you might want to print the values of certain expressions, or
 enable other breakpoints.
 
-`commands [BNUM]'
+`commands [RANGE...]'
 `... COMMAND-LIST ...'
 `end'
-     Specify a list of commands for breakpoint number BNUM.  The
-     commands themselves appear on the following lines.  Type a line
-     containing just `end' to terminate the commands.
+     Specify a list of commands for the given breakpoints.  The commands
+     themselves appear on the following lines.  Type a line containing
+     just `end' to terminate the commands.
 
      To remove all commands from a breakpoint, type `commands' and
      follow it immediately with `end'; that is, give no commands.
 
-     With no BNUM argument, `commands' refers to the last breakpoint,
+     With no argument, `commands' refers to the last breakpoint,
      watchpoint, or catchpoint set (not to the breakpoint most recently
-     encountered).
+     encountered).  If the most recent breakpoints were set with a
+     single command, then the `commands' will apply to all the
+     breakpoints set by that command.  This applies to breakpoints set
+     by `rbreak', and also applies when a single `break' command
+     creates multiple breakpoints (*note Ambiguous Expressions:
+     Ambiguous Expressions.).
 
    Pressing <RET> as a means of repeating the last GDB command is
 disabled within a COMMAND-LIST.
@@ -3721,9 +3760,33 @@ that no output is produced.  Here is an example:
      end
 
 
-File: gdb.info,  Node: Error in Breakpoints,  Next: Breakpoint-related Warnings,  Prev: Break Commands,  Up: Breakpoints
+File: gdb.info,  Node: Save Breakpoints,  Next: Error in Breakpoints,  Prev: Break Commands,  Up: Breakpoints
 
-5.1.8 "Cannot insert breakpoints"
+5.1.8 How to save breakpoints to a file
+---------------------------------------
+
+To save breakpoint definitions to a file use the `save breakpoints'
+command.
+
+`save breakpoints [FILENAME]'
+     This command saves all current breakpoint definitions together with
+     their commands and ignore counts, into a file `FILENAME' suitable
+     for use in a later debugging session.  This includes all types of
+     breakpoints (breakpoints, watchpoints, catchpoints, tracepoints).
+     To read the saved breakpoint definitions, use the `source' command
+     (*note Command Files::).  Note that watchpoints with expressions
+     involving local variables may fail to be recreated because it may
+     not be possible to access the context where the watchpoint is
+     valid anymore.  Because the saved breakpoint definitions are
+     simply a sequence of GDB commands that recreate the breakpoints,
+     you can edit the file in your favorite editing program, and remove
+     the breakpoint definitions you're not interested in, or that can
+     no longer be recreated.
+
+
+File: gdb.info,  Node: Error in Breakpoints,  Next: Breakpoint-related Warnings,  Prev: Save Breakpoints,  Up: Breakpoints
+
+5.1.9 "Cannot insert breakpoints"
 ---------------------------------
 
 If you request too many active hardware-assisted breakpoints and
@@ -3742,8 +3805,8 @@ the hardware-assisted breakpoints and watchpoints, and then continue.
 
 File: gdb.info,  Node: Breakpoint-related Warnings,  Prev: Error in Breakpoints,  Up: Breakpoints
 
-5.1.9 "Breakpoint address adjusted..."
---------------------------------------
+5.1.10 "Breakpoint address adjusted..."
+---------------------------------------
 
 Some processor architectures place constraints on the addresses at
 which breakpoints may be placed.  For architectures thus constrained,
@@ -4167,6 +4230,7 @@ debugger.
 * Background Execution::	Running your program asynchronously
 * Thread-Specific Breakpoints::	Controlling breakpoints
 * Interrupted System Calls::	GDB may interfere with system calls
+* Observer Mode::               GDB does not alter program behavior
 
 
 File: gdb.info,  Node: All-Stop Mode,  Next: Non-Stop Mode,  Up: Thread Stops
@@ -4439,7 +4503,7 @@ on all threads, or on a particular thread.
 
 
 
-File: gdb.info,  Node: Interrupted System Calls,  Prev: Thread-Specific Breakpoints,  Up: Thread Stops
+File: gdb.info,  Node: Interrupted System Calls,  Next: Observer Mode,  Prev: Thread-Specific Breakpoints,  Up: Thread Stops
 
 5.4.5 Interrupted System Calls
 ------------------------------
@@ -4476,6 +4540,96 @@ multi-threaded program to behave differently than it would without GDB.
 certain events such as thread creation and thread destruction.  When
 such an event happens, a system call in another thread may return
 prematurely, even though your program does not appear to stop.
+
+
+File: gdb.info,  Node: Observer Mode,  Prev: Interrupted System Calls,  Up: Thread Stops
+
+5.4.6 Observer Mode
+-------------------
+
+If you want to build on non-stop mode and observe program behavior
+without any chance of disruption by GDB, you can set variables to
+disable all of the debugger's attempts to modify state, whether by
+writing memory, inserting breakpoints, etc.  These operate at a low
+level, intercepting operations from all commands.
+
+   When all of these are set to `off', then GDB is said to be "observer
+mode".  As a convenience, the variable `observer' can be set to disable
+these, plus enable non-stop mode.
+
+   Note that GDB will not prevent you from making nonsensical
+combinations of these settings. For instance, if you have enabled
+`may-insert-breakpoints' but disabled `may-write-memory', then
+breakpoints that work by writing trap instructions into the code stream
+will still not be able to be placed.
+
+`set observer on'
+`set observer off'
+     When set to `on', this disables all the permission variables below
+     (except for `insert-fast-tracepoints'), plus enables non-stop
+     debugging.  Setting this to `off' switches back to normal
+     debugging, though remaining in non-stop mode.
+
+`show observer'
+     Show whether observer mode is on or off.
+
+`set may-write-registers on'
+`set may-write-registers off'
+     This controls whether GDB will attempt to alter the values of
+     registers, such as with assignment expressions in `print', or the
+     `jump' command.  It defaults to `on'.
+
+`show may-write-registers'
+     Show the current permission to write registers.
+
+`set may-write-memory on'
+`set may-write-memory off'
+     This controls whether GDB will attempt to alter the contents of
+     memory, such as with assignment expressions in `print'.  It
+     defaults to `on'.
+
+`show may-write-memory'
+     Show the current permission to write memory.
+
+`set may-insert-breakpoints on'
+`set may-insert-breakpoints off'
+     This controls whether GDB will attempt to insert breakpoints.
+     This affects all breakpoints, including internal breakpoints
+     defined by GDB.  It defaults to `on'.
+
+`show may-insert-breakpoints'
+     Show the current permission to insert breakpoints.
+
+`set may-insert-tracepoints on'
+`set may-insert-tracepoints off'
+     This controls whether GDB will attempt to insert (regular)
+     tracepoints at the beginning of a tracing experiment.  It affects
+     only non-fast tracepoints, fast tracepoints being under the
+     control of `may-insert-fast-tracepoints'.  It defaults to `on'.
+
+`show may-insert-tracepoints'
+     Show the current permission to insert tracepoints.
+
+`set may-insert-fast-tracepoints on'
+`set may-insert-fast-tracepoints off'
+     This controls whether GDB will attempt to insert fast tracepoints
+     at the beginning of a tracing experiment.  It affects only fast
+     tracepoints, regular (non-fast) tracepoints being under the
+     control of `may-insert-tracepoints'.  It defaults to `on'.
+
+`show may-insert-fast-tracepoints'
+     Show the current permission to insert fast tracepoints.
+
+`set may-interrupt on'
+`set may-interrupt off'
+     This controls whether GDB will attempt to interrupt or stop
+     program execution.  When this variable is `off', the `interrupt'
+     command will have no effect, nor will `Ctrl-c'. It defaults to
+     `on'.
+
+`show may-interrupt'
+     Show the current permission to interrupt or stop the program.
+
 
 
 File: gdb.info,  Node: Reverse Execution,  Next: Process Record and Replay,  Prev: Stopping,  Up: Top
@@ -4669,6 +4823,15 @@ GDB provides the following commands:
      When the inferior process exits, or GDB detaches from it, process
      record and replay target will automatically stop itself.
 
+`record save FILENAME'
+     Save the execution log to a file `FILENAME'.  Default filename is
+     `gdb_record.PROCESS_ID', where PROCESS_ID is the process ID of the
+     inferior.
+
+`record restore FILENAME'
+     Restore the execution log from a file `FILENAME'.  File must have
+     been created with `record save'.
+
 `set record insn-number-max LIMIT'
      Set the limit of instructions to be recorded.  Default value is
      200000.
@@ -4702,6 +4865,20 @@ GDB provides the following commands:
 
 `show record stop-at-limit'
      Show the current setting of `stop-at-limit'.
+
+`set record memory-query'
+     Control the behavior when GDB is unable to record memory changes
+     caused by an instruction.  If ON, GDB will query whether to stop
+     the inferior in that case.
+
+     If this option is OFF (the default), GDB will automatically ignore
+     the effect of such instructions on memory.  Later, when GDB
+     replays this execution log, it will mark the log of this
+     instruction as not accessible, and it will not affect the replay
+     results.
+
+`show record memory-query'
+     Show the current setting of `memory-query'.
 
 `info record'
      Show various statistics about the state of process record and its
@@ -5580,9 +5757,18 @@ variable `$_' (*note Convenience Variables: Convenience Vars.).
      program counter value; GDB dumps the function surrounding this
      value.  When two arguments are given, they should be separated by
      a comma, possibly surrounded by whitespace.  The arguments specify
-     a range of addresses (first inclusive, second exclusive) to dump.
-     In that case, the name of the function is also printed (since
-     there could be several functions in the given range).
+     a range of addresses to dump, in one of two forms:
+
+    `START,END'
+          the addresses from START (inclusive) to END (exclusive)
+
+    `START,+LENGTH'
+          the addresses from START (inclusive) to `START+LENGTH'
+          (exclusive).
+
+     When 2 arguments are specified, the name of the function is also
+     printed (since there could be several functions in the given
+     range).
 
      The argument(s) can be any expression yielding a numeric value,
      such as `0x32c4', `&main+10' or `$pc - 8'.
@@ -5628,6 +5814,17 @@ the program is stopped just after function prologue:
         0x0804834d <+29>:   leave
         0x0804834e <+30>:   ret
 
+     End of assembler dump.
+
+   Here is another example showing raw instructions in hex for AMD
+x86-64,
+
+     (gdb) disas /r 0x400281,+10
+     Dump of assembler code from 0x400281 to 0x40028b:
+        0x0000000000400281:  38 36  cmp    %dh,(%rsi)
+        0x0000000000400283:  2d 36 34 2e 73 sub    $0x732e3436,%eax
+        0x0000000000400288:  6f     outsl  %ds:(%rsi),(%dx)
+        0x0000000000400289:  2e 32 00       xor    %cs:(%rax),%al
      End of assembler dump.
 
    Some architectures have more than one commonly-used set of
@@ -5677,7 +5874,9 @@ File: gdb.info,  Node: Data,  Next: Optimized Code,  Prev: Source,  Up: Top
 The usual way to examine data in your program is with the `print'
 command (abbreviated `p'), or its synonym `inspect'.  It evaluates and
 prints the value of an expression of the language your program is
-written in (*note Using GDB with Different Languages: Languages.).
+written in (*note Using GDB with Different Languages: Languages.).  It
+may also print the expression using a Python-based pretty-printer
+(*note Pretty Printing::).
 
 `print EXPR'
 `print /F EXPR'
@@ -5712,6 +5911,7 @@ rather than `print'.  *Note Examining the Symbol Table: Symbols.
 * Memory::                      Examining memory
 * Auto Display::                Automatic display
 * Print Settings::              Print settings
+* Pretty Printing::             Python pretty printing
 * Value History::               Value history
 * Convenience Vars::            Convenience variables
 * Registers::                   Registers
@@ -6094,8 +6294,10 @@ supported are:
 
 `r'
      Print using the `raw' formatting.  By default, GDB will use a
-     type-specific pretty-printer.  The `r' format bypasses any
-     pretty-printer which might exist for the value's type.
+     Python-based pretty-printer, if one is available (*note Pretty
+     Printing::).  This typically results in a higher-level display of
+     the value's contents.  The `r' format bypasses any Python
+     pretty-printer which might exist.
 
    For example, to print the program counter in hex (*note
 Registers::), type
@@ -6162,8 +6364,16 @@ U, the unit size
           Giant words (eight bytes).
 
      Each time you specify a unit size with `x', that size becomes the
-     default unit the next time you use `x'.  (For the `s' and `i'
-     formats, the unit size is ignored and is normally not written.)
+     default unit the next time you use `x'.  For the `i' format, the
+     unit size is ignored and is normally not written.  For the `s'
+     format, the unit size defaults to `b', unless it is explicitly
+     given.  Use `x /hs' to display 16-bit char strings and `x /ws' to
+     display 32-bit strings.  The next use of `x /s' will again display
+     8-bit strings.  Note that the results depend on the programming
+     language of the current compilation unit.  If the language is C,
+     the `s' modifier will use the UTF-16 encoding while `w' will use
+     UTF-32.  The encoding is set by the programming language and cannot
+     be altered.
 
 ADDR, starting display address
      ADDR is the address where you want GDB to begin displaying memory.
@@ -6330,7 +6540,7 @@ time your program stops where `last_char' is meaningful, you can enable
 the display expression once again.
 
 
-File: gdb.info,  Node: Print Settings,  Next: Value History,  Prev: Auto Display,  Up: Data
+File: gdb.info,  Node: Print Settings,  Next: Pretty Printing,  Prev: Auto Display,  Up: Data
 
 10.8 Print Settings
 ===================
@@ -6705,10 +6915,46 @@ These settings are of interest when debugging C++ programs:
      not.
 
 
-File: gdb.info,  Node: Value History,  Next: Convenience Vars,  Prev: Print Settings,  Up: Data
+File: gdb.info,  Node: Pretty Printing,  Next: Value History,  Prev: Print Settings,  Up: Data
 
-10.9 Value History
-==================
+10.9 Pretty Printing
+====================
+
+GDB provides a mechanism to allow pretty-printing of values using
+Python code.  It greatly simplifies the display of complex objects.
+This mechanism works for both MI and the CLI.
+
+   For example, here is how a C++ `std::string' looks without a
+pretty-printer:
+
+     (gdb) print s
+     $1 = {
+       static npos = 4294967295,
+       _M_dataplus = {
+         <std::allocator<char>> = {
+           <__gnu_cxx::new_allocator<char>> = {
+             <No data fields>}, <No data fields>
+           },
+         members of std::basic_string<char, std::char_traits<char>,
+           std::allocator<char> >::_Alloc_hider:
+         _M_p = 0x804a014 "abcd"
+       }
+     }
+
+   With a pretty-printer for `std::string' only the contents are
+printed:
+
+     (gdb) print s
+     $2 = "abcd"
+
+   For implementing pretty printers for new types you should read the
+Python API details (*note Pretty Printing API::).
+
+
+File: gdb.info,  Node: Value History,  Next: Convenience Vars,  Prev: Pretty Printing,  Up: Data
+
+10.10 Value History
+===================
 
 Values printed by the `print' command are saved in the GDB "value
 history".  This allows you to refer to them in other expressions.
@@ -6769,7 +7015,7 @@ as `show values +'.
 
 File: gdb.info,  Node: Convenience Vars,  Next: Registers,  Prev: Value History,  Up: Data
 
-10.10 Convenience Variables
+10.11 Convenience Variables
 ===========================
 
 GDB provides "convenience variables" that you can use within GDB to
@@ -6848,11 +7094,25 @@ values likely to be useful.
      The variable `$_exitcode' is automatically set to the exit code
      when the program being debugged terminates.
 
+`$_sdata'
+     The variable `$_sdata' contains extra collected static tracepoint
+     data.  *Note Tracepoint Action Lists: Tracepoint Actions.  Note
+     that `$_sdata' could be empty, if not inspecting a trace buffer, or
+     if extra static tracepoint data has not been collected.
+
 `$_siginfo'
      The variable `$_siginfo' contains extra signal information (*note
      extra signal information::).  Note that `$_siginfo' could be
      empty, if the application has not yet received any signals.  For
      example, it will be empty before you execute the `run' command.
+
+`$_tlb'
+     The variable `$_tlb' is automatically set when debugging
+     applications running on MS-Windows in native mode or connected to
+     gdbserver that supports the `qGetTIBAddr' request.  *Note General
+     Query Packets::.  This variable contains the address of the thread
+     information block.
+
 
    On HP-UX systems, if you refer to a function or variable name that
 begins with a dollar sign, GDB searches for a user or system name
@@ -6865,340 +7125,4 @@ function is implemented internally to GDB.
 
 `help function'
      Print a list of all convenience functions.
-
-
-File: gdb.info,  Node: Registers,  Next: Floating Point Hardware,  Prev: Convenience Vars,  Up: Data
-
-10.11 Registers
-===============
-
-You can refer to machine register contents, in expressions, as variables
-with names starting with `$'.  The names of registers are different for
-each machine; use `info registers' to see the names used on your
-machine.
-
-`info registers'
-     Print the names and values of all registers except floating-point
-     and vector registers (in the selected stack frame).
-
-`info all-registers'
-     Print the names and values of all registers, including
-     floating-point and vector registers (in the selected stack frame).
-
-`info registers REGNAME ...'
-     Print the "relativized" value of each specified register REGNAME.
-     As discussed in detail below, register values are normally
-     relative to the selected stack frame.  REGNAME may be any register
-     name valid on the machine you are using, with or without the
-     initial `$'.
-
-   GDB has four "standard" register names that are available (in
-expressions) on most machines--whenever they do not conflict with an
-architecture's canonical mnemonics for registers.  The register names
-`$pc' and `$sp' are used for the program counter register and the stack
-pointer.  `$fp' is used for a register that contains a pointer to the
-current stack frame, and `$ps' is used for a register that contains the
-processor status.  For example, you could print the program counter in
-hex with
-
-     p/x $pc
-
-or print the instruction to be executed next with
-
-     x/i $pc
-
-or add four to the stack pointer(1) with
-
-     set $sp += 4
-
-   Whenever possible, these four standard register names are available
-on your machine even though the machine has different canonical
-mnemonics, so long as there is no conflict.  The `info registers'
-command shows the canonical names.  For example, on the SPARC, `info
-registers' displays the processor status register as `$psr' but you can
-also refer to it as `$ps'; and on x86-based machines `$ps' is an alias
-for the EFLAGS register.
-
-   GDB always considers the contents of an ordinary register as an
-integer when the register is examined in this way.  Some machines have
-special registers which can hold nothing but floating point; these
-registers are considered to have floating point values.  There is no way
-to refer to the contents of an ordinary register as floating point value
-(although you can _print_ it as a floating point value with `print/f
-$REGNAME').
-
-   Some registers have distinct "raw" and "virtual" data formats.  This
-means that the data format in which the register contents are saved by
-the operating system is not the same one that your program normally
-sees.  For example, the registers of the 68881 floating point
-coprocessor are always saved in "extended" (raw) format, but all C
-programs expect to work with "double" (virtual) format.  In such cases,
-GDB normally works with the virtual format only (the format that makes
-sense for your program), but the `info registers' command prints the
-data in both formats.
-
-   Some machines have special registers whose contents can be
-interpreted in several different ways.  For example, modern x86-based
-machines have SSE and MMX registers that can hold several values packed
-together in several different formats.  GDB refers to such registers in
-`struct' notation:
-
-     (gdb) print $xmm1
-     $1 = {
-       v4_float = {0, 3.43859137e-038, 1.54142831e-044, 1.821688e-044},
-       v2_double = {9.92129282474342e-303, 2.7585945287983262e-313},
-       v16_int8 = "\000\000\000\000\3706;\001\v\000\000\000\r\000\000",
-       v8_int16 = {0, 0, 14072, 315, 11, 0, 13, 0},
-       v4_int32 = {0, 20657912, 11, 13},
-       v2_int64 = {88725056443645952, 55834574859},
-       uint128 = 0x0000000d0000000b013b36f800000000
-     }
-
-To set values of such registers, you need to tell GDB which view of the
-register you wish to change, as if you were assigning value to a
-`struct' member:
-
-      (gdb) set $xmm1.uint128 = 0x000000000000000000000000FFFFFFFF
-
-   Normally, register values are relative to the selected stack frame
-(*note Selecting a Frame: Selection.).  This means that you get the
-value that the register would contain if all stack frames farther in
-were exited and their saved registers restored.  In order to see the
-true contents of hardware registers, you must select the innermost
-frame (with `frame 0').
-
-   However, GDB must deduce where registers are saved, from the machine
-code generated by your compiler.  If some registers are not saved, or if
-GDB is unable to locate the saved registers, the selected stack frame
-makes no difference.
-
-   ---------- Footnotes ----------
-
-   (1) This is a way of removing one word from the stack, on machines
-where stacks grow downward in memory (most machines, nowadays).  This
-assumes that the innermost stack frame is selected; setting `$sp' is
-not allowed when other stack frames are selected.  To pop entire frames
-off the stack, regardless of machine architecture, use `return'; see
-*Note Returning from a Function: Returning.
-
-
-File: gdb.info,  Node: Floating Point Hardware,  Next: Vector Unit,  Prev: Registers,  Up: Data
-
-10.12 Floating Point Hardware
-=============================
-
-Depending on the configuration, GDB may be able to give you more
-information about the status of the floating point hardware.
-
-`info float'
-     Display hardware-dependent information about the floating point
-     unit.  The exact contents and layout vary depending on the
-     floating point chip.  Currently, `info float' is supported on the
-     ARM and x86 machines.
-
-
-File: gdb.info,  Node: Vector Unit,  Next: OS Information,  Prev: Floating Point Hardware,  Up: Data
-
-10.13 Vector Unit
-=================
-
-Depending on the configuration, GDB may be able to give you more
-information about the status of the vector unit.
-
-`info vector'
-     Display information about the vector unit.  The exact contents and
-     layout vary depending on the hardware.
-
-
-File: gdb.info,  Node: OS Information,  Next: Memory Region Attributes,  Prev: Vector Unit,  Up: Data
-
-10.14 Operating System Auxiliary Information
-============================================
-
-GDB provides interfaces to useful OS facilities that can help you debug
-your program.
-
-   When GDB runs on a "Posix system" (such as GNU or Unix machines), it
-interfaces with the inferior via the `ptrace' system call.  The
-operating system creates a special sata structure, called `struct
-user', for this interface.  You can use the command `info udot' to
-display the contents of this data structure.
-
-`info udot'
-     Display the contents of the `struct user' maintained by the OS
-     kernel for the program being debugged.  GDB displays the contents
-     of `struct user' as a list of hex numbers, similar to the
-     `examine' command.
-
-   Some operating systems supply an "auxiliary vector" to programs at
-startup.  This is akin to the arguments and environment that you
-specify for a program, but contains a system-dependent variety of
-binary values that tell system libraries important details about the
-hardware, operating system, and process.  Each value's purpose is
-identified by an integer tag; the meanings are well-known but
-system-specific.  Depending on the configuration and operating system
-facilities, GDB may be able to show you this information.  For remote
-targets, this functionality may further depend on the remote stub's
-support of the `qXfer:auxv:read' packet, see *Note qXfer auxiliary
-vector read::.
-
-`info auxv'
-     Display the auxiliary vector of the inferior, which can be either a
-     live process or a core dump file.  GDB prints each tag value
-     numerically, and also shows names and text descriptions for
-     recognized tags.  Some values in the vector are numbers, some bit
-     masks, and some pointers to strings or other data.  GDB displays
-     each value in the most appropriate form for a recognized tag, and
-     in hexadecimal for an unrecognized tag.
-
-   On some targets, GDB can access operating-system-specific information
-and display it to user, without interpretation.  For remote targets,
-this functionality depends on the remote stub's support of the
-`qXfer:osdata:read' packet, see *Note qXfer osdata read::.
-
-`info os processes'
-     Display the list of processes on the target.  For each process,
-     GDB prints the process identifier, the name of the user, and the
-     command corresponding to the process.
-
-
-File: gdb.info,  Node: Memory Region Attributes,  Next: Dump/Restore Files,  Prev: OS Information,  Up: Data
-
-10.15 Memory Region Attributes
-==============================
-
-"Memory region attributes" allow you to describe special handling
-required by regions of your target's memory.  GDB uses attributes to
-determine whether to allow certain types of memory accesses; whether to
-use specific width accesses; and whether to cache target memory.  By
-default the description of memory regions is fetched from the target
-(if the current target supports this), but the user can override the
-fetched regions.
-
-   Defined memory regions can be individually enabled and disabled.
-When a memory region is disabled, GDB uses the default attributes when
-accessing memory in that region.  Similarly, if no memory regions have
-been defined, GDB uses the default attributes when accessing all memory.
-
-   When a memory region is defined, it is given a number to identify it;
-to enable, disable, or remove a memory region, you specify that number.
-
-`mem LOWER UPPER ATTRIBUTES...'
-     Define a memory region bounded by LOWER and UPPER with attributes
-     ATTRIBUTES..., and add it to the list of regions monitored by GDB.
-     Note that UPPER == 0 is a special case: it is treated as the
-     target's maximum memory address.  (0xffff on 16 bit targets,
-     0xffffffff on 32 bit targets, etc.)
-
-`mem auto'
-     Discard any user changes to the memory regions and use
-     target-supplied regions, if available, or no regions if the target
-     does not support.
-
-`delete mem NUMS...'
-     Remove memory regions NUMS... from the list of regions monitored
-     by GDB.
-
-`disable mem NUMS...'
-     Disable monitoring of memory regions NUMS....  A disabled memory
-     region is not forgotten.  It may be enabled again later.
-
-`enable mem NUMS...'
-     Enable monitoring of memory regions NUMS....
-
-`info mem'
-     Print a table of all defined memory regions, with the following
-     columns for each region:
-
-    _Memory Region Number_
-
-    _Enabled or Disabled._
-          Enabled memory regions are marked with `y'.  Disabled memory
-          regions are marked with `n'.
-
-    _Lo Address_
-          The address defining the inclusive lower bound of the memory
-          region.
-
-    _Hi Address_
-          The address defining the exclusive upper bound of the memory
-          region.
-
-    _Attributes_
-          The list of attributes set for this memory region.
-
-10.15.1 Attributes
-------------------
-
-10.15.1.1 Memory Access Mode
-............................
-
-The access mode attributes set whether GDB may make read or write
-accesses to a memory region.
-
-   While these attributes prevent GDB from performing invalid memory
-accesses, they do nothing to prevent the target system, I/O DMA, etc.
-from accessing memory.
-
-`ro'
-     Memory is read only.
-
-`wo'
-     Memory is write only.
-
-`rw'
-     Memory is read/write.  This is the default.
-
-10.15.1.2 Memory Access Size
-............................
-
-The access size attribute tells GDB to use specific sized accesses in
-the memory region.  Often memory mapped device registers require
-specific sized accesses.  If no access size attribute is specified, GDB
-may use accesses of any size.
-
-`8'
-     Use 8 bit memory accesses.
-
-`16'
-     Use 16 bit memory accesses.
-
-`32'
-     Use 32 bit memory accesses.
-
-`64'
-     Use 64 bit memory accesses.
-
-10.15.1.3 Data Cache
-....................
-
-The data cache attributes set whether GDB will cache target memory.
-While this generally improves performance by reducing debug protocol
-overhead, it can lead to incorrect results because GDB does not know
-about volatile variables or memory mapped device registers.
-
-`cache'
-     Enable GDB to cache target memory.
-
-`nocache'
-     Disable GDB from caching target memory.  This is the default.
-
-10.15.2 Memory Access Checking
-------------------------------
-
-GDB can be instructed to refuse accesses to memory that is not
-explicitly described.  This can be useful if accessing such regions has
-undesired effects for a specific target, or to provide better error
-checking.  The following commands control this behaviour.
-
-`set mem inaccessible-by-default [on|off]'
-     If `on' is specified, make  GDB treat memory not explicitly
-     described by the memory ranges as non-existent and refuse accesses
-     to such memory.  The checks are only performed if there's at least
-     one memory range defined.  If `off' is specified, make GDB treat
-     the memory not explicitly described by the memory ranges as RAM.
-     The default value is `on'.  
-
-`show mem inaccessible-by-default'
-     Show the current handling of accesses to unknown memory.
 

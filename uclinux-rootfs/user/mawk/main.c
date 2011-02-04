@@ -1,4 +1,3 @@
-
 /********************************************
 main.c
 copyright 1991, Michael D. Brennan
@@ -10,7 +9,9 @@ Mawk is distributed without warranty under the terms of
 the GNU General Public License, version 2, 1991.
 ********************************************/
 
-/* $Log: main.c,v $
+/*
+ * $MawkId: main.c,v 1.8 2009/12/14 00:23:56 tom Exp $
+ * @Log: main.c,v @
  * Revision 1.4  1995/06/09  22:57:19  mike
  * parse() no longer returns on error
  *
@@ -38,9 +39,7 @@ the GNU General Public License, version 2, 1991.
  * Revision 5.1	 1991/12/05  07:56:14  brennan
  * 1.1 pre-release
  *
-*/
-
-
+ */
 
 /*  main.c  */
 
@@ -49,36 +48,46 @@ the GNU General Public License, version 2, 1991.
 #include "code.h"
 #include "files.h"
 
+#ifdef LOCALE
+#include <locale.h>
+#endif
 
-short mawk_state ;		 /* 0 is compiling */
-int exit_code ;
+short mawk_state;		/* 0 is compiling */
+int exit_code;
+
+static void
+initialize_locale(void)
+{
+#ifdef LOCALE
+    setlocale(LC_CTYPE, "");
+    setlocale(LC_NUMERIC, "C");
+#endif
+}
 
 int
-main(argc, argv)
-int argc ; char **argv ;
+main(int argc, char **argv)
 {
+    initialize_locale();
+    initialize(argc, argv);
 
-   initialize(argc, argv) ;
+    parse();
 
-   parse() ;
-
-   mawk_state = EXECUTION ;
-   execute(execution_start, eval_stack - 1, 0) ;
-   /* never returns */
-   return 0 ;
+    mawk_state = EXECUTION;
+    execute(execution_start, eval_stack - 1, 0);
+    /* never returns */
+    return 0;
 }
 
 void
-mawk_exit(x)
-   int x ;
+mawk_exit(int x)
 {
-#if  HAVE_REAL_PIPES
-   close_out_pipes() ;		 /* no effect, if no out pipes */
+#ifdef  HAVE_REAL_PIPES
+    close_out_pipes();		/* no effect, if no out pipes */
 #else
-#if  HAVE_FAKE_PIPES
-   close_fake_pipes() ;
+#ifdef  HAVE_FAKE_PIPES
+    close_fake_pipes();
 #endif
 #endif
 
-   exit(x) ;
+    exit(x);
 }

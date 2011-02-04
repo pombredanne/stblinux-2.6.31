@@ -270,12 +270,7 @@ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
 		pos += __pci_read_base(dev, pci_bar_unknown, res, reg);
 	}
 
-#ifdef CONFIG_BRCMSTB
-	/* suppress warning for SATA expansion ROM */
-	if (0) {
-#else
 	if (rom) {
-#endif
 		struct resource *res = &dev->resource[PCI_ROM_RESOURCE];
 		dev->rom_base_reg = rom;
 		res->flags = IORESOURCE_MEM | IORESOURCE_PREFETCH |

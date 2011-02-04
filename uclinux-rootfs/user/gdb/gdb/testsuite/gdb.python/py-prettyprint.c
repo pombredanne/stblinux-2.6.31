@@ -29,6 +29,12 @@ struct ss
   struct s b;
 };
 
+struct arraystruct
+{
+  int y;
+  struct s x[2];
+};
+
 struct ns {
   const char *null_str;
   int length;
@@ -119,6 +125,15 @@ typedef struct string_repr
 
 /* This lets us avoid malloc.  */
 int array[100];
+int narray[10];
+
+struct justchildren
+{
+  int len;
+  int *elements;
+};
+
+typedef struct justchildren nostring_type;
 
 struct container
 {
@@ -190,18 +205,25 @@ main ()
 {
   struct ss  ss;
   struct ss  ssa[2];
+  struct arraystruct arraystruct;
   string x = make_string ("this is x");
   zzz_type c = make_container ("container");
   zzz_type c2 = make_container ("container2");
   const struct string_repr cstring = { { "const string" } };
   /* Clearing by being `static' could invoke an other GDB C++ bug.  */
   struct nullstr nullstr;
-
+  nostring_type nstype;
+  nstype.elements = narray;
+  nstype.len = 0;
 
   init_ss(&ss, 1, 2);
   init_ss(ssa+0, 3, 4);
   init_ss(ssa+1, 5, 6);
   memset (&nullstr, 0, sizeof nullstr);
+
+  arraystruct.y = 7;
+  init_s (&arraystruct.x[0], 23);
+  init_s (&arraystruct.x[1], 24);
 
   struct ns  ns;
   ns.null_str = "embedded\0null\0string";
@@ -249,5 +271,9 @@ main ()
   do_nothing ();
 #endif
 
+  nstype.elements[0] = 7;
+  nstype.elements[1] = 42;
+  nstype.len = 2;
+  
   return 0;      /* break to inspect struct and union */
 }

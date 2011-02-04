@@ -28,6 +28,7 @@
 #include <linux/serial_8250.h>
 #include <linux/io.h>
 #include <linux/string.h>
+#include <linux/compiler.h>
 #include <linux/mtd/mtd.h>
 
 #include <asm/bootinfo.h>
@@ -177,6 +178,12 @@ static inline int __init parse_boardname(const char *buf, void *slop)
 			brcm_docsis_platform = 1;
 		}
 	}
+#elif defined(CONFIG_BCM7344)
+	/* 7344 is normally MidRF, but the 7418 variant might not be */
+	if (strncmp(buf, "BCM97418SAT", 11) == 0)
+		brcm_moca_rf_band = MOCA_BAND_MIDRF;
+	else if (strncmp(buf, "BCM97418", 8) == 0)
+		brcm_moca_rf_band = MOCA_BAND_HIGHRF;
 #elif defined(CONFIG_BCM7408)
 	if (strncmp(buf, "BCM97408SAT", 11) == 0)
 		brcm_moca_rf_band = MOCA_BAND_MIDRF;
@@ -222,7 +229,7 @@ static inline int __init parse_string(const char *buf, char *dst)
 
 static char __initdata cfe_buf[COMMAND_LINE_SIZE];
 
-static void __init cfe_read_configuration(void)
+static void __init __maybe_unused cfe_read_configuration(void)
 {
 	int fetched = 0;
 

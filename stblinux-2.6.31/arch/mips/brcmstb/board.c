@@ -201,6 +201,84 @@ void __init board_pinmux_setup(void)
 
 	brcm_ext_mii_mode = BRCM_PHY_TYPE_EXT_MII;
 
+#elif defined(CONFIG_BCM7231)
+
+	PINMUX(11, gpio_94, 1);		/* UARTB TX */
+	PINMUX(11, gpio_95, 1);		/* UARTB RX */
+
+	if (BRCM_PROD_ID() == 0x7230) {
+		/* 7230 is not the same ballout as 7231 */
+		AON_PINMUX(0, aon_gpio_04, 6);	/* SDIO */
+		AON_PINMUX(0, aon_gpio_05, 6);
+		AON_PINMUX(1, aon_gpio_12, 5);
+		AON_PINMUX(1, aon_gpio_13, 5);
+		AON_PINMUX(2, aon_gpio_14, 5);
+		AON_PINMUX(2, aon_gpio_15, 6);
+		AON_PINMUX(2, aon_gpio_16, 6);
+		AON_PINMUX(2, aon_gpio_17, 6);
+		AON_PINMUX(2, aon_gpio_18, 6);
+		AON_PINMUX(2, aon_gpio_19, 6);
+
+		/* disable GPIO pulldowns */
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_0,
+			aon_gpio_04_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_0,
+			aon_gpio_05_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_12_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_13_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_14_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_15_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_16_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_17_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_18_pad_ctrl, 0);
+		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
+			aon_gpio_19_pad_ctrl, 0);
+
+		/* limit speed to 25MHz due to AON pad timing restrictions */
+		BDEV_UNSET(BCHP_SDIO_0_CFG_CAP_REG0, 1 << 19);	/* Highspd=0 */
+		BDEV_SET(BCHP_SDIO_0_CFG_CAP_REG1, 1 << 31);	/* Override=1 */
+	} else {
+		PINMUX(14, gpio_122, 1);	/* SDIO */
+		PINMUX(14, gpio_123, 1);
+		PINMUX(14, gpio_124, 1);
+		PINMUX(14, gpio_125, 1);
+		PINMUX(14, gpio_126, 1);
+		PINMUX(15, gpio_127, 1);
+		PINMUX(15, gpio_128, 1);
+		PINMUX(15, gpio_129, 1);
+		PINMUX(15, gpio_130, 1);
+		PINMUX(15, gpio_131, 1);
+
+		/* disable GPIO pulldowns */
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7,
+			gpio_122_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7,
+			gpio_123_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_124_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_125_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_126_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_127_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_128_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_129_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_130_pad_ctrl, 0);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
+			gpio_131_pad_ctrl, 0);
+	}
+
 #elif defined(CONFIG_BCM7325B0)
 
 	PINMUX(11, uart_txdb, 0);	/* UARTB TX */
@@ -289,9 +367,12 @@ void __init board_pinmux_setup(void)
 	/* NOTE: this is buggy in A0 */
 	AON_PINMUX(2, aon_sgpio_00, 1);	/* MoCA I2C */
 	AON_PINMUX(2, aon_sgpio_01, 1);
-	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCD_REG_START);
+	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCC_REG_START);
 
 #elif defined(CONFIG_BCM7346)
+
+	PINMUX(15, gpio_068, 2);	/* MoCA link */
+	PINMUX(16, gpio_069, 2);	/* MoCA activity */
 
 	PINMUX(9, gpio_017, 1);		/* UARTB TX */
 	PINMUX(9, gpio_018, 1);		/* UARTB RX */
@@ -429,7 +510,7 @@ void __init board_pinmux_setup(void)
 	PINMUX(20, gpio_109, 4);
 #endif
 
-#elif defined(CONFIG_BCM7422)
+#elif defined(CONFIG_BCM7422) || defined(CONFIG_BCM7425)
 
 	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
 	if ((BDEV_RD(BCHP_SDIO_0_CFG_SCRATCH) & 0x01) == 0) {
@@ -465,6 +546,10 @@ void __init board_pinmux_setup(void)
 			gpio_080_pad_ctrl, 2);
 		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
 			gpio_081_pad_ctrl, 2);
+
+		/* always use 3.3V (SDIO0_LOW_V_SEL_N=1) */
+		BDEV_UNSET(BCHP_GIO_AON_IODIR_LO, 1 << 4);
+		BDEV_SET(BCHP_GIO_AON_DATA_LO, 1 << 4);
 	}
 
 	PINMUX(18, sgpio_00, 1);	/* MoCA I2C on BSCA */

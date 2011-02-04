@@ -12,7 +12,7 @@ the GNU General Public License, version 2, 1991.
 
 /* Turbo C under MSDOS */
 
-/* $Log: tcc.h,v $
+/* @Log: tcc.h,v @
  * Revision 1.5  1995/08/20  17:14:13  mike
  * get size_t from <stddef.h>
  *

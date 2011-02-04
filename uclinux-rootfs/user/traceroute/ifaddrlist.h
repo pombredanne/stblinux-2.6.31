@@ -18,7 +18,7 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @(#) $Header: /cvs/sw/new-wave/user/traceroute/ifaddrlist.h,v 1.1.1.1 1999/11/22 03:48:05 christ Exp $ (LBL)
+ * @(#) $Header: traceroute.h,v 1.1 97/01/04 19:33:33 leres Locked $ (LBL)
  */
 
 struct ifaddrlist {

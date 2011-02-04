@@ -1,7 +1,11 @@
+# MMO is not a relocateable format, and we don't want to require an
+# explicit (e.g.) "-m elf64mmix" when -r is used.
+test -z $RELOCATEABLE_OUTPUT_FORMAT && RELOCATEABLE_OUTPUT_FORMAT=$OUTPUT_FORMAT
+test -z ${RELOCATING+0} && OUTPUT_FORMAT=$RELOCATEABLE_OUTPUT_FORMAT
 cat <<EOF
-OUTPUT_FORMAT("mmo")
+OUTPUT_FORMAT("$OUTPUT_FORMAT")
 OUTPUT_ARCH(mmix)
-ENTRY(Main)
+${RELOCATING+ENTRY(Main)}
 SECTIONS
 {
   .text ${RELOCATING+ ${TEXT_START_ADDR}}:
@@ -56,8 +60,8 @@ SECTIONS
     ${RELOCATING+ PROVIDE(etext = .);}
     ${RELOCATING+ PROVIDE(_etext = .);}
     ${RELOCATING+ PROVIDE(__etext = .);}
+    ${RELOCATING+Main = DEFINED (Main) ? Main : (DEFINED (_start) ? _start : ADDR (.text));}
   }
-  ${RELOCATING+Main = DEFINED (Main) ? Main : (DEFINED (_start) ? _start : ADDR (.text));}
 
   .stab 0 : { *(.stab) }
   .stabstr 0 : { *(.stabstr) }
@@ -65,16 +69,16 @@ SECTIONS
   .stab.exclstr 0 : { *(.stab.exclstr) }
   .stab.index 0 : { *(.stab.index) }
   .stab.indexstr 0 : { *(.stab.indexstr) }
-  .debug_aranges  0 : { *(.debug_aranges) }
-  .debug_pubnames 0 : { *(.debug_pubnames) }
-  .debug_info     0 : { *(.debug_info) *(.gnu.linkonce.wi.*) }
-  .debug_abbrev   0 : { *(.debug_abbrev) }
-  .debug_line     0 : { *(.debug_line) }
-  .debug_frame    0 : { *(.debug_frame) }
-  .debug_str      0 : { *(.debug_str) }
-  .debug_loc      0 : { *(.debug_loc) }
-  .debug_macinfo  0 : { *(.debug_macinfo) }
-  .debug_ranges   0 : { *(.debug_ranges) }
+  .debug_aranges  0 : { *(.debug_aranges .zdebug_aranges) }
+  .debug_pubnames 0 : { *(.debug_pubnames .zdebug_pubnames) }
+  .debug_info     0 : { *(.debug_info${RELOCATING+ .gnu.linkonce.wi.*} .zdebug_info) }
+  .debug_abbrev   0 : { *(.debug_abbrev .zdebug_abbrev) }
+  .debug_line     0 : { *(.debug_line .zdebug_line) }
+  .debug_frame    0 : { *(.debug_frame .zdebug_frame) }
+  .debug_str      0 : { *(.debug_str .zdebug_str) }
+  .debug_loc      0 : { *(.debug_loc .zdebug_loc) }
+  .debug_macinfo  0 : { *(.debug_macinfo .zdebug_macinfo) }
+  .debug_ranges   0 : { *(.debug_ranges .zdebug_ranges) }
 
   .data ${RELOCATING+ ${DATA_ADDR}}:
   {
@@ -128,6 +132,6 @@ SECTIONS
   /* Unfortunately, stabs are not mappable from ELF to MMO.
      It can probably be fixed with some amount of work.  */
   /DISCARD/ :
-  { *(.gnu.warning.*); }
+  { ${RELOCATING+ *(.gnu.warning.*);} }
 }
 EOF

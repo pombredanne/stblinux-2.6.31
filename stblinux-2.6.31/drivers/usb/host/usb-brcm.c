@@ -32,50 +32,7 @@
 
 #define MAX_HCD			8
 
-static DEFINE_MUTEX(brcm_usb_mutex);
 static struct clk *usb_clk;
-
-struct brcm_hcd_status {
-	struct usb_hcd		*hcd;
-	int			irq;
-};
-
-static struct brcm_hcd_status brcm_hcd[MAX_HCD];
-static int brcm_hcd_count;
-static int brcm_usb_active = 1;
-
-static int brcm_usb_pwr(int event, void *arg)
-{
-	int i;
-
-	mutex_lock(&brcm_usb_mutex);
-
-	switch (event) {
-	case PM_EVENT_SUSPEND:
-		brcm_usb_active = 0;
-		for (i = brcm_hcd_count - 1; i >= 0; i--) {
-			usb_remove_hcd(brcm_hcd[i].hcd);
-			clk_disable(usb_clk);
-		}
-		break;
-	case PM_EVENT_RESUME:
-		for (i = 0; i < brcm_hcd_count; i++) {
-			clk_enable(usb_clk);
-			if (usb_add_hcd(brcm_hcd[i].hcd,
-					brcm_hcd[i].irq,
-					IRQF_DISABLED) != 0) {
-				printk(KERN_WARNING "%s: can't resume hcd %d\n",
-					__func__, i);
-				clk_disable(usb_clk);
-			}
-		}
-		brcm_usb_active = 1;
-		break;
-	}
-
-	mutex_unlock(&brcm_usb_mutex);
-	return 0;
-}
 
 int brcm_usb_probe(struct platform_device *pdev, char *hcd_name,
 	const struct hc_driver *hc_driver)
@@ -123,14 +80,16 @@ int brcm_usb_probe(struct platform_device *pdev, char *hcd_name,
 		return ret;
 	}
 
-	mutex_lock(&brcm_usb_mutex);
-
-	BUG_ON(brcm_hcd_count >= MAX_HCD);
-	brcm_hcd[brcm_hcd_count].hcd = hcd;
-	brcm_hcd[brcm_hcd_count].irq = irq;
-	brcm_hcd_count++;
-
-	mutex_unlock(&brcm_usb_mutex);
+#ifdef CONFIG_PM
+	/* disable autosuspend by default to preserve
+	 * original behavior
+	 */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+	usb_disable_autosuspend(hcd->self.root_hub);
+#else
+	hcd->self.root_hub->autosuspend_disabled = 1;
+#endif
+#endif
 
 	return ret;
 }
@@ -139,17 +98,7 @@ EXPORT_SYMBOL(brcm_usb_probe);
 int brcm_usb_remove(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
-	int i;
-
-	mutex_lock(&brcm_usb_mutex);
-	for (i = 0; i < brcm_hcd_count; i++) {
-		if (brcm_hcd[i].hcd == hcd) {
-			brcm_hcd[i].hcd = NULL;
-			clk_disable(usb_clk);
-		}
-	}
-	mutex_unlock(&brcm_usb_mutex);
-
+	clk_disable(usb_clk);
 	usb_remove_hcd(hcd);
 	iounmap(hcd->regs);
 	usb_put_hcd(hcd);
@@ -160,6 +109,13 @@ EXPORT_SYMBOL(brcm_usb_remove);
 
 void brcm_usb_suspend(struct usb_hcd *hcd)
 {
+	/* Since all HCs share clock source, once we enable USB clock, all
+	   controllers are capable to generate interrupts if enabled. Since some
+	   controllers at this time are still marked as non-accessible, this
+	   leads to spurious interrupts.
+	   To avoid this, disable controller interrupts.
+	*/
+	disable_irq(hcd->irq);
 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
 	clk_disable(usb_clk);
 }
@@ -169,39 +125,9 @@ void brcm_usb_resume(struct usb_hcd *hcd)
 {
 	clk_enable(usb_clk);
 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+	enable_irq(hcd->irq);
 }
 EXPORT_SYMBOL(brcm_usb_resume);
-
-/*
- * If the USB interface has already been disabled through runtime PM, the
- * suspend/resume functions should turn into no-ops.  USB will not be
- * resumed until the application makes an explicit request through pmlib.
- */
-int brcm_usb_is_inactive(void)
-{
-	int ret;
-	mutex_lock(&brcm_usb_mutex);
-	ret = !brcm_usb_active;
-	mutex_unlock(&brcm_usb_mutex);
-	return ret;
-}
-EXPORT_SYMBOL(brcm_usb_is_inactive);
-
-static int __init brcm_usb_init(void)
-{
-	if (brcm_pm_register_cb("usb", brcm_usb_pwr, NULL))
-		printk(KERN_WARNING "%s: can't register PM callback\n",
-			__func__);
-	return 0;
-}
-
-static void __exit brcm_usb_exit(void)
-{
-	brcm_pm_unregister_cb("usb");
-}
-
-module_init(brcm_usb_init)
-module_exit(brcm_usb_exit)
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Broadcom Corporation");

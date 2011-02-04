@@ -1,6 +1,6 @@
 /* This module handles expression trees.
    Copyright 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-   2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
    Free Software Foundation, Inc.
    Written by Steve Chamberlain of Cygnus Support <sac@cygnus.com>.
 
@@ -138,7 +138,8 @@ exp_print_token (token_code_type code, int infix_p)
 static void
 make_abs (void)
 {
-  expld.result.value += expld.result.section->vma;
+  if (expld.result.section != NULL)
+    expld.result.value += expld.result.section->vma;
   expld.result.section = bfd_abs_section_ptr;
 }
 
@@ -154,25 +155,25 @@ new_abs (bfd_vma value)
 etree_type *
 exp_intop (bfd_vma value)
 {
-  etree_type *new = stat_alloc (sizeof (new->value));
-  new->type.node_code = INT;
-  new->type.lineno = lineno;
-  new->value.value = value;
-  new->value.str = NULL;
-  new->type.node_class = etree_value;
-  return new;
+  etree_type *new_e = (etree_type *) stat_alloc (sizeof (new_e->value));
+  new_e->type.node_code = INT;
+  new_e->type.lineno = lineno;
+  new_e->value.value = value;
+  new_e->value.str = NULL;
+  new_e->type.node_class = etree_value;
+  return new_e;
 }
 
 etree_type *
 exp_bigintop (bfd_vma value, char *str)
 {
-  etree_type *new = stat_alloc (sizeof (new->value));
-  new->type.node_code = INT;
-  new->type.lineno = lineno;
-  new->value.value = value;
-  new->value.str = str;
-  new->type.node_class = etree_value;
-  return new;
+  etree_type *new_e = (etree_type *) stat_alloc (sizeof (new_e->value));
+  new_e->type.node_code = INT;
+  new_e->type.lineno = lineno;
+  new_e->value.value = value;
+  new_e->value.str = str;
+  new_e->type.node_class = etree_value;
+  return new_e;
 }
 
 /* Build an expression representing an unnamed relocatable value.  */
@@ -180,21 +181,30 @@ exp_bigintop (bfd_vma value, char *str)
 etree_type *
 exp_relop (asection *section, bfd_vma value)
 {
-  etree_type *new = stat_alloc (sizeof (new->rel));
-  new->type.node_code = REL;
-  new->type.lineno = lineno;
-  new->type.node_class = etree_rel;
-  new->rel.section = section;
-  new->rel.value = value;
-  return new;
+  etree_type *new_e = (etree_type *) stat_alloc (sizeof (new_e->rel));
+  new_e->type.node_code = REL;
+  new_e->type.lineno = lineno;
+  new_e->type.node_class = etree_rel;
+  new_e->rel.section = section;
+  new_e->rel.value = value;
+  return new_e;
 }
 
 static void
-new_rel (bfd_vma value, char *str, asection *section)
+new_number (bfd_vma value)
 {
   expld.result.valid_p = TRUE;
   expld.result.value = value;
-  expld.result.str = str;
+  expld.result.str = NULL;
+  expld.result.section = NULL;
+}
+
+static void
+new_rel (bfd_vma value, asection *section)
+{
+  expld.result.valid_p = TRUE;
+  expld.result.value = value;
+  expld.result.str = NULL;
   expld.result.section = section;
 }
 
@@ -227,17 +237,14 @@ fold_unary (etree_type *tree)
 	  break;
 
 	case '~':
-	  make_abs ();
 	  expld.result.value = ~expld.result.value;
 	  break;
 
 	case '!':
-	  make_abs ();
 	  expld.result.value = !expld.result.value;
 	  break;
 
 	case '-':
-	  make_abs ();
 	  expld.result.value = -expld.result.value;
 	  break;
 
@@ -282,6 +289,7 @@ fold_unary (etree_type *tree)
 static void
 fold_binary (etree_type *tree)
 {
+  etree_value_type lhs;
   exp_fold_tree_1 (tree->binary.lhs);
 
   /* The SEGMENT_START operator is special because its first
@@ -292,181 +300,177 @@ fold_binary (etree_type *tree)
     {
       const char *segment_name;
       segment_type *seg;
+
       /* Check to see if the user has overridden the default
 	 value.  */
       segment_name = tree->binary.rhs->name.name;
       for (seg = segments; seg; seg = seg->next) 
 	if (strcmp (seg->name, segment_name) == 0)
 	  {
+	    if (!seg->used
+		&& config.magic_demand_paged
+		&& (seg->value % config.maxpagesize) != 0)
+	      einfo (_("%P: warning: address of `%s' isn't multiple of maximum page size\n"),
+		     segment_name);
 	    seg->used = TRUE;
-	    expld.result.value = seg->value;
-	    expld.result.str = NULL;
-	    expld.result.section = expld.section;
+	    new_rel_from_abs (seg->value);
 	    break;
 	  }
+      return;
     }
-  else if (expld.result.valid_p)
-    {
-      etree_value_type lhs = expld.result;
 
-      exp_fold_tree_1 (tree->binary.rhs);
-      if (expld.result.valid_p)
+  lhs = expld.result;
+  exp_fold_tree_1 (tree->binary.rhs);
+  expld.result.valid_p &= lhs.valid_p;
+
+  if (expld.result.valid_p)
+    {
+      if (lhs.section != expld.result.section)
 	{
-	  /* If the values are from different sections, or this is an
-	     absolute expression, make both the source arguments
-	     absolute.  However, adding or subtracting an absolute
-	     value from a relative value is meaningful, and is an
-	     exception.  */
-	  if (expld.section != bfd_abs_section_ptr
-	      && lhs.section == bfd_abs_section_ptr
-	      && tree->type.node_code == '+')
-	    {
-	      /* Keep the section of the rhs term.  */
-	      expld.result.value = lhs.value + expld.result.value;
-	      return;
-	    }
-	  else if (expld.section != bfd_abs_section_ptr
-		   && expld.result.section == bfd_abs_section_ptr
-		   && (tree->type.node_code == '+'
-		       || tree->type.node_code == '-'))
-	    {
-	      /* Keep the section of the lhs term.  */
-	      expld.result.section = lhs.section;
-	    }
-	  else if (expld.result.section != lhs.section
-		   || expld.section == bfd_abs_section_ptr)
+	  /* If the values are from different sections, and neither is
+	     just a number, make both the source arguments absolute.  */
+	  if (expld.result.section != NULL
+	      && lhs.section != NULL)
 	    {
 	      make_abs ();
 	      lhs.value += lhs.section->vma;
 	    }
 
-	  switch (tree->type.node_code)
-	    {
-	    case '%':
-	      if (expld.result.value != 0)
-		expld.result.value = ((bfd_signed_vma) lhs.value
-				      % (bfd_signed_vma) expld.result.value);
-	      else if (expld.phase != lang_mark_phase_enum)
-		einfo (_("%F%S %% by zero\n"));
-	      break;
+	  /* If the rhs is just a number, keep the lhs section.  */
+	  else if (expld.result.section == NULL)
+	    expld.result.section = lhs.section;
+	}
 
-	    case '/':
-	      if (expld.result.value != 0)
-		expld.result.value = ((bfd_signed_vma) lhs.value
-				      / (bfd_signed_vma) expld.result.value);
-	      else if (expld.phase != lang_mark_phase_enum)
-		einfo (_("%F%S / by zero\n"));
-	      break;
+      switch (tree->type.node_code)
+	{
+	case '%':
+	  if (expld.result.value != 0)
+	    expld.result.value = ((bfd_signed_vma) lhs.value
+				  % (bfd_signed_vma) expld.result.value);
+	  else if (expld.phase != lang_mark_phase_enum)
+	    einfo (_("%F%S %% by zero\n"));
+	  break;
+
+	case '/':
+	  if (expld.result.value != 0)
+	    expld.result.value = ((bfd_signed_vma) lhs.value
+				  / (bfd_signed_vma) expld.result.value);
+	  else if (expld.phase != lang_mark_phase_enum)
+	    einfo (_("%F%S / by zero\n"));
+	  break;
 
 #define BOP(x, y) \
-	    case x:							\
-	      expld.result.value = lhs.value y expld.result.value;	\
-	      break;
+	case x:							\
+	  expld.result.value = lhs.value y expld.result.value;	\
+	  break;
 
-	      BOP ('+', +);
-	      BOP ('*', *);
-	      BOP ('-', -);
-	      BOP (LSHIFT, <<);
-	      BOP (RSHIFT, >>);
-	      BOP (EQ, ==);
-	      BOP (NE, !=);
-	      BOP ('<', <);
-	      BOP ('>', >);
-	      BOP (LE, <=);
-	      BOP (GE, >=);
-	      BOP ('&', &);
-	      BOP ('^', ^);
-	      BOP ('|', |);
-	      BOP (ANDAND, &&);
-	      BOP (OROR, ||);
+#define BOPN(x, y) \
+	case x:							\
+	  expld.result.value = lhs.value y expld.result.value;	\
+	  expld.result.section = NULL;				\
+	  break;
 
-	    case MAX_K:
-	      if (lhs.value > expld.result.value)
-		expld.result.value = lhs.value;
-	      break;
+	  BOP ('+', +);
+	  BOP ('*', *);
+	  BOP ('-', -);
+	  BOP (LSHIFT, <<);
+	  BOP (RSHIFT, >>);
+	  BOP ('&', &);
+	  BOP ('^', ^);
+	  BOP ('|', |);
+	  BOPN (EQ, ==);
+	  BOPN (NE, !=);
+	  BOPN ('<', <);
+	  BOPN ('>', >);
+	  BOPN (LE, <=);
+	  BOPN (GE, >=);
+	  BOPN (ANDAND, &&);
+	  BOPN (OROR, ||);
 
-	    case MIN_K:
-	      if (lhs.value < expld.result.value)
-		expld.result.value = lhs.value;
-	      break;
+	case MAX_K:
+	  if (lhs.value > expld.result.value)
+	    expld.result.value = lhs.value;
+	  break;
 
-	    case ALIGN_K:
-	      expld.result.value = align_n (lhs.value, expld.result.value);
-	      break;
+	case MIN_K:
+	  if (lhs.value < expld.result.value)
+	    expld.result.value = lhs.value;
+	  break;
 
-	    case DATA_SEGMENT_ALIGN:
-	      expld.dataseg.relro = exp_dataseg_relro_start;
-	      if (expld.phase != lang_first_phase_enum
-		  && expld.section == bfd_abs_section_ptr
-		  && (expld.dataseg.phase == exp_dataseg_none
-		      || expld.dataseg.phase == exp_dataseg_adjust
-		      || expld.dataseg.phase == exp_dataseg_relro_adjust
-		      || expld.phase == lang_final_phase_enum))
+	case ALIGN_K:
+	  expld.result.value = align_n (lhs.value, expld.result.value);
+	  break;
+
+	case DATA_SEGMENT_ALIGN:
+	  expld.dataseg.relro = exp_dataseg_relro_start;
+	  if (expld.phase != lang_first_phase_enum
+	      && expld.section == bfd_abs_section_ptr
+	      && (expld.dataseg.phase == exp_dataseg_none
+		  || expld.dataseg.phase == exp_dataseg_adjust
+		  || expld.dataseg.phase == exp_dataseg_relro_adjust
+		  || expld.phase == lang_final_phase_enum))
+	    {
+	      bfd_vma maxpage = lhs.value;
+	      bfd_vma commonpage = expld.result.value;
+
+	      expld.result.value = align_n (expld.dot, maxpage);
+	      if (expld.dataseg.phase == exp_dataseg_relro_adjust)
+		expld.result.value = expld.dataseg.base;
+	      else if (expld.dataseg.phase != exp_dataseg_adjust)
 		{
-		  bfd_vma maxpage = lhs.value;
-		  bfd_vma commonpage = expld.result.value;
-
-		  expld.result.value = align_n (expld.dot, maxpage);
-		  if (expld.dataseg.phase == exp_dataseg_relro_adjust)
-		    expld.result.value = expld.dataseg.base;
-		  else if (expld.dataseg.phase != exp_dataseg_adjust)
+		  expld.result.value += expld.dot & (maxpage - 1);
+		  if (expld.phase == lang_allocating_phase_enum)
 		    {
-		      expld.result.value += expld.dot & (maxpage - 1);
-		      if (expld.phase == lang_allocating_phase_enum)
-			{
-			  expld.dataseg.phase = exp_dataseg_align_seen;
-			  expld.dataseg.min_base = expld.dot;
-			  expld.dataseg.base = expld.result.value;
-			  expld.dataseg.pagesize = commonpage;
-			  expld.dataseg.maxpagesize = maxpage;
-			  expld.dataseg.relro_end = 0;
-			}
+		      expld.dataseg.phase = exp_dataseg_align_seen;
+		      expld.dataseg.min_base = expld.dot;
+		      expld.dataseg.base = expld.result.value;
+		      expld.dataseg.pagesize = commonpage;
+		      expld.dataseg.maxpagesize = maxpage;
+		      expld.dataseg.relro_end = 0;
 		    }
-		  else if (commonpage < maxpage)
-		    expld.result.value += ((expld.dot + commonpage - 1)
-					   & (maxpage - commonpage));
 		}
-	      else
-		expld.result.valid_p = FALSE;
-	      break;
-
-	    case DATA_SEGMENT_RELRO_END:
-	      expld.dataseg.relro = exp_dataseg_relro_end;
-	      if (expld.phase != lang_first_phase_enum
-		  && (expld.dataseg.phase == exp_dataseg_align_seen
-		      || expld.dataseg.phase == exp_dataseg_adjust
-		      || expld.dataseg.phase == exp_dataseg_relro_adjust
-		      || expld.phase == lang_final_phase_enum))
-		{
-		  if (expld.dataseg.phase == exp_dataseg_align_seen
-		      || expld.dataseg.phase == exp_dataseg_relro_adjust)
-		    expld.dataseg.relro_end = lhs.value + expld.result.value;
-
-		  if (expld.dataseg.phase == exp_dataseg_relro_adjust
-		      && (expld.dataseg.relro_end
-			  & (expld.dataseg.pagesize - 1)))
-		    {
-		      expld.dataseg.relro_end += expld.dataseg.pagesize - 1;
-		      expld.dataseg.relro_end &= ~(expld.dataseg.pagesize - 1);
-		      expld.result.value = (expld.dataseg.relro_end
-					    - expld.result.value);
-		    }
-		  else
-		    expld.result.value = lhs.value;
-
-		  if (expld.dataseg.phase == exp_dataseg_align_seen)
-		    expld.dataseg.phase = exp_dataseg_relro_seen;
-		}
-	      else
-		expld.result.valid_p = FALSE;
-	      break;
-
-	    default:
-	      FAIL ();
+	      else if (commonpage < maxpage)
+		expld.result.value += ((expld.dot + commonpage - 1)
+				       & (maxpage - commonpage));
 	    }
+	  else
+	    expld.result.valid_p = FALSE;
+	  break;
+
+	case DATA_SEGMENT_RELRO_END:
+	  expld.dataseg.relro = exp_dataseg_relro_end;
+	  if (expld.phase != lang_first_phase_enum
+	      && (expld.dataseg.phase == exp_dataseg_align_seen
+		  || expld.dataseg.phase == exp_dataseg_adjust
+		  || expld.dataseg.phase == exp_dataseg_relro_adjust
+		  || expld.phase == lang_final_phase_enum))
+	    {
+	      if (expld.dataseg.phase == exp_dataseg_align_seen
+		  || expld.dataseg.phase == exp_dataseg_relro_adjust)
+		expld.dataseg.relro_end = lhs.value + expld.result.value;
+
+	      if (expld.dataseg.phase == exp_dataseg_relro_adjust
+		  && (expld.dataseg.relro_end
+		      & (expld.dataseg.pagesize - 1)))
+		{
+		  expld.dataseg.relro_end += expld.dataseg.pagesize - 1;
+		  expld.dataseg.relro_end &= ~(expld.dataseg.pagesize - 1);
+		  expld.result.value = (expld.dataseg.relro_end
+					- expld.result.value);
+		}
+	      else
+		expld.result.value = lhs.value;
+
+	      if (expld.dataseg.phase == exp_dataseg_align_seen)
+		expld.dataseg.phase = exp_dataseg_relro_seen;
+	    }
+	  else
+	    expld.result.valid_p = FALSE;
+	  break;
+
+	default:
+	  FAIL ();
 	}
-      else
-	expld.result.valid_p = FALSE;
     }
 }
 
@@ -495,7 +499,7 @@ fold_name (etree_type *tree)
 	     The bfd function may cache incorrect data.  */
 	  if (expld.phase != lang_mark_phase_enum)
 	    hdr_size = bfd_sizeof_headers (link_info.output_bfd, &link_info);
-	  new_abs (hdr_size);
+	  new_number (hdr_size);
 	}
       break;
 
@@ -512,14 +516,12 @@ fold_name (etree_type *tree)
 					    &link_info,
 					    tree->name.name,
 					    FALSE, FALSE, TRUE);
-	  expld.result.value = (h != NULL
-				&& (h->type == bfd_link_hash_defined
-				    || h->type == bfd_link_hash_defweak
-				    || h->type == bfd_link_hash_common)
-				&& (def_iteration == lang_statement_iteration
-				    || def_iteration == -1));
-	  expld.result.section = expld.section;
-	  expld.result.valid_p = TRUE;
+	  new_number (h != NULL
+		      && (h->type == bfd_link_hash_defined
+			  || h->type == bfd_link_hash_defweak
+			  || h->type == bfd_link_hash_common)
+		      && (def_iteration == lang_statement_iteration
+			  || def_iteration == -1));
 	}
       break;
 
@@ -541,24 +543,21 @@ fold_name (etree_type *tree)
 	  else if (h->type == bfd_link_hash_defined
 		   || h->type == bfd_link_hash_defweak)
 	    {
-	      if (bfd_is_abs_section (h->u.def.section))
-		new_abs (h->u.def.value);
-	      else
-		{
-		  asection *output_section;
+	      asection *output_section;
 
-		  output_section = h->u.def.section->output_section;
-		  if (output_section == NULL)
-		    {
-		      if (expld.phase != lang_mark_phase_enum)
-			einfo (_("%X%S: unresolvable symbol `%s'"
-				 " referenced in expression\n"),
-			       tree->name.name);
-		    }
-		  else
-		    new_rel (h->u.def.value + h->u.def.section->output_offset,
-			     NULL, output_section);
+	      output_section = h->u.def.section->output_section;
+	      if (output_section == NULL)
+		{
+		  if (expld.phase != lang_mark_phase_enum)
+		    einfo (_("%X%S: unresolvable symbol `%s'"
+			     " referenced in expression\n"),
+			   tree->name.name);
 		}
+	      else if (output_section == bfd_abs_section_ptr)
+		new_number (h->u.def.value + h->u.def.section->output_offset);
+	      else
+		new_rel (h->u.def.value + h->u.def.section->output_offset,
+			 output_section);
 	    }
 	  else if (expld.phase == lang_final_phase_enum
 		   || expld.assigning_to_dot)
@@ -587,7 +586,7 @@ fold_name (etree_type *tree)
 		       tree->name.name);
 	    }
 	  else if (os->processed_vma)
-	    new_rel (0, NULL, os->bfd_section);
+	    new_rel (0, os->bfd_section);
 	}
       break;
 
@@ -629,7 +628,7 @@ fold_name (etree_type *tree)
 	      if (expld.phase == lang_final_phase_enum)
 		einfo (_("%F%S: undefined section `%s' referenced in expression\n"),
 		       tree->name.name);
-	      new_abs (0);
+	      new_number (0);
 	    }
 	  else if (os->processed_vma)
 	    {
@@ -641,7 +640,7 @@ fold_name (etree_type *tree)
 	      else
 		val = (bfd_vma)1 << os->bfd_section->alignment_power;
 	      
-	      new_abs (val);
+	      new_number (val);
 	    }
 	}
       break;
@@ -652,7 +651,7 @@ fold_name (etree_type *tree)
         
         mem = lang_memory_region_lookup (tree->name.name, FALSE);  
         if (mem != NULL) 
-          new_abs (mem->length);
+          new_number (mem->length);
         else          
           einfo (_("%F%S: undefined MEMORY region `%s'"
 		   " referenced in expression\n"), tree->name.name);
@@ -660,23 +659,24 @@ fold_name (etree_type *tree)
       break;
 
     case ORIGIN:
-      {
-        lang_memory_region_type *mem;
+      if (expld.phase != lang_first_phase_enum)
+	{
+	  lang_memory_region_type *mem;
         
-        mem = lang_memory_region_lookup (tree->name.name, FALSE);  
-        if (mem != NULL) 
-          new_abs (mem->origin);
-        else          
-          einfo (_("%F%S: undefined MEMORY region `%s'"
-		   " referenced in expression\n"), tree->name.name);
-      }
+	  mem = lang_memory_region_lookup (tree->name.name, FALSE);  
+	  if (mem != NULL) 
+	    new_rel_from_abs (mem->origin);
+	  else          
+	    einfo (_("%F%S: undefined MEMORY region `%s'"
+		     " referenced in expression\n"), tree->name.name);
+	}
       break;
 
     case CONSTANT:
       if (strcmp (tree->name.name, "MAXPAGESIZE") == 0)
-	new_abs (bfd_emul_get_maxpagesize (default_target));
+	new_number (config.maxpagesize);
       else if (strcmp (tree->name.name, "COMMONPAGESIZE") == 0)
-	new_abs (bfd_emul_get_commonpagesize (default_target));
+	new_number (config.commonpagesize);
       else
 	einfo (_("%F%S: unknown constant `%s' referenced in expression\n"),
 	       tree->name.name);
@@ -700,7 +700,8 @@ exp_fold_tree_1 (etree_type *tree)
   switch (tree->type.node_class)
     {
     case etree_value:
-      new_rel (tree->value.value, tree->value.str, expld.section);
+      new_number (tree->value.value);
+      expld.result.str = tree->value.str;
       break;
 
     case etree_rel:
@@ -708,7 +709,7 @@ exp_fold_tree_1 (etree_type *tree)
 	{
 	  asection *output_section = tree->rel.section->output_section;
 	  new_rel (tree->rel.value + tree->rel.section->output_offset,
-		   NULL, output_section);
+		   output_section);
 	}
       else
 	memset (&expld.result, 0, sizeof (expld.result));
@@ -762,7 +763,11 @@ exp_fold_tree_1 (etree_type *tree)
 		{
 		  bfd_vma nextdot;
 
-		  nextdot = expld.result.value + expld.section->vma;
+		  nextdot = expld.result.value;
+		  if (expld.result.section != NULL)
+		    nextdot += expld.result.section->vma;
+		  else
+		    nextdot += expld.section->vma;
 		  if (nextdot < expld.dot
 		      && expld.section != bfd_abs_section_ptr)
 		    einfo (_("%F%S cannot move location counter backwards"
@@ -813,9 +818,33 @@ exp_fold_tree_1 (etree_type *tree)
 	      lang_update_definedness (tree->assign.dst, h);
 	      h->type = bfd_link_hash_defined;
 	      h->u.def.value = expld.result.value;
+	      if (expld.result.section == NULL)
+		expld.result.section = expld.section;
 	      h->u.def.section = expld.result.section;
 	      if (tree->type.node_class == etree_provide)
 		tree->type.node_class = etree_provided;
+
+	      /* Copy the symbol type if this is a simple assignment of
+	         one symbol to annother.  */
+	      if (tree->assign.src->type.node_class == etree_name)
+		{
+		  struct bfd_link_hash_entry *hsrc;
+
+		  hsrc = bfd_link_hash_lookup (link_info.hash,
+					       tree->assign.src->name.name,
+					       FALSE, FALSE, TRUE);
+		  if (hsrc)
+		    bfd_copy_link_hash_symbol_type (link_info.output_bfd, h,
+						    hsrc);
+		}
+	    }
+	  else if (expld.phase == lang_final_phase_enum)
+	    {
+	      h = bfd_link_hash_lookup (link_info.hash, tree->assign.dst,
+					FALSE, FALSE, TRUE);
+	      if (h != NULL
+		  && h->type == bfd_link_hash_new)
+		h->type = bfd_link_hash_undefined;
 	    }
 	}
       break;
@@ -829,6 +858,12 @@ exp_fold_tree_1 (etree_type *tree)
       memset (&expld.result, 0, sizeof (expld.result));
       break;
     }
+
+  /* Any value not inside an output section statement is an
+     absolute value.  */
+  if (expld.result.valid_p
+      && expld.section == bfd_abs_section_ptr)
+    make_abs ();
 }
 
 void
@@ -852,7 +887,7 @@ exp_fold_tree_no_dot (etree_type *tree)
 etree_type *
 exp_binop (int code, etree_type *lhs, etree_type *rhs)
 {
-  etree_type value, *new;
+  etree_type value, *new_e;
 
   value.type.node_code = code;
   value.type.lineno = lhs->type.lineno;
@@ -863,15 +898,15 @@ exp_binop (int code, etree_type *lhs, etree_type *rhs)
   if (expld.result.valid_p)
     return exp_intop (expld.result.value);
 
-  new = stat_alloc (sizeof (new->binary));
-  memcpy (new, &value, sizeof (new->binary));
-  return new;
+  new_e = (etree_type *) stat_alloc (sizeof (new_e->binary));
+  memcpy (new_e, &value, sizeof (new_e->binary));
+  return new_e;
 }
 
 etree_type *
 exp_trinop (int code, etree_type *cond, etree_type *lhs, etree_type *rhs)
 {
-  etree_type value, *new;
+  etree_type value, *new_e;
 
   value.type.node_code = code;
   value.type.lineno = lhs->type.lineno;
@@ -883,15 +918,15 @@ exp_trinop (int code, etree_type *cond, etree_type *lhs, etree_type *rhs)
   if (expld.result.valid_p)
     return exp_intop (expld.result.value);
 
-  new = stat_alloc (sizeof (new->trinary));
-  memcpy (new, &value, sizeof (new->trinary));
-  return new;
+  new_e = (etree_type *) stat_alloc (sizeof (new_e->trinary));
+  memcpy (new_e, &value, sizeof (new_e->trinary));
+  return new_e;
 }
 
 etree_type *
 exp_unop (int code, etree_type *child)
 {
-  etree_type value, *new;
+  etree_type value, *new_e;
 
   value.unary.type.node_code = code;
   value.unary.type.lineno = child->type.lineno;
@@ -901,15 +936,15 @@ exp_unop (int code, etree_type *child)
   if (expld.result.valid_p)
     return exp_intop (expld.result.value);
 
-  new = stat_alloc (sizeof (new->unary));
-  memcpy (new, &value, sizeof (new->unary));
-  return new;
+  new_e = (etree_type *) stat_alloc (sizeof (new_e->unary));
+  memcpy (new_e, &value, sizeof (new_e->unary));
+  return new_e;
 }
 
 etree_type *
 exp_nameop (int code, const char *name)
 {
-  etree_type value, *new;
+  etree_type value, *new_e;
 
   value.name.type.node_code = code;
   value.name.type.lineno = lineno;
@@ -920,24 +955,24 @@ exp_nameop (int code, const char *name)
   if (expld.result.valid_p)
     return exp_intop (expld.result.value);
 
-  new = stat_alloc (sizeof (new->name));
-  memcpy (new, &value, sizeof (new->name));
-  return new;
+  new_e = (etree_type *) stat_alloc (sizeof (new_e->name));
+  memcpy (new_e, &value, sizeof (new_e->name));
+  return new_e;
 
 }
 
 etree_type *
 exp_assop (int code, const char *dst, etree_type *src)
 {
-  etree_type *new;
+  etree_type *new_e;
 
-  new = stat_alloc (sizeof (new->assign));
-  new->type.node_code = code;
-  new->type.lineno = src->type.lineno;
-  new->type.node_class = etree_assign;
-  new->assign.src = src;
-  new->assign.dst = dst;
-  return new;
+  new_e = (etree_type *) stat_alloc (sizeof (new_e->assign));
+  new_e->type.node_code = code;
+  new_e->type.lineno = src->type.lineno;
+  new_e->type.node_class = etree_assign;
+  new_e->assign.src = src;
+  new_e->assign.dst = dst;
+  return new_e;
 }
 
 /* Handle PROVIDE.  */
@@ -947,7 +982,7 @@ exp_provide (const char *dst, etree_type *src, bfd_boolean hidden)
 {
   etree_type *n;
 
-  n = stat_alloc (sizeof (n->assign));
+  n = (etree_type *) stat_alloc (sizeof (n->assign));
   n->assign.type.node_code = '=';
   n->assign.type.lineno = src->type.lineno;
   n->assign.type.node_class = etree_provide;
@@ -964,7 +999,7 @@ exp_assert (etree_type *exp, const char *message)
 {
   etree_type *n;
 
-  n = stat_alloc (sizeof (n->assert_s));
+  n = (etree_type *) stat_alloc (sizeof (n->assert_s));
   n->assert_s.type.node_code = '!';
   n->assert_s.type.lineno = exp->type.lineno;
   n->assert_s.type.node_class = etree_assert;
@@ -976,6 +1011,8 @@ exp_assert (etree_type *exp, const char *message)
 void
 exp_print_tree (etree_type *tree)
 {
+  bfd_boolean function_like;
+
   if (config.map_file == NULL)
     config.map_file = stderr;
 
@@ -996,7 +1033,7 @@ exp_print_tree (etree_type *tree)
       minfo ("%s+0x%v", tree->rel.section->name, tree->rel.value);
       return;
     case etree_assign:
-      fprintf (config.map_file, "%s", tree->assign.dst);
+      fputs (tree->assign.dst, config.map_file);
       exp_print_token (tree->type.node_code, TRUE);
       exp_print_tree (tree->assign.src);
       break;
@@ -1004,20 +1041,38 @@ exp_print_tree (etree_type *tree)
     case etree_provided:
       fprintf (config.map_file, "PROVIDE (%s, ", tree->assign.dst);
       exp_print_tree (tree->assign.src);
-      fprintf (config.map_file, ")");
+      fputc (')', config.map_file);
       break;
     case etree_binary:
-      fprintf (config.map_file, "(");
+      function_like = FALSE;
+      switch (tree->type.node_code)
+	{
+	case MAX_K:
+	case MIN_K:
+	case ALIGN_K:
+	case DATA_SEGMENT_ALIGN:
+	case DATA_SEGMENT_RELRO_END:
+	  function_like = TRUE;
+	}
+      if (function_like)
+	{
+	  exp_print_token (tree->type.node_code, FALSE);
+	  fputc (' ', config.map_file);
+	}
+      fputc ('(', config.map_file);
       exp_print_tree (tree->binary.lhs);
-      exp_print_token (tree->type.node_code, TRUE);
+      if (function_like)
+	fprintf (config.map_file, ", ");
+      else
+	exp_print_token (tree->type.node_code, TRUE);
       exp_print_tree (tree->binary.rhs);
-      fprintf (config.map_file, ")");
+      fputc (')', config.map_file);
       break;
     case etree_trinary:
       exp_print_tree (tree->trinary.cond);
-      fprintf (config.map_file, "?");
+      fputc ('?', config.map_file);
       exp_print_tree (tree->trinary.lhs);
-      fprintf (config.map_file, ":");
+      fputc (':', config.map_file);
       exp_print_tree (tree->trinary.rhs);
       break;
     case etree_unary:
@@ -1026,7 +1081,7 @@ exp_print_tree (etree_type *tree)
 	{
 	  fprintf (config.map_file, " (");
 	  exp_print_tree (tree->unary.child);
-	  fprintf (config.map_file, ")");
+	  fputc (')', config.map_file);
 	}
       break;
 
@@ -1038,9 +1093,7 @@ exp_print_tree (etree_type *tree)
 
     case etree_name:
       if (tree->type.node_code == NAME)
-	{
-	  fprintf (config.map_file, "%s", tree->name.name);
-	}
+	fputs (tree->name.name, config.map_file);
       else
 	{
 	  exp_print_token (tree->type.node_code, FALSE);
@@ -1096,7 +1149,7 @@ exp_get_fill (etree_type *tree, fill_type *def, char *name)
     {
       unsigned char *dst;
       unsigned char *s;
-      fill = xmalloc ((len + 1) / 2 + sizeof (*fill) - 1);
+      fill = (fill_type *) xmalloc ((len + 1) / 2 + sizeof (*fill) - 1);
       fill->size = (len + 1) / 2;
       dst = fill->data;
       s = (unsigned char *) expld.result.str;
@@ -1121,7 +1174,7 @@ exp_get_fill (etree_type *tree, fill_type *def, char *name)
     }
   else
     {
-      fill = xmalloc (4 + sizeof (*fill) - 1);
+      fill = (fill_type *) xmalloc (4 + sizeof (*fill) - 1);
       val = expld.result.value;
       fill->data[0] = (val >> 24) & 0xff;
       fill->data[1] = (val >> 16) & 0xff;
@@ -1141,7 +1194,8 @@ exp_get_abs_int (etree_type *tree, int def, char *name)
 
       if (expld.result.valid_p)
 	{
-	  expld.result.value += expld.result.section->vma;
+	  if (expld.result.section != NULL)
+	    expld.result.value += expld.result.section->vma;
 	  return expld.result.value;
 	}
       else if (name != NULL && expld.phase != lang_mark_phase_enum)

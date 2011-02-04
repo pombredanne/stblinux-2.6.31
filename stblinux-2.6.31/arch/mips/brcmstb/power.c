@@ -394,26 +394,6 @@ static struct clk *brcm_pm_clk_find(const char *name)
 
 /* sysfs attributes */
 
-ssize_t brcm_pm_show_usb_power(struct device *dev,
-	struct device_attribute *attr, char *buf)
-{
-	struct clk *clk = brcm_pm_clk_find("usb");
-	return snprintf(buf, PAGE_SIZE, "%d\n", !!clk->refcnt);
-}
-
-ssize_t brcm_pm_store_usb_power(struct device *dev,
-	struct device_attribute *attr, const char *buf, size_t count)
-{
-	struct clk *clk = brcm_pm_clk_find("usb");
-	int val;
-
-	if (!clk || !clk->cb || sscanf(buf, "%d", &val) != 1)
-		return -EINVAL;
-
-	return clk->cb(val ? PM_EVENT_RESUME : PM_EVENT_SUSPEND,
-		clk->cb_arg) ? : count;
-}
-
 ssize_t brcm_pm_show_sata_power(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -747,9 +727,13 @@ early_initcall(brcm_pm_wakeup_init);
 /***********************************************************************
  * USB / ENET / GENET / MoCA / SATA PM implementations (per-chip)
  ***********************************************************************/
+
+/* Per-block power management operations pair.
+ * Parameter flags can be later used to control wake-up capabilities
+ */
 struct brcm_chip_pm_block_ops {
-	void (*enable)(void);
-	void (*disable)(void);
+	void (*enable)(u32 flags);
+	void (*disable)(u32 flags);
 };
 
 struct brcm_chip_pm_ops {
@@ -770,7 +754,7 @@ struct brcm_chip_pm_ops {
 
 
 #if defined(CONFIG_BCM7125)
-static void bcm7125_pm_sata_disable(void)
+static void bcm7125_pm_sata_disable(u32 flags)
 {
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 1);
 	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_99P7, 1);
@@ -779,7 +763,7 @@ static void bcm7125_pm_sata_disable(void)
 	PLL_DIS(VCXO_CTL_MISC_RAP_AVD_PLL_CHL_4);
 }
 
-static void bcm7125_pm_sata_enable(void)
+static void bcm7125_pm_sata_enable(u32 flags)
 {
 	PLL_ENA(VCXO_CTL_MISC_RAP_AVD_PLL_CHL_4);
 	BDEV_WR_F_RB(CLKGEN_SATA_CLK_PM_CTRL, DIS_CLK_108, 0);
@@ -788,7 +772,7 @@ static void bcm7125_pm_sata_enable(void)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
 }
 
-static void bcm7125_pm_moca_genet_disable(void)
+static void bcm7125_pm_moca_genet_disable(u32 flags)
 {
 	BDEV_SET_RB(BCHP_CLKGEN_MOCA_CLK_PM_CTRL, 0xf77);
 	BDEV_WR_RB(BCHP_CLKGEN_PLL_MOCA_CH3_PM_CTRL, 0x04);
@@ -798,7 +782,7 @@ static void bcm7125_pm_moca_genet_disable(void)
 	BDEV_SET_RB(BCHP_CLKGEN_PLL_MOCA_CTRL, 0x13);
 }
 
-static void bcm7125_pm_moca_genet_enable(void)
+static void bcm7125_pm_moca_genet_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLKGEN_PLL_MOCA_CTRL, 0x13);
 	BDEV_WR_RB(BCHP_CLKGEN_PLL_MOCA_CH6_PM_CTRL, 0x01);
@@ -808,28 +792,24 @@ static void bcm7125_pm_moca_genet_enable(void)
 	BDEV_UNSET_RB(BCHP_CLKGEN_MOCA_CLK_PM_CTRL, 0xf77);
 }
 
-static void bcm7125_pm_usb_disable(void)
+static void bcm7125_pm_usb_disable(u32 flags)
 {
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 1);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x00);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x00);
 	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 0);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 1);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x00);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_216, 1);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_108, 1);
 	PLL_DIS(CLKGEN_PLL_MAIN_CH4_PM_CTRL);
 }
 
-static void bcm7125_pm_usb_enable(void)
+static void bcm7125_pm_usb_enable(u32 flags)
 {
 	PLL_ENA(CLKGEN_PLL_MAIN_CH4_PM_CTRL);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_108, 0);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_216, 0);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x0f);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x0f);
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 0);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
 }
 
 static void bcm7125_pm_suspend(void)
@@ -896,7 +876,7 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 
 #if defined(CONFIG_BCM7420)
 
-static void bcm7420_pm_usb_disable(void)
+static void bcm7420_pm_usb_disable(u32 flags)
 {
 	/* TODO: per-port power control */
 	/* power down ports */
@@ -915,7 +895,7 @@ static void bcm7420_pm_usb_disable(void)
 	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_4, DIS_CH, 1);
 }
 
-static void bcm7420_pm_usb_enable(void)
+static void bcm7420_pm_usb_enable(u32 flags)
 {
 	/* power up system PLL */
 	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_4, DIS_CH, 0);
@@ -933,7 +913,7 @@ static void bcm7420_pm_usb_enable(void)
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY1_PWDNB, 1);
 }
 
-static void bcm7420_pm_sata_disable(void)
+static void bcm7420_pm_sata_disable(u32 flags)
 {
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 1);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 1);
@@ -941,7 +921,7 @@ static void bcm7420_pm_sata_disable(void)
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 1);
 }
 
-static void bcm7420_pm_sata_enable(void)
+static void bcm7420_pm_sata_enable(u32 flags)
 {
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 0);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 0);
@@ -949,7 +929,7 @@ static void bcm7420_pm_sata_enable(void)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
 }
 
-static void bcm7420_pm_moca_genet_disable(void)
+static void bcm7420_pm_moca_genet_disable(u32 flags)
 {
 	PLL_DIS(CLK_SYS_PLL_1_3);
 	PLL_DIS(CLK_SYS_PLL_1_4);
@@ -958,7 +938,7 @@ static void bcm7420_pm_moca_genet_disable(void)
 	BDEV_SET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
 }
 
-static void bcm7420_pm_moca_genet_enable(void)
+static void bcm7420_pm_moca_genet_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
 	PLL_ENA(CLK_SYS_PLL_1_6);
@@ -1079,19 +1059,19 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 
 #if defined(CONFIG_BCM7468)
 
-static void bcm7468_pm_enet_disable(void)
+static void bcm7468_pm_enet_disable(u32 flags)
 {
 	BDEV_WR_RB(BCHP_CLK_SYS_PLL_1_4, 1);
 	BDEV_SET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x767);
 }
 
-static void bcm7468_pm_enet_enable(void)
+static void bcm7468_pm_enet_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x767);
 	BDEV_WR_RB(BCHP_CLK_SYS_PLL_1_4, 0);
 }
 
-static void bcm7468_pm_usb_disable(void)
+static void bcm7468_pm_usb_disable(u32 flags)
 {
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 1);
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x00);
@@ -1101,7 +1081,7 @@ static void bcm7468_pm_usb_disable(void)
 	BDEV_SET_RB(BCHP_CLK_USB_CLK_PM_CTRL, 0x07);
 }
 
-static void bcm7468_pm_usb_enable(void)
+static void bcm7468_pm_usb_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_USB_CLK_PM_CTRL, 0x07);
 	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 1);
@@ -1156,7 +1136,7 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 
 #if defined(CONFIG_BCM7340)
 
-static void bcm7340_pm_enet_disable(void)
+static void bcm7340_pm_enet_disable(u32 flags)
 {
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH4_PM_CTRL, PWRDN_CH, 1);
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH4_PM_CTRL, ENB_CLOCKOUT_CH, 1);
@@ -1175,7 +1155,7 @@ static void bcm7340_pm_enet_disable(void)
 		BCHP_CLKGEN_GENET_CLK_PM_CTRL_DIS_CLK_27X_PM_MASK);
 }
 
-static void bcm7340_pm_enet_enable(void)
+static void bcm7340_pm_enet_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLKGEN_GENET_CLK_PM_CTRL,
 		BCHP_CLKGEN_GENET_CLK_PM_CTRL_DIS_CLK_250_MASK|
@@ -1194,7 +1174,7 @@ static void bcm7340_pm_enet_enable(void)
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH4_PM_CTRL, PWRDN_CH, 0);
 }
 
-static void bcm7340_pm_moca_disable(void)
+static void bcm7340_pm_moca_disable(u32 flags)
 {
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH1_PM_CTRL, PWRDN_CH, 1);
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH1_PM_CTRL, ENB_CLOCKOUT_CH, 1);
@@ -1222,7 +1202,7 @@ static void bcm7340_pm_moca_disable(void)
 		BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_216_MASK);
 }
 
-static void bcm7340_pm_moca_enable(void)
+static void bcm7340_pm_moca_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLKGEN_MOCA_CLK_PM_CTRL,
 		BCHP_CLKGEN_MOCA_CLK_PM_CTRL_DIS_CLK_250_GENET_RGMII_MOCA_MASK|
@@ -1250,7 +1230,7 @@ static void bcm7340_pm_moca_enable(void)
 	BDEV_WR_F_RB(CLKGEN_PLLMOCA_CH1_PM_CTRL, PWRDN_CH, 0);
 }
 
-static void bcm7340_pm_usb_disable(void)
+static void bcm7340_pm_usb_disable(u32 flags)
 {
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0xC);
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0xC);
@@ -1262,7 +1242,7 @@ static void bcm7340_pm_usb_disable(void)
 	BDEV_WR_F_RB(CLKGEN_PLLMAIN_CH4_PM_CTRL, PWRDN_CH4_PLLMAIN, 1);
 }
 
-static void bcm7340_pm_usb_enable(void)
+static void bcm7340_pm_usb_enable(u32 flags)
 {
 	BDEV_WR_F_RB(CLKGEN_PLLMAIN_CH4_PM_CTRL, PWRDN_CH4_PLLMAIN, 0);
 	BDEV_WR_F_RB(CLKGEN_USB_CLK_PM_CTRL, DIS_CLK_108, 0);
@@ -1383,7 +1363,7 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 
 #if defined(CONFIG_BCM7342)
 
-void bcm7342_pm_sata_disable(void)
+static void bcm7342_pm_sata_disable(u32 flags)
 {
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 1);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 1);
@@ -1392,7 +1372,7 @@ void bcm7342_pm_sata_disable(void)
 	PLL_DIS(CLK_SYS_PLL_1_6);
 }
 
-static void bcm7342_pm_sata_enable(void)
+static void bcm7342_pm_sata_enable(u32 flags)
 {
 	PLL_ENA(CLK_SYS_PLL_1_6);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 0);
@@ -1402,19 +1382,19 @@ static void bcm7342_pm_sata_enable(void)
 }
 
 
-static void bcm7342_pm_enet_disable(void)
+static void bcm7342_pm_enet_disable(u32 flags)
 {
 	PLL_DIS(VCXO_CTL_MISC_MOCA_PLL_CHL_1);
 	BDEV_SET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x0000076f);
 }
 
-static void bcm7342_pm_enet_enable(void)
+static void bcm7342_pm_enet_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x0000076f);
 	PLL_ENA(VCXO_CTL_MISC_MOCA_PLL_CHL_1);
 }
 
-static void bcm7342_pm_moca_disable(void)
+static void bcm7342_pm_moca_disable(u32 flags)
 {
 	PLL_DIS(VCXO_CTL_MISC_MOCA_PLL_CHL_3);
 	PLL_DIS(VCXO_CTL_MISC_MOCA_PLL_CHL_4);
@@ -1423,7 +1403,7 @@ static void bcm7342_pm_moca_disable(void)
 	BDEV_SET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
 }
 
-static void bcm7342_pm_moca_enable(void)
+static void bcm7342_pm_moca_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
 	PLL_ENA(VCXO_CTL_MISC_MOCA_PLL_CHL_6);
@@ -1432,7 +1412,7 @@ static void bcm7342_pm_moca_enable(void)
 	PLL_ENA(VCXO_CTL_MISC_MOCA_PLL_CHL_3);
 }
 
-static void bcm7342_pm_usb_disable(void)
+static void bcm7342_pm_usb_disable(u32 flags)
 {
 	/* reset and power down all 4 ports */
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x0);
@@ -1450,7 +1430,7 @@ static void bcm7342_pm_usb_disable(void)
 	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_3, EN_CMLBUF, 0);
 }
 
-void bcm7342_pm_usb_enable(void)
+static void bcm7342_pm_usb_enable(u32 flags)
 {
 	/* enable PLL */
 	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_3, EN_CMLBUF, 1);
@@ -1468,7 +1448,7 @@ void bcm7342_pm_usb_enable(void)
 	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0xF);
 }
 
-void bcm7342_pm_suspend(void)
+static void bcm7342_pm_suspend(void)
 {
 	/* PCI/EBI */
 	BDEV_WR_F_RB(CLK_PCI_OUT_CLK_PM_CTRL, DIS_PCI_OUT_CLK, 1);
@@ -1547,6 +1527,147 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 };
 #endif
 
+#if defined(CONFIG_BCM7408)
+static void bcm7408_pm_moca_disable(u32 flags)
+{
+	BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_MOCA_ENET_HFB_27_108M_CLK, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_3, DIS_CH, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_3, EN_CMLBUF, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_4, DIS_CH, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_4, EN_CMLBUF, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_5, DIS_CH, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_5, EN_CMLBUF, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_6, DIS_CH, 1);
+	BDEV_SET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x6ab);
+}
+
+static void bcm7408_pm_moca_enable(u32 flags)
+{
+	BDEV_UNSET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x6ab);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_6, DIS_CH, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_5, DIS_CH, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_5, EN_CMLBUF, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_4, DIS_CH, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_4, EN_CMLBUF, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_3, DIS_CH, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_3, EN_CMLBUF, 1);
+	BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_MOCA_ENET_HFB_27_108M_CLK, 0);
+}
+
+static void bcm7408_pm_usb_disable(u32 flags)
+{
+	/* reset and power down all 4 ports */
+/*	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0x0); */
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0x0);
+	/* disable the clocks */
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 1);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 0);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 0);
+	BDEV_SET_RB(BCHP_CLK_USB_CLK_PM_CTRL,
+		BCHP_CLK_USB_CLK_PM_CTRL_DIS_54M_CLK_MASK|
+		BCHP_CLK_USB_CLK_PM_CTRL_DIS_108M_CLK_MASK|
+		BCHP_CLK_USB_CLK_PM_CTRL_DIS_216M_CLK_MASK);
+	/* disable PLL */
+	BDEV_WR_F_RB(CLK_SYS_PLL_0_4, DIS_CH, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_0_4, EN_CMLBUF, 0);
+}
+
+static void bcm7408_pm_usb_enable(u32 flags)
+{
+	/* enable PLL */
+	BDEV_WR_F_RB(CLK_SYS_PLL_0_4, EN_CMLBUF, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_0_4, DIS_CH, 0);
+	/* enable the clocks */
+	BDEV_UNSET_RB(BCHP_CLK_USB_CLK_PM_CTRL,
+		BCHP_CLK_USB_CLK_PM_CTRL_DIS_54M_CLK_MASK|
+		BCHP_CLK_USB_CLK_PM_CTRL_DIS_108M_CLK_MASK|
+		BCHP_CLK_USB_CLK_PM_CTRL_DIS_216M_CLK_MASK);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 1);
+	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_IDDQ, 0);
+	/* power up all 4 ports */
+	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0xF);
+/*	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_SOFT_RESETB, 0xE); */
+}
+
+static void bcm7408_pm_suspend(void)
+{
+	/* UART */
+	if (!(brcm_pm_standby_flags & BRCM_STANDBY_VERBOSE)) {
+		BDEV_WR_F_RB(CLK_SUN_27M_CLK_PM_CTRL,
+			DIS_SUN_27M_CLK, 1);
+		BDEV_WR_F_RB(CLK_SUN_UART_CLK_PM_CTRL,
+			DIS_SUN_UART_108M_CLK, 1);
+	}
+	/* PAD clocks */
+	BDEV_WR_F_RB(CLK_MISC, VCXOA_OUTCLK_ENABLE, 0);
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_PM_DIS_CHL_1, DIS_CH, 1);
+
+	/* system PLLs */
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_CTRL, DRESET, 1);
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_CTRL, ARESET, 1);
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_CTRL, POWERDOWN, 1);
+	BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1,
+		CML_2_N_P_EN, 1);
+	BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1,
+		FREQ_DOUBLER_POWER_DOWN, 1);
+
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, DRESET, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, ARESET, 1);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, POWERDOWN, 1);
+
+	/* MEMC0 */
+	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 0);
+	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_DDR_PAD_CNTRL,
+		HIZ_ON_SELFREF, 1);
+	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_DDR_PAD_CNTRL,
+		DEVCLK_OFF_ON_SELFREF, 1);
+	BDEV_WR_RB(BCHP_DDR23_PHY_CONTROL_REGS_0_IDLE_PAD_CONTROL, 0x132);
+	BDEV_SET_RB(BCHP_DDR23_PHY_BYTE_LANE_0_0_IDLE_PAD_CONTROL, 0xfffff);
+	BDEV_SET_RB(BCHP_DDR23_PHY_BYTE_LANE_1_0_IDLE_PAD_CONTROL, 0xfffff);
+
+}
+
+static void bcm7408_pm_resume(void)
+{
+	/* system PLLs */
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, DRESET, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, ARESET, 0);
+	BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, POWERDOWN, 0);
+
+	BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1,
+		CML_2_N_P_EN, 0);
+	BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1,
+		FREQ_DOUBLER_POWER_DOWN, 0);
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_CTRL, DRESET, 0);
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_CTRL, ARESET, 0);
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_CTRL, POWERDOWN, 0);
+
+	/* PAD clocks */
+	BDEV_WR_F_RB(VCXO_CTL_MISC_VC0_PM_DIS_CHL_1, DIS_CH, 0);
+	BDEV_WR_F_RB(CLK_MISC, VCXOA_OUTCLK_ENABLE, 1);
+
+	/* UART */
+	if (!(brcm_pm_standby_flags & BRCM_STANDBY_VERBOSE)) {
+		BDEV_WR_F_RB(CLK_SUN_UART_CLK_PM_CTRL,
+			DIS_SUN_UART_108M_CLK, 0);
+		BDEV_WR_F_RB(CLK_SUN_27M_CLK_PM_CTRL,
+			DIS_SUN_27M_CLK, 0);
+	}
+}
+
+#define PM_OPS_DEFINED
+static struct brcm_chip_pm_ops chip_pm_ops = {
+	.moca.enable		= bcm7408_pm_moca_enable,
+	.moca.disable		= bcm7408_pm_moca_disable,
+	.usb.enable		= bcm7408_pm_usb_enable,
+	.usb.disable		= bcm7408_pm_usb_disable,
+	.suspend		= bcm7408_pm_suspend,
+	.resume			= bcm7408_pm_resume,
+};
+#endif
+
 #ifndef PM_OPS_DEFINED
 /* default structure - no pm callbacks available */
 static struct brcm_chip_pm_ops chip_pm_ops;
@@ -1555,61 +1676,61 @@ static struct brcm_chip_pm_ops chip_pm_ops;
 static void brcm_pm_sata_disable(void)
 {
 	if (chip_pm_ops.sata.disable)
-		chip_pm_ops.sata.disable();
+		chip_pm_ops.sata.disable(0);
 }
 
 static void brcm_pm_sata_enable(void)
 {
 	if (chip_pm_ops.sata.enable)
-		chip_pm_ops.sata.enable();
+		chip_pm_ops.sata.enable(0);
 }
 
 static void brcm_pm_moca_genet_disable(void)
 {
 	if (chip_pm_ops.moca_genet.disable)
-		chip_pm_ops.moca_genet.disable();
+		chip_pm_ops.moca_genet.disable(0);
 }
 
 static void brcm_pm_moca_genet_enable(void)
 {
 	if (chip_pm_ops.moca_genet.enable)
-		chip_pm_ops.moca_genet.enable();
+		chip_pm_ops.moca_genet.enable(0);
 }
 
 static void brcm_pm_enet_disable(void)
 {
 	if (chip_pm_ops.genet.disable)
-		chip_pm_ops.genet.disable();
+		chip_pm_ops.genet.disable(0);
 }
 
 static void brcm_pm_enet_enable(void)
 {
 	if (chip_pm_ops.genet.enable)
-		chip_pm_ops.genet.enable();
+		chip_pm_ops.genet.enable(0);
 }
 
 static void brcm_pm_moca_disable(void)
 {
 	if (chip_pm_ops.moca.disable)
-		chip_pm_ops.moca.disable();
+		chip_pm_ops.moca.disable(0);
 }
 
 static void brcm_pm_moca_enable(void)
 {
 	if (chip_pm_ops.moca.enable)
-		chip_pm_ops.moca.enable();
+		chip_pm_ops.moca.enable(0);
 }
 
 static void brcm_pm_usb_disable(void)
 {
 	if (chip_pm_ops.usb.disable)
-		chip_pm_ops.usb.disable();
+		chip_pm_ops.usb.disable(0);
 }
 
 static void brcm_pm_usb_enable(void)
 {
 	if (chip_pm_ops.usb.enable)
-		chip_pm_ops.usb.enable();
+		chip_pm_ops.usb.enable(0);
 }
 
 static void brcm_pm_set_ddr_timeout(int val)
