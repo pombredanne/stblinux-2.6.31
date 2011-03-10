@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Dec 10 02:34:25 2010
- *                 MD5 Checksum         091d7292f41f04fc6becd414f8c2e7bc
+ * Date:           Generated on         Mon Jan 24 16:03:49 2011
+ *                 MD5 Checksum         58cf64531fe9360f10d28bf0f34f4c73
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35330/rdb/a0/bchp_common.h $
+ * 
+ * Hydra_Software_Devel/2   1/26/11 6:16p albertl
+ * SW35330-6: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -44,8 +47,8 @@
  ***************************************************************************/
 #define BCHP_PHYSICAL_OFFSET                               0x10000000
 #define BCHP_REGISTER_START                                0x00000100 /* SID is first */
-#define BCHP_REGISTER_END                                  0x01f80000 /* BMIPS4380 is last */
-#define BCHP_REGISTER_SIZE                                 0x007dffc0 /* Number of registers */
+#define BCHP_REGISTER_END                                  0x00b0008c /* VICH_0 is last */
+#define BCHP_REGISTER_SIZE                                 0x002bffe3 /* Number of registers */
 
 /****************************************************************************
  * Core instance register start address.
@@ -1592,8 +1595,6 @@
 #define BCHP_AVD_RGR_0_REG_END                             0x00a80410
 #define BCHP_VICH_0_REG_START                              0x00b00000
 #define BCHP_VICH_0_REG_END                                0x00b0008b
-#define BCHP_BMIPS4380_REG_START                           0x01f00000
-#define BCHP_BMIPS4380_REG_END                             0x01f7ffff
 
 
 /***************************************************************************
@@ -2316,7 +2317,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -2335,7 +2336,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -2354,7 +2355,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI

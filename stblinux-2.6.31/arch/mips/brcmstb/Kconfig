@@ -161,28 +161,6 @@ config BCM7125C0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
 
-config BCM7135A0
-	bool "7135 Ax"
-	select BRCM_PLATFORM_DEFAULTS
-	select BCM7135
-	select BMIPS4380
-	select BRCM_HAS_XKS01
-	select BRCM_UARTA_IS_16550
-	select BRCM_UARTB_IS_16550
-	select BRCM_UARTC_IS_16550
-	select BRCM_HAS_MOCA_20
-	select BRCM_MOCA_ON_GENET_0
-	select BRCM_GENET_V2
-	select BRCM_HAS_NOR
-	select BRCM_HAS_NAND_MAJOR_5
-	select BRCM_HAS_NAND_MINOR_0
-	select BRCM_HAS_EDU
-	select BRCM_HAS_BSPI_V4
-	select BRCM_HAS_SATA3
-	select BRCM_HAS_WKTMR
-	select BRCM_HAS_UPPER_MEMORY
-	select BRCM_HAS_1GB_MEMC0
-
 config BCM7231A0
 	bool "7231 Ax"
 	select BRCM_PLATFORM_DEFAULTS
@@ -613,6 +591,7 @@ config BCM7550A0
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_EMAC_0
+	select BRCM_HAS_MII
 	select BCMEMAC_EXTMII
 	select BRCM_HAS_NAND_MAJOR_3
 	select BRCM_HAS_NAND_MINOR_4
@@ -631,6 +610,7 @@ config BCM7550B0
 	select BRCM_UARTB_IS_16550
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_EMAC_0
+	select BRCM_HAS_MII
 	select BCMEMAC_EXTMII
 	select BRCM_HAS_NAND_MAJOR_3
 	select BRCM_HAS_NAND_MINOR_4
@@ -1029,12 +1009,19 @@ config BRCM_OVERRIDE_USB
 	help
 	  Say Y to see advanced USB configuration options.
 
+	  Normally the USB driver in the bootloader will enable the
+	  appropriate settings prior to Linux boot, but this step may be
+	  skipped if a customized bootloader is in use.
+
 	  If unsure, say N.
 
-config BRCM_OVERRIDE_USB_PWR
-	bool "Override USB VBUS power signal polarity"
+choice
+	prompt "USB VBUS power enable polarity"
 	depends on BRCM_OVERRIDE_USB
-	default n
+	default BRCM_FORCE_USB_PWR_LO
+
+config BRCM_FORCE_USB_PWR_LO
+	bool "Active low"
 	help
 	  The board's USB VBUS control IC will have either an active low
 	  or an active high enable.  On most Broadcom reference boards,
@@ -1042,19 +1029,28 @@ config BRCM_OVERRIDE_USB_PWR
 	  The output of the hardware signal USBx_PWRON is affected by
 	  this setting, and it applies to all ports and controllers.
 
-	  Normally the USB driver in the bootloader will enable the
-	  appropriate setting prior to Linux boot.  Say Y here to have
-	  the Linux driver override this setting.
+config BRCM_FORCE_USB_PWR_HI
+	bool "Active high"
+
+endchoice
 
 choice
-	prompt "USB VBUS power enable"
-	depends on BRCM_OVERRIDE_USB_PWR
-	default BRCM_FORCE_USB_PWR_LO
+	prompt "USB overcurrent polarity"
+	depends on BRCM_OVERRIDE_USB
+	default BRCM_FORCE_USB_OC_LO
 
-config BRCM_FORCE_USB_PWR_LO
+config BRCM_FORCE_USB_OC_LO
 	bool "Active low"
+	help
+	  Controls the handling of the overcurrent indicator line (input
+	  to BCM7xxx).  Active low is typically used when USBx_PWRFLT is
+	  connected to a power switch chip, as is the case on Broadcom
+	  reference boards.  Active high may be used if USBx_PWRFLT is
+	  connected "downstream" from a fuse.
 
-config BRCM_FORCE_USB_PWR_HI
+	  This setting applies to all USB ports and controllers.
+
+config BRCM_FORCE_USB_OC_HI
 	bool "Active high"
 
 endchoice
@@ -1501,6 +1497,7 @@ config BRCM_HAS_NAND_MAJOR_5
 	bool
 	select BRCM_HAS_NAND
 
+
 config BRCMNAND_MAJOR_VERS
 	int
 	default "5" if BRCM_HAS_NAND_MAJOR_5
@@ -1544,6 +1541,12 @@ config BRCM_HAS_BSPI_V3
 config BRCM_HAS_BSPI_V4
 	bool
 	select BRCM_HAS_SPI
+
+config BRCM_BSPI_MAJOR_VERS
+	int
+	default "4" if BRCM_HAS_BSPI_V4
+	default "3" if BRCM_HAS_BSPI_V3
+	default "2" if BRCM_HAS_BSPI_V2
 
 config BRCM_HAS_WKTMR
 	bool
@@ -1620,12 +1623,12 @@ config BRCM_HAS_STANDBY
 config BRCM_PWR_HANDSHAKE
 	bool
 
-# designs older than 7135
+# 40nm A0; 65nm
 config BRCM_PWR_HANDSHAKE_V0
 	bool
 	select BRCM_PWR_HANDSHAKE
 
-# 7135 and newer: simplified interface
+# 40nm B0
 config BRCM_PWR_HANDSHAKE_V1
 	bool
 	select BRCM_PWR_HANDSHAKE
@@ -1675,9 +1678,6 @@ config BCM7118
 	bool
 
 config BCM7125
-	bool
-
-config BCM7135
 	bool
 
 config BCM7231

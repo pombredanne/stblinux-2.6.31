@@ -107,6 +107,10 @@ extern int gdebug;
 #define NANDCMD_ERASEALL	8
 #define NANDCMD_CLEARBBT	9
 
+#if 1
+#define NANDCMD_ERASEALLBBT 10
+#endif
+
 int brcmnand_update_bbt (struct mtd_info *mtd, loff_t offs);
 
 
@@ -572,13 +576,17 @@ PRINTK("-->brcmnand_create_bbt, bbt_erase_shift=%d, this->page_shift=%d\n", this
 	}
 
 //gdebug=4;
-if (gdebug > 3) { 
+if (gdebug > 3) 
+{ 
 PRINTK("Starting for loop: from=%0llx bd->options=%08x, startblock=%d numblocks=%d\n", 
 from, bd->options, mtd64_ll_low(startblock), mtd64_ll_low(numblocks));
 }
 	for (i = startblock; i < numblocks;) {
 		int ret;
 
+#if 0
+if ((i>>1) >= 2048) {gdebug=4; PRINTK("%s: from=%llx, i=%d\n", __FUNCTION__, from, i);}
+#endif
 		if (bd->options & NAND_BBT_SCANALLPAGES)
 			ret = brcmnand_scan_block_full(mtd, bd, from, buf, readlen,
 					      scanlen, len);
@@ -604,6 +612,7 @@ PRINTK("$$$$$$$$$$$$$$$$$$$$ brcmnand_scan_block_{fast/full} returns %d\n", ret)
 PRINTK("$$$$$$$$$$$$$$$ Bad eraseblock %d at 0x%08x, ret=%d\n",
 			       i >> 1, (unsigned int)from, ret);
 			mtd->ecc_stats.badblocks++;
+			
 		}
 
 		i += 2;
@@ -1659,6 +1668,7 @@ static void brcmnand_preprocessKernelArg(struct mtd_info *mtd)
 	int ret, needBBT; 
 	uint64_t bOffset, bOffsetStart=0, bOffsetEnd=0;
 	int bbtSize = brcmnand_get_bbt_size(mtd); 
+int savedebug;
 
 	//int page;
 
@@ -1675,6 +1685,19 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n", __FUNCTION__, gClearB
 printk("%s: gClearBBT=clearbbt, start=%0llx, end=%0llx\n", __FUNCTION__, 
 	bOffsetStart, bOffsetEnd);
 		break;
+
+#if 1
+	case NANDCMD_ERASEALLBBT: // Force rescan of BBT (DANGEROUS, may lose Mfg's BIs).
+								// Will have to reflash the CFE.
+
+		bOffsetStart = 0; 
+		bOffsetEnd = this->mtdSize - mtd->erasesize;
+printk("%s: gClearBBT=eraseallbbt, start=%0llx, end=%0llx\n", __FUNCTION__, 
+	bOffsetStart, bOffsetEnd);
+//savedebug=gdebug;
+//gdebug=4;
+		break;
+#endif
 
 	case NANDCMD_SHOWBBT:
 		return;
@@ -1698,7 +1721,7 @@ printk("%s: gClearBBT=clearbbt, start=%0llx, end=%0llx\n", __FUNCTION__,
 	this->ctrl_write(BCHP_NAND_ECC_CORR_ADDR, 0);
 	this->ctrl_write(BCHP_NAND_ECC_UNC_ADDR, 0);
 
-			
+		
 	for (bOffset=bOffsetStart; bOffset <= bOffsetEnd; bOffset += mtd->erasesize) {
 		//unsigned long pAddr = this->pbase + bOffset;
 		//int i;
@@ -1723,6 +1746,8 @@ printk("%s: gClearBBT=clearbbt, start=%0llx, end=%0llx\n", __FUNCTION__,
 			ret = this->block_markbad(mtd, bOffset);
 		}
 	}
+
+if (gClearBBT == NANDCMD_ERASEALLBBT) gdebug=savedebug;
 	
 	return;
 	
@@ -1755,6 +1780,7 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 		return;
 		
 	case NANDCMD_CLEARBBT: // already done during pre-processing
+	case NANDCMD_ERASEALLBBT:
 		brcmnand_displayBBT(mtd);
 		return;
 		

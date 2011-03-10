@@ -207,7 +207,7 @@ images-%:
 release:
 	# make sure this is a clean view
 	@if [ -e .dirty -o -e images -o -e release ]; then \
-		echo "ERROR: \"make release\" must be run on a pristine view" ; \
+		echo "ERROR: \"make release\" must be run on a pristine view"; \
 		exit 1 ; \
 	fi
 	# check for nonfree sources
@@ -220,6 +220,7 @@ release:
 	cd .. ; perl -w tools/unpack.pl -r || exit 1
 	chmod -R u+w . linux-2.6.x/
 	chmod -R 0755 bin/
+	../tools/set_extraversion.pl --drop-pre
 	export LINK=`readlink linux-2.6.x`; \
 		export STBLINUX=`basename $$LINK`; \
 		tar -C .. -jcf ../stblinux-$(DOTVERSION).tar.bz2 $$STBLINUX

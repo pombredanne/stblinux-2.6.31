@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Dec 10 03:19:31 2010
- *                 MD5 Checksum         091d7292f41f04fc6becd414f8c2e7bc
+ * Date:           Generated on         Wed Jan 19 19:39:24 2011
+ *                 MD5 Checksum         1e0b35eb4b11db32c4c4969c9817ba7b
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35330/rdb/a0/bchp_tvm.h $
+ * 
+ * Hydra_Software_Devel/1   1/20/11 12:34a albertl
+ * SW35330-6: Initial revision.
  *
  ***************************************************************************/
 
@@ -12731,41 +12734,41 @@
 #define BCHP_TVM_PAD_CTRL_2_emmc_clk_pad_pull_MASK                 0x000c0000
 #define BCHP_TVM_PAD_CTRL_2_emmc_clk_pad_pull_SHIFT                18
 
-/* TVM :: PAD_CTRL_2 :: emmc_cmd_pad_pull [17:16] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_cmd_pad_pull_MASK                 0x00030000
-#define BCHP_TVM_PAD_CTRL_2_emmc_cmd_pad_pull_SHIFT                16
+/* TVM :: PAD_CTRL_2 :: emmc_dat_7_pad_pull [17:16] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_7_pad_pull_MASK               0x00030000
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_7_pad_pull_SHIFT              16
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_7_pad_pull [15:14] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_7_pad_pull_MASK               0x0000c000
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_7_pad_pull_SHIFT              14
+/* TVM :: PAD_CTRL_2 :: emmc_dat_6_pad_pull [15:14] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_6_pad_pull_MASK               0x0000c000
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_6_pad_pull_SHIFT              14
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_6_pad_pull [13:12] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_6_pad_pull_MASK               0x00003000
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_6_pad_pull_SHIFT              12
+/* TVM :: PAD_CTRL_2 :: emmc_dat_5_pad_pull [13:12] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_5_pad_pull_MASK               0x00003000
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_5_pad_pull_SHIFT              12
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_5_pad_pull [11:10] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_5_pad_pull_MASK               0x00000c00
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_5_pad_pull_SHIFT              10
+/* TVM :: PAD_CTRL_2 :: emmc_dat_4_pad_pull [11:10] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_4_pad_pull_MASK               0x00000c00
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_4_pad_pull_SHIFT              10
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_4_pad_pull [09:08] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_4_pad_pull_MASK               0x00000300
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_4_pad_pull_SHIFT              8
+/* TVM :: PAD_CTRL_2 :: emmc_dat_3_pad_pull [09:08] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_3_pad_pull_MASK               0x00000300
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_3_pad_pull_SHIFT              8
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_3_pad_pull [07:06] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_3_pad_pull_MASK               0x000000c0
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_3_pad_pull_SHIFT              6
+/* TVM :: PAD_CTRL_2 :: emmc_dat_2_pad_pull [07:06] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_2_pad_pull_MASK               0x000000c0
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_2_pad_pull_SHIFT              6
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_2_pad_pull [05:04] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_2_pad_pull_MASK               0x00000030
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_2_pad_pull_SHIFT              4
+/* TVM :: PAD_CTRL_2 :: emmc_dat_1_pad_pull [05:04] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_1_pad_pull_MASK               0x00000030
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_1_pad_pull_SHIFT              4
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_1_pad_pull [03:02] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_1_pad_pull_MASK               0x0000000c
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_1_pad_pull_SHIFT              2
+/* TVM :: PAD_CTRL_2 :: emmc_dat_0_pad_pull [03:02] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_0_pad_pull_MASK               0x0000000c
+#define BCHP_TVM_PAD_CTRL_2_emmc_dat_0_pad_pull_SHIFT              2
 
-/* TVM :: PAD_CTRL_2 :: emmc_dat_0_pad_pull [01:00] */
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_0_pad_pull_MASK               0x00000003
-#define BCHP_TVM_PAD_CTRL_2_emmc_dat_0_pad_pull_SHIFT              0
+/* TVM :: PAD_CTRL_2 :: emmc_cmd_pad_pull [01:00] */
+#define BCHP_TVM_PAD_CTRL_2_emmc_cmd_pad_pull_MASK                 0x00000003
+#define BCHP_TVM_PAD_CTRL_2_emmc_cmd_pad_pull_SHIFT                0
 
 /***************************************************************************
  *PAD_CTRL_3 - PAD_CTRL_3

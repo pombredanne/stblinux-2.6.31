@@ -433,10 +433,30 @@ static struct tlb_entry __maybe_unused uppermem_mappings[] = {
 },
 };
 
+/*
+ * This function is used instead of add_wired_entry(), because it does not
+ * have any external dependencies and is not marked __init
+ */
+static inline void __cpuinit brcm_add_wired_entry(unsigned long entrylo0,
+	unsigned long entrylo1, unsigned long entryhi, unsigned long pagemask)
+{
+	int i = read_c0_wired();
+
+	write_c0_entrylo0(entrylo0);
+	write_c0_entrylo1(entrylo1);
+	write_c0_entryhi(entryhi);
+	write_c0_pagemask(pagemask);
+	write_c0_index(i);
+	write_c0_wired(i + 1);
+	mtc0_tlbw_hazard();
+	tlb_write_indexed();
+	tlbw_use_hazard();
+}
+
 extern void tlb_init(void);
 extern void build_tlb_refill_handler(void);
 
-void brcm_tlb_init(void)
+void __cpuinit brcm_tlb_init(void)
 {
 #ifdef CONFIG_BRCM_UPPER_MEMORY
 	if (smp_processor_id() == 0) {
@@ -445,8 +465,9 @@ void brcm_tlb_init(void)
 
 		tlb_init();
 		for (i = 0; i < ARRAY_SIZE(uppermem_mappings); i++, e++)
-			add_wired_entry(e->entrylo0, e->entrylo1, e->entryhi,
-				e->pagemask);
+			brcm_add_wired_entry(e->entrylo0, e->entrylo1,
+				e->entryhi, e->pagemask);
+		write_c0_pagemask(PM_DEFAULT_MASK);
 	} else {
 		/* bypass tlb_init() / probe_tlb() for secondary CPU */
 		cpu_data[smp_processor_id()].tlbsize = cpu_data[0].tlbsize;
@@ -485,18 +506,13 @@ asmlinkage __cpuinit void brcm_upper_tlb_setup(void)
 		tlbw_use_hazard();
 	}
 
+	write_c0_wired(0);
+	mtc0_tlbw_hazard();
+
 	for (i = 0; i < ARRAY_SIZE(uppermem_mappings); i++) {
 		struct tlb_entry *e = &uppermem_mappings[i];
-
-		write_c0_entrylo0(e->entrylo0);
-		write_c0_entrylo1(e->entrylo1);
-		write_c0_entryhi(e->entryhi);
-		write_c0_pagemask(e->pagemask);
-		write_c0_index(i);
-		write_c0_wired(i + 1);
-		mtc0_tlbw_hazard();
-		tlb_write_indexed();
-		tlbw_use_hazard();
+		brcm_add_wired_entry(e->entrylo0, e->entrylo1, e->entryhi,
+			e->pagemask);
 	}
 
 	write_c0_pagemask(PM_DEFAULT_MASK);

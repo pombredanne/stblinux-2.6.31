@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Nov  8 15:59:34 2010
- *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
+ * Date:           Generated on         Thu Jan 13 02:14:30 2011
+ *                 MD5 Checksum         cf7b393b4b1b75989d5616e656fe3a56
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_common.h $
  * 
- * Hydra_Software_Devel/3   11/8/10 4:46p yuxiaz
- * SW7552-2: updated rdb.
+ * Hydra_Software_Devel/4   1/13/11 1:40p pntruong
+ * SW7552-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -47,8 +47,8 @@
  ***************************************************************************/
 #define BCHP_PHYSICAL_OFFSET                               0x10000000
 #define BCHP_REGISTER_START                                0x00000000 /* DECODE_RBNODE_REGS_0 is first */
-#define BCHP_REGISTER_END                                  0x04d0fc10 /* THD_GR is last */
-#define BCHP_REGISTER_SIZE                                 0x01343f04 /* Number of registers */
+#define BCHP_REGISTER_END                                  0x00d0fc10 /* THD_GR is last */
+#define BCHP_REGISTER_SIZE                                 0x00343f04 /* Number of registers */
 
 /****************************************************************************
  * Core instance register start address.
@@ -131,6 +131,8 @@
 #define BCHP_AVD_RGR_0_REG_END                             0x00080410
 #define BCHP_VICH_0_REG_START                              0x00170000
 #define BCHP_VICH_0_REG_END                                0x0017008b
+#define BCHP_BESTROM_REG_START                             0x00200000
+#define BCHP_BESTROM_REG_END                               0x00203ffc
 #define BCHP_BSP_CMDBUF_REG_START                          0x00328800
 #define BCHP_BSP_CMDBUF_REG_END                            0x00328ffc
 #define BCHP_BSP_GLB_CONTROL_REG_START                     0x0032b000
@@ -144,7 +146,7 @@
 #define BCHP_SECTOP_GRB_REG_START                          0x00360000
 #define BCHP_SECTOP_GRB_REG_END                            0x0036000c
 #define BCHP_JTAG_OTP_REG_START                            0x00360100
-#define BCHP_JTAG_OTP_REG_END                              0x00360130
+#define BCHP_JTAG_OTP_REG_END                              0x00360138
 #define BCHP_MEM_DMA_0_REG_START                           0x00360200
 #define BCHP_MEM_DMA_0_REG_END                             0x00360224
 #define BCHP_MMSCRAM_REG_START                             0x00364000
@@ -152,7 +154,7 @@
 #define BCHP_MEM_DMA_SECURE_REG_START                      0x00366000
 #define BCHP_MEM_DMA_SECURE_REG_END                        0x0036600c
 #define BCHP_MEMC_GEN_0_REG_START                          0x003b0000
-#define BCHP_MEMC_GEN_0_REG_END                            0x003b0348
+#define BCHP_MEMC_GEN_0_REG_END                            0x003b03c8
 #define BCHP_MEMC_ARB_0_REG_START                          0x003b1000
 #define BCHP_MEMC_ARB_0_REG_END                            0x003b1244
 #define BCHP_MEMC_DDR_0_REG_START                          0x003b2000
@@ -169,8 +171,6 @@
 #define BCHP_DDR40_PHY_CONTROL_REGS_0_REG_END              0x003b60c0
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_REG_START             0x003b6200
 #define BCHP_DDR40_PHY_WORD_LANE_0_0_REG_END               0x003b63ac
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_REG_START             0x003b6400
-#define BCHP_DDR40_PHY_WORD_LANE_1_0_REG_END               0x003b65ac
 #define BCHP_MEMC_DDR23_SHIM_ADDR_CNTL_0_REG_START         0x003b8000
 #define BCHP_MEMC_DDR23_SHIM_ADDR_CNTL_0_REG_END           0x003b80e4
 #define BCHP_S_MEMC_0_REG_START                            0x003ba000
@@ -211,8 +211,6 @@
 #define BCHP_IRQ1_REG_END                                  0x00406644
 #define BCHP_TIMER_REG_START                               0x00406680
 #define BCHP_TIMER_REG_END                                 0x004066bc
-#define BCHP_PWMB_REG_START                                0x00406700
-#define BCHP_PWMB_REG_END                                  0x00406724
 #define BCHP_UARTA_REG_START                               0x00406800
 #define BCHP_UARTA_REG_END                                 0x0040681c
 #define BCHP_UARTB_REG_START                               0x00406840
@@ -318,9 +316,9 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_START        0x00414800
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00414800
 #define BCHP_CLKGEN_REG_START                              0x00420000
-#define BCHP_CLKGEN_REG_END                                0x00420340
-#define BCHP_PLL_VCXO_RM_REG_START                         0x00422800
-#define BCHP_PLL_VCXO_RM_REG_END                           0x0042282c
+#define BCHP_CLKGEN_REG_END                                0x00420370
+#define BCHP_VCXO_RM_REG_START                             0x00422800
+#define BCHP_VCXO_RM_REG_END                               0x0042282c
 #define BCHP_AVS_HW_MNTR_REG_START                         0x00423000
 #define BCHP_AVS_HW_MNTR_REG_END                           0x00423074
 #define BCHP_AVS_PVT_MNTR_CONFIG_REG_START                 0x00423100
@@ -330,7 +328,7 @@
 #define BCHP_AVS_RO_REGISTERS_0_REG_START                  0x00423300
 #define BCHP_AVS_RO_REGISTERS_0_REG_END                    0x004233dc
 #define BCHP_AVS_RO_REGISTERS_1_REG_START                  0x00423400
-#define BCHP_AVS_RO_REGISTERS_1_REG_END                    0x0042348c
+#define BCHP_AVS_RO_REGISTERS_1_REG_END                    0x004234a4
 #define BCHP_AVS_ROSC_THRESHOLD_1_REG_START                0x00423500
 #define BCHP_AVS_ROSC_THRESHOLD_1_REG_END                  0x004235e4
 #define BCHP_AVS_ROSC_THRESHOLD_2_REG_START                0x00423600
@@ -379,8 +377,6 @@
 #define BCHP_USB_OHCI_REG_END                              0x00480458
 #define BCHP_BOOTROM_REG_START                             0x00500000
 #define BCHP_BOOTROM_REG_END                               0x00503ffc
-#define BCHP_BESTROM_REG_START                             0x00580000
-#define BCHP_BESTROM_REG_END                               0x00583ffc
 #define BCHP_MFD_0_REG_START                               0x00600000
 #define BCHP_MFD_0_REG_END                                 0x006001fc
 #define BCHP_VFD_0_REG_START                               0x00601000
@@ -426,7 +422,7 @@
 #define BCHP_GFD_1_REG_START                               0x00641400
 #define BCHP_GFD_1_REG_END                                 0x00641628
 #define BCHP_CMP_0_REG_START                               0x00642000
-#define BCHP_CMP_0_REG_END                                 0x006424b4
+#define BCHP_CMP_0_REG_END                                 0x00642264
 #define BCHP_CMP_1_REG_START                               0x00642800
 #define BCHP_CMP_1_REG_END                                 0x00642cb4
 #define BCHP_TNT_CMP_0_V0_REG_START                        0x00643000
@@ -479,26 +475,28 @@
 #define BCHP_RM_1_REG_END                                  0x006836e4
 #define BCHP_ANA_DEBUG_0_REG_START                         0x00683700
 #define BCHP_ANA_DEBUG_0_REG_END                           0x00683744
-#define BCHP_DTRAM_0_REG_START                             0x00683800
-#define BCHP_DTRAM_0_REG_END                               0x00683c7c
-#define BCHP_DVI_DTG_0_REG_START                           0x00684000
-#define BCHP_DVI_DTG_0_REG_END                             0x00684154
-#define BCHP_DVI_CSC_0_REG_START                           0x00684200
-#define BCHP_DVI_CSC_0_REG_END                             0x00684230
-#define BCHP_DVI_DVF_0_REG_START                           0x00684300
-#define BCHP_DVI_DVF_0_REG_END                             0x00684314
-#define BCHP_DVI_DEBUG_0_REG_START                         0x00684400
-#define BCHP_DVI_DEBUG_0_REG_END                           0x00684444
-#define BCHP_VEC_CFG_REG_START                             0x00684800
-#define BCHP_VEC_CFG_REG_END                               0x006848c8
-#define BCHP_VIDEO_ENC_INTR2_REG_START                     0x00684c00
-#define BCHP_VIDEO_ENC_INTR2_REG_END                       0x00684c2c
-#define BCHP_VIDEO_ENC_TPG_0_REG_START                     0x00684d00
-#define BCHP_VIDEO_ENC_TPG_0_REG_END                       0x00684d18
-#define BCHP_VIDEO_ENC_DECIM_0_REG_START                   0x00684e00
-#define BCHP_VIDEO_ENC_DECIM_0_REG_END                     0x00684e08
-#define BCHP_DVP_DGEN_0_REG_START                          0x00684f00
-#define BCHP_DVP_DGEN_0_REG_END                            0x00684f38
+#define BCHP_GRPD_0_REG_START                              0x00683800
+#define BCHP_GRPD_0_REG_END                                0x006838ec
+#define BCHP_DTRAM_0_REG_START                             0x00684000
+#define BCHP_DTRAM_0_REG_END                               0x0068447c
+#define BCHP_DVI_DTG_0_REG_START                           0x00684800
+#define BCHP_DVI_DTG_0_REG_END                             0x00684954
+#define BCHP_DVI_CSC_0_REG_START                           0x00684a00
+#define BCHP_DVI_CSC_0_REG_END                             0x00684a30
+#define BCHP_DVI_DVF_0_REG_START                           0x00684b00
+#define BCHP_DVI_DVF_0_REG_END                             0x00684b14
+#define BCHP_DVI_DEBUG_0_REG_START                         0x00684c00
+#define BCHP_DVI_DEBUG_0_REG_END                           0x00684c44
+#define BCHP_VEC_CFG_REG_START                             0x00685000
+#define BCHP_VEC_CFG_REG_END                               0x006850d4
+#define BCHP_VIDEO_ENC_INTR2_REG_START                     0x00685400
+#define BCHP_VIDEO_ENC_INTR2_REG_END                       0x0068542c
+#define BCHP_VIDEO_ENC_TPG_0_REG_START                     0x00685500
+#define BCHP_VIDEO_ENC_TPG_0_REG_END                       0x00685518
+#define BCHP_VIDEO_ENC_DECIM_0_REG_START                   0x00685600
+#define BCHP_VIDEO_ENC_DECIM_0_REG_END                     0x00685608
+#define BCHP_DVP_DGEN_0_REG_START                          0x00685700
+#define BCHP_DVP_DGEN_0_REG_END                            0x00685738
 #define BCHP_VBI_ENC_REG_START                             0x00686000
 #define BCHP_VBI_ENC_REG_END                               0x00686054
 #define BCHP_CCE_0_REG_START                               0x00686400
@@ -709,24 +707,26 @@
 #define BCHP_HRC_REG_END                                   0x00c01024
 #define BCHP_HRC_FIR_REG_START                             0x00c01200
 #define BCHP_HRC_FIR_REG_END                               0x00c013fc
-#define BCHP_DS_GR_REG_START                               0x04c21f00
-#define BCHP_DS_GR_REG_END                                 0x04c21f0c
-#define BCHP_DS_REG_REG_START                              0x04c22000
-#define BCHP_DS_REG_REG_END                                0x04c2205c
-#define BCHP_DS_REG_START                                  0x04c24000
-#define BCHP_DS_REG_END                                    0x04c25074
-#define BCHP_THD_CORE_REG_START                            0x04d00000
-#define BCHP_THD_CORE_REG_END                              0x04d003b4
-#define BCHP_THD_INTR2_REG_START                           0x04d0a000
-#define BCHP_THD_INTR2_REG_END                             0x04d0a02c
-#define BCHP_THD_INTR_REG_START                            0x04d0c000
-#define BCHP_THD_INTR_REG_END                              0x04d0c014
-#define BCHP_THD_INTR2B_REG_START                          0x04d0d000
-#define BCHP_THD_INTR2B_REG_END                            0x04d0d02c
-#define BCHP_THD_INTRB_REG_START                           0x04d0f000
-#define BCHP_THD_INTRB_REG_END                             0x04d0f014
-#define BCHP_THD_GR_REG_START                              0x04d0fc00
-#define BCHP_THD_GR_REG_END                                0x04d0fc0c
+#define BCHP_DS_GR_REG_START                               0x00c21f00
+#define BCHP_DS_GR_REG_END                                 0x00c21f0c
+#define BCHP_DS_TOPM_REG_START                             0x00c22000
+#define BCHP_DS_TOPM_REG_END                               0x00c2205c
+#define BCHP_DS_TOPS_REG_START                             0x00c23000
+#define BCHP_DS_TOPS_REG_END                               0x00c2309c
+#define BCHP_DS_REG_START                                  0x00c24000
+#define BCHP_DS_REG_END                                    0x00c25078
+#define BCHP_THD_CORE_REG_START                            0x00d00000
+#define BCHP_THD_CORE_REG_END                              0x00d003c8
+#define BCHP_THD_INTR2_REG_START                           0x00d0a000
+#define BCHP_THD_INTR2_REG_END                             0x00d0a02c
+#define BCHP_THD_INTR_REG_START                            0x00d0c000
+#define BCHP_THD_INTR_REG_END                              0x00d0c014
+#define BCHP_THD_INTR2B_REG_START                          0x00d0d000
+#define BCHP_THD_INTR2B_REG_END                            0x00d0d02c
+#define BCHP_THD_INTRB_REG_START                           0x00d0f000
+#define BCHP_THD_INTRB_REG_END                             0x00d0f014
+#define BCHP_THD_GR_REG_START                              0x00d0fc00
+#define BCHP_THD_GR_REG_END                                0x00d0fc0c
 
 
 /***************************************************************************

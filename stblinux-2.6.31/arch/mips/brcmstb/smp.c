@@ -256,7 +256,7 @@ static void brcmstb_cpu_die(unsigned int cpu)
 {
 }
 
-void play_dead(void)
+void __ref play_dead(void)
 {
 	idle_task_exit();
 

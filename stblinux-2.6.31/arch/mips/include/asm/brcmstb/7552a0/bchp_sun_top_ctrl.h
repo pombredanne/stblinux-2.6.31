@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Nov  8 16:13:14 2010
- *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
+ * Date:           Generated on         Thu Jan 13 02:28:11 2011
+ *                 MD5 Checksum         cf7b393b4b1b75989d5616e656fe3a56
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/3   11/8/10 4:47p yuxiaz
- * SW7552-2: updated rdb.
+ * Hydra_Software_Devel/4   1/13/11 1:46p pntruong
+ * SW7552-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -209,9 +209,9 @@
 #define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_xcore_bias_sel_MASK  0x0000000e
 #define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_xcore_bias_sel_SHIFT 1
 
-/* SUN_TOP_CTRL :: STRAP_VALUE_1 :: strap_xtal_highpass_up [00:00] */
-#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_xtal_highpass_up_MASK 0x00000001
-#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_xtal_highpass_up_SHIFT 0
+/* SUN_TOP_CTRL :: STRAP_VALUE_1 :: strap_hipass_xtal [00:00] */
+#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_hipass_xtal_MASK     0x00000001
+#define BCHP_SUN_TOP_CTRL_STRAP_VALUE_1_strap_hipass_xtal_SHIFT    0
 
 /***************************************************************************
  *BOND_STATUS - Bond option value register
@@ -251,9 +251,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_genet_disable_MASK 0x04000000
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_genet_disable_SHIFT 26
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_svc_disable [25:25] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_svc_disable_MASK 0x02000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_svc_disable_SHIFT 25
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_avc_disable [25:25] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_avc_disable_MASK 0x02000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_avc_disable_SHIFT 25
 
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_vc4_disable [24:24] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_vc4_disable_MASK 0x01000000
@@ -481,9 +481,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_genet_disable_MASK 0x04000000
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_genet_disable_SHIFT 26
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_svc_disable [25:25] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_svc_disable_MASK 0x02000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_svc_disable_SHIFT 25
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_avc_disable [25:25] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_avc_disable_MASK 0x02000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_avc_disable_SHIFT 25
 
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_vc4_disable [24:24] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_vc4_disable_MASK 0x01000000
@@ -971,13 +971,13 @@
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_reserved0_MASK            0xfffffffc
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_reserved0_SHIFT           2
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_2 :: general_ctrl2_1 [01:01] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_general_ctrl2_1_MASK      0x00000002
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_general_ctrl2_1_SHIFT     1
+/* SUN_TOP_CTRL :: GENERAL_CTRL_2 :: usb0_pwrflt_2_disable [01:01] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_usb0_pwrflt_2_disable_MASK 0x00000002
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_usb0_pwrflt_2_disable_SHIFT 1
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_2 :: general_ctrl2_0 [00:00] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_general_ctrl2_0_MASK      0x00000001
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_general_ctrl2_0_SHIFT     0
+/* SUN_TOP_CTRL :: GENERAL_CTRL_2 :: usb0_pwrflt_1_disable [00:00] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_usb0_pwrflt_1_disable_MASK 0x00000001
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_2_usb0_pwrflt_1_disable_SHIFT 0
 
 /***************************************************************************
  *GENERAL_CTRL_3 - General control register 3
@@ -1329,7 +1329,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_24_SHIFT             4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_24_GPIO_24           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_24_SDS0_DSEC_TXEN    1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_24_PM_GPIO_24        2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_24_OOB_AGC_CTL       2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_24_PM_GPIO_24        3
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_0 :: gpio_23 [03:00] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_0_gpio_23_MASK              0x0000000f
@@ -2001,16 +2002,18 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_SHIFT            28
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_GPIO_84          0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_SC0_AUX1         1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_TP_OUT_13        2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_PM_GPIO_84       3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_I2S_DATA0_IN     2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_TP_OUT_13        3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_84_PM_GPIO_84       4
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_10 :: gpio_83 [27:24] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_MASK             0x0f000000
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_SHIFT            24
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_GPIO_83          0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_SC0_PRES         1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_TP_OUT_12        2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_PM_GPIO_83       3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_I2S_CLK0_IN      2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_TP_OUT_12        3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_83_PM_GPIO_83       4
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_10 :: gpio_82 [23:20] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_10_gpio_82_MASK             0x00f00000
@@ -2143,8 +2146,10 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_SHIFT            0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_GPIO_85          0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_SC0_AUX2         1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_TP_OUT_14        2
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_PM_GPIO_85       3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_I2S_LR0_IN       2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_TP_OUT_14        3
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_USB0_PWRFLT_2    4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_11_gpio_85_PM_GPIO_85       5
 
 /***************************************************************************
  *PIN_MUX_CTRL_12 - Pinmux control register 12
@@ -2158,7 +2163,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_101_SDS0_DSEC_SELVTOP 3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_101_TP_OUT_17       4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_101_SDS0_RF_AGC     5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_101_PM_GPIO_101     6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_101_ENET_ACTIVITY   6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_101_PM_GPIO_101     7
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_12 :: gpio_100 [27:24] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_12_gpio_100_MASK            0x0f000000
@@ -2333,7 +2339,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_102_SDS0_DSEC_VCTL  3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_102_TP_OUT_18       4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_102_SDS0_IF_AGC     5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_102_PM_GPIO_102     6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_102_ENET_LINK       6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_13_gpio_102_PM_GPIO_102     7
 
 /***************************************************************************
  *PIN_MUX_CTRL_14 - Pinmux control register 14
@@ -4530,9 +4537,9 @@
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_sds0_r_sw_init_MASK        0x00000008
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_sds0_r_sw_init_SHIFT       3
 
-/* SUN_TOP_CTRL :: SW_INIT_1_SET :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_sds0_t_sw_init_MASK        0x00000004
-#define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_sds0_t_sw_init_SHIFT       2
+/* SUN_TOP_CTRL :: SW_INIT_1_SET :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_not_used_sw_init_2_MASK    0x00000004
+#define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_not_used_sw_init_2_SHIFT   2
 
 /* SUN_TOP_CTRL :: SW_INIT_1_SET :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_SET_ftm_sw_init_MASK           0x00000002
@@ -4577,9 +4584,9 @@
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_sds0_r_sw_init_MASK      0x00000008
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_sds0_r_sw_init_SHIFT     3
 
-/* SUN_TOP_CTRL :: SW_INIT_1_CLEAR :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_sds0_t_sw_init_MASK      0x00000004
-#define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_sds0_t_sw_init_SHIFT     2
+/* SUN_TOP_CTRL :: SW_INIT_1_CLEAR :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_not_used_sw_init_2_MASK  0x00000004
+#define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: SW_INIT_1_CLEAR :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_CLEAR_ftm_sw_init_MASK         0x00000002
@@ -4624,9 +4631,9 @@
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_sds0_r_sw_init_MASK     0x00000008
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_sds0_r_sw_init_SHIFT    3
 
-/* SUN_TOP_CTRL :: SW_INIT_1_STATUS :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_sds0_t_sw_init_MASK     0x00000004
-#define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_sds0_t_sw_init_SHIFT    2
+/* SUN_TOP_CTRL :: SW_INIT_1_STATUS :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_not_used_sw_init_2_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: SW_INIT_1_STATUS :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_SW_INIT_1_STATUS_ftm_sw_init_MASK        0x00000002
@@ -4671,9 +4678,9 @@
 #define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_sds0_r_sw_init_MASK 0x00000008
 #define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_sds0_r_sw_init_SHIFT 3
 
-/* SUN_TOP_CTRL :: SEC_SW_INIT_1_MONITOR :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_sds0_t_sw_init_MASK 0x00000004
-#define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_sds0_t_sw_init_SHIFT 2
+/* SUN_TOP_CTRL :: SEC_SW_INIT_1_MONITOR :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_not_used_sw_init_2_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: SEC_SW_INIT_1_MONITOR :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_SEC_SW_INIT_1_MONITOR_ftm_sw_init_MASK   0x00000002
@@ -4718,9 +4725,9 @@
 #define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_sds0_r_sw_init_MASK 0x00000008
 #define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_sds0_r_sw_init_SHIFT 3
 
-/* SUN_TOP_CTRL :: TEST_CONFIG_SW_INIT_1_MONITOR :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_sds0_t_sw_init_MASK 0x00000004
-#define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_sds0_t_sw_init_SHIFT 2
+/* SUN_TOP_CTRL :: TEST_CONFIG_SW_INIT_1_MONITOR :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_not_used_sw_init_2_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: TEST_CONFIG_SW_INIT_1_MONITOR :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_TEST_CONFIG_SW_INIT_1_MONITOR_ftm_sw_init_MASK 0x00000002
@@ -4765,9 +4772,9 @@
 #define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_sds0_r_sw_init_MASK 0x00000008
 #define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_sds0_r_sw_init_SHIFT 3
 
-/* SUN_TOP_CTRL :: FINAL_SW_INIT_1_MONITOR :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_sds0_t_sw_init_MASK 0x00000004
-#define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_sds0_t_sw_init_SHIFT 2
+/* SUN_TOP_CTRL :: FINAL_SW_INIT_1_MONITOR :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_not_used_sw_init_2_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: FINAL_SW_INIT_1_MONITOR :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_FINAL_SW_INIT_1_MONITOR_ftm_sw_init_MASK 0x00000002
@@ -4969,9 +4976,9 @@
 #define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_sds0_r_sw_init_MASK 0x00000008
 #define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_sds0_r_sw_init_SHIFT 3
 
-/* SUN_TOP_CTRL :: ONE_SHOT_0_SW_INIT_1_MASK :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_sds0_t_sw_init_MASK 0x00000004
-#define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_sds0_t_sw_init_SHIFT 2
+/* SUN_TOP_CTRL :: ONE_SHOT_0_SW_INIT_1_MASK :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_not_used_sw_init_2_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: ONE_SHOT_0_SW_INIT_1_MASK :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_ONE_SHOT_0_SW_INIT_1_MASK_ftm_sw_init_MASK 0x00000002
@@ -5158,9 +5165,9 @@
 #define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_sds0_r_sw_init_MASK 0x00000008
 #define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_sds0_r_sw_init_SHIFT 3
 
-/* SUN_TOP_CTRL :: ONE_SHOT_1_SW_INIT_1_MASK :: sds0_t_sw_init [02:02] */
-#define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_sds0_t_sw_init_MASK 0x00000004
-#define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_sds0_t_sw_init_SHIFT 2
+/* SUN_TOP_CTRL :: ONE_SHOT_1_SW_INIT_1_MASK :: not_used_sw_init_2 [02:02] */
+#define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_not_used_sw_init_2_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_not_used_sw_init_2_SHIFT 2
 
 /* SUN_TOP_CTRL :: ONE_SHOT_1_SW_INIT_1_MASK :: ftm_sw_init [01:01] */
 #define BCHP_SUN_TOP_CTRL_ONE_SHOT_1_SW_INIT_1_MASK_ftm_sw_init_MASK 0x00000002

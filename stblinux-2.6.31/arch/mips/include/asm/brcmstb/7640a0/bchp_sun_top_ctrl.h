@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Wed Nov 17 15:56:11 2010
- *                 MD5 Checksum         950f07204aa821c815460a8fcce8d70a
+ * Date:           Generated on         Tue Jan 25 18:59:44 2011
+ *                 MD5 Checksum         aa1465f56b54160dfaa76fc4a4b1f9b9
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,11 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7640/rdb/a0/bchp_sun_top_ctrl.h $
  * 
- * Hydra_Software_Devel/2   11/18/10 11:51a etrudeau
- * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
- * 
- * Hydra_Software_Devel/2   11/18/10 11:48a etrudeau
- * SWBLURAY-23514: update Hydra with Blast A0 tapeout RDB changes
+ * Hydra_Software_Devel/3   1/25/11 8:08p etrudeau
+ * SWBLURAY-23692: add AON IRQO_ENA interrupt register
  *
  ***************************************************************************/
 
@@ -4187,9 +4184,19 @@
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_reserved0_MASK         0xffffffc0
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_reserved0_SHIFT        6
 
-/* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_sub_block_select [05:03] */
-#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_MASK 0x00000038
+/* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_pwenb [05:05] */
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_MASK     0x00000020
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_SHIFT    5
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_ENABLED  0
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_pwenb_DISABLED 1
+
+/* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_sub_block_select [04:03] */
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_MASK 0x00000018
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_SHIFT 3
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_HVT_MIN_LOAD 0
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_HVT_MED_LOAD 1
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_HVT_MAX_LOAD 2
+#define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_sub_block_select_SVT_MIN_LOAD 3
 
 /* SUN_TOP_CTRL :: RO_TEST_BLOCK_SEL :: ro_test_block_select [02:00] */
 #define BCHP_SUN_TOP_CTRL_RO_TEST_BLOCK_SEL_ro_test_block_select_MASK 0x00000007

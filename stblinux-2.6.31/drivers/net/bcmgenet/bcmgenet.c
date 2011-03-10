@@ -209,7 +209,7 @@ int bcmemac_xmit_check(struct net_device *dev)
 	spin_lock_irqsave(&pDevCtrl->lock, flags);
 	/* Compute how many buffers are transmited since last xmit call */
 	c_index = pDevCtrl->txDma->tDmaRings[16].tdma_consumer_index;
-	c_index &= TOTAL_DESC;
+	c_index &= (TOTAL_DESC - 1);
 
 	if (c_index >= pDevCtrl->txLastCIndex)
 		lastTxedCnt = c_index - pDevCtrl->txLastCIndex;
@@ -436,12 +436,10 @@ static void bcmgenet_gphy_link_status(struct work_struct *work)
 		mii_setup(pDevCtrl->dev);
 		pDevCtrl->dev->flags |= IFF_RUNNING;
 		netif_carrier_on(pDevCtrl->dev);
-		rtmsg_ifinfo(RTM_NEWLINK, pDevCtrl->dev, IFF_RUNNING);
 	} else if (!link && netif_carrier_ok(pDevCtrl->dev)) {
 		printk(KERN_INFO "%s: Link is down\n", pDevCtrl->dev->name);
 		netif_carrier_off(pDevCtrl->dev);
 		pDevCtrl->dev->flags &= ~IFF_RUNNING;
-		rtmsg_ifinfo(RTM_DELLINK, pDevCtrl->dev, IFF_RUNNING);
 	}
 }
 /* --------------------------------------------------------------------------
@@ -1514,7 +1512,6 @@ static void bcmgenet_irq_task(struct work_struct *work)
 		if (!netif_carrier_ok(pDevCtrl->dev)) {
 			pDevCtrl->dev->flags |= IFF_RUNNING;
 			netif_carrier_on(pDevCtrl->dev);
-			rtmsg_ifinfo(RTM_NEWLINK, pDevCtrl->dev, IFF_RUNNING);
 		}
 
 	} else if (pDevCtrl->irq0_stat & UMAC_IRQ_LINK_DOWN) {
@@ -1526,7 +1523,6 @@ static void bcmgenet_irq_task(struct work_struct *work)
 		if (netif_carrier_ok(pDevCtrl->dev)) {
 			netif_carrier_off(pDevCtrl->dev);
 			pDevCtrl->dev->flags &= ~IFF_RUNNING;
-			rtmsg_ifinfo(RTM_DELLINK, pDevCtrl->dev, IFF_RUNNING);
 		}
 	}
 }
@@ -1621,12 +1617,15 @@ static unsigned int bcmgenet_ring_rx(void *ptr, unsigned int budget)
 			cbi = (read_ptr - rDma_ring->rdma_start_addr) >>
 				(RX_BUF_BITS - 1);
 			cb = pDevCtrl->rxRingCbs[i] + cbi;
-			dma_cache_inv((unsigned long)(cb->BdAddr), 64);
+			dma_sync_single(&pDevCtrl->dev->dev, cb->dma_addr, 64, 
+					DMA_FROM_DEVICE);
+
 			status = (struct status_64 *)cb->BdAddr;
 			dmaFlag = status->length_status & 0xffff;
 			len = status->length_status >> 16;
 
-			dma_cache_inv((unsigned long)(cb->BdAddr) + 64, len);
+			dma_sync_single(&pDevCtrl->dev->dev, cb->dma_addr + 64,
+					len, DMA_FROM_DEVICE);
 
 			/*
 			 * Advancing our read pointer.
@@ -2235,12 +2234,6 @@ int bcmgenet_init_ringbuf(struct net_device *dev, int direction,
 		pDevCtrl->rxRingCIndex[id] = 0;
 		pDevCtrl->rxRingDiscCnt[id] = 0;
 
-		for (i = 0; i < size; i++) {
-			cb->skb = NULL;
-			cb->BdAddr = (struct DmaDesc *)(*buf + i*buf_len);
-			cb++;
-		}
-
 		dma_enable = pDevCtrl->rxDma->rdma_ctrl & DMA_EN;
 		pDevCtrl->rxDma->rdma_ctrl &= ~DMA_EN;
 		rDmaRing->rdma_producer_index = 0;
@@ -2249,6 +2242,14 @@ int bcmgenet_init_ringbuf(struct net_device *dev, int direction,
 				buf_len);
 		dma_start = dma_map_single(&dev->dev, *buf, buf_len * size,
 				DMA_BIDIRECTIONAL);
+
+		for (i = 0; i < size; i++) {
+			cb->skb = NULL;
+			cb->BdAddr = (struct DmaDesc *)(*buf + i*buf_len);
+			cb->dma_addr = dma_start + i*buf_len;
+			cb++;
+		}
+		
 		rDmaRing->rdma_start_addr = dma_start;
 		rDmaRing->rdma_end_addr = dma_start + size * buf_len - 1;
 		rDmaRing->rdma_xon_xoff_threshold = (DMA_FC_THRESH_LO <<
@@ -2472,10 +2473,7 @@ static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl)
 	void *ptxCbs, *prxCbs;
 	volatile struct DmaDesc *lastBd;
 
-	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
-		pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "moca");
-	else
-		pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "enet");
+	pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "enet");
 	clk_enable(pDevCtrl->clk);
 
 	TRACE(("%s\n", __func__));
@@ -2877,12 +2875,10 @@ static int bcmgenet_set_settings(struct net_device *dev,
 		if ((cmd->autoneg == 0) && (netif_carrier_ok(pDevCtrl->dev))) {
 			pDevCtrl->dev->flags &= ~IFF_RUNNING;
 			netif_carrier_off(pDevCtrl->dev);
-			rtmsg_ifinfo(RTM_DELLINK, pDevCtrl->dev, IFF_RUNNING);
 		}
 		if ((cmd->autoneg != 0) && (!netif_carrier_ok(pDevCtrl->dev))) {
 			pDevCtrl->dev->flags |= IFF_RUNNING;
 			netif_carrier_on(pDevCtrl->dev);
-			rtmsg_ifinfo(RTM_NEWLINK, pDevCtrl->dev, IFF_RUNNING);
 		}
 	} else {
 		err = mii_ethtool_sset(&pDevCtrl->mii, cmd);

@@ -37,12 +37,72 @@
 #define DBG(...) /* */
 #endif
 
+#if CONFIG_BRCM_BSPI_MAJOR_VERS >= 4
+#define BSPI_HAS_4BYTE_ADDRESS
+#define BSPI_HAS_FLEX_MODE
+#endif
+
+#define BSPI_LR_TIMEOUT			(1000)
+
+#define BSPI_LR_INTERRUPTS_DATA \
+	(BCHP_HIF_SPI_INTR2_CPU_SET_SPI_LR_SESSION_DONE_MASK	| \
+	 BCHP_HIF_SPI_INTR2_CPU_SET_SPI_LR_FULLNESS_REACHED_MASK)
+
+#define BSPI_LR_INTERRUPTS_ERROR \
+	(BCHP_HIF_SPI_INTR2_CPU_SET_SPI_LR_OVERREAD_MASK	| \
+	 BCHP_HIF_SPI_INTR2_CPU_SET_SPI_LR_IMPATIENT_MASK	| \
+	 BCHP_HIF_SPI_INTR2_CPU_SET_SPI_LR_SESSION_ABORTED_MASK)
+
+#define BSPI_LR_INTERRUPTS_ALL \
+	(BSPI_LR_INTERRUPTS_ERROR | \
+	 BSPI_LR_INTERRUPTS_DATA)
+
 #define NUM_CHIPSELECT		4
 #define MSPI_BASE_FREQ		27000000UL
 #define SPBR_MIN		8U
 #define SPBR_MAX		255U
 #define MAX_SPEED_HZ		(MSPI_BASE_FREQ / (SPBR_MIN * 2))
 #define BSPI_BASE_ADDR		KSEG1ADDR(0x1f000000)
+
+#define OPCODE_RDID		0x9f
+#define OPCODE_WREN		0x06
+#define OPCODE_WRR		0x01
+#define OPCODE_RCR		0x35
+#define OPCODE_READ		0x03
+#define OPCODE_RDSR		0x05
+#define OPCODE_WRSR		0x01
+#define OPCODE_FAST_READ	0x0B
+#define OPCODE_DOR		0x3B
+#define OPCODE_QOR		0x6B
+#define OPCODE_FAST_READ_4B	0x0C
+#define OPCODE_DOR_4B		0x3C
+#define OPCODE_QOR_4B		0x6C
+
+#define OPCODE_DIOR		0xBB
+#define OPCODE_QIOR		0xEB
+#define OPCODE_DIOR_4B		0xBC
+#define OPCODE_QIOR_4B		0xEC
+
+#define OPCODE_EN4B		0xB7
+#define OPCODE_EX4B		0xE9
+
+#define	BSPI_WIDTH_1BIT		1
+#define BSPI_WIDTH_2BIT		2
+#define BSPI_WIDTH_4BIT		4
+
+#define	BSPI_ADDRLEN_3BYTES	3
+#define	BSPI_ADDRLEN_4BYTES	4
+
+#define BSPI_FLASH_TYPE_SPANSION	0
+#define BSPI_FLASH_TYPE_MACRONIX	1
+#define BSPI_FLASH_TYPE_NUMONYX		2
+#define BSPI_FLASH_TYPE_SST		3
+#define BSPI_FLASH_TYPE_UNKNOWN		-1
+
+static int bspi_width  = BSPI_WIDTH_1BIT;
+static int bspi_addrlen  = BSPI_ADDRLEN_3BYTES;
+static int bspi_hp;
+static int bspi_flash = BSPI_FLASH_TYPE_UNKNOWN;
 
 struct bcmspi_parms {
 	u32			speed_hz;
@@ -105,6 +165,36 @@ struct bcm_bspi_hw {
 	u32			b1_status;		/* 0x01c */
 	u32			b1_ctrl;		/* 0x020 */
 	u32			strap_override_ctrl;	/* 0x024 */
+#if CONFIG_BRCM_BSPI_MAJOR_VERS >= 4
+	u32			flex_mode_enable;	/* 0x028 */
+	u32			bits_per_cycle;		/* 0x02C */
+	u32			bits_per_phase;		/* 0x030 */
+	u32			cmd_and_mode_byte;	/* 0x034 */
+	u32			flash_upper_addr_byte;	/* 0x038 */
+	u32			xor_value;		/* 0x03C */
+	u32			xor_enable;		/* 0x040 */
+	u32			pio_mode_enable;	/* 0x044 */
+	u32			pio_iodir;		/* 0x048 */
+	u32			pio_data;		/* 0x04C */
+#endif
+};
+
+struct bcm_bspi_raf {
+	u32			start_address;		/* 0x00 */
+	u32			num_words;		/* 0x04 */
+	u32			ctrl;			/* 0x08 */
+	u32			fullness;		/* 0x0C */
+	u32			watermark;		/* 0x10 */
+	u32			status;			/* 0x14 */
+	u32			read_data;		/* 0x18 */
+	u32			word_cnt;		/* 0x1C */
+	u32			curr_addr;		/* 0x20 */
+};
+
+struct bcm_flex_mode {
+	int			width;
+	int			addrlen;
+	int			hp;
 };
 
 #define STATE_IDLE		0
@@ -124,13 +214,262 @@ struct bcmspi_priv {
 	int			cs_change;
 	unsigned int		max_speed_hz;
 	volatile struct bcm_mspi_hw *mspi_hw;
-	volatile struct bcm_bspi_hw *bspi_hw;
 	int			irq;
 	struct tasklet_struct	tasklet;
 	wait_queue_head_t	idle_wait;
+	int			curr_cs;
+
+	/* BSPI */
+	volatile struct bcm_bspi_hw *bspi_hw;
 	int			bspi_enabled;
+	/* all chip selects controlled by BSPI */
 	int			bspi_chip_select;
+
+	/* LR */
+	volatile struct bcm_bspi_raf *bspi_hw_raf;
+	struct completion	completion;
+	struct spi_transfer	*cur_xfer;
+	u32			cur_xfer_idx;
+	u32			cur_xfer_len;
+	u32			xfer_status;
+
+	/* current flex mode settings */
+	struct bcm_flex_mode	flex_mode;
 };
+
+static void bcmspi_enable_interrupt(u32 mask)
+{
+	BDEV_SET_RB(BCHP_HIF_SPI_INTR2_CPU_MASK_CLEAR, mask);
+}
+
+static void bcmspi_disable_interrupt(u32 mask)
+{
+	BDEV_SET_RB(BCHP_HIF_SPI_INTR2_CPU_MASK_SET, mask);
+}
+
+static void bcmspi_clear_interrupt(u32 mask)
+{
+	BDEV_SET_RB(BCHP_HIF_SPI_INTR2_CPU_CLEAR, mask);
+}
+
+static u32 bcmspi_read_interrupt(void)
+{
+	return BDEV_RD(BCHP_HIF_SPI_INTR2_CPU_STATUS);
+}
+
+static void bcmspi_flush_prefetch_buffers(struct bcmspi_priv *priv)
+{
+	priv->bspi_hw->b0_ctrl = 1;
+	priv->bspi_hw->b1_ctrl = 1;
+}
+
+static int bcmspi_lr_is_fifo_empty(struct bcmspi_priv *priv)
+{
+	return priv->bspi_hw_raf->status & BCHP_BSPI_RAF_STATUS_FIFO_EMPTY_MASK;
+}
+
+static u32 bcmspi_lr_read_fifo(struct bcmspi_priv *priv)
+{
+	return priv->bspi_hw_raf->read_data;
+}
+
+static void bcmspi_lr_start(struct bcmspi_priv *priv)
+{
+	priv->bspi_hw_raf->ctrl = BCHP_BSPI_RAF_CTRL_START_MASK;
+}
+
+static void bcmspi_lr_clear(struct bcmspi_priv *priv)
+{
+	priv->bspi_hw_raf->ctrl = BCHP_BSPI_RAF_CTRL_CLEAR_MASK;
+	bcmspi_flush_prefetch_buffers(priv);
+}
+
+static int bcmspi_is_4_byte_mode(struct bcmspi_priv *priv)
+{
+	return priv->flex_mode.addrlen == BSPI_ADDRLEN_4BYTES;
+}
+
+#ifdef BSPI_HAS_FLEX_MODE
+static int bcmbspi_flash_type(struct bcmspi_priv *priv);
+
+static int bcmspi_set_flex_mode(struct bcmspi_priv *priv,
+	int width, int addrlen, int hp)
+{
+	int bpc = 0, bpp = 0, command;
+	int flex_mode = 1, error = 0;
+
+	switch (width) {
+	case BSPI_WIDTH_1BIT:
+		bpp = 8; /* dummy cycles */
+		command = OPCODE_FAST_READ;
+		if (addrlen == BSPI_ADDRLEN_3BYTES) {
+			/* default mode, does not need flex_cmd */
+			flex_mode = 0;
+		} else {
+			bpp |= BCHP_BSPI_BITS_PER_PHASE_addr_bpp_select_MASK;
+			if (bcmbspi_flash_type(priv) ==
+				BSPI_FLASH_TYPE_SPANSION)
+				command = OPCODE_FAST_READ_4B;
+		}
+		break;
+	case BSPI_WIDTH_2BIT:
+		bpc = 0x00000001; /* only data is 2-bit */
+		if (hp) {
+			bpc |= 0x00010100; /* address and mode are 2-bit too */
+			bpp |= BCHP_BSPI_BITS_PER_PHASE_mode_bpp_MASK;
+			command = OPCODE_DIOR;
+			if (addrlen == BSPI_ADDRLEN_4BYTES) {
+				bpp |=
+				 BCHP_BSPI_BITS_PER_PHASE_addr_bpp_select_MASK;
+				if (bcmbspi_flash_type(priv) ==
+					BSPI_FLASH_TYPE_SPANSION)
+					command = OPCODE_DIOR_4B;
+			}
+		} else {
+			bpp = 8; /* dummy cycles */
+			command = OPCODE_DOR;
+			if (addrlen == BSPI_ADDRLEN_4BYTES) {
+				bpp |=
+				 BCHP_BSPI_BITS_PER_PHASE_addr_bpp_select_MASK;
+				if (bcmbspi_flash_type(priv) ==
+					BSPI_FLASH_TYPE_SPANSION)
+					command = OPCODE_DOR_4B;
+			}
+		}
+		break;
+	case BSPI_WIDTH_4BIT:
+		bpc = 0x00000002; /* only data is 4-bit */
+		if (hp) {
+			bpc |= 0x00020200; /* address and mode are 4-bit too */
+			bpp = 4; /* dummy cycles */
+			bpp |= BCHP_BSPI_BITS_PER_PHASE_mode_bpp_MASK;
+			command = OPCODE_QIOR;
+			if (addrlen == BSPI_ADDRLEN_4BYTES) {
+				bpp |=
+				 BCHP_BSPI_BITS_PER_PHASE_addr_bpp_select_MASK;
+				if (bcmbspi_flash_type(priv) ==
+					BSPI_FLASH_TYPE_SPANSION)
+					command = OPCODE_QIOR_4B;
+			}
+		} else {
+			bpp = 8; /* dummy cycles */
+			command = OPCODE_QOR;
+			if (addrlen == BSPI_ADDRLEN_4BYTES) {
+				bpp |=
+				 BCHP_BSPI_BITS_PER_PHASE_addr_bpp_select_MASK;
+				if (bcmbspi_flash_type(priv) ==
+					BSPI_FLASH_TYPE_SPANSION)
+					command = OPCODE_QOR_4B;
+			}
+		}
+		break;
+	default:
+		error = 1;
+		break;
+	}
+
+	if (!error) {
+		priv->bspi_hw->flex_mode_enable = 0;
+		priv->bspi_hw->bits_per_cycle = bpc;
+		priv->bspi_hw->bits_per_phase = bpp;
+		priv->bspi_hw->cmd_and_mode_byte = command;
+		priv->bspi_hw->flex_mode_enable = flex_mode ?
+			BCHP_BSPI_FLEX_MODE_ENABLE_bspi_flex_mode_enable_MASK
+			: 0;
+		DBG("%s: width=%d addrlen=%d hp=%d\n",
+			__func__, width, addrlen, hp);
+		DBG("%s: fme=%08x bpc=%08x bpp=%08x cmd=%08x\n", __func__,
+			priv->bspi_hw->flex_mode_enable,
+			priv->bspi_hw->bits_per_cycle,
+			priv->bspi_hw->bits_per_phase,
+			priv->bspi_hw->cmd_and_mode_byte);
+	}
+
+	return error;
+}
+#else
+static int bcmspi_set_flex_mode(struct bcmspi_priv *priv,
+	int width, int addrlen, int hp)
+{
+	u32 strap_override = priv->bspi_hw->strap_override_ctrl;
+
+	switch (width) {
+	case BSPI_WIDTH_4BIT:
+		strap_override &= ~0x2; /* clear dual mode */
+		strap_override |= 0x9; /* set quad mode + override */
+		break;
+	case BSPI_WIDTH_2BIT:
+		strap_override &= ~0x8; /* clear quad mode */
+		strap_override |= 0x3; /* set dual mode + override */
+		break;
+	case BSPI_WIDTH_1BIT:
+		strap_override &= ~0xA; /* clear quad/dual mode */
+		strap_override |= 1; /* set override */
+		break;
+	default:
+		break;
+	}
+
+	if (addrlen == BSPI_ADDRLEN_4BYTES) {
+		strap_override |= 0x5; /* set 4byte + override */
+	} else {
+		strap_override &= ~0x4; /* clear 4 byte */
+		strap_override |= 0x1; /* set override */
+	}
+
+	priv->bspi_hw->strap_override_ctrl = strap_override;
+
+	return 0;
+}
+#endif
+
+static void bcmspi_set_mode(struct bcmspi_priv *priv,
+	int width, int addrlen, int hp)
+{
+	int error = 0;
+
+	if (width == -1)
+		width = priv->flex_mode.width;
+	if (addrlen == -1)
+		addrlen = priv->flex_mode.addrlen;
+	if (hp == -1)
+		hp = priv->flex_mode.hp;
+
+	error = bcmspi_set_flex_mode(priv, width, addrlen, hp);
+
+	if (!error) {
+		priv->flex_mode.width = width;
+		priv->flex_mode.addrlen = addrlen;
+		priv->flex_mode.hp = hp;
+		dev_info(&priv->pdev->dev,
+			"%d-lane output, %d-byte address%s\n",
+			priv->flex_mode.width,
+			priv->flex_mode.addrlen,
+			priv->flex_mode.hp ? ", high-performance mode" : "");
+	} else
+		dev_warn(&priv->pdev->dev,
+			"INVALID COMBINATION: width=%d addrlen=%d hp=%d\n",
+			width, addrlen, hp);
+}
+
+static void bcmspi_set_chip_select(struct bcmspi_priv *priv, int cs)
+{
+	if (priv->curr_cs != cs) {
+		DBG("Switching CS%1d => CS%1d\n",
+			priv->curr_cs, cs);
+		BDEV_WR_RB(BCHP_EBI_CS_SPI_SELECT,
+			(BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & ~0xff) |
+			(1 << cs));
+		udelay(10);
+	}
+	priv->curr_cs = cs;
+
+}
+
+static inline int is_bspi_chip_select(struct bcmspi_priv *priv, u8 cs)
+{
+	return priv->bspi_chip_select & (1 << cs);
+}
 
 static void bcmspi_disable_bspi(struct bcmspi_priv *priv)
 {
@@ -138,8 +477,10 @@ static void bcmspi_disable_bspi(struct bcmspi_priv *priv)
 
 	if (!priv->bspi_hw || !priv->bspi_enabled)
 		return;
-	if ((priv->bspi_hw->mast_n_boot_ctrl & 1) == 1)
+	if ((priv->bspi_hw->mast_n_boot_ctrl & 1) == 1) {
+		priv->bspi_enabled = 0;
 		return;
+	}
 
 	DBG("disabling bspi\n");
 	for (i = 0; i < 1000; i++) {
@@ -158,13 +499,13 @@ static void bcmspi_enable_bspi(struct bcmspi_priv *priv)
 {
 	if (!priv->bspi_hw || priv->bspi_enabled)
 		return;
-	if ((priv->bspi_hw->mast_n_boot_ctrl & 1) == 0)
+	if ((priv->bspi_hw->mast_n_boot_ctrl & 1) == 0) {
+		priv->bspi_enabled = 1;
 		return;
+	}
 
 	DBG("enabling bspi\n");
-	/* flush prefetch buffers */
-	priv->bspi_hw->b0_ctrl = 1;
-	priv->bspi_hw->b1_ctrl = 1;
+	bcmspi_flush_prefetch_buffers(priv);
 	udelay(1);
 	priv->bspi_hw->mast_n_boot_ctrl = 0;
 	priv->bspi_enabled = 1;
@@ -432,9 +773,7 @@ static void write_to_hw(struct bcmspi_priv *priv)
 			priv->mspi_hw->cdram[slot - 1] &= ~0x80;
 
 		/* tell HIF_MSPI which CS to use */
-		BDEV_WR_RB(BCHP_EBI_CS_SPI_SELECT,
-			(BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & ~0xff) |
-			(1 << msg->spi->chip_select));
+		bcmspi_set_chip_select(priv, msg->spi->chip_select);
 
 #if defined(CONFIG_BCM7422A0) || defined(CONFIG_BCM7425A0) || \
 	defined(CONFIG_BCM7344A0) || defined(CONFIG_BCM7346A0) || \
@@ -459,13 +798,23 @@ static void write_to_hw(struct bcmspi_priv *priv)
 	}
 }
 
+#define DWORD_ALIGNED(a) (!(((unsigned long)(a)) & 3))
+#define ADDR_TO_4MBYTE_SEGMENT(addr)	(((u32)(addr)) >> 22)
+
 static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 	struct spi_message *msg)
 {
 	struct spi_transfer *trans;
-	u32 addr, len;
+	u32 addr, len, len_in_dwords;
 	u8 *buf, *src;
 	unsigned long flags;
+	int retval, idx;
+
+#ifndef BSPI_HAS_4BYTE_ADDRESS
+	/* 4-byte address mode is not supported through BSPI */
+	if (bcmspi_is_4_byte_mode(priv))
+		return -1;
+#endif
 
 	/* acquire lock when the MSPI is idle */
 	while (1) {
@@ -479,18 +828,27 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 		spin_unlock_irqrestore(&priv->lock, flags);
 		sleep_on(&priv->idle_wait);
 	}
-	bcmspi_enable_bspi(priv);
+	bcmspi_set_chip_select(priv, msg->spi->chip_select);
 
 	/* first transfer - OPCODE_READ + 3-byte address */
 	trans = list_entry(msg->transfers.next, struct spi_transfer,
 		transfer_list);
 	buf = (void *)trans->tx_buf;
-	addr = (buf[1] << 16) | (buf[2] << 8) | buf[3];
+
+	idx = 1;
+
+#ifdef BSPI_HAS_4BYTE_ADDRESS
+	if (bcmspi_is_4_byte_mode(priv))
+		priv->bspi_hw->flash_upper_addr_byte = buf[idx++] << 24;
+	else
+		priv->bspi_hw->flash_upper_addr_byte = 0;
+#endif
 
 	/*
-	 * addr coming into this function was remapped by the m25p80 driver
-	 * we need to revert it back to the BSPI address
+	 * addr coming into this function is a raw flash offset
+	 * we need to convert it to the BSPI address
 	 */
+	addr = (buf[idx] << 16) | (buf[idx+1] << 8) | buf[idx+2];
 	addr = (addr + 0xc00000) & 0xffffff;
 
 	/* second transfer - read result into buffer */
@@ -498,29 +856,66 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 		transfer_list);
 
 	buf = (void *)trans->rx_buf;
+
+	if (unlikely(!DWORD_ALIGNED(addr) ||
+		     !DWORD_ALIGNED(buf) ||
+		     !priv->bspi_hw_raf)) {
+		spin_unlock_irqrestore(&priv->lock, flags);
+		return -1;
+	}
+
 	len = trans->len;
 	src = (u8 *)BSPI_BASE_ADDR + addr;
 
-	DBG("emulate_read: dst %p src %p len %x addr %x\n",
-		buf, src, len, addr);
+	bcmspi_enable_bspi(priv);
 
-	if (!((((unsigned long)buf) & 3) || (addr & 3))) {
-		/* copy aligned words */
-		while (len >= 4) {
-			*((u32 *)buf) = *((u32 *)src);
-			buf += 4;
-			src += 4;
-			len -= 4;
-		}
-	}
-	/* copy bytes */
-	while (len > 0) {
-		*(buf++) = *(src++);
-		len--;
-	}
+	DBG("%s: dst %p src %p len %x addr BSPI %06x\n",
+		__func__, buf, src, len, addr);
 
-	msg->actual_length = 4 + trans->len;
+	/* We assume address will never cross 4Mbyte boundary
+	 * within one transfer. If it does
+	 * read might be incorrect */
+	BUG_ON(ADDR_TO_4MBYTE_SEGMENT(addr) ^
+		ADDR_TO_4MBYTE_SEGMENT(addr+len-1));
+
+	len_in_dwords = (len + 3) >> 2;
+	/* initialize software parameters */
+	priv->xfer_status = 0;
+	priv->cur_xfer = trans;
+	priv->cur_xfer_idx = 0;
+	priv->cur_xfer_len = len;
+	/* setup hardware */
+	/* address must be 4-byte aligned */
+	priv->bspi_hw_raf->start_address = addr;
+	priv->bspi_hw_raf->num_words = len_in_dwords;
+	priv->bspi_hw_raf->watermark = 0;
+	DBG("READ: %08x %08x (%08x)\n",
+		addr, len_in_dwords, trans->len);
+	init_completion(&priv->completion);
+	bcmspi_clear_interrupt(0xffffffff);
+	bcmspi_enable_interrupt(BSPI_LR_INTERRUPTS_ALL);
+	bcmspi_lr_start(priv);
+
+	spin_unlock_irqrestore(&priv->lock, flags);
+	retval = wait_for_completion_timeout(&priv->completion,
+			BSPI_LR_TIMEOUT);
+	spin_lock_irqsave(&priv->lock, flags);
+
+	if (!retval)
+		priv->xfer_status = -EIO;
+	priv->cur_xfer = NULL;
+	bcmspi_disable_interrupt(BSPI_LR_INTERRUPTS_ALL);
+
+	if (priv->xfer_status) {
+		bcmspi_lr_clear(priv);
+		spin_unlock_irqrestore(&priv->lock, flags);
+		return -EIO;
+	}
+	bcmspi_flush_prefetch_buffers(priv);
+
+	msg->actual_length = idx + 4 + trans->len;
 	msg->complete(msg->context);
+	msg->status = 0;
 
 	spin_unlock_irqrestore(&priv->lock, flags);
 
@@ -551,34 +946,45 @@ static int bcmspi_emulate_flash_rdsr(struct bcmspi_priv *priv,
 
 	msg->actual_length = 2;
 	msg->complete(msg->context);
+	msg->status = 0;
 
 	return 0;
 }
-
-#define OPCODE_READ		0x03
-#define OPCODE_RDSR		0x05
 
 static int bcmspi_transfer(struct spi_device *spi, struct spi_message *msg)
 {
 	struct bcmspi_priv *priv = spi_master_get_devdata(spi->master);
 	unsigned long flags;
 
-	DBG("%s\n", __func__);
-
-	if (msg->spi->chip_select == priv->bspi_chip_select) {
+	if (is_bspi_chip_select(priv, msg->spi->chip_select)) {
 		struct spi_transfer *trans;
 
 		trans = list_entry(msg->transfers.next,
 			struct spi_transfer, transfer_list);
-		if (trans && trans->len && trans->tx_buf &&
-		   (((u8 *)trans->tx_buf)[0] == OPCODE_READ)) {
-			if (bcmspi_emulate_flash_read(priv, msg) == 0)
-				return 0;
-		}
-		if (trans && trans->len && trans->tx_buf &&
-		   (((u8 *)trans->tx_buf)[0] == OPCODE_RDSR)) {
-			if (bcmspi_emulate_flash_rdsr(priv, msg) == 0)
-				return 0;
+		if (trans && trans->len && trans->tx_buf) {
+			u8 command = ((u8 *)trans->tx_buf)[0];
+			switch (command) {
+			case OPCODE_FAST_READ:
+				if (bcmspi_emulate_flash_read(priv, msg) == 0)
+					return 0;
+				break;
+			case OPCODE_RDSR:
+				if (bcmspi_emulate_flash_rdsr(priv, msg) == 0)
+					return 0;
+				break;
+			case OPCODE_EN4B:
+				DBG("ENABLE 4-BYTE MODE\n");
+				bcmspi_set_mode(priv, -1,
+					BSPI_ADDRLEN_4BYTES, -1);
+				break;
+			case OPCODE_EX4B:
+				DBG("DISABLE 4-BYTE MODE\n");
+				bcmspi_set_mode(priv, -1,
+					BSPI_ADDRLEN_3BYTES, -1);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -620,18 +1026,49 @@ static irqreturn_t bcmspi_interrupt(int irq, void *dev_id)
 {
 	struct bcmspi_priv *priv = dev_id;
 
-	DBG("%s\n", __func__);
+	if (priv->bspi_enabled && priv->cur_xfer) {
+		int done = 0;
+		u32 status = bcmspi_read_interrupt();
+		u32 *buf = (u32 *)priv->cur_xfer->rx_buf;
+		if (status & BSPI_LR_INTERRUPTS_DATA) {
+			while (!bcmspi_lr_is_fifo_empty(priv)) {
+				u32 data = bcmspi_lr_read_fifo(priv);
+				if (likely(priv->cur_xfer_len >= 4)) {
+					buf[priv->cur_xfer_idx++] = data;
+					priv->cur_xfer_len -= 4;
+				} else {
+					/* read out remaining bytes */
+					u8 *cbuf =
+						(u8 *)&buf[priv->cur_xfer_idx];
+					while (priv->cur_xfer_len) {
+						*cbuf++ = (u8)data;
+						data >>= 8;
+						priv->cur_xfer_len--;
+					}
+				}
+			}
+		}
+		if (status & BSPI_LR_INTERRUPTS_ERROR) {
+			dev_err(&priv->pdev->dev, "ERROR %02x\n", status);
+			priv->xfer_status = -EIO;
+		} else if (!priv->cur_xfer_len)
+			done = 1;
+		if (done)
+			complete(&priv->completion);
+		bcmspi_clear_interrupt(status);
+		return IRQ_HANDLED;
+	}
 
 	if (priv->mspi_hw->mspi_status & 1) {
 		/* clear interrupt */
 		priv->mspi_hw->mspi_status &= ~1;
-		BDEV_WR_F_RB(HIF_SPI_INTR2_CPU_CLEAR, MSPI_DONE, 1);
+		bcmspi_clear_interrupt(
+			BCHP_HIF_SPI_INTR2_CPU_SET_MSPI_DONE_MASK);
 
 		tasklet_schedule(&priv->tasklet);
 		return IRQ_HANDLED;
-	} else {
+	} else
 		return IRQ_NONE;
-	}
 }
 
 static void bcmspi_tasklet(unsigned long param)
@@ -640,8 +1077,6 @@ static void bcmspi_tasklet(unsigned long param)
 	struct list_head completed;
 	struct spi_message *msg;
 	unsigned long flags;
-
-	DBG("%s\n", __func__);
 
 	INIT_LIST_HEAD(&completed);
 	spin_lock_irqsave(&priv->lock, flags);
@@ -738,9 +1173,121 @@ static void bcmspi_hw_uninit(struct bcmspi_priv *priv)
 	bcmspi_enable_bspi(priv);
 }
 
+static int bcmbspi_flash_type(struct bcmspi_priv *priv)
+{
+	char tx_buf[4];
+	unsigned char jedec_id[5] = {0};
+
+	/* command line override */
+	if (bspi_flash != BSPI_FLASH_TYPE_UNKNOWN)
+		return bspi_flash;
+
+	/* Read ID */
+	tx_buf[0] = OPCODE_RDID;
+	bcmspi_simple_transaction(&priv->last_parms, tx_buf, 1, &jedec_id, 5);
+
+	switch (jedec_id[0]) {
+	case 0x01: /* Spansion */
+	case 0xef:
+		bspi_flash = BSPI_FLASH_TYPE_SPANSION;
+		break;
+	case 0xc2: /* Macronix */
+		bspi_flash = BSPI_FLASH_TYPE_MACRONIX;
+		break;
+	case 0xbf: /* SST */
+		bspi_flash = BSPI_FLASH_TYPE_SST;
+		break;
+	case 0x89: /* Numonyx */
+		bspi_flash = BSPI_FLASH_TYPE_NUMONYX;
+		break;
+	default:
+		bspi_flash = BSPI_FLASH_TYPE_UNKNOWN;
+		break;
+	}
+	return bspi_flash;
+}
+
+static int bcmspi_set_quad_mode(struct bcmspi_priv *priv, int _enable)
+{
+	char tx_buf[4];
+	unsigned char cfg_reg, sts_reg;
+
+	switch (bcmbspi_flash_type(priv)) {
+	case BSPI_FLASH_TYPE_SPANSION:
+		/* RCR */
+		tx_buf[0] = OPCODE_RCR;
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 1, &cfg_reg, 1);
+		if (_enable)
+			cfg_reg |= 0x2;
+		else
+			cfg_reg &= ~0x2;
+		/* WREN */
+		tx_buf[0] = OPCODE_WREN;
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 1, NULL, 0);
+		/* WRR */
+		tx_buf[0] = OPCODE_WRR;
+		tx_buf[1] = 0; /* status register */
+		tx_buf[2] = cfg_reg; /* configuration register */
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 3, NULL, 0);
+		/* wait till ready */
+		do {
+			tx_buf[0] = OPCODE_RDSR;
+			bcmspi_simple_transaction(&priv->last_parms,
+				tx_buf, 1, &sts_reg, 1);
+			udelay(1);
+		} while (sts_reg & 1);
+		break;
+	case BSPI_FLASH_TYPE_MACRONIX:
+		/* RDSR */
+		tx_buf[0] = OPCODE_RDSR;
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 1, &cfg_reg, 1);
+		if (_enable)
+			cfg_reg |= 0x40;
+		else
+			cfg_reg &= ~0x40;
+		/* WREN */
+		tx_buf[0] = OPCODE_WREN;
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 1, NULL, 0);
+		/* WRSR */
+		tx_buf[0] = OPCODE_WRSR;
+		tx_buf[1] = cfg_reg; /* status register */
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 2, NULL, 0);
+		/* wait till ready */
+		do {
+			tx_buf[0] = OPCODE_RDSR;
+			bcmspi_simple_transaction(&priv->last_parms,
+				tx_buf, 1, &sts_reg, 1);
+			udelay(1);
+		} while (sts_reg & 1);
+		/* RDSR */
+		tx_buf[0] = OPCODE_RDSR;
+		bcmspi_simple_transaction(&priv->last_parms,
+			tx_buf, 1, &cfg_reg, 1);
+		break;
+	case BSPI_FLASH_TYPE_SST:
+	case BSPI_FLASH_TYPE_NUMONYX:
+		/* TODO - send Quad mode control command */
+		break;
+	default:
+		if (_enable)
+			dev_err(&priv->pdev->dev,
+				"Unrecognized flash type, no QUAD MODE support");
+		return _enable ? -1 : 0;
+	}
+
+	return 0;
+}
+
 static int bcmspi_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+	struct brcmspi_platform_data *pdata;
 	struct bcmspi_priv *priv;
 	struct spi_master *master;
 	struct resource *res;
@@ -748,10 +1295,12 @@ static int bcmspi_probe(struct platform_device *pdev)
 
 	DBG("bcmspi_probe\n");
 
+	pdata = (struct brcmspi_platform_data *)pdev->dev.platform_data;
+
 	BDEV_WR_RB(BCHP_BSPI_MAST_N_BOOT_CTRL, 1);
-	BDEV_WR_RB(BCHP_HIF_SPI_INTR2_CPU_MASK_SET, 0xffffffff);
-	BDEV_WR_RB(BCHP_HIF_SPI_INTR2_CPU_CLEAR, 0xffffffff);
-	BDEV_WR_F_RB(HIF_SPI_INTR2_CPU_MASK_CLEAR, MSPI_DONE, 1);
+	bcmspi_disable_interrupt(0xffffffff);
+	bcmspi_clear_interrupt(0xffffffff);
+	bcmspi_enable_interrupt(BCHP_HIF_SPI_INTR2_CPU_SET_MSPI_DONE_MASK);
 
 	master = spi_alloc_master(dev, sizeof(struct bcmspi_priv));
 	if (!master) {
@@ -809,28 +1358,38 @@ static int bcmspi_probe(struct platform_device *pdev)
 		priv->bspi_hw = (volatile void *)ioremap(res->start,
 			res->end - res->start);
 		if (!priv->bspi_hw) {
-			dev_err(&pdev->dev, "can't ioremap\n");
+			dev_err(&pdev->dev, "can't ioremap BSPI range\n");
 			ret = -EIO;
 			goto err2;
 		}
-	} else {
+	} else
 		priv->bspi_hw = NULL;
-	}
+
+	/* BSPI_RAF register range */
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
+	if (res) {
+		priv->bspi_hw_raf = (volatile void *)ioremap(res->start,
+			res->end - res->start);
+		if (!priv->bspi_hw_raf) {
+			dev_err(&pdev->dev, "can't ioremap BSPI_RAF range\n");
+			ret = -EIO;
+			goto err2_1;
+		}
+	} else
+		priv->bspi_hw_raf = NULL;
 
 	bcmspi_hw_init(priv);
+	priv->curr_cs = -1;
 
-#ifdef BRCM_SPI_CHIP_SELECT
-	priv->bspi_chip_select = BRCM_SPI_CHIP_SELECT;
+	priv->bspi_chip_select = (priv->bspi_hw && pdata) ? pdata->flash_cs : 0;
 #ifdef BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_nand_flash_boot_MASK
 	if (BDEV_RD(BCHP_SUN_TOP_CTRL_STRAP_VALUE_0) &
 		BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_nand_flash_boot_MASK) {
 		/* BSPI is disabled if the board is strapped for NAND */
-		priv->bspi_chip_select = -1;
+		priv->bspi_chip_select = 0;
 	}
 #endif /* BCHP_SUN_TOP_CTRL_STRAP_VALUE_0_strap_nand_flash_boot_MASK */
-#else /* BRCM_SPI_CHIP_SELECT */
-	priv->bspi_chip_select = -1;
-#endif /* BRCM_SPI_CHIP_SELECT */
+
 
 	INIT_LIST_HEAD(&priv->msg_queue);
 	spin_lock_init(&priv->lock);
@@ -848,11 +1407,26 @@ static int bcmspi_probe(struct platform_device *pdev)
 	if (!default_master)
 		default_master = master;
 
+	/* default values - undefined */
+	priv->flex_mode.width =
+	priv->flex_mode.addrlen =
+	priv->flex_mode.hp = -1;
+
+	if (priv->bspi_chip_select) {
+		int quad_mode = bspi_width == BSPI_WIDTH_4BIT;
+		if (bcmspi_set_quad_mode(priv, quad_mode))
+			bspi_width = BSPI_WIDTH_1BIT;
+		bcmspi_set_mode(priv, bspi_width, bspi_addrlen, bspi_hp);
+	}
+
 	return 0;
 
 err1:
 	bcmspi_hw_uninit(priv);
 	free_irq(priv->irq, priv);
+	iounmap(priv->bspi_hw_raf);
+err2_1:
+	iounmap(priv->bspi_hw);
 err2:
 	iounmap(priv->mspi_hw);
 err3:
@@ -879,11 +1453,12 @@ static int bcmspi_remove(struct platform_device *pdev)
 	tasklet_kill(&priv->tasklet);
 	platform_set_drvdata(pdev, NULL);
 	bcmspi_hw_uninit(priv);
+	if (priv->bspi_hw_raf)
+		iounmap(priv->bspi_hw_raf);
 	if (priv->bspi_hw)
 		iounmap((const volatile void __iomem *)priv->bspi_hw);
 	free_irq(priv->irq, priv);
 	iounmap((const volatile void __iomem *)priv->mspi_hw);
-
 	spi_unregister_master(priv->master);
 
 	return 0;
@@ -912,6 +1487,11 @@ static void __exit bcmspi_spi_exit(void)
 	platform_driver_unregister(&driver);
 }
 module_exit(bcmspi_spi_exit);
+
+module_param(bspi_width, int, 0444);
+module_param(bspi_addrlen, int, 0444);
+module_param(bspi_hp, int, 0444);
+module_param(bspi_flash, int, 0444);
 
 MODULE_AUTHOR("Broadcom Corporation");
 MODULE_DESCRIPTION("MSPI/HIF SPI driver");

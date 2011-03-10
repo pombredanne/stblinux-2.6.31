@@ -103,9 +103,9 @@ MODULE_PARM_DESC(cmd, "Special command to run on startup: "
 		        "rescan for bad blocks; "
 		      "clearbbt - erase BBT and rescan for bad blocks "
 		        "(DANGEROUS, may lose MFG BI's); "
-		      "showcet - show correctable error count; "
-		      "resetcet - reset correctable error count to 0 and "
-		        "table to all 0xff");
+		      "eraseallbbt - erase entire flash, including CFE and BBT "
+		        "(DANGEROUS, may lose MFG BI's); "
+		        );
 module_param_array(t1, ulong, &nt1, 0444);
 MODULE_PARM_DESC(t1, "Comma separated list of NAND timing values 1, 0 for default value");
 module_param_array(t2, ulong, &nt2, 0444);
@@ -438,12 +438,16 @@ static int __init brcmnanddrv_init(void)
 			gClearBBT = 7;
 		else if (strcmp(cmd, "clearbbt") == 0)
 			gClearBBT = 9;
+		else if (strcmp(cmd, "eraseallbbt") == 0)
+			gClearBBT = 10;
+#if 0
 		else if (strcmp(cmd, "showcet") == 0)
 			gClearCET = 1;
 		else if (strcmp(cmd, "resetcet") == 0)
 			gClearCET = 2;
 		else if (strcmp(cmd, "disablecet") == 0)
 			gClearCET = 3;
+#endif
 		else
 			printk(KERN_WARNING "%s: unknown command '%s'\n",
 				__FUNCTION__, cmd);

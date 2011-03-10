@@ -178,6 +178,19 @@ static inline int __init parse_boardname(const char *buf, void *slop)
 			brcm_docsis_platform = 1;
 		}
 	}
+	if (strncmp(buf, "BCM93380SMS", 11) == 0 ||
+	    strncmp(buf, "BCM93380VMS", 11) == 0 ||
+	    strncmp(buf, "BCM97420_MOCA_GN", 16) == 0) {
+		brcm_enet0_force_ext_mii = 1;
+		brcm_enet_no_mdio = 1;
+	}
+	if (strncmp(buf, "BCM97420_MOCA_GN_SAT", 20) == 0)
+		brcm_moca_rf_band = MOCA_BAND_MIDRF;
+#elif defined(CONFIG_BCM7425)
+	if (strncmp(buf, "BCM97425VMS", 11) == 0) {
+		brcm_enet0_force_ext_mii = 1;
+		brcm_enet_no_mdio = 1;
+	}
 #elif defined(CONFIG_BCM7344)
 	/* 7344 is normally MidRF, but the 7418 variant might not be */
 	if (strncmp(buf, "BCM97418SAT", 11) == 0)
@@ -381,12 +394,13 @@ void __init prom_init(void)
 	if (ptr)
 		brcm_dram1_linux_mb = memparse(ptr + 6, &ptr) >> 20;
 
-	printk(KERN_INFO "Options: sata=%d enet=%d emac_1=%d no_mdio=%d "
-		"docsis=%d pci=%d smp=%d moca=%d usb=%d\n",
-		brcm_sata_enabled, brcm_enet_enabled, brcm_emac_1_enabled,
-		brcm_enet_no_mdio, brcm_docsis_platform,
-		brcm_pci_enabled, brcm_smp_enabled, brcm_moca_enabled,
-		brcm_usb_enabled);
+	printk(KERN_INFO "Options: enet_en=%d enet0_mii=%d enet_no_mdio=%d "
+		"enet1_en=%d moca=%d\n",
+		brcm_enet_enabled, brcm_enet0_force_ext_mii,
+		brcm_enet_no_mdio, brcm_enet1_enabled, brcm_moca_enabled);
+	printk(KERN_INFO "         sata=%d docsis=%d pci=%d smp=%d usb=%d\n",
+		brcm_sata_enabled, brcm_docsis_platform, brcm_pci_enabled,
+		brcm_smp_enabled, brcm_usb_enabled);
 
 	bchip_early_setup();
 
@@ -446,7 +460,8 @@ void brcm_set_nmi_handler(void (*fn)(struct pt_regs *))
 }
 EXPORT_SYMBOL(brcm_set_nmi_handler);
 
-static inline void brcm_wr_vec(unsigned long dst, char *start, char *end)
+static inline void __cpuinit brcm_wr_vec(unsigned long dst,
+	char *start, char *end)
 {
 	memcpy((void *)dst, start, end - start);
 	dma_cache_wback((unsigned long)start, end - start);
@@ -454,14 +469,14 @@ static inline void brcm_wr_vec(unsigned long dst, char *start, char *end)
 	instruction_hazard();
 }
 
-static inline void brcm_nmi_handler_setup(void)
+static inline void __cpuinit brcm_nmi_handler_setup(void)
 {
 	brcm_wr_vec(BRCM_NMI_VEC, brcm_reset_nmi_vec, brcm_reset_nmi_vec_end);
 	brcm_wr_vec(BRCM_WARM_RESTART_VEC, brcm_tp1_int_vec,
 		brcm_tp1_int_vec_end);
 }
 
-unsigned long brcm_setup_ebase(void)
+unsigned long __cpuinit brcm_setup_ebase(void)
 {
 	unsigned long ebase = CAC_BASE;
 #if defined(CONFIG_BMIPS4380)

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jul  2 02:48:31 2010
- *                 MD5 Checksum         a0700768d4086f941486843f18d579d3
+ * Date:           Generated on         Mon Jan 31 01:47:49 2011
+ *                 MD5 Checksum         4b1f3c943c1beefd71aba1dddda2b705
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -602,6 +602,8 @@
 #define BCHP_XPT_MSG_REG_END                               0x007647fc
 #define BCHP_XPT_GR_REG_START                              0x00765000
 #define BCHP_XPT_GR_REG_END                                0x0076500c
+#define BCHP_MEM_DMA_0_REG_START                           0x0077a000
+#define BCHP_MEM_DMA_0_REG_END                             0x0077a024
 #define BCHP_DECODE_RBNODE_REGS_0_REG_START                0x00800000
 #define BCHP_DECODE_RBNODE_REGS_0_REG_END                  0x0080007c
 #define BCHP_DECODE_MAIN_0_REG_START                       0x00800100
@@ -2987,6 +2989,127 @@
 #define BCHP_MC_CORE_ARB_Type_REQ_MASK_3_TPCAP_SHIFT               0
 
 /***************************************************************************
+ *MEM_DMA
+ ***************************************************************************/
+/***************************************************************************
+ *DESC_WORD0 - MEM DMA Descriptor Word 0
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD0 :: READ_ADDR [31:00] */
+#define BCHP_MEM_DMA_DESC_WORD0_READ_ADDR_MASK                     0xffffffff
+#define BCHP_MEM_DMA_DESC_WORD0_READ_ADDR_SHIFT                    0
+
+/***************************************************************************
+ *DESC_WORD1 - MEM DMA Descriptor Word 1
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD1 :: WRITE_ADDR [31:00] */
+#define BCHP_MEM_DMA_DESC_WORD1_WRITE_ADDR_MASK                    0xffffffff
+#define BCHP_MEM_DMA_DESC_WORD1_WRITE_ADDR_SHIFT                   0
+
+/***************************************************************************
+ *DESC_WORD2 - MEM DMA Descriptor Word 2
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD2 :: INTR_ENABLE [31:31] */
+#define BCHP_MEM_DMA_DESC_WORD2_INTR_ENABLE_MASK                   0x80000000
+#define BCHP_MEM_DMA_DESC_WORD2_INTR_ENABLE_SHIFT                  31
+
+/* MEM_DMA :: DESC_WORD2 :: LAST [30:30] */
+#define BCHP_MEM_DMA_DESC_WORD2_LAST_MASK                          0x40000000
+#define BCHP_MEM_DMA_DESC_WORD2_LAST_SHIFT                         30
+
+/* MEM_DMA :: DESC_WORD2 :: AUTO_APPEND [29:29] */
+#define BCHP_MEM_DMA_DESC_WORD2_AUTO_APPEND_MASK                   0x20000000
+#define BCHP_MEM_DMA_DESC_WORD2_AUTO_APPEND_SHIFT                  29
+
+/* MEM_DMA :: DESC_WORD2 :: reserved0 [28:25] */
+#define BCHP_MEM_DMA_DESC_WORD2_reserved0_MASK                     0x1e000000
+#define BCHP_MEM_DMA_DESC_WORD2_reserved0_SHIFT                    25
+
+/* MEM_DMA :: DESC_WORD2 :: TRANSFER_SIZE [24:00] */
+#define BCHP_MEM_DMA_DESC_WORD2_TRANSFER_SIZE_MASK                 0x01ffffff
+#define BCHP_MEM_DMA_DESC_WORD2_TRANSFER_SIZE_SHIFT                0
+
+/***************************************************************************
+ *DESC_WORD3 - MEM DMA Descriptor Word 3
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD3 :: NEXT_DESC_ADDR [31:05] */
+#define BCHP_MEM_DMA_DESC_WORD3_NEXT_DESC_ADDR_MASK                0xffffffe0
+#define BCHP_MEM_DMA_DESC_WORD3_NEXT_DESC_ADDR_SHIFT               5
+
+/* MEM_DMA :: DESC_WORD3 :: reserved0 [04:03] */
+#define BCHP_MEM_DMA_DESC_WORD3_reserved0_MASK                     0x00000018
+#define BCHP_MEM_DMA_DESC_WORD3_reserved0_SHIFT                    3
+
+/* MEM_DMA :: DESC_WORD3 :: READ_ENDIAN_MODE [02:02] */
+#define BCHP_MEM_DMA_DESC_WORD3_READ_ENDIAN_MODE_MASK              0x00000004
+#define BCHP_MEM_DMA_DESC_WORD3_READ_ENDIAN_MODE_SHIFT             2
+#define BCHP_MEM_DMA_DESC_WORD3_READ_ENDIAN_MODE_BIG_ENDIAN        0
+#define BCHP_MEM_DMA_DESC_WORD3_READ_ENDIAN_MODE_LITTLE_ENDIAN     1
+
+/* MEM_DMA :: DESC_WORD3 :: WRITE_ENDIAN_XLATE_MODE [01:00] */
+#define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_MASK       0x00000003
+#define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_SHIFT      0
+#define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_WORD_ALIGNED 0
+#define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_HALF_WORD_ALIGNED 1
+#define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_BYTE_ALIGNED 2
+#define BCHP_MEM_DMA_DESC_WORD3_WRITE_ENDIAN_XLATE_MODE_reserved   3
+
+/***************************************************************************
+ *DESC_WORD4 - MEM DMA Descriptor Word 4
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD4 :: reserved0 [31:16] */
+#define BCHP_MEM_DMA_DESC_WORD4_reserved0_MASK                     0xffff0000
+#define BCHP_MEM_DMA_DESC_WORD4_reserved0_SHIFT                    16
+
+/* MEM_DMA :: DESC_WORD4 :: SCRAM_CTRL_RSV [15:14] */
+#define BCHP_MEM_DMA_DESC_WORD4_SCRAM_CTRL_RSV_MASK                0x0000c000
+#define BCHP_MEM_DMA_DESC_WORD4_SCRAM_CTRL_RSV_SHIFT               14
+
+/* MEM_DMA :: DESC_WORD4 :: SG_SCRAM_END [13:13] */
+#define BCHP_MEM_DMA_DESC_WORD4_SG_SCRAM_END_MASK                  0x00002000
+#define BCHP_MEM_DMA_DESC_WORD4_SG_SCRAM_END_SHIFT                 13
+
+/* MEM_DMA :: DESC_WORD4 :: SG_SCRAM_START [12:12] */
+#define BCHP_MEM_DMA_DESC_WORD4_SG_SCRAM_START_MASK                0x00001000
+#define BCHP_MEM_DMA_DESC_WORD4_SG_SCRAM_START_SHIFT               12
+
+/* MEM_DMA :: DESC_WORD4 :: SG_ENABLE [11:11] */
+#define BCHP_MEM_DMA_DESC_WORD4_SG_ENABLE_MASK                     0x00000800
+#define BCHP_MEM_DMA_DESC_WORD4_SG_ENABLE_SHIFT                    11
+
+/* MEM_DMA :: DESC_WORD4 :: ENC_DEC_INIT [10:10] */
+#define BCHP_MEM_DMA_DESC_WORD4_ENC_DEC_INIT_MASK                  0x00000400
+#define BCHP_MEM_DMA_DESC_WORD4_ENC_DEC_INIT_SHIFT                 10
+
+/* MEM_DMA :: DESC_WORD4 :: MODE_SEL [09:08] */
+#define BCHP_MEM_DMA_DESC_WORD4_MODE_SEL_MASK                      0x00000300
+#define BCHP_MEM_DMA_DESC_WORD4_MODE_SEL_SHIFT                     8
+
+/* MEM_DMA :: DESC_WORD4 :: KEY_SELECT [07:00] */
+#define BCHP_MEM_DMA_DESC_WORD4_KEY_SELECT_MASK                    0x000000ff
+#define BCHP_MEM_DMA_DESC_WORD4_KEY_SELECT_SHIFT                   0
+
+/***************************************************************************
+ *DESC_WORD5 - MEM DMA Descriptor Word 5
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD5 :: reserved0 [31:00] */
+#define BCHP_MEM_DMA_DESC_WORD5_reserved0_MASK                     0xffffffff
+#define BCHP_MEM_DMA_DESC_WORD5_reserved0_SHIFT                    0
+
+/***************************************************************************
+ *DESC_WORD6 - MEM DMA Descriptor Word 6
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD6 :: reserved0 [31:00] */
+#define BCHP_MEM_DMA_DESC_WORD6_reserved0_MASK                     0xffffffff
+#define BCHP_MEM_DMA_DESC_WORD6_reserved0_SHIFT                    0
+
+/***************************************************************************
+ *DESC_WORD7 - MEM DMA Descriptor Word 7
+ ***************************************************************************/
+/* MEM_DMA :: DESC_WORD7 :: reserved0 [31:00] */
+#define BCHP_MEM_DMA_DESC_WORD7_reserved0_MASK                     0xffffffff
+#define BCHP_MEM_DMA_DESC_WORD7_reserved0_SHIFT                    0
+
+/***************************************************************************
  *PCI_DMA
  ***************************************************************************/
 /***************************************************************************
@@ -3893,6 +4016,20 @@
 /* XPT_RAVE :: NOTEH_AC3_AUDIO_ES_SETUP :: AUDIO_AC3_ES_FORMAT [31:00] */
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
 #define BCHP_XPT_RAVE_NOTEH_AC3_AUDIO_ES_SETUP_AUDIO_AC3_ES_FORMAT_SHIFT 0
+
+/***************************************************************************
+ *NOTEH_DVD_AC3_AUDIO_ES_SETUP - ES Setup - DVD_AC3 Audio
+ ***************************************************************************/
+/* XPT_RAVE :: NOTEH_DVD_AC3_AUDIO_ES_SETUP :: DVD_AUDIO_AC3_ES_FORMAT [31:00] */
+#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_MASK 0xffffffff
+#define BCHP_XPT_RAVE_NOTEH_DVD_AC3_AUDIO_ES_SETUP_DVD_AUDIO_AC3_ES_FORMAT_SHIFT 0
+
+/***************************************************************************
+ *NOTEI_DVD_LPCM_AUDIO_ES_SETUP - ES Setup - DVD_LPCM Audio
+ ***************************************************************************/
+/* XPT_RAVE :: NOTEI_DVD_LPCM_AUDIO_ES_SETUP :: DVD_AUDIO_LPCM_ES_FORMAT [31:00] */
+#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_MASK 0xffffffff
+#define BCHP_XPT_RAVE_NOTEI_DVD_LPCM_AUDIO_ES_SETUP_DVD_AUDIO_LPCM_ES_FORMAT_SHIFT 0
 
 /***************************************************************************
  *NOTEJ_ENHANCED_AC3_AUDIO_ES_SETUP - ES Setup - AC3 Audio

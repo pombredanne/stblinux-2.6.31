@@ -348,7 +348,7 @@ enum {
 	BRCM_CLK_ENET,
 	BRCM_CLK_MOCA,
 	BRCM_CLK_USB,
-	BRCM_CLK_MOCA_ENET
+	BRCM_CLK_MOCA_GENET
 };
 
 static struct clk brcm_clk_table[] = {
@@ -361,25 +361,24 @@ static struct clk brcm_clk_table[] = {
 		.name		= "enet",
 		.disable	= &brcm_pm_enet_disable,
 		.enable		= &brcm_pm_enet_enable,
-		.parent     = &brcm_clk_table[BRCM_CLK_MOCA_ENET],
+		.parent		= &brcm_clk_table[BRCM_CLK_MOCA_GENET],
 	},
 	[BRCM_CLK_MOCA] = {
 		.name		= "moca",
 		.disable	= &brcm_pm_moca_disable,
 		.enable		= &brcm_pm_moca_enable,
-		.parent     = &brcm_clk_table[BRCM_CLK_MOCA_ENET],
+		.parent		= &brcm_clk_table[BRCM_CLK_MOCA_GENET],
 	},
 	[BRCM_CLK_USB] = {
 		.name		= "usb",
 		.disable	= &brcm_pm_usb_disable,
 		.enable		= &brcm_pm_usb_enable,
 	},
-	[BRCM_CLK_MOCA_ENET] = {
-		.name		= "moca_enet",
+	[BRCM_CLK_MOCA_GENET] = {
+		.name		= "moca_genet",
 		.disable	= &brcm_pm_moca_genet_disable,
 		.enable		= &brcm_pm_moca_genet_enable,
-	},
-
+	}
 };
 
 static struct clk *brcm_pm_clk_find(const char *name)
@@ -478,12 +477,6 @@ __setup("nopm", nopm_setup);
 /***********************************************************************
  * USB / ENET / GENET / MoCA / SATA PM external API
  ***********************************************************************/
-
-struct clk *clk_get(struct device *dev, const char *id)
-{
-	return brcm_pm_clk_find(id) ? : ERR_PTR(-ENOENT);
-}
-EXPORT_SYMBOL(clk_get);
 
 /* internal functions assume the lock is held */
 static int __clk_enable(struct clk *clk)
@@ -744,6 +737,8 @@ struct brcm_chip_pm_ops {
 	struct brcm_chip_pm_block_ops moca_genet;
 	void (*suspend)(void);
 	void (*resume)(void);
+	/* for chip specific clock mappings ( see #SWLINUX-1764 ) */
+	struct clk* (*clk_get)(struct device *dev, const char *id);
 };
 
 #define PLL_DIS(x)		BDEV_WR_RB(BCHP_##x, 0x04)
@@ -1134,6 +1129,19 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 };
 #endif
 
+static __maybe_unused struct clk *brcm_pm_clk_get(struct device *dev,
+	const char *id)
+{
+	if (!strcmp(id, "enet") && dev) {
+		struct platform_device *pdev = to_platform_device(dev);
+		if (pdev->id == 0) /* enet */
+			return brcm_pm_clk_find("enet");
+		if (pdev->id == 1) /* moca_genet */
+			return brcm_pm_clk_find("moca");
+	}
+	return NULL;
+}
+
 #if defined(CONFIG_BCM7340)
 
 static void bcm7340_pm_enet_disable(u32 flags)
@@ -1358,6 +1366,7 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	.usb.disable		= bcm7340_pm_usb_disable,
 	.suspend		= bcm7340_pm_suspend,
 	.resume			= bcm7340_pm_resume,
+	.clk_get		= brcm_pm_clk_get,
 };
 #endif
 
@@ -1524,6 +1533,7 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	.usb.disable		= bcm7342_pm_usb_disable,
 	.suspend		= bcm7342_pm_suspend,
 	.resume			= bcm7342_pm_resume,
+	.clk_get		= brcm_pm_clk_get,
 };
 #endif
 
@@ -1659,8 +1669,8 @@ static void bcm7408_pm_resume(void)
 
 #define PM_OPS_DEFINED
 static struct brcm_chip_pm_ops chip_pm_ops = {
-	.moca.enable		= bcm7408_pm_moca_enable,
-	.moca.disable		= bcm7408_pm_moca_disable,
+	.moca_genet.enable	= bcm7408_pm_moca_enable,
+	.moca_genet.disable	= bcm7408_pm_moca_disable,
 	.usb.enable		= bcm7408_pm_usb_enable,
 	.usb.disable		= bcm7408_pm_usb_disable,
 	.suspend		= bcm7408_pm_suspend,
@@ -1672,6 +1682,18 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 /* default structure - no pm callbacks available */
 static struct brcm_chip_pm_ops chip_pm_ops;
 #endif
+
+struct clk *clk_get(struct device *dev, const char *id)
+{
+	if (chip_pm_ops.clk_get) {
+		struct clk *c = chip_pm_ops.clk_get(dev, id);
+		if (c)
+			return c;
+	}
+
+	return brcm_pm_clk_find(id) ? : ERR_PTR(-ENOENT);
+}
+EXPORT_SYMBOL(clk_get);
 
 static void brcm_pm_sata_disable(void)
 {
@@ -1845,13 +1867,55 @@ static int brcm_pm_prepare(void)
 	return 0;
 }
 
+static void brcm_pm_set_pll_on(int on)
+{
+#if defined(BCHP_CLK_PM_PLL_ALIVE_SEL_MIPS_PLL_MASK)
+	BDEV_WR_F_RB(CLK_PM_PLL_ALIVE_SEL, MIPS_PLL, (!!on));
+#elif defined(BCHP_CLKGEN_PM_PLL_ALIVE_SEL_MIPS_PLL_MASK)
+	BDEV_WR_F_RB(CLKGEN_PM_PLL_ALIVE_SEL, MIPS_PLL, (!!on));
+#elif defined(BCHP_CLKGEN_PM_PLL_ALIVE_SEL_PLL_MIPS_MASK)
+	BDEV_WR_F_RB(CLKGEN_PM_PLL_ALIVE_SEL, PLL_MIPS, (!!on));
+#endif
+}
+
+static void brcm_pm_set_alarm(int timeout)
+{
+#ifdef BCHP_PM_L2_CPU_MASK_SET
+	BDEV_WR_RB(BCHP_PM_L2_CPU_MASK_SET, 0xffffffff);
+	BDEV_WR_RB(BCHP_PM_L2_CPU_CLEAR, 0xffffffff);
+	BDEV_WR_F_RB(PM_L2_CPU_MASK_CLEAR, TIMER_INTR, 1);
+#else
+	BDEV_WR_RB(BCHP_AON_PM_L2_CPU_MASK_SET, 0xffffffff);
+	BDEV_WR_RB(BCHP_AON_PM_L2_CPU_CLEAR, 0xffffffff);
+	BDEV_WR_F_RB(AON_PM_L2_CPU_MASK_CLEAR, TIMER_INTR, 1);
+#endif
+
+	BDEV_WR_RB(BCHP_WKTMR_EVENT, 1);
+	BDEV_WR_RB(BCHP_WKTMR_ALARM, BDEV_RD(BCHP_WKTMR_COUNTER) + timeout);
+}
+
+static void brcm_pm_clear_alarm(void)
+{
+#ifdef BCHP_PM_L2_CPU_MASK_SET
+	BDEV_WR_F_RB(PM_L2_CPU_MASK_SET, TIMER_INTR, 1);
+#else
+	BDEV_WR_F_RB(AON_PM_L2_CPU_MASK_SET, TIMER_INTR, 1);
+#endif
+}
+
+#ifdef CONFIG_BRCM_HAS_AON
+#define BRCM_IRQ_STANDBY	BRCM_IRQ_AON
+#else
+#define BRCM_IRQ_STANDBY	BRCM_IRQ_PM
+#endif
+
 static int brcm_pm_standby(void)
 {
 	int ret = 0;
 	unsigned long restart_vec = BRCM_WARM_RESTART_VEC;
 	DBG("%s:%d\n", __func__, __LINE__);
 
-	brcm_irq_standby_enter(BRCM_IRQ_PM);
+	brcm_irq_standby_enter(BRCM_IRQ_STANDBY);
 
 #ifdef CONFIG_BCM7468
 	{
@@ -1881,20 +1945,16 @@ static int brcm_pm_standby(void)
 			mdelay(5000);
 	} else {
 		do {
-			if (brcm_pm_standby_flags & BRCM_STANDBY_TEST) {
-				BDEV_WR_RB(BCHP_PM_L2_CPU_MASK_SET, 0xffffffff);
-				BDEV_WR_RB(BCHP_PM_L2_CPU_CLEAR, 0xffffffff);
-				BDEV_WR_F_RB(PM_L2_CPU_MASK_CLEAR,
-					TIMER_INTR, 1);
-
-				BDEV_WR_RB(BCHP_WKTMR_EVENT, 1);
-				BDEV_WR_RB(BCHP_WKTMR_ALARM,
-					BDEV_RD(BCHP_WKTMR_COUNTER) + 1);
-			}
+			if (brcm_pm_standby_flags & BRCM_STANDBY_TEST)
+				brcm_pm_set_alarm(1);
+			brcm_pm_set_pll_on(brcm_pm_standby_flags &
+					BRCM_STANDBY_PLL_ON);
 			brcm_pm_handshake();
 			ret = brcm_pm_standby_asm(
 				current_cpu_data.icache.linesz,
 				restart_vec, brcm_pm_standby_flags);
+			if (brcm_pm_standby_flags & BRCM_STANDBY_TEST)
+				brcm_pm_clear_alarm();
 		} while (!brcm_pm_wakeup_poll());
 	}
 	brcm_pm_wakeup_disable();

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Nov  8 16:14:11 2010
- *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
+ * Date:           Generated on         Thu Jan 13 02:29:08 2011
+ *                 MD5 Checksum         cf7b393b4b1b75989d5616e656fe3a56
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_aon_ctrl.h $
  * 
- * Hydra_Software_Devel/2   11/8/10 4:44p yuxiaz
- * SW7552-2: updated rdb.
+ * Hydra_Software_Devel/3   1/13/11 1:36p pntruong
+ * SW7552-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -908,13 +908,13 @@
 /***************************************************************************
  *LED_STATUS_CTRL - LED status control
  ***************************************************************************/
-/* AON_CTRL :: LED_STATUS_CTRL :: reserved0 [31:23] */
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_reserved0_MASK               0xff800000
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_reserved0_SHIFT              23
+/* AON_CTRL :: LED_STATUS_CTRL :: reserved0 [31:28] */
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_reserved0_MASK               0xf0000000
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_reserved0_SHIFT              28
 
-/* AON_CTRL :: LED_STATUS_CTRL :: hlcd_state [22:20] */
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_MASK              0x00700000
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_SHIFT             20
+/* AON_CTRL :: LED_STATUS_CTRL :: hlcd_state [27:25] */
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_MASK              0x0e000000
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_SHIFT             25
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_HLCD_IDLE         0
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_HLCD_COUNT        1
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_HLCD_PROGRAM_MINUTE_LSD 2
@@ -923,16 +923,16 @@
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_HLCD_PROGRAM_HOUR_MSD 5
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_hlcd_state_HLCD_PROGRAM_STATUS 6
 
-/* AON_CTRL :: LED_STATUS_CTRL :: status_update_enable [19:19] */
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_MASK    0x00080000
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_SHIFT   19
+/* AON_CTRL :: LED_STATUS_CTRL :: status_update_enable [24:24] */
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_MASK    0x01000000
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_SHIFT   24
 
-/* AON_CTRL :: LED_STATUS_CTRL :: status_mask [18:11] */
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_MASK             0x0007f800
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_SHIFT            11
+/* AON_CTRL :: LED_STATUS_CTRL :: status_mask [23:12] */
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_MASK             0x00fff000
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_SHIFT            12
 
-/* AON_CTRL :: LED_STATUS_CTRL :: status_bit_offset [10:08] */
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_MASK       0x00000700
+/* AON_CTRL :: LED_STATUS_CTRL :: status_bit_offset [11:08] */
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_MASK       0x00000f00
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_SHIFT      8
 
 /* AON_CTRL :: LED_STATUS_CTRL :: status_addr_offset [07:00] */

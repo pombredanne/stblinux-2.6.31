@@ -50,7 +50,7 @@
 
 #if !defined(CONFIG_BMIPS5000)
 #include "c-r4k.c"
-#else /* ! defined(CONFIG_BMIPS5000) */
+#else /* !defined(CONFIG_BMIPS5000) */
 
 static unsigned long icache_size __read_mostly;
 static unsigned long dcache_size __read_mostly;
@@ -283,7 +283,7 @@ void __cpuinit r4k_cache_init(void)
 	coherency_setup();
 }
 
-#endif /* ! defined(CONFIG_BMIPS5000) */
+#endif /* !defined(CONFIG_BMIPS5000) */
 
 /*
  * Fine-grained cacheflush() syscall for usermode Nexus
@@ -291,7 +291,7 @@ void __cpuinit r4k_cache_init(void)
 int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 	unsigned int cache)
 {
-#if ! defined(CONFIG_BRCM_SCM_L2) && ! defined(CONFIG_BRCM_ZSCM_L2)
+#if !defined(CONFIG_BRCM_SCM_L2) && !defined(CONFIG_BRCM_ZSCM_L2)
 	/* partial RAC invalidate is not supported */
 	if (cache == RACACHE) {
 		brcm_inv_prefetch(0, 0);
@@ -327,7 +327,7 @@ int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 				return -EFAULT;
 			}
 
-#if ! defined(CONFIG_BRCM_ZSCM_L2)
+#if !defined(CONFIG_BRCM_ZSCM_L2)
 			r4k_blast_dcache_page(pg);
 #endif
 			r4k_blast_scache_page(pg);
@@ -342,6 +342,7 @@ int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 	__sync();
 	return 0;
 }
+EXPORT_SYMBOL(brcm_cacheflush);
 
 /*
  * Flush RAC or prefetch lines after DMA from device
@@ -358,11 +359,12 @@ void brcm_inv_prefetch(unsigned long addr, unsigned long size)
 	local_irq_save(flags);
 	if (BDEV_RD(BCHP_RAC_MODE) & 0x10) {
 		BDEV_WR(BCHP_RAC_COMMAND, 0x01);
-		while(BDEV_RD(BCHP_RAC_VALID_FWD_STATUS) & 0xffff) { }
+		while (BDEV_RD(BCHP_RAC_VALID_FWD_STATUS) & 0xffff)
+			;
 		BDEV_WR(BCHP_RAC_COMMAND, 0x00);
 	}
 	local_irq_restore(flags);
-#elif (defined(CONFIG_BRCM_SCM_L2) || defined(CONFIG_BRCM_ZSCM_L2))
+#elif defined(CONFIG_BRCM_SCM_L2) || defined(CONFIG_BRCM_ZSCM_L2)
 	unsigned int linesz = cpu_scache_line_size();
 	unsigned long addr0 = addr, addr1;
 
@@ -401,7 +403,7 @@ void plat_unmap_dma_mem(struct device *dev, dma_addr_t dma_addr,
 	unsigned long va = (unsigned long)
 		phys_to_virt(plat_dma_addr_to_phys(dev, dma_addr));
 
-	if(dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL)
+	if (dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL)
 		brcm_inv_prefetch(va, size);
 }
 

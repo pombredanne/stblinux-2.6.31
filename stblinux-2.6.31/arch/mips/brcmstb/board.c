@@ -31,6 +31,7 @@
 /* board features */
 int brcm_docsis_platform;
 int brcm_enet_no_mdio;
+int brcm_enet0_force_ext_mii;
 char brcm_cfe_boardname[CFE_STRING_SIZE];
 
 /* MTD partition layout */
@@ -372,7 +373,7 @@ void __init board_pinmux_setup(void)
 #elif defined(CONFIG_BCM7346)
 
 	PINMUX(15, gpio_068, 2);	/* MoCA link */
-	PINMUX(16, gpio_069, 2);	/* MoCA activity */
+	PINMUX(16, gpio_069, 1);	/* MoCA activity */
 
 	PINMUX(9, gpio_017, 1);		/* UARTB TX */
 	PINMUX(9, gpio_018, 1);		/* UARTB RX */
@@ -711,8 +712,11 @@ void __init board_get_ram_size(unsigned long *dram0_mb, unsigned long *dram1_mb)
 #if defined(CONFIG_BRCM_FIXED_MTD_PARTITIONS)
 
 static struct mtd_partition fixed_partition_map[] = {
-	/* name			offset		size */
-	{ "entire_device",	0x00000000,	MTDPART_SIZ_FULL },
+	{
+		.name = "entire_device",
+		.size = MTDPART_SIZ_FULL,
+		.offset = 0x00000000
+	},
 };
 
 /*
@@ -746,7 +750,7 @@ int __init board_get_partition_map(struct mtd_partition **p)
 	if (brcm_mtd_kernel_len != 0)
 		nr_parts++;
 
-	ret = kzalloc(sizeof(struct mtd_partition) * nr_parts, GFP_KERNEL);
+	ret = kzalloc(nr_parts * sizeof(struct mtd_partition), GFP_KERNEL);
 	if (!ret)
 		return -ENOMEM;
 

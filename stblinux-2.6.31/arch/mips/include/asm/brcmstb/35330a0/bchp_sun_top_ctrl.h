@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Dec 10 03:22:35 2010
- *                 MD5 Checksum         091d7292f41f04fc6becd414f8c2e7bc
+ * Date:           Generated on         Mon Jan 24 17:00:47 2011
+ *                 MD5 Checksum         58cf64531fe9360f10d28bf0f34f4c73
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35330/rdb/a0/bchp_sun_top_ctrl.h $
+ * 
+ * Hydra_Software_Devel/2   1/26/11 6:16p albertl
+ * SW35330-6: Updated to match RDB.
  *
  ***************************************************************************/
 
@@ -4728,10 +4731,8 @@
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_DS_TOP0 2
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_THD_TOP 3
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SYS     16
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_CLK     17
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_TVMICRO 18
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_HIF     20
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BSP     21
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BVNE    22
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BVNM    23
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_VEC     25
@@ -4748,7 +4749,6 @@
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_USB1    46
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BVN_MCDI 50
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BVN_MCVP 51
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BVN_PDP 52
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_AVFE    53
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_V3D_TOP 54
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_DFE     55

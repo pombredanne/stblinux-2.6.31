@@ -97,9 +97,12 @@ void wktmr_read(struct wktmr_time *t)
 {
 	uint32_t tmp;
 
-	t->sec = BDEV_RD(BCHP_WKTMR_COUNTER);
-	tmp = BDEV_RD(BCHP_WKTMR_PRESCALER_VAL);
-	t->pre = unlikely(tmp > WKTMR_FREQ) ? 0 : (WKTMR_FREQ - tmp);
+	do {
+		t->sec = BDEV_RD(BCHP_WKTMR_COUNTER);
+		tmp = BDEV_RD(BCHP_WKTMR_PRESCALER_VAL);
+	} while (tmp >= WKTMR_FREQ);
+
+	t->pre = WKTMR_FREQ - tmp;
 }
 
 unsigned long wktmr_elapsed(struct wktmr_time *t)

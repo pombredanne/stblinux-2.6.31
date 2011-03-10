@@ -282,7 +282,8 @@
 /* This is the new version of HYNIX_HY27UF081G2M .  The 2M version is EOL */
 #define HYNIX_HY27UF081G2A      0xF1
 
-#define HYNIX_HY27UF082G2A      0xDA
+#define HYNIX_HY27UF082G2A      0xDA		/* 80h, 1Dh, 00h */
+#define HYNIX_HY27UF082G2B      0xDA		/* 10h, 95h, 44h */
 
 // #define HYNIX_HY27UF084G2M     0xDC /* replaced by the next one */
 #define HYNIX_HY27U4G8F2D		0xDC

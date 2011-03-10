@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Nov  8 16:11:49 2010
- *                 MD5 Checksum         c1f5c2aa99078999fd9edc20a602287c
+ * Date:           Generated on         Thu Jan 13 02:26:45 2011
+ *                 MD5 Checksum         cf7b393b4b1b75989d5616e656fe3a56
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -34,8 +34,8 @@
  *
  * $brcm_Log: /magnum/basemodules/chp/7552/rdb/a0/bchp_hif_cpu_intr1.h $
  * 
- * Hydra_Software_Devel/3   11/8/10 4:46p yuxiaz
- * SW7552-2: updated rdb.
+ * Hydra_Software_Devel/4   1/13/11 1:43p pntruong
+ * SW7552-2: Synced up with central rdb.
  *
  ***************************************************************************/
 
@@ -323,9 +323,9 @@
 /***************************************************************************
  *INTR_W2_STATUS - Interrupt Status Register
  ***************************************************************************/
-/* HIF_CPU_INTR1 :: INTR_W2_STATUS :: UPG_AUX_CPU_INTR [31:31] */
-#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_UPG_AUX_CPU_INTR_MASK    0x80000000
-#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_UPG_AUX_CPU_INTR_SHIFT   31
+/* HIF_CPU_INTR1 :: INTR_W2_STATUS :: SPARE_21_CPU_INTR [31:31] */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_SPARE_21_CPU_INTR_MASK   0x80000000
+#define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_SPARE_21_CPU_INTR_SHIFT  31
 
 /* HIF_CPU_INTR1 :: INTR_W2_STATUS :: MCIF_CPU_INTR [30:30] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_STATUS_MCIF_CPU_INTR_MASK       0x40000000
@@ -716,9 +716,9 @@
 /***************************************************************************
  *INTR_W2_MASK_STATUS - Interrupt Mask Status Register
  ***************************************************************************/
-/* HIF_CPU_INTR1 :: INTR_W2_MASK_STATUS :: UPG_AUX_CPU_INTR [31:31] */
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_UPG_AUX_CPU_INTR_MASK 0x80000000
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_UPG_AUX_CPU_INTR_SHIFT 31
+/* HIF_CPU_INTR1 :: INTR_W2_MASK_STATUS :: SPARE_21_CPU_INTR [31:31] */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_SPARE_21_CPU_INTR_MASK 0x80000000
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_SPARE_21_CPU_INTR_SHIFT 31
 
 /* HIF_CPU_INTR1 :: INTR_W2_MASK_STATUS :: MCIF_CPU_INTR [30:30] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_STATUS_MCIF_CPU_INTR_MASK  0x40000000
@@ -1109,9 +1109,9 @@
 /***************************************************************************
  *INTR_W2_MASK_SET - Interrupt Mask Set Register
  ***************************************************************************/
-/* HIF_CPU_INTR1 :: INTR_W2_MASK_SET :: UPG_AUX_CPU_INTR [31:31] */
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_UPG_AUX_CPU_INTR_MASK  0x80000000
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_UPG_AUX_CPU_INTR_SHIFT 31
+/* HIF_CPU_INTR1 :: INTR_W2_MASK_SET :: SPARE_21_CPU_INTR [31:31] */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_SPARE_21_CPU_INTR_MASK 0x80000000
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_SPARE_21_CPU_INTR_SHIFT 31
 
 /* HIF_CPU_INTR1 :: INTR_W2_MASK_SET :: MCIF_CPU_INTR [30:30] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_SET_MCIF_CPU_INTR_MASK     0x40000000
@@ -1502,9 +1502,9 @@
 /***************************************************************************
  *INTR_W2_MASK_CLEAR - Interrupt Mask Clear Register
  ***************************************************************************/
-/* HIF_CPU_INTR1 :: INTR_W2_MASK_CLEAR :: UPG_AUX_CPU_INTR [31:31] */
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR_UPG_AUX_CPU_INTR_MASK 0x80000000
-#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR_UPG_AUX_CPU_INTR_SHIFT 31
+/* HIF_CPU_INTR1 :: INTR_W2_MASK_CLEAR :: SPARE_21_CPU_INTR [31:31] */
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR_SPARE_21_CPU_INTR_MASK 0x80000000
+#define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR_SPARE_21_CPU_INTR_SHIFT 31
 
 /* HIF_CPU_INTR1 :: INTR_W2_MASK_CLEAR :: MCIF_CPU_INTR [30:30] */
 #define BCHP_HIF_CPU_INTR1_INTR_W2_MASK_CLEAR_MCIF_CPU_INTR_MASK   0x40000000

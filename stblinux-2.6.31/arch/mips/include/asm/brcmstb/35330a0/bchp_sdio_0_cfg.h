@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2010, Broadcom Corporation
+ *     Copyright (c) 1999-2011, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Dec 10 03:19:51 2010
- *                 MD5 Checksum         091d7292f41f04fc6becd414f8c2e7bc
+ * Date:           Generated on         Wed Jan 19 19:39:47 2011
+ *                 MD5 Checksum         1e0b35eb4b11db32c4c4969c9817ba7b
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,7 +32,10 @@
  *
  * Revision History:
  *
- * $brcm_Log: $
+ * $brcm_Log: /magnum/basemodules/chp/35330/rdb/a0/bchp_sdio_0_cfg.h $
+ * 
+ * Hydra_Software_Devel/1   1/20/11 12:08a albertl
+ * SW35330-6: Initial revision.
  *
  ***************************************************************************/
 
@@ -67,9 +70,9 @@
 #define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_SDCD_N_TEST_LEV_MASK       0x40000000
 #define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_SDCD_N_TEST_LEV_SHIFT      30
 
-/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: CFG_RESERVED [29:29] */
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVED_MASK          0x20000000
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVED_SHIFT         29
+/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: FORCE_HBUSREQ [29:29] */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_FORCE_HBUSREQ_MASK         0x20000000
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_FORCE_HBUSREQ_SHIFT        29
 
 /* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: RETUNING_REQ [28:28] */
 #define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_RETUNING_REQ_MASK          0x10000000
@@ -83,21 +86,21 @@
 #define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_DELAY_CTRL_MASK            0x00e00000
 #define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_DELAY_CTRL_SHIFT           21
 
-/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: HREADY_IDLE_ENA [20:20] */
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_HREADY_IDLE_ENA_MASK       0x00100000
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_HREADY_IDLE_ENA_SHIFT      20
+/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: CFG_RESERVE_3 [20:20] */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_3_MASK         0x00100000
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_3_SHIFT        20
 
-/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: HREADY_IDLE_PULSE [19:19] */
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_HREADY_IDLE_PULSE_MASK     0x00080000
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_HREADY_IDLE_PULSE_SHIFT    19
+/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: CFG_RESERVE_2 [19:19] */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_2_MASK         0x00080000
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_2_SHIFT        19
 
-/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: DATA_PENDING [18:18] */
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_DATA_PENDING_MASK          0x00040000
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_DATA_PENDING_SHIFT         18
+/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: CFG_RESERVE_1 [18:18] */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_1_MASK         0x00040000
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_1_SHIFT        18
 
-/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: WR_FLUSH [17:17] */
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_WR_FLUSH_MASK              0x00020000
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_WR_FLUSH_SHIFT             17
+/* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: CFG_RESERVE_0 [17:17] */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_0_MASK         0x00020000
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_CFG_RESERVE_0_SHIFT        17
 
 /* SDIO_0_CFG :: SDIO_EMMC_CTRL1 :: MF_NUM_WR [16:16] */
 #define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1_MF_NUM_WR_MASK             0x00010000

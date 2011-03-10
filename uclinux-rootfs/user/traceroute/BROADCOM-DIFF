@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-01-24
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-02-27
 #
 # Original package: traceroute-1.4a12.tar.bz2
 #
 diff -ruNp traceroute.orig/makefile traceroute/makefile
 --- traceroute.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ traceroute/makefile	2011-01-24 11:52:28.000000000 -0800
++++ traceroute/makefile	2011-02-27 14:43:30.000000000 -0800
 @@ -0,0 +1,29 @@
 +include $(ROOTDIR)/config.arch
 +

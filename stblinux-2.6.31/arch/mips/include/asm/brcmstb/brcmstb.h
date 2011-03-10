@@ -211,39 +211,6 @@
 #include <asm/brcmstb/7125c0/bchp_wktmr.h>
 #include <asm/brcmstb/7125c0/brcmirq.h>
 
-#elif defined(CONFIG_BCM7135A0)
-#include <asm/brcmstb/7135a0/bchp_aon_ctrl.h>
-#include <asm/brcmstb/7135a0/bchp_aon_pm_l2.h>
-#include <asm/brcmstb/7135a0/bchp_bspi.h>
-#include <asm/brcmstb/7135a0/bchp_bspi_raf.h>
-#include <asm/brcmstb/7135a0/bchp_clkgen.h>
-#include <asm/brcmstb/7135a0/bchp_common.h>
-#include <asm/brcmstb/7135a0/bchp_ddr40_phy_control_regs_0.h>
-#include <asm/brcmstb/7135a0/bchp_ddr40_phy_word_lane_0_0.h>
-#include <asm/brcmstb/7135a0/bchp_ddr40_phy_word_lane_1_0.h>
-#include <asm/brcmstb/7135a0/bchp_ebi.h>
-#include <asm/brcmstb/7135a0/bchp_edu.h>
-#include <asm/brcmstb/7135a0/bchp_hif_cpu_intr1.h>
-#include <asm/brcmstb/7135a0/bchp_hif_cpu_tp1_intr1.h>
-#include <asm/brcmstb/7135a0/bchp_hif_intr2.h>
-#include <asm/brcmstb/7135a0/bchp_hif_mspi.h>
-#include <asm/brcmstb/7135a0/bchp_hif_spi_intr2.h>
-#include <asm/brcmstb/7135a0/bchp_hif_top_ctrl.h>
-#include <asm/brcmstb/7135a0/bchp_irq0.h>
-#include <asm/brcmstb/7135a0/bchp_irq1.h>
-#include <asm/brcmstb/7135a0/bchp_memc_ddr_0.h>
-#include <asm/brcmstb/7135a0/bchp_moca_hostmisc.h>
-#include <asm/brcmstb/7135a0/bchp_nand.h>
-#include <asm/brcmstb/7135a0/bchp_sata_top_ctrl.h>
-#include <asm/brcmstb/7135a0/bchp_sun_top_ctrl.h>
-#include <asm/brcmstb/7135a0/bchp_timer.h>
-#include <asm/brcmstb/7135a0/bchp_uarta.h>
-#include <asm/brcmstb/7135a0/bchp_uartb.h>
-#include <asm/brcmstb/7135a0/bchp_uartc.h>
-#include <asm/brcmstb/7135a0/bchp_usb_ctrl.h>
-#include <asm/brcmstb/7135a0/bchp_wktmr.h>
-#include <asm/brcmstb/7135a0/brcmirq.h>
-
 #elif defined(CONFIG_BCM7231A0)
 #include <asm/brcmstb/7231a0/bchp_aon_ctrl.h>
 #include <asm/brcmstb/7231a0/bchp_aon_pin_ctrl.h>
@@ -838,6 +805,7 @@
 
 #elif defined(CONFIG_BCM7550A0)
 #include <asm/brcmstb/7550a0/bchp_bspi.h>
+#include <asm/brcmstb/7550a0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7550a0/bchp_common.h>
 #include <asm/brcmstb/7550a0/bchp_ebi.h>
 #include <asm/brcmstb/7550a0/bchp_hif_cpu_intr1.h>
@@ -862,6 +830,7 @@
 
 #elif defined(CONFIG_BCM7550B0)
 #include <asm/brcmstb/7550b0/bchp_bspi.h>
+#include <asm/brcmstb/7550b0/bchp_bspi_raf.h>
 #include <asm/brcmstb/7550b0/bchp_common.h>
 #include <asm/brcmstb/7550b0/bchp_ebi.h>
 #include <asm/brcmstb/7550b0/bchp_hif_cpu_intr1.h>
@@ -893,7 +862,6 @@
 #include <asm/brcmstb/7552a0/bchp_common.h>
 #include <asm/brcmstb/7552a0/bchp_ddr40_phy_control_regs_0.h>
 #include <asm/brcmstb/7552a0/bchp_ddr40_phy_word_lane_0_0.h>
-#include <asm/brcmstb/7552a0/bchp_ddr40_phy_word_lane_1_0.h>
 #include <asm/brcmstb/7552a0/bchp_ebi.h>
 #include <asm/brcmstb/7552a0/bchp_hif_cpu_intr1.h>
 #include <asm/brcmstb/7552a0/bchp_hif_intr2.h>
@@ -1039,6 +1007,8 @@
 #define BRCM_STANDBY_VERBOSE	0x04
 /* Don't enter standby - just delay for 5s then return */
 #define BRCM_STANDBY_NO_SLEEP	0x08
+/* Don't shut down MIPS PLL */
+#define BRCM_STANDBY_PLL_ON	0x10
 
 #if !defined(__ASSEMBLY__)
 
@@ -1100,8 +1070,9 @@ extern int brcm_pci_enabled;
 extern int brcm_pcie_enabled;
 extern int brcm_docsis_platform;
 extern int brcm_enet_no_mdio;
+extern int brcm_enet0_force_ext_mii;
 extern int brcm_smp_enabled;
-extern int brcm_emac_1_enabled;
+extern int brcm_enet1_enabled;
 extern int brcm_moca_enabled;
 extern int brcm_usb_enabled;
 extern int brcm_pm_enabled;
