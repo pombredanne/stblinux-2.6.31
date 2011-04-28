@@ -411,8 +411,9 @@ static int __init platform_devices_setup(void)
 
 #define ADD_USB(type, reg, irq) do { \
 	if (!(usb_disable_mask & (1 << type##_id))) \
-		pdevs[devno++] = brcm_new_usb_host(#type "-brcm", type##_id++, \
+		pdevs[devno++] = brcm_new_usb_host(#type "-brcm", type##_id, \
 			BCHP_##reg##_REG_START, BRCM_IRQ_##irq); \
+	type##_id++; \
 	} while (0)
 
 	if (brcm_usb_enabled) {
@@ -523,10 +524,9 @@ static int __init platform_devices_setup(void)
 
 #if defined(CONFIG_BRCM_HAS_GENET_1)
 
+		phy_type = brcm_ext_mii_mode;
 #if defined(CONFIG_BRCM_MOCA_ON_GENET_1)
-		if (!brcm_moca_enabled)
-			phy_type = brcm_ext_mii_mode;
-		else {
+		if (brcm_moca_enabled) {
 			phy_type = BRCM_PHY_TYPE_MOCA;
 			brcm_register_moca(id);
 		}

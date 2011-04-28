@@ -495,16 +495,35 @@ static int bcmgenet_open(struct net_device *dev)
 		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS) {
 		mod_timer(&pDevCtrl->timer, jiffies);
 	}
+
+	if (request_irq(pDevCtrl->irq0, bcmgenet_isr0, IRQF_SHARED,
+				dev->name, pDevCtrl) < 0) {
+		printk(KERN_ERR "can't request IRQ %d\n", pDevCtrl->irq0);
+		goto err2;
+	}
+	if (request_irq(pDevCtrl->irq1, bcmgenet_isr1, IRQF_SHARED,
+				dev->name, pDevCtrl) < 0) {
+		printk(KERN_ERR "can't request IRQ %d\n", pDevCtrl->irq1);
+		free_irq(pDevCtrl->irq0, pDevCtrl);
+		goto err1;
+	}
 	/* Start the network engine */
 	netif_tx_start_all_queues(dev);
 	napi_enable(&pDevCtrl->napi);
-
 	pDevCtrl->umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
 	pDevCtrl->dev_opened = 1;
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_PASSIVE);
 	return 0;
+err1:
+	free_irq(pDevCtrl->irq0, dev);
+err2:
+	free_irq(pDevCtrl->irq1, dev);
+	del_timer_sync(&pDevCtrl->timer);
+	netif_tx_stop_all_queues(dev);
+
+	return -ENODEV;
 }
 /* --------------------------------------------------------------------------
 Name: bcmgenet_close
@@ -547,7 +566,8 @@ static int bcmgenet_close(struct net_device *dev)
 
 	/* tx reclaim */
 	bcmgenet_xmit(NULL, dev);
-
+	free_irq(pDevCtrl->irq0, (void *)pDevCtrl);
+	free_irq(pDevCtrl->irq1, (void *)pDevCtrl);
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
 		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
 		pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS) {
@@ -686,6 +706,34 @@ static u16 __maybe_unused bcmgenet_select_queue(struct net_device *dev,
 	return skb->queue_mapping;
 }
 /* --------------------------------------------------------------------------
+Name: __bcmgenet_skb_destructor
+Purpose: For ring buffer, called after skb is consumed.
+-------------------------------------------------------------------------- */
+static void __bcmgenet_skb_destructor(struct sk_buff *skb)
+{
+	struct Enet_CB *cb;
+	int index, cbi;
+	volatile struct rDmaRingRegs *rDma_ring;
+	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(skb->dev);
+	struct status_64 *status = (struct status_64 *)skb->head;
+	index = status->reserved[0];
+	cbi = status->reserved[1];
+
+	rDma_ring = &pDevCtrl->rxDma->rDmaRings[index];
+	cb = pDevCtrl->rxRingCbs[index] + cbi;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+	dma_sync_single_for_device(&pDevCtrl->dev->dev,
+		cb->dma_addr, cb->dma_len, DMA_FROM_DEVICE);
+#endif
+	/* Increment consumer index, if previous skb was not consumed.
+	 * this will cause buffer out of sync!! */
+	if ((rDma_ring->rdma_consumer_index & DMA_C_INDEX_MASK) == 0xFFFF)
+		rDma_ring->rdma_consumer_index = 0;
+	else
+		rDma_ring->rdma_consumer_index++;
+	skb->destructor = NULL;
+}
+/* --------------------------------------------------------------------------
 Name: __bcmgenet_alloc_skb_from_buf
 Purpose: Allocated an skb from exsiting buffer.
 -------------------------------------------------------------------------- */
@@ -736,10 +784,12 @@ Purpose: Allocated skb for tx ring buffer.
 -------------------------------------------------------------------------- */
 struct sk_buff *bcmgenet_alloc_txring_skb(struct net_device *dev, int index)
 {
-	unsigned long flags;
+	unsigned long flags, p_index = 0;
 	struct sk_buff *skb = NULL;
-	unsigned char *buf;
+	struct Enet_CB *cb;
+	volatile struct tDmaRingRegs *tDma_ring;
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+
 	if (!(pDevCtrl->txDma->tdma_ctrl &
 			(1 << (index + DMA_RING_BUF_EN_SHIFT)))) {
 		printk(KERN_ERR "Ring %d is not enabled\n", index);
@@ -755,10 +805,16 @@ struct sk_buff *bcmgenet_alloc_txring_skb(struct net_device *dev, int index)
 		spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 		return skb;
 	}
-	buf = phys_to_virt(
-		pDevCtrl->txDma->tDmaRings[index].tdma_write_pointer);
-	skb = __bcmgenet_alloc_skb_from_buf(buf, RX_BUF_LENGTH, 64);
+	tDma_ring = &pDevCtrl->txDma->tDmaRings[index];
+	p_index = (DMA_P_INDEX_MASK & tDma_ring->tdma_producer_index);
+	/* P/C index is 16 bits, we do modulo of RING_SIZE */
+	p_index &= (pDevCtrl->txRingSize[index] - 1);
 
+	cb = pDevCtrl->txRingCBs[index] + p_index;
+	skb = __bcmgenet_alloc_skb_from_buf((unsigned char *)cb->BdAddr,
+			RX_BUF_LENGTH, 64);
+
+	cb->skb = skb;
 	spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 
 	return skb;
@@ -1617,15 +1673,25 @@ static unsigned int bcmgenet_ring_rx(void *ptr, unsigned int budget)
 			cbi = (read_ptr - rDma_ring->rdma_start_addr) >>
 				(RX_BUF_BITS - 1);
 			cb = pDevCtrl->rxRingCbs[i] + cbi;
-			dma_sync_single(&pDevCtrl->dev->dev, cb->dma_addr, 64, 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+			dma_sync_single_for_cpu(&pDevCtrl->dev->dev,
+					cb->dma_addr, 64, DMA_FROM_DEVICE);
+#else
+			dma_sync_single(&pDevCtrl->dev->dev, cb->dma_addr, 64,
 					DMA_FROM_DEVICE);
+#endif
 
 			status = (struct status_64 *)cb->BdAddr;
 			dmaFlag = status->length_status & 0xffff;
 			len = status->length_status >> 16;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+			dma_sync_single_for_cpu(&pDevCtrl->dev->dev,
+					cb->dma_addr + 64, len, DMA_FROM_DEVICE);
+#else
 			dma_sync_single(&pDevCtrl->dev->dev, cb->dma_addr + 64,
 					len, DMA_FROM_DEVICE);
+#endif
 
 			/*
 			 * Advancing our read pointer.
@@ -1640,6 +1706,10 @@ static unsigned int bcmgenet_ring_rx(void *ptr, unsigned int budget)
 			 */
 			skb = __bcmgenet_alloc_skb_from_buf(
 				(unsigned char *)cb->BdAddr, RX_BUF_LENGTH, 0);
+			skb->destructor = &__bcmgenet_skb_destructor;
+			status->reserved[0] = i; 	/* ring index */
+			status->reserved[1] = cbi;	/* cb index */
+
 			rxpktprocessed++;
 			BUG_ON(skb == NULL);
 
@@ -1874,6 +1944,8 @@ static unsigned int bcmgenet_desc_rx(void *ptr, unsigned int budget)
 		cb = &pDevCtrl->rxCbs[read_ptr];
 		skb = cb->skb;
 		BUG_ON(skb == NULL);
+		dma_unmap_single(&dev->dev, cb->dma_addr,
+				pDevCtrl->rxBufLen, DMA_FROM_DEVICE);
 
 		pDevCtrl->rxBds[read_ptr].address = 0;
 
@@ -2241,15 +2313,16 @@ int bcmgenet_init_ringbuf(struct net_device *dev, int direction,
 		rDmaRing->rdma_ring_buf_size = ((size << DMA_RING_SIZE_SHIFT) |
 				buf_len);
 		dma_start = dma_map_single(&dev->dev, *buf, buf_len * size,
-				DMA_BIDIRECTIONAL);
+				DMA_FROM_DEVICE);
 
 		for (i = 0; i < size; i++) {
 			cb->skb = NULL;
 			cb->BdAddr = (struct DmaDesc *)(*buf + i*buf_len);
 			cb->dma_addr = dma_start + i*buf_len;
+			cb->dma_len = buf_len;
 			cb++;
 		}
-		
+
 		rDmaRing->rdma_start_addr = dma_start;
 		rDmaRing->rdma_end_addr = dma_start + size * buf_len - 1;
 		rDmaRing->rdma_xon_xoff_threshold = (DMA_FC_THRESH_LO <<
@@ -2297,7 +2370,13 @@ int bcmgenet_init_ringbuf(struct net_device *dev, int direction,
 		tDmaRing->tdma_ring_buf_size = ((size << DMA_RING_SIZE_SHIFT) |
 				buf_len);
 		dma_start = dma_map_single(&dev->dev, *buf, buf_len * size,
-				DMA_BIDIRECTIONAL);
+				DMA_TO_DEVICE);
+		for (i = 0; i < size; i++) {
+			cb->skb = NULL;
+			cb->BdAddr = (struct DmaDesc *)(*buf + i*buf_len);
+			cb->dma_addr = dma_start + i*buf_len;
+			cb++;
+		}
 		tDmaRing->tdma_start_addr = dma_start;
 		tDmaRing->tdma_end_addr = dma_start + size * buf_len - 1;
 		tDmaRing->tdma_flow_period = ENET_MAX_MTU_SIZE << 16;
@@ -2328,9 +2407,7 @@ int bcmgenet_uninit_ringbuf(struct net_device *dev, int direction,
 {
 	int dma_enable, size = 0, buflen, i;
 	struct Enet_CB *cb;
-	void *buf;
 	unsigned long flags;
-	dma_addr_t phys_addr;
 	volatile struct rDmaRingRegs *rDmaRing;
 	volatile struct tDmaRingRegs *tDmaRing;
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
@@ -2348,8 +2425,6 @@ int bcmgenet_uninit_ringbuf(struct net_device *dev, int direction,
 		pDevCtrl->rxDma->rdma_ctrl &= ~DMA_EN;
 		pDevCtrl->rxDma->rdma_ctrl &=
 			~(1 << (id + DMA_RING_BUF_EN_SHIFT));
-		phys_addr = (dma_addr_t)rDmaRing->rdma_start_addr;
-		buf = (void *)phys_to_virt(phys_addr);
 		dma_unmap_single(&pDevCtrl->dev->dev,
 			rDmaRing->rdma_start_addr,
 			size * buflen,
@@ -2363,10 +2438,10 @@ int bcmgenet_uninit_ringbuf(struct net_device *dev, int direction,
 				dev_kfree_skb_any(cb->skb);
 			cb++;
 		}
-		kfree(pDevCtrl->rxRingCbs[id]);
 		if (free)
-			kfree(buf);
+			kfree((void *)pDevCtrl->rxRingCbs[id]->BdAddr);
 
+		kfree(pDevCtrl->rxRingCbs[id]);
 		if (dma_enable)
 			pDevCtrl->rxDma->rdma_ctrl |= DMA_EN;
 	} else {
@@ -2487,6 +2562,13 @@ static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl)
 	pDevCtrl->sys = (struct SysRegs *)(base);
 	pDevCtrl->grb = (struct GrBridgeRegs *)(base + GENET_GR_BRIDGE_OFF);
 	pDevCtrl->ext = (struct ExtRegs *)(base + GENET_EXT_OFF);
+#ifdef CONFIG_BRCM_GENET_V1
+	/* SWLINUX-1814: EXT block is not available on MOCA_GENET */
+#if !defined(CONFIG_BCM7125)
+	if (pDevCtrl->devnum == 1)
+#endif
+		pDevCtrl->ext = NULL;
+#endif
 	pDevCtrl->intrl2_0 = (struct intrl2Regs *)(base + GENET_INTRL2_0_OFF);
 	pDevCtrl->intrl2_1 = (struct intrl2Regs *)(base + GENET_INTRL2_1_OFF);
 	pDevCtrl->rbuf = (struct rbufRegs *)(base + GENET_RBUF_OFF);
@@ -3053,7 +3135,8 @@ static void bcmgenet_power_down(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		/* Power down LED */
 		pDevCtrl->mii.mdio_write(pDevCtrl->dev,
 				pDevCtrl->phyAddr, MII_BMCR, BMCR_RESET);
-		pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY |
+		if (pDevCtrl->ext)
+			pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY |
 				EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
 		break;
 	default:
@@ -3071,10 +3154,12 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_BIAS;
 #endif
 		/* enable APD */
-		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
-		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
-		udelay(5);
-		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+		if (pDevCtrl->ext) {
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
+			udelay(5);
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+		}
 		/* enable 64 clock MDIO */
 		pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d,
 				0x1000);
@@ -3109,15 +3194,16 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		bcmgenet_clear_hfb(pDevCtrl, CLEAR_ALL_HFB);
 		break;
 	case GENET_POWER_PASSIVE:
-
-		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_DLL;
-		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_PHY;
-		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_BIAS;
-		/* enable APD */
-		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
-		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
-		udelay(5);
-		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+		if (pDevCtrl->ext) {
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_DLL;
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_PHY;
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_BIAS;
+			/* enable APD */
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
+			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
+			udelay(5);
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+		}
 		/* enable 64 clock MDIO */
 		pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d,
 				0x1000);
@@ -3277,18 +3363,6 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	mii_init(dev);
 
 	INIT_WORK(&pDevCtrl->bcmgenet_irq_work, bcmgenet_irq_task);
-
-	if (request_irq(pDevCtrl->irq0, bcmgenet_isr0, IRQF_SHARED,
-				dev->name, pDevCtrl) < 0) {
-		printk(KERN_ERR "can't request IRQ %d\n", pDevCtrl->irq0);
-		goto err2;
-	}
-	if (request_irq(pDevCtrl->irq1, bcmgenet_isr1, IRQF_SHARED,
-				dev->name, pDevCtrl) < 0) {
-		printk(KERN_ERR "can't request IRQ %d\n", pDevCtrl->irq1);
-		free_irq(pDevCtrl->irq0, pDevCtrl);
-		goto err2;
-	}
 	netif_carrier_off(pDevCtrl->dev);
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||

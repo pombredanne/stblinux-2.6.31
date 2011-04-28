@@ -175,11 +175,11 @@ void __init bchip_check_compat(void)
 #elif defined(CONFIG_BCM7408)
 	MAIN_CHIP_ID(7408, b0);
 #elif defined(CONFIG_BCM7420)
-	ALT_CHIP_ID(3320, c0);
-	ALT_CHIP_ID(7220, c0);
-	ALT_CHIP_ID(7409, c0);
-	ALT_CHIP_ID(7410, c0);
-	MAIN_CHIP_ID(7420, c0);
+	ALT_CHIP_ID(3320, c1);
+	ALT_CHIP_ID(7220, c1);
+	ALT_CHIP_ID(7409, c1);
+	ALT_CHIP_ID(7410, c1);
+	MAIN_CHIP_ID(7420, c1);
 #elif defined(CONFIG_BCM7422) || defined(CONFIG_BCM7425)
 	ALT_CHIP_ID(7422, a0);
 	MAIN_CHIP_ID(7425, a0);

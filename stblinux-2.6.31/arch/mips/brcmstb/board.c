@@ -127,6 +127,14 @@ char irq_tab_brcmstb_docsis[NUM_SLOTS][4] __devinitdata = {
 		 BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_##reg##_##field##_SHIFT)); \
 	} while (0)
 
+#define PADCTRL(reg, field, val) do { \
+	BDEV_WR(BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_##reg, \
+		(BDEV_RD(BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_##reg) & \
+		 ~BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_##reg##_##field##_MASK) | \
+		((val) << \
+		 BCHP_SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_##reg##_##field##_SHIFT)); \
+	} while (0)
+
 void __init board_pinmux_setup(void)
 {
 #if !defined(CONFIG_BRCM_IKOS)
@@ -246,6 +254,45 @@ void __init board_pinmux_setup(void)
 		BDEV_UNSET(BCHP_SDIO_0_CFG_CAP_REG0, 1 << 19);	/* Highspd=0 */
 		BDEV_SET(BCHP_SDIO_0_CFG_CAP_REG1, 1 << 31);	/* Override=1 */
 	} else {
+		/* set RGMII lines to 2.5V */
+		BDEV_WR_F(SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0,
+			rgmii_0_pad_mode, 1);
+
+		PINMUX(15, gpio_132, 1);	/* RGMII RX */
+		PINMUX(15, gpio_133, 1);
+		PINMUX(15, gpio_134, 1);
+		PINMUX(16, gpio_139, 1);
+		PINMUX(16, gpio_140, 1);
+		PINMUX(16, gpio_141, 1);
+		PINMUX(16, gpio_142, 1);
+
+		PINMUX(16, gpio_138, 1);	/* RGMII TX */
+		PINMUX(17, gpio_143, 1);
+		PINMUX(17, gpio_144, 1);
+		PINMUX(17, gpio_145, 1);
+		PINMUX(17, gpio_146, 1);
+		PINMUX(17, gpio_147, 1);
+
+		PINMUX(17, gpio_149, 1);	/* RGMII MDIO */
+		PINMUX(16, gpio_137, 1);
+
+		/* no pulldown on RGMII lines */
+		PADCTRL(8, gpio_132_pad_ctrl, 0);
+		PADCTRL(8, gpio_133_pad_ctrl, 0);
+		PADCTRL(8, gpio_134_pad_ctrl, 0);
+		PADCTRL(8, gpio_137_pad_ctrl, 0);
+		PADCTRL(8, gpio_138_pad_ctrl, 0);
+		PADCTRL(9, gpio_139_pad_ctrl, 0);
+		PADCTRL(9, gpio_140_pad_ctrl, 0);
+		PADCTRL(9, gpio_141_pad_ctrl, 0);
+		PADCTRL(9, gpio_142_pad_ctrl, 0);
+		PADCTRL(9, gpio_143_pad_ctrl, 0);
+		PADCTRL(9, gpio_144_pad_ctrl, 0);
+		PADCTRL(9, gpio_145_pad_ctrl, 0);
+		PADCTRL(9, gpio_146_pad_ctrl, 0);
+		PADCTRL(9, gpio_147_pad_ctrl, 0);
+		PADCTRL(9, gpio_149_pad_ctrl, 0);
+
 		PINMUX(14, gpio_122, 1);	/* SDIO */
 		PINMUX(14, gpio_123, 1);
 		PINMUX(14, gpio_124, 1);
@@ -257,27 +304,17 @@ void __init board_pinmux_setup(void)
 		PINMUX(15, gpio_130, 1);
 		PINMUX(15, gpio_131, 1);
 
-		/* disable GPIO pulldowns */
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7,
-			gpio_122_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_7,
-			gpio_123_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_124_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_125_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_126_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_127_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_128_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_129_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_130_pad_ctrl, 0);
-		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
-			gpio_131_pad_ctrl, 0);
+		/* no pulldown on SDIO lines */
+		PADCTRL(7, gpio_122_pad_ctrl, 0);
+		PADCTRL(7, gpio_123_pad_ctrl, 0);
+		PADCTRL(8, gpio_124_pad_ctrl, 0);
+		PADCTRL(8, gpio_125_pad_ctrl, 0);
+		PADCTRL(8, gpio_126_pad_ctrl, 0);
+		PADCTRL(8, gpio_127_pad_ctrl, 0);
+		PADCTRL(8, gpio_128_pad_ctrl, 0);
+		PADCTRL(8, gpio_129_pad_ctrl, 0);
+		PADCTRL(8, gpio_130_pad_ctrl, 0);
+		PADCTRL(8, gpio_131_pad_ctrl, 0);
 	}
 
 #elif defined(CONFIG_BCM7325B0)
@@ -369,6 +406,32 @@ void __init board_pinmux_setup(void)
 	AON_PINMUX(2, aon_sgpio_00, 1);	/* MoCA I2C */
 	AON_PINMUX(2, aon_sgpio_01, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCC_REG_START);
+
+#if defined(CONFIG_BCMGENET_0_GPHY)
+	/* select MAC0 for RGMII */
+	BDEV_WR_F(SUN_TOP_CTRL_GENERAL_CTRL_0, mii_genet_mac_select, 0);
+
+	PINMUX(9, gpio_31, 1);		/* RGMII RX */
+	PINMUX(9, gpio_28, 1);
+	PINMUX(9, gpio_27, 1);
+	PINMUX(9, gpio_26, 1);
+	PINMUX(8, gpio_25, 1);
+	PINMUX(8, gpio_24, 1);
+	PINMUX(8, gpio_23, 1);
+
+	PINMUX(9, gpio_34, 1);		/* RGMII TX */
+	PINMUX(9, gpio_35, 1);
+	PINMUX(10, gpio_36, 1);
+	PINMUX(10, gpio_40, 1);
+	PINMUX(10, gpio_39, 1);
+	PINMUX(10, gpio_38, 1);
+	PINMUX(10, gpio_37, 1);
+
+	PINMUX(10, gpio_32, 1);		/* ENET MDIO */
+	PINMUX(10, gpio_33, 1);
+	PINMUX(9, gpio_29, 1);
+	PINMUX(9, gpio_30, 1);
+#endif
 
 #elif defined(CONFIG_BCM7346)
 
@@ -507,7 +570,7 @@ void __init board_pinmux_setup(void)
 	PINMUX(8, gpio_013, 1);
 	PINMUX(8, gpio_014, 1);
 
-	PINMUX(20, gpio_108, 3);	/* ENET MDIO  */
+	PINMUX(20, gpio_108, 3);	/* ENET MDIO */
 	PINMUX(20, gpio_109, 4);
 #endif
 

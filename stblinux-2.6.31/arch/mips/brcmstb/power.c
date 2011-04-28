@@ -319,7 +319,6 @@ ssize_t brcm_pm_store_cpu_pll(struct device *dev,
  ***********************************************************************/
 struct clk {
 	char			name[16];
-	spinlock_t      lock;
 	int             refcnt;
 	struct clk     *parent;
 	int			    (*cb)(int, void *);
@@ -327,6 +326,8 @@ struct clk {
 	void			(*disable)(void);
 	void			(*enable)(void);
 };
+
+static DEFINE_SPINLOCK(brcm_pm_clk_lock);
 
 static void brcm_pm_sata_disable(void);
 static void brcm_pm_sata_enable(void);
@@ -336,6 +337,8 @@ static void brcm_pm_moca_disable(void);
 static void brcm_pm_moca_enable(void);
 static void brcm_pm_moca_genet_disable(void);
 static void brcm_pm_moca_genet_enable(void);
+static void brcm_pm_network_disable(void);
+static void brcm_pm_network_enable(void);
 static void brcm_pm_usb_disable(void);
 static void brcm_pm_usb_enable(void);
 static void brcm_pm_set_ddr_timeout(int);
@@ -348,7 +351,8 @@ enum {
 	BRCM_CLK_ENET,
 	BRCM_CLK_MOCA,
 	BRCM_CLK_USB,
-	BRCM_CLK_MOCA_GENET
+	BRCM_CLK_MOCA_GENET,
+	BRCM_CLK_NETWORK	/* PLLs/clocks common to all GENETs */
 };
 
 static struct clk brcm_clk_table[] = {
@@ -361,7 +365,7 @@ static struct clk brcm_clk_table[] = {
 		.name		= "enet",
 		.disable	= &brcm_pm_enet_disable,
 		.enable		= &brcm_pm_enet_enable,
-		.parent		= &brcm_clk_table[BRCM_CLK_MOCA_GENET],
+		.parent		= &brcm_clk_table[BRCM_CLK_NETWORK],
 	},
 	[BRCM_CLK_MOCA] = {
 		.name		= "moca",
@@ -378,7 +382,13 @@ static struct clk brcm_clk_table[] = {
 		.name		= "moca_genet",
 		.disable	= &brcm_pm_moca_genet_disable,
 		.enable		= &brcm_pm_moca_genet_enable,
-	}
+		.parent		= &brcm_clk_table[BRCM_CLK_NETWORK],
+	},
+	[BRCM_CLK_NETWORK] = {
+		.name		= "network",
+		.disable	= &brcm_pm_network_disable,
+		.enable		= &brcm_pm_network_enable,
+	},
 };
 
 static struct clk *brcm_pm_clk_find(const char *name)
@@ -453,10 +463,6 @@ ssize_t brcm_pm_store_standby_flags(struct device *dev,
 
 static int __init brcm_pm_init(void)
 {
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(brcm_clk_table); i++)
-		spin_lock_init(&brcm_clk_table[i].lock);
 	if (!brcm_pm_enabled)
 		return 0;
 	if (!brcm_moca_enabled)
@@ -482,6 +488,8 @@ __setup("nopm", nopm_setup);
 static int __clk_enable(struct clk *clk)
 {
 	if (++(clk->refcnt) == 1 && brcm_pm_enabled) {
+		if (clk->parent)
+			__clk_enable(clk->parent);
 		printk(KERN_INFO "brcm-pm: enabling %s clocks\n",
 			clk->name);
 		clk->enable();
@@ -495,18 +503,19 @@ static void __clk_disable(struct clk *clk)
 		printk(KERN_INFO "brcm-pm: disabling %s clocks\n",
 			clk->name);
 		clk->disable();
+		if (clk->parent)
+			__clk_disable(clk->parent);
 	}
 }
 
 int clk_enable(struct clk *clk)
 {
 	unsigned long flags;
+
 	if (clk && !IS_ERR(clk)) {
-		spin_lock_irqsave(&clk->lock, flags);
-		if (clk->parent)
-			clk_enable(clk->parent);
+		spin_lock_irqsave(&brcm_pm_clk_lock, flags);
 		__clk_enable(clk);
-		spin_unlock_irqrestore(&clk->lock, flags);
+		spin_unlock_irqrestore(&brcm_pm_clk_lock, flags);
 		return 0;
 	} else {
 		return -EINVAL;
@@ -517,12 +526,11 @@ EXPORT_SYMBOL(clk_enable);
 void clk_disable(struct clk *clk)
 {
 	unsigned long flags;
+
 	if (clk && !IS_ERR(clk)) {
-		spin_lock_irqsave(&clk->lock, flags);
+		spin_lock_irqsave(&brcm_pm_clk_lock, flags);
 		__clk_disable(clk);
-		if (clk->parent)
-			clk_disable(clk->parent);
-		spin_unlock_irqrestore(&clk->lock, flags);
+		spin_unlock_irqrestore(&brcm_pm_clk_lock, flags);
 	}
 }
 EXPORT_SYMBOL(clk_disable);
@@ -535,10 +543,11 @@ EXPORT_SYMBOL(clk_put);
 int clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	unsigned long flags;
+	spinlock_t *lock = &brcm_pm_clk_lock;
 	if (clk && !IS_ERR(clk)) {
-		spin_lock_irqsave(&clk->lock, flags);
+		spin_lock_irqsave(lock, flags);
 		clk->parent = parent;
-		spin_unlock_irqrestore(&clk->lock, flags);
+		spin_unlock_irqrestore(lock, flags);
 		return 0;
 	}
 	return -EINVAL;
@@ -562,11 +571,11 @@ int brcm_pm_register_cb(char *name, int (*fn)(int, void *), void *arg)
 	if (!clk)
 		return -ENOENT;
 
-	spin_lock_irqsave(&clk->lock, flags);
+	spin_lock_irqsave(&brcm_pm_clk_lock, flags);
 	BUG_ON(fn && clk->cb);
 	clk->cb = fn;
 	clk->cb_arg = arg;
-	spin_unlock_irqrestore(&clk->lock, flags);
+	spin_unlock_irqrestore(&brcm_pm_clk_lock, flags);
 
 	return 0;
 }
@@ -735,6 +744,7 @@ struct brcm_chip_pm_ops {
 	struct brcm_chip_pm_block_ops moca;
 	struct brcm_chip_pm_block_ops usb;
 	struct brcm_chip_pm_block_ops moca_genet;
+	struct brcm_chip_pm_block_ops network;
 	void (*suspend)(void);
 	void (*resume)(void);
 	/* for chip specific clock mappings ( see #SWLINUX-1764 ) */
@@ -747,6 +757,18 @@ struct brcm_chip_pm_ops {
 					mdelay(1); \
 				} while (0)
 
+static __maybe_unused struct clk *brcm_pm_clk_get(struct device *dev,
+	const char *id)
+{
+	if (!strcmp(id, "enet") && dev) {
+		struct platform_device *pdev = to_platform_device(dev);
+		if (pdev->id == 0) /* enet */
+			return brcm_pm_clk_find("enet");
+		if (pdev->id == 1) /* moca_genet */
+			return brcm_pm_clk_find("moca");
+	}
+	return NULL;
+}
 
 #if defined(CONFIG_BCM7125)
 static void bcm7125_pm_sata_disable(u32 flags)
@@ -767,7 +789,7 @@ static void bcm7125_pm_sata_enable(u32 flags)
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
 }
 
-static void bcm7125_pm_moca_genet_disable(u32 flags)
+static void bcm7125_pm_network_disable(u32 flags)
 {
 	BDEV_SET_RB(BCHP_CLKGEN_MOCA_CLK_PM_CTRL, 0xf77);
 	BDEV_WR_RB(BCHP_CLKGEN_PLL_MOCA_CH3_PM_CTRL, 0x04);
@@ -777,7 +799,7 @@ static void bcm7125_pm_moca_genet_disable(u32 flags)
 	BDEV_SET_RB(BCHP_CLKGEN_PLL_MOCA_CTRL, 0x13);
 }
 
-static void bcm7125_pm_moca_genet_enable(u32 flags)
+static void bcm7125_pm_network_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLKGEN_PLL_MOCA_CTRL, 0x13);
 	BDEV_WR_RB(BCHP_CLKGEN_PLL_MOCA_CH6_PM_CTRL, 0x01);
@@ -860,8 +882,8 @@ static void bcm7125_pm_resume(void)
 static struct brcm_chip_pm_ops chip_pm_ops = {
 	.sata.enable		= bcm7125_pm_sata_enable,
 	.sata.disable		= bcm7125_pm_sata_disable,
-	.moca_genet.enable	= bcm7125_pm_moca_genet_enable,
-	.moca_genet.disable	= bcm7125_pm_moca_genet_disable,
+	.network.enable		= bcm7125_pm_network_enable,
+	.network.disable	= bcm7125_pm_network_disable,
 	.usb.enable		= bcm7125_pm_usb_enable,
 	.usb.disable		= bcm7125_pm_usb_disable,
 	.suspend		= bcm7125_pm_suspend,
@@ -914,17 +936,19 @@ static void bcm7420_pm_sata_disable(u32 flags)
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 1);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 1);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 1);
+	PLL_DIS(CLK_GENET_NETWORK_PLL_4);
 }
 
 static void bcm7420_pm_sata_enable(u32 flags)
 {
+	PLL_ENA(CLK_GENET_NETWORK_PLL_4);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 0);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 0);
 	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 0);
 	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
 }
 
-static void bcm7420_pm_moca_genet_disable(u32 flags)
+static void bcm7420_pm_moca_disable(u32 flags)
 {
 	PLL_DIS(CLK_SYS_PLL_1_3);
 	PLL_DIS(CLK_SYS_PLL_1_4);
@@ -933,7 +957,7 @@ static void bcm7420_pm_moca_genet_disable(u32 flags)
 	BDEV_SET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
 }
 
-static void bcm7420_pm_moca_genet_enable(u32 flags)
+static void bcm7420_pm_moca_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
 	PLL_ENA(CLK_SYS_PLL_1_6);
@@ -942,10 +966,24 @@ static void bcm7420_pm_moca_genet_enable(u32 flags)
 	PLL_ENA(CLK_SYS_PLL_1_3);
 }
 
+static void bcm7420_pm_enet_disable(u32 flags)
+{
+	PLL_DIS(CLK_GENET_NETWORK_PLL_3);
+	PLL_DIS(CLK_GENET_NETWORK_PLL_5);
+	PLL_DIS(CLK_GENET_NETWORK_PLL_6);
+	BDEV_SET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x77F);
+}
+
+static void bcm7420_pm_enet_enable(u32 flags)
+{
+	BDEV_UNSET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x77F);
+	PLL_ENA(CLK_GENET_NETWORK_PLL_3);
+	PLL_ENA(CLK_GENET_NETWORK_PLL_5);
+	PLL_ENA(CLK_GENET_NETWORK_PLL_6);
+}
+
 static void bcm7420_pm_suspend(void)
 {
-	PLL_DIS(CLK_GENET_NETWORK_PLL_4);
-
 	/* BT */
 	PLL_DIS(CLK_SYS_PLL_1_1);
 	BDEV_SET_RB(BCHP_CLK_BLUETOOTH_CLK_PM_CTRL, 1);
@@ -968,7 +1006,7 @@ static void bcm7420_pm_suspend(void)
 	PLL_DIS(CLK_GENET_NETWORK_PLL_1);
 	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, POWERDOWN, 1);
 	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, RESET, 1);
-	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_6, DIS_CH, 1);
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_PLL_6, 0x2);
 	BDEV_WR_F_RB(CLK_SCRATCH, CML_REPEATER_2_POWERDOWN, 1);
 
 	/* MEMC1 */
@@ -999,18 +1037,18 @@ static void bcm7420_pm_suspend(void)
 	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_DDR_PAD_CNTRL,
 		IDDQ_MODE_ON_SELFREF, 1);
 	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF, 1);
+			PWRDN_DLL_ON_SELFREF, 1);
 	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_DDR_PAD_CNTRL,
 		IDDQ_MODE_ON_SELFREF, 1);
 	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF, 1);
+			PWRDN_DLL_ON_SELFREF, 1);
 }
 
 static void bcm7420_pm_resume(void)
 {
 	/* system PLLs */
 	BDEV_WR_F_RB(CLK_SCRATCH, CML_REPEATER_2_POWERDOWN, 0);
-	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_6, DIS_CH, 0);
+	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_PLL_6, 0x1);
 	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, RESET, 0);
 	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, POWERDOWN, 0);
 	PLL_ENA(CLK_GENET_NETWORK_PLL_1);
@@ -1036,7 +1074,6 @@ static void bcm7420_pm_resume(void)
 	BDEV_UNSET_RB(BCHP_CLK_BLUETOOTH_CLK_PM_CTRL, 1);
 	PLL_ENA(CLK_SYS_PLL_1_1);
 
-	PLL_ENA(CLK_GENET_NETWORK_PLL_4);
 }
 
 #define PM_OPS_DEFINED
@@ -1045,10 +1082,13 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	.usb.disable		= bcm7420_pm_usb_disable,
 	.sata.enable		= bcm7420_pm_sata_enable,
 	.sata.disable		= bcm7420_pm_sata_disable,
-	.moca_genet.enable	= bcm7420_pm_moca_genet_enable,
-	.moca_genet.disable	= bcm7420_pm_moca_genet_disable,
+	.genet.enable		= bcm7420_pm_enet_enable,
+	.genet.disable		= bcm7420_pm_enet_disable,
+	.moca.enable		= bcm7420_pm_moca_enable,
+	.moca.disable		= bcm7420_pm_moca_disable,
 	.suspend		= bcm7420_pm_suspend,
 	.resume			= bcm7420_pm_resume,
+	.clk_get		= brcm_pm_clk_get,
 };
 #endif
 
@@ -1128,19 +1168,6 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	.resume			= bcm7468_pm_resume,
 };
 #endif
-
-static __maybe_unused struct clk *brcm_pm_clk_get(struct device *dev,
-	const char *id)
-{
-	if (!strcmp(id, "enet") && dev) {
-		struct platform_device *pdev = to_platform_device(dev);
-		if (pdev->id == 0) /* enet */
-			return brcm_pm_clk_find("enet");
-		if (pdev->id == 1) /* moca_genet */
-			return brcm_pm_clk_find("moca");
-	}
-	return NULL;
-}
 
 #if defined(CONFIG_BCM7340)
 
@@ -1538,7 +1565,7 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 #endif
 
 #if defined(CONFIG_BCM7408)
-static void bcm7408_pm_moca_disable(u32 flags)
+static void bcm7408_pm_network_disable(u32 flags)
 {
 	BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_MOCA_ENET_HFB_27_108M_CLK, 1);
 	BDEV_WR_F_RB(CLK_SYS_PLL_1_3, DIS_CH, 1);
@@ -1551,7 +1578,7 @@ static void bcm7408_pm_moca_disable(u32 flags)
 	BDEV_SET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x6ab);
 }
 
-static void bcm7408_pm_moca_enable(u32 flags)
+static void bcm7408_pm_network_enable(u32 flags)
 {
 	BDEV_UNSET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x6ab);
 	BDEV_WR_F_RB(CLK_SYS_PLL_1_6, DIS_CH, 0);
@@ -1669,8 +1696,8 @@ static void bcm7408_pm_resume(void)
 
 #define PM_OPS_DEFINED
 static struct brcm_chip_pm_ops chip_pm_ops = {
-	.moca_genet.enable	= bcm7408_pm_moca_enable,
-	.moca_genet.disable	= bcm7408_pm_moca_disable,
+	.network.enable		= bcm7408_pm_network_enable,
+	.network.disable	= bcm7408_pm_network_disable,
 	.usb.enable		= bcm7408_pm_usb_enable,
 	.usb.disable		= bcm7408_pm_usb_disable,
 	.suspend		= bcm7408_pm_suspend,
@@ -1717,6 +1744,18 @@ static void brcm_pm_moca_genet_enable(void)
 {
 	if (chip_pm_ops.moca_genet.enable)
 		chip_pm_ops.moca_genet.enable(0);
+}
+
+static void brcm_pm_network_disable(void)
+{
+	if (chip_pm_ops.network.disable)
+		chip_pm_ops.network.disable(0);
+}
+
+static void brcm_pm_network_enable(void)
+{
+	if (chip_pm_ops.network.enable)
+		chip_pm_ops.network.enable(0);
 }
 
 static void brcm_pm_enet_disable(void)

@@ -99,10 +99,11 @@ int mii_probe(struct net_device *dev, void *p)
 		 * internal 10/100 MII.
 		 */
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN;
-		/* Power down EPHY */
-		pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY |
-				EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
 	}
+	/* Power down EPHY */
+	if (pDevCtrl->ext)
+		pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY |
+			EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
 
 	for (i = 0; i < 32; i++) {
 		if (mii_read(dev, i, MII_BMSR) != 0) {

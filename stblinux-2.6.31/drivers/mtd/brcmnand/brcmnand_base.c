@@ -54,7 +54,7 @@ when	who what
 #include "brcmnand_priv.h"
 
 #define PRINTK(...)
-// #define PRINTK printk
+//#define PRINTK printk
 //static char brcmNandMsg[1024];
 
 //#define DEBUG_HW_ECC
@@ -66,6 +66,8 @@ when	who what
 //#define BRCMNAND_WRITE_VERIFY
 //#endif
 #undef BRCMNAND_WRITE_VERIFY
+
+#define BRCMNAND_CTRL_WRITE_TIMEOUT_RETRIES		1
 
 //#define DEBUG_ISR
 #undef DEBUG_ISR
@@ -685,7 +687,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.chipId = HYNIX_HY27UT088G2A,
 		.mafId = FLASHTYPE_HYNIX,
 		.chipIdStr = "HYNIX_HY27UT088G2A",
-		.options = NAND_USE_FLASH_BBT|NAND_SCAN_BI_3RD_PAGE, /* BBT on flash + BI on (last-2) page */
+		.options = NAND_USE_FLASH_BBT|BRCMNAND_SCAN_BI_3RD_PAGE, /* BBT on flash + BI on (last-2) page */
 				//| NAND_COMPLEX_OOB_WRITE	/* Write data together with OOB for write_oob */
 		.idOptions = BRCMNAND_ID_EXT_BYTES,
 		.timing1 = 0, 
@@ -698,7 +700,7 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.chipId = HYNIX_HY27UAG8T2M,
 		.mafId = FLASHTYPE_HYNIX,
 		.chipIdStr = "HYNIX_HY27UAG8T2M",
-		.options = NAND_USE_FLASH_BBT|NAND_SCAN_BI_3RD_PAGE, /* BBT on flash + BI on (last-2) page */
+		.options = NAND_USE_FLASH_BBT|BRCMNAND_SCAN_BI_3RD_PAGE, /* BBT on flash + BI on (last-2) page */
 				//| NAND_COMPLEX_OOB_WRITE	/* Write data together with OOB for write_oob */
 		.idOptions = BRCMNAND_ID_EXT_BYTES,
 		.timing1 = 0, 
@@ -1700,7 +1702,7 @@ static int brcmnand_wait(struct mtd_info *mtd, int state, uint32_t* pStatus)
 		if (state != FL_READING && (!wr_preempt_en) && !in_interrupt())
 			cond_resched();
 		else
-			udelay(100);
+			udelay(10);
 		//touch_softlockup_watchdog();
 	}
 
@@ -1754,7 +1756,7 @@ printk("-->%s, raw=%d\n", __FUNCTION__, raw);}
 		if (state != FL_READING && !wr_preempt_en && !in_interrupt())
 			cond_resched();
 		else
-			udelay(100);
+			udelay(10);
 	}
 
 	return 0; // Timed out
@@ -1806,7 +1808,7 @@ printk("<--%s: ret = %d\n", __FUNCTION__, ecc);}
 		if (state != FL_READING && (!wr_preempt_en) && !in_interrupt())
 			cond_resched();
 		else
-			udelay(100);
+			udelay(10);
 
 	}
 
@@ -2174,7 +2176,7 @@ printk("hif_err=%08x\n", hif_err);
 		while (!(flashStatus & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK) && retries-- > 0) {
 			// Cant call the ctrl version, we are in ISR context
 			// ret = brcmnand_ctrl_write_is_complete(mtd, outp_needBBT); 
-			udelay(5000); // Wait for a total of 100 usec
+			udelay(5); // Wait for a total of 100 usec = 5x20
 			//dump_nand_regs(chip, 0, 0, numDumps++);
 			flashStatus = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
 		}
@@ -6068,6 +6070,7 @@ brcmnand_write_page(struct mtd_info *mtd,
 {
 	struct brcmnand_chip *chip = (struct brcmnand_chip*) mtd->priv;
 	int eccstep;
+	int __maybe_unused retry_count = 0;  /* BRCMNAND_CTRL_WRITE_TIMEOUT_RETRIES */
 	int dataWritten = 0;
 	int oobWritten = 0;
 	int ret = 0;
@@ -6079,6 +6082,43 @@ printk("-->%s, offset=%0llx\n", __FUNCTION__, offset);}
 
 	chip->pagebuf = page;
 
+/* SWLINUX-1839 (CSP383703) */ 
+#ifdef BRCMNAND_CTRL_WRITE_TIMEOUT_RETRIES
+	eccstep = 0;
+	retry_count = 0;
+	while ( eccstep < chip->eccsteps ) {
+		ret = brcmnand_posted_write_cache(mtd, &inp_buf[dataWritten], 
+					inp_oob ? &inp_oob[oobWritten]  : NULL, 
+					offset + dataWritten);
+
+		if ( 0 == ret ) {
+			dataWritten += chip->eccsize;
+			oobWritten += chip->eccOobSize;
+			retry_count = 0;
+			++eccstep;
+		}
+		else if ( -ETIMEDOUT == ret ) {
+			if ( retry_count >= BRCMNAND_CTRL_WRITE_TIMEOUT_RETRIES ) {
+				printk(KERN_ERR "%s: brcmnand_posted_write_cache exceeded timeout retry count offset=%0llx, ret=%d\n", 
+					__FUNCTION__, offset + dataWritten, ret);
+				// TBD: Return the the number of bytes written at block boundary.
+				dataWritten = 0;
+				return -EIO;	// return -EIO to force UBI to recycle the block and recover from the error
+			}
+			else
+				++retry_count;
+		}
+		else {
+			printk(KERN_ERR "%s: brcmnand_posted_write_cache failed at offset=%0llx, ret=%d\n", 
+				__FUNCTION__, offset + dataWritten, ret);
+			// TBD: Return the the number of bytes written at block boundary.
+			dataWritten = 0;
+			return ret;
+		}
+	}
+
+
+#else
 	for (eccstep = 0; eccstep < chip->eccsteps && ret == 0; eccstep++) {
 		ret = brcmnand_posted_write_cache(mtd, &inp_buf[dataWritten], 
 					inp_oob ? &inp_oob[oobWritten]  : NULL, 
@@ -6094,6 +6134,9 @@ printk("-->%s, offset=%0llx\n", __FUNCTION__, offset);}
 		dataWritten += chip->eccsize;
 		oobWritten += chip->eccOobSize;
 	}
+#endif
+
+
 
 	// TBD
 #ifdef BRCMNAND_WRITE_VERIFY
@@ -7897,7 +7940,15 @@ printk("eccLevel=%d, 1Ksector=%d, oob=%d\n", eccLevel, b1Ksector, oobPerSector);
 	}
 
 	/* Clear FAST_PGM_RDIN, PARTIAL_PAGE_EN if MLC */
-	cellinfo = ffs(nbrBitsPerCell)-2;
+
+	/*
+	  *  # levels/Cell	nbrBitsPerCell		cellinfo
+	  * 		2			1			0000b
+	  *		4			2			0100b
+	  *		8			3			1000b
+	  *		16			4			1100b
+	  */
+	cellinfo = nbrBitsPerCell-1;
 
 PRINTK("cellinfo=%d\n", cellinfo);
 
@@ -8959,7 +9010,7 @@ PRINTK("EccLevel = [%08x], %02x, pageSize=%d, oobSize=%d\n", u32, eccLevel, *out
 		*outp_reqEcc = 0; /* Use strap */
 		*outp_codeWorkSize = (eccLevel != 0xFF) ? 512 : 1024;
 		skipDecodeID = 1;	
-		return skipDecodeID;
+		goto onfi_exit;
 	}	
 
 	if (eccLevel != 0xFF) { /* Codework is 512B */
@@ -9048,12 +9099,28 @@ PRINTK("eccLevel=%d, u32=%08x\n", *outp_reqEcc, u32);
 		printk("reqEcc=%d, codeWork=%d\n", *outp_reqEcc, *outp_codeWorkSize);
 		brcmnand_set_acccontrol(chip, chipSelect, 
 			*outp_pageSize, *outp_oobSize, *outp_reqEcc, *outp_codeWorkSize, nbrBitsPerCell);
+
 	}
 //gdebug = 0;
 
 onfi_exit:
 
 	//local_irq_restore(irqflags);
+	
+	/*
+	 * Micron MLC flashes have BI at first page.  Rely on the fact that MICRON chips are all ONFI capable.
+	 */
+	if (skipDecodeID && NAND_IS_MLC(chip)) {
+		uint32 devID = brcmnand_ctrl_read(BCHP_NAND_FLASH_DEVICE_ID);
+		uint32_t maf_id;
+
+		maf_id = (devID >> 24) & 0xff;
+//printk("+++++++++ Micron chip: ID=%08x Setting BI indicator at first page\n", devID);
+		if (maf_id == FLASHTYPE_MICRON) {
+			chip->options |= BRCMNAND_SCAN_BI_MLC_1ST_PAGE;
+//printk("+++++++++ Micron chip: ID=%08x Setting BI indicator at first page\n", devID);
+		}
+	}
 
 	return skipDecodeID;
 }
@@ -9493,7 +9560,7 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 
 	/* Flash device information */
 	brcmnand_print_device_info(&brcmnand_chips[i], mtd);
-	chip->options = brcmnand_chips[i].options;
+	chip->options |= brcmnand_chips[i].options;
 		
 	/* BrcmNAND page size & block size */	
 	mtd->writesize = chip->pageSize; 	

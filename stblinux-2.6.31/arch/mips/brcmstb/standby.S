@@ -19,10 +19,11 @@
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 #include <asm/cacheops.h>
+#include <asm/addrspace.h>
 #include <asm/brcmstb/brcmstb.h>
 
 #define XTALFREQ		27000000
-#define REG_OFFSET		(0xa0000000 | BCHP_PHYSICAL_OFFSET)
+#define REG_OFFSET		(KSEG1 | BCHP_PHYSICAL_OFFSET)
 #define REG(x)			(REG_OFFSET + (x))
 #define UPG_USEC_TICKS		(XTALFREQ / 1000000)
 
@@ -34,35 +35,34 @@
 
 #define USE_WATCHDOG		0
 
-#define FLAGREG			s5
-
-#if (defined(CONFIG_BMIPS5000) && !defined(CONFIG_BCM7420C0)) || defined(CONFIG_BRCM_HAS_AON)
+#if defined(CONFIG_BRCM_HAS_AON)
 #define PM_STANDBY_COMMAND	0x0f
-#elif defined(CONFIG_BCM7420C0)
-#define PM_STANDBY_COMMAND	0x03
+#elif defined(CONFIG_BMIPS5000)
+#define PM_STANDBY_COMMAND	0x07
 #else
 #define PM_STANDBY_COMMAND	0x0b
 #endif
 
-#define VCDL_SAVE_REG		BCHP_MEMC_DDR23_APHY_WL1_0_SPARE0_RW
-
 #ifdef BCHP_MEMC_DDR23_APHY_WL0_0_BYTE0_VCDL_PHASE_CNTL
+#define VCDL_SAVE_REG		BCHP_MEMC_DDR23_APHY_WL1_0_SPARE0_RW
 #define RELOAD_VCDL		1
 #else
 #define RELOAD_VCDL		0
 #endif
 
 #if defined(CONFIG_BRCM_HAS_AON)
-#define PM_WAIT_COUNT			BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT
-#define PM_CONTROL			BCHP_AON_CTRL_PM_CTRL
-#define PM_STATUS			BCHP_AON_CTRL_PM_STATUS
-#define PM_STATUS_bsp_ready		BCHP_AON_CTRL_PM_STATUS_pm_bsp_ready_for_pwrdn_MASK
+#define PM_WAIT_COUNT		BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT
+#define PM_CONTROL		BCHP_AON_CTRL_PM_CTRL
+#define PM_STATUS		BCHP_AON_CTRL_PM_STATUS
+#define PM_STATUS_bsp_ready	BCHP_AON_CTRL_PM_STATUS_pm_bsp_ready_for_pwrdn_MASK
 #else
-#define PM_WAIT_COUNT			BCHP_SUN_TOP_CTRL_PM_MIPS_WAIT_COUNT
-#define PM_CONTROL			BCHP_SUN_TOP_CTRL_PM_CTRL
-#define PM_STATUS			PM_CONTROL
-#define PM_STATUS_bsp_ready		BCHP_SUN_TOP_CTRL_PM_CTRL_pm_bsp_ready_for_pwrdn_MASK
+#define PM_WAIT_COUNT		BCHP_SUN_TOP_CTRL_PM_MIPS_WAIT_COUNT
+#define PM_CONTROL		BCHP_SUN_TOP_CTRL_PM_CTRL
+#define PM_STATUS		PM_CONTROL
+#define PM_STATUS_bsp_ready	BCHP_SUN_TOP_CTRL_PM_CTRL_pm_bsp_ready_for_pwrdn_MASK
 #endif
+
+#define FLAGREG			s5
 
 	.text
 	.set	noreorder
@@ -75,8 +75,6 @@
 # a0 is icache line size
 # a1 is the interrupt vector (or general exception base)
 # a2 is brcm_pm_standby_flags
-
-# s1 is saved SCB refresh client setting
 
 	LEAF(brcm_pm_standby_asm)
 	subu	sp, 64
@@ -97,7 +95,7 @@
 	bnez	v0, standby_exit
 	nop
 
-#if RELOAD_VCDL
+#ifdef BCHP_MEMC_DDR23_APHY_WL0_0_BYTE0_VCDL_PHASE_CNTL
 	/*
 	 * Save VCDL values:
 	 * WL0_0_BYTE0 -> bits 07:00
@@ -175,16 +173,18 @@
 
 #if !defined(CONFIG_BRCM_PWR_HANDSHAKE)
 	li	t0, REG(BCHP_MEMC_DDR_0_SSPD_CMD)
-	li	t1, 1
+	li	t1, BCHP_MEMC_DDR_0_SSPD_CMD_SSPD_MASK
 	sw	t1, 0(t0)
 
 	li	t0, REG(BCHP_MEMC_DDR_0_POWER_DOWN_STATUS)
 1:	lw	t1, 0(t0)
-	andi	t1, 4
+	andi	t1, BCHP_MEMC_DDR_0_POWER_DOWN_STATUS_SSPD_MASK
 	beqz	t1, 1b
 	nop
 #endif
 
+# power down request
+2:
 	/* delay if requested by the user: 4 * 30s */
 	li	t0, BRCM_STANDBY_DELAY
 	and	t0, FLAGREG
@@ -194,11 +194,11 @@
 	bal	dputc
 	li	a0, 'w'
 
-	li	s1, 4
+	li	v1, 4
 1:	li	a0, (27000000 * 30)
 	bal	delay
-	addiu	s1, -1
-	bnez	s1, 1b
+	addiu	v1, -1
+	bnez	v1, 1b
 	nop
 
 	bal	dputc
@@ -266,6 +266,7 @@ wait_loop:
 	bal	wake_up_memc_0
 	nop
 
+2:
 	bal	dputc
 	li	a0, 'm'
 
@@ -295,6 +296,7 @@ wait_loop:
 	li	t0, REG(PM_CONTROL)
 	sw	zero, 0(t0)
 	lw	zero, 0(t0)
+
 /***********************************************************************
  * Unlock I$ lines and resume execution
  ***********************************************************************/
@@ -320,14 +322,17 @@ rtn_from_wait:
 
 	bal	dputc
 	li	a0, 'L'
-	bal	dputc
-	li	a0, 0x0d
-	bal	dputc
-	li	a0, 0x0a
 
 # restore sr
 	sync
 	nop
+
+	bal	dputc
+	li	a0, 'l'
+	bal	dputc
+	li	a0, 0x0d
+	bal	dputc
+	li	a0, 0x0a
 
 	mtc0	s2, CP0_STATUS
 	nop
@@ -429,7 +434,7 @@ delay_overflow:
  * PM IRQ handler
  ***********************************************************************/
 
-	LEAF(brcm_pm_irq)
+LEAF(brcm_pm_irq)
 
 # Block interrupts and then return to the wait loop
 	mfc0	k0, CP0_STATUS
@@ -439,7 +444,7 @@ delay_overflow:
 	eret
 	nop
 
-	END(brcm_pm_irq)
+END(brcm_pm_irq)
 
 /***********************************************************************
  * MEMC wakeup
@@ -449,9 +454,10 @@ delay_overflow:
 
 #define SLEEP_1_MILLI_SEC		27000
 
-.globl	upg_sleep
-.ent	upg_sleep
-upg_sleep:
+/***********************************************************************
+ * Delay routine
+ ***********************************************************************/
+LEAF(upg_sleep)
 
 	li	t0, REG(BCHP_TIMER_TIMER0_CTRL)
 	lw	t1, 0(t0)
@@ -509,9 +515,12 @@ upg_sleep:
 	jr	ra
 	nop
 
-.end	upg_sleep
+END(upg_sleep)
 
-	LEAF(wake_up_memc_0)
+/***********************************************************************
+ * Main MEMC0 recovery function
+ ***********************************************************************/
+LEAF(wake_up_memc_0)
 
 	move	s7, ra
 
@@ -530,13 +539,6 @@ upg_sleep:
 	li	a0, 0
 	bal	set_memc_0_deskew_bypass_phase
 	nop
-
-	li	a0, REG(BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL)
-	lw	a1, 0(a0)
-	li	a2, ~(BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_DEVCLK_OFF_ON_SELFREF_MASK | BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_IDDQ_MODE_ON_SELFREF_MASK)
-	and 	a1, a1, a2
-	sw	a1, 0(a0)
-
 
 	li	a0, REG(BCHP_MEMC_DDR23_APHY_WL0_0_DDR_PAD_CNTRL)
 	lw	a1, 0(a0)
@@ -572,19 +574,16 @@ upg_sleep:
 	bal	reprogram_ddr_pll
 	nop
 
-	bal	reset_ws_new
-	nop
-
 	jr 	s7
 	nop
 
-	END(wake_up_memc_0)
+END(wake_up_memc_0)
 
-#if RELOAD_VCDL
-/*
+/***********************************************************************
+ * VCDL incremental reload
  * a0 - VCDL register
  * a1 - maximum value
- */
+ ***********************************************************************/
 reload_vcdl:
 	sll 	v0, a1, 8
 	or  	a1, v0		# max value to load
@@ -599,11 +598,11 @@ vcdl_loop:
 
 	jr	ra
 	nop
-#endif
 
-.global reprogram_ddr_pll
-.ent reprogram_ddr_pll
-reprogram_ddr_pll:
+/***********************************************************************
+ * DDR PLL reset and reconfiguration
+ ***********************************************************************/
+LEAF(reprogram_ddr_pll)
 
 	move	s6, ra
 
@@ -657,39 +656,16 @@ reprogram_ddr_pll:
 	bal	upg_sleep
 	nop
 
-	/* reset the word slice dll */
+	/* check for pll lock */
 
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_WL0_0_WORD_SLICE_DLL_RESET)
-	li	v1, 1
-	sw	v1, 0(v0)
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_WL1_0_WORD_SLICE_DLL_RESET)
-	sw	v1, 0(v0)
-
-	li	a0, (SLEEP_1_MILLI_SEC)
-	bal	upg_sleep
-	nop
-
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_WL0_0_WORD_SLICE_DLL_RESET)
-	li	v1, 0
-	sw	v1, 0(v0)
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_WL1_0_WORD_SLICE_DLL_RESET)
-	sw	v1, 0(v0)
-
-	li	a0, (SLEEP_1_MILLI_SEC)
-	bal	upg_sleep
-	nop
-
-	/* de-assert reset from DATAPATH_216 and DATAPATH_DDR */
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_RESET)
+	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS)
+	li	a0, BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS_LOCK_STATUS_MASK
+1:
 	lw	v1, 0(v0)
+	and	v1, v1, a0
 
-
-	/* de-assert reset from DATAPATH_216_RESET */
-	li	a0, ~(BCHP_MEMC_DDR23_APHY_AC_0_RESET_DATAPATH_216_RESET_MASK | \
-		    BCHP_MEMC_DDR23_APHY_AC_0_RESET_RD_DATAPATH_RESET_MASK | \
-		    BCHP_MEMC_DDR23_APHY_AC_0_RESET_DATAPATH_DDR_RESET_MASK)
-	and	a0, v1, a0
-	sw	a0, 0(v0)
+	beqz	v1, 1b
+	nop
 
 	li	a1, REG(BCHP_MEMC_GEN_0_MSA_WR_DATA4)
 	lw	a0, 0(a1)
@@ -740,7 +716,6 @@ reprogram_ddr_pll:
 	bal	set_memc_0_dqs0_phase
 	nop
 
-
 	/* set wl0_dqs1 phases */
 
 	li	a1, REG(BCHP_MEMC_GEN_0_MSA_WR_DATA1)
@@ -764,40 +739,19 @@ reprogram_ddr_pll:
 	bal	set_memc_0_dqs3_phase
 	nop
 
-	/* check for pll lock */
-
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS)
-	li	a0, BCHP_MEMC_DDR23_APHY_AC_0_DDR_PLL_LOCK_STATUS_LOCK_STATUS_MASK
-1:
+	/*
+	 * Clear CKE IDDQ bit even if it was not set when suspending
+	 */
+	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL)
 	lw	v1, 0(v0)
-	and	v1, v1, a0
+	ori     v1, (4 | BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_DEVCLK_OFF_ON_SELFREF_MASK | BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_IDDQ_MODE_ON_SELFREF_MASK)
+	xori	v1, (4 | BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_DEVCLK_OFF_ON_SELFREF_MASK | BCHP_MEMC_DDR23_APHY_AC_0_DDR_PAD_CNTRL_IDDQ_MODE_ON_SELFREF_MASK)
+	sw	v1, 0(v0)
+	lw	zero, 0(v0)
 
-	beqz	v1, 1b
+	li	a0, (SLEEP_1_MILLI_SEC)
+	bal	upg_sleep
 	nop
-
-	jr	s6
-	nop
-
-.end reprogram_ddr_pll
-
-
-.global reset_ws_new
-.ent reset_ws_new
-reset_ws_new:
-
-	move	s6, ra
-
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_RESET)
-	li	v1, BCHP_MEMC_DDR23_APHY_AC_0_RESET_DATAPATH_216_RESET_MASK
-	lw	a0, 0(v0)
-	or	a0, a0, v1
-	sw	a0, 0(v0)
-
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_RESET)
-	li	v1, BCHP_MEMC_DDR23_APHY_AC_0_RESET_DATAPATH_DDR_RESET_MASK
-	lw	a0, 0(v0)
-	or	a0, a0, v1
-	sw	a0, 0(v0)
 
 	/* reset the word slice dll */
 
@@ -811,7 +765,6 @@ reset_ws_new:
 	bal	upg_sleep
 	nop
 
-#if RELOAD_VCDL
 	/* reset VCDL values */
 	li	t0, REG(BCHP_MEMC_DDR23_APHY_WL0_0_BYTE0_VCDL_PHASE_CNTL)
 	sw	zero, 0(t0)
@@ -824,7 +777,6 @@ reset_ws_new:
 	lw	zero, 0(t0)
 	sw	zero, 4(t0)
 	lw	zero, 4(t0)
-#endif
 
 	li	v0, REG(BCHP_MEMC_DDR23_APHY_WL0_0_WORD_SLICE_DLL_RESET)
 	li	v1, 0
@@ -837,28 +789,28 @@ reset_ws_new:
 	nop
 
 	/* de-assert reset from DATAPATH_216 and DATAPATH_DDR */
-
 	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_RESET)
 	lw	v1, 0(v0)
 
 	/* de-assert reset from DATAPATH_216_RESET */
-
 	li	a0, ~(BCHP_MEMC_DDR23_APHY_AC_0_RESET_DATAPATH_216_RESET_MASK)
-	and	a0, v1, a0
-	sw	a0, 0(v0)
+	and	v1, v1, a0
+	sw	v1, 0(v0)
 
+	/* de-assert reset from RD_DATAPATH_RESET */
+	li	a0, ~(BCHP_MEMC_DDR23_APHY_AC_0_RESET_RD_DATAPATH_RESET_MASK)
+	and	v1, v1, a0
+	sw	v1, 0(v0)
 
-	li	v0, REG(BCHP_MEMC_DDR23_APHY_AC_0_RESET)
-	lw	v1, 0(v0)
+	/* de-assert reset from DATAPATH_DDR_RESET */
 	li	a0, ~(BCHP_MEMC_DDR23_APHY_AC_0_RESET_DATAPATH_DDR_RESET_MASK)
-	and	a0, v1, a0
-	sw	a0, 0(v0)
+	and	v1, v1, a0
+	sw	v1, 0(v0)
 
 	li	a0, (SLEEP_1_MILLI_SEC)
 	bal	upg_sleep
 	nop
 
-#if RELOAD_VCDL
 	/*
 	 * Reload VCDL values:
 	 * WL0_0_BYTE0 <- bits 07:00
@@ -887,12 +839,11 @@ reset_ws_new:
 	li	a0, REG(BCHP_MEMC_DDR23_APHY_WL1_0_BYTE1_VCDL_PHASE_CNTL)
 	bal 	reload_vcdl
 	andi	a1, 0x1f
-#endif
 
 	jr	s6
 	nop
 
-.end reset_ws_new
+END(reprogram_ddr_pll)
 
 LEAF(set_memc_0_write_dqs_phase_cntl_direct)
 

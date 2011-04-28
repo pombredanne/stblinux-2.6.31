@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-02-27
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-04-15
 #
 # Original package: binutils-2.21.tar.bz2
 #
 diff -ruNp binutils.orig/makefile binutils/makefile
 --- binutils.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ binutils/makefile	2011-02-27 14:43:27.000000000 -0800
++++ binutils/makefile	2011-04-15 11:48:11.000000000 -0700
 @@ -0,0 +1,31 @@
 +include $(ROOTDIR)/config.arch
 +

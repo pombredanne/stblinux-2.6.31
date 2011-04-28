@@ -574,6 +574,17 @@ static const unsigned int brcmnand_eccbytes[16] = {
 };
 
 
+/*
+ * Specific NAND option used by BRCMNAND driver
+ */
+ 
+/* For Hynix MLC flashes, the BI are written to last and (last-2) pages. */
+#define BRCMNAND_SCAN_BI_3RD_PAGE	0x00100000
+
+/* For MLC Micron flashes which has BI marker on first page */
+#define BRCMNAND_SCAN_BI_MLC_1ST_PAGE	0x00200000
+
+
 //#endif
 
 
@@ -750,6 +761,7 @@ struct brcmnand_chip {
 	
 	uint8_t*		bbt;
 	uint32_t		bbtSize;
+	
 	int (*isbad_bbt)(struct mtd_info *mtd, loff_t ofs, int allowbbt);
 	struct nand_bbt_descr*	bbt_td;
 	struct nand_bbt_descr*	bbt_md;

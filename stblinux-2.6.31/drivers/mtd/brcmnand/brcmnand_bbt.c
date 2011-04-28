@@ -459,7 +459,10 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 	 *	dir = 1;
 	 * }
 	*/
-	if (!NAND_IS_MLC(this)) { // SLC: First and 2nd page
+	// SLC:  or MICRON MLC flashes: Scan First and 2nd page
+//printk("+++++++++++ Scanning first page of MLC flash, NAND_IS_MLC=%d, options=%08x\n", NAND_IS_MLC(this),  this->options);
+	if (!NAND_IS_MLC(this) || (this->options & BRCMNAND_SCAN_BI_MLC_1ST_PAGE)) { 
+if (NAND_IS_MLC(this)) PRINTK("Scanning first page of MLC flash\n");
 		dir = 1;
 	}
 	else { // MLC: Read last page (and next to last page).
@@ -536,7 +539,7 @@ PRINTK("-->brcmnand_create_bbt, bbt_erase_shift=%d, this->page_shift=%d\n", this
 		len = 1 << (this->bbt_erase_shift - this->page_shift);
 	else { // Also for MLC
 		if (bd->options & NAND_BBT_SCAN2NDPAGE) {
-			if (this->options & NAND_SCAN_BI_3RD_PAGE) {
+			if (this->options & BRCMNAND_SCAN_BI_3RD_PAGE) {
 				len = 3; // For Hynix MLC chips
 			}
 			else {
@@ -1860,7 +1863,7 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 			
 			/* How many pages should we scan */
 			if (this->badblock_pattern->options & NAND_BBT_SCAN2NDPAGE) {
-				if (this->options &  NAND_SCAN_BI_3RD_PAGE) {
+				if (this->options &  BRCMNAND_SCAN_BI_3RD_PAGE) {
 					numpages = 3;
 				}
 				else {
@@ -1870,7 +1873,9 @@ PRINTK("%s: gClearBBT=%d, size=%016llx, erasesize=%08x\n",
 				numpages = 1;
 			}
 
-			if (!NAND_IS_MLC(this)) { // SLC: First and 2nd page
+//printk("+++++++++++ Scanning first page of MLC flash, NAND_IS_MLC=%d, options=%08x\n", NAND_IS_MLC(this),  this->options);
+			if (!NAND_IS_MLC(this) || (this->options & BRCMNAND_SCAN_BI_MLC_1ST_PAGE)) { // SLC: First and 2nd page
+if (NAND_IS_MLC(this)) PRINTK("Scanning first page of MLC flash\n");
 				dir = 1;
 				page = blockPage; // first page of block
 			}
@@ -2045,7 +2050,7 @@ printk("-->%s(offs=%llx\n", __FUNCTION__, offs);
 
 	/* How many pages should we scan */
 	if (this->badblock_pattern->options & NAND_BBT_SCAN2NDPAGE) {
-		if (this->options &  NAND_SCAN_BI_3RD_PAGE) {
+		if (this->options &  BRCMNAND_SCAN_BI_3RD_PAGE) {
 			numpages = 3;
 		}
 		else {
@@ -2057,7 +2062,9 @@ printk("-->%s(offs=%llx\n", __FUNCTION__, offs);
 
 PRINTK("%s: 20\n", __FUNCTION__);
 
-	if (!NAND_IS_MLC(this)) { // SLC: First and 2nd page
+//printk("+++++++++++ Scanning first page of MLC flash, NAND_IS_MLC=%d, options=%08x\n", NAND_IS_MLC(this),  this->options);
+	if (!NAND_IS_MLC(this) || (this->options & BRCMNAND_SCAN_BI_MLC_1ST_PAGE)) { // SLC: First and 2nd page
+if (NAND_IS_MLC(this)) PRINTK("Scanning first page of MLC flash\n");
 		dir = 1;
 		page = blockPage; // first page of block
 	}
