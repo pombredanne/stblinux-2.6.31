@@ -269,7 +269,10 @@
 #define HYNIX_HY27SS08561A      0x35
 #define HYNIX_HY27SS16561A      0x45
 //Hynix HY27(U/S)S(08/16)121A
-#define HYNIX_HY27US08121A      0x76
+
+#define HYNIX_HY27US08121A      0x76 /* Obsoleted by the newer version */
+#define HYNIX_HY27U518S2C         0x76
+
 #define HYNIX_HY27US16121A      0x56
 #define HYNIX_HY27SS08121A      0x36
 #define HYNIX_HY27SS16121A      0x46
@@ -462,6 +465,12 @@
 #define TOSHIBA_TC58NVG0S3ETA00	0xD1
 #define TOSHIBA_TC58NVG1S3ETAI5	0xDA
 #define TOSHIBA_TC58NVG3S0ETA00	0xD3
+
+
+/* -------- MACRONIX NAND  -----------------*/
+#define FLASHTYPE_MACRONIX		0xC2
+
+#define MACRONIX_MX30F1G08		0xF1
 
 /*---------------------------------------------------------------------------------------*/
 

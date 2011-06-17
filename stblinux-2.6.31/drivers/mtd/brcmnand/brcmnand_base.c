@@ -829,6 +829,30 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 	},
 #endif
 
+	{	/* 39 */
+		.chipId = HYNIX_HY27U518S2C,
+		.mafId = FLASHTYPE_HYNIX,
+		.chipIdStr = "HYNIX HY27U518S2C",
+		.options = NAND_USE_FLASH_BBT,
+		.idOptions = 0,
+		.timing1 = 0, .timing2 = 0,
+		.ctrlVersion = 0,
+		.nbrBlocks = 4096,
+	},
+
+	{	/* 40 */
+		.chipId = MACRONIX_MX30F1G08,
+		.mafId = FLASHTYPE_MACRONIX,
+		.chipIdStr = "MACRONIX MX30F1G08",
+		.options = NAND_USE_FLASH_BBT, 		/* Use BBT on flash */
+		.idOptions = BRCMNAND_ID_EXT_BYTES,
+		.timing1 = 0, 
+		.timing2 = 0,
+		.nop=4,
+		.nbrBlocks = 1024,
+		.ctrlVersion = 0, 
+	},
+
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
 
 	{	/* ONFI ENTRY */
@@ -7565,6 +7589,7 @@ static void brcmnand_print_device_info(brcmnand_chip_Id* chipId, struct mtd_info
  * @nand_config: nand_config register with page size, block size, device size already encoded.
  *
  * returns the updated nand_config register.
+ * for Small Page NAND, just return hard-coded values.
  */
 uint32_t
 brcmnand_compute_adr_bytes(struct brcmnand_chip* chip, uint32_t nand_config)
@@ -7573,15 +7598,21 @@ brcmnand_compute_adr_bytes(struct brcmnand_chip* chip, uint32_t nand_config)
 	uint32_t nbrPages;
 	uint32_t fulAdrBytes, colAdrBytes, blkAdrBytes, nbrPagesShift;
 
-	colAdrBytes = 2;
-
 PRINTK("-->%s, chip->chipSize=%llx\n", __FUNCTION__, chip->chipSize);
-	
+	colAdrBytes = 2; // Not used with small page devices
+
 	nbrPages = (uint32_t) (chip->chipSize >> chip->page_shift);
 	nbrPagesShift = ffs(nbrPages)-1; /* = power of 2*/
 	blkAdrBytes =  (nbrPagesShift+7)/8;
 	
-	fulAdrBytes = colAdrBytes + blkAdrBytes;
+	if (chip->pageSize == 512) {
+		// blkAdrBytes = 3; /* 64MB and 128MB */
+		fulAdrBytes = blkAdrBytes + 1; /* Most mfg only use 5-bits (A0-A4) for col addr. */
+	}
+	
+	else {				
+		fulAdrBytes = colAdrBytes + blkAdrBytes;
+	}
 
 	nand_config &= ~(BCHP_NAND_CONFIG_FUL_ADR_BYTES_MASK 
 					| BCHP_NAND_CONFIG_COL_ADR_BYTES_MASK
@@ -7881,7 +7912,10 @@ is_ecc_strong(int registerEcc, int requiredEcc)
 	return (registerEcc >= requiredEcc);
 }
 
-
+/*
+ * Set NAND_ACC_CONTROL register
+ * For flash identified by Read-ID method, nbrBitsPerCell=0 in order to skip recreaiting cellinfo.
+ */
 
 static void
 brcmnand_set_acccontrol(struct brcmnand_chip * chip , unsigned int chipSelect, 
@@ -7892,7 +7926,7 @@ brcmnand_set_acccontrol(struct brcmnand_chip * chip , unsigned int chipSelect,
 	uint32_t b1Ksector = 0;
 	uint32_t acc0, acc;
 	int oobPerSector = oobSizePerPage/(pageSize/512);
-	uint32_t cellinfo;
+	uint32_t cellinfo = 0;
 
 
 PRINTK("-->%s(oob=%d, ecc=%d, cw=%d)\n", __FUNCTION__, oobSizePerPage, reqEcc, codeWorkSize);
@@ -7940,19 +7974,21 @@ printk("eccLevel=%d, 1Ksector=%d, oob=%d\n", eccLevel, b1Ksector, oobPerSector);
 	}
 
 	/* Clear FAST_PGM_RDIN, PARTIAL_PAGE_EN if MLC */
-
-	/*
-	  *  # levels/Cell	nbrBitsPerCell		cellinfo
-	  * 		2			1			0000b
-	  *		4			2			0100b
-	  *		8			3			1000b
-	  *		16			4			1100b
-	  */
-	cellinfo = nbrBitsPerCell-1;
+	/* Fabricate cellinfo, only if not using Samsung ID table (byte 3) */
+	if (nbrBitsPerCell != 0) {
+		/*
+		  *  # levels/Cell	nbrBitsPerCell		cellinfo
+		  * 		2			1			0000b
+		  *		4			2			0100b
+		  *		8			3			1000b
+		  *		16			4			1100b
+		  */
+		cellinfo = nbrBitsPerCell-1;
 
 PRINTK("cellinfo=%d\n", cellinfo);
 
-	chip->cellinfo = cellinfo << 2; /* Mask is 0x0C */
+		chip->cellinfo = cellinfo << 2; /* Mask is 0x0C */
+	}
 
 printk("nbrBitsPerCell=%d, cellinfo=%d, chip->cellinfo=%08x\n", nbrBitsPerCell, cellinfo, chip->cellinfo);
 	if (NAND_IS_MLC(chip)) {
@@ -7980,6 +8016,7 @@ static void brcmnand_adjust_acccontrol(struct brcmnand_chip *chip, int isONFI, i
 	int eccLevel;
 	int oobSize;
 	int updateInternalData = 0;
+	
 
 PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n", 
 	__FUNCTION__, cs, gAccControl[chip->csi], nand_acc_b4);
@@ -7997,9 +8034,11 @@ PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n",
 	 }
 	 /* Update ACC-CONTROL when not on CS0 */
 	 else if (cs != 0 && inIdTable) {
+	 	int nbrBitsPerCells = 0; // Cellinfo already parsedusing ID table, no need to redo in set_acccontrol()
 	 	int oobSizePerPage = chip->eccOobSize*(chip->pageSize/512);
+
 		brcmnand_set_acccontrol(chip , cs, 
-			chip->pageSize, oobSizePerPage, chip->reqEccLevel, chip->eccSectorSize, 2+NAND_IS_MLC(chip));
+			chip->pageSize, oobSizePerPage, chip->reqEccLevel, chip->eccSectorSize,  nbrBitsPerCells);
 	 }
 	 
 
@@ -8168,6 +8207,7 @@ PRINTK("%s: mafID=%02x, devID=%02x, ID4=%02x, ID5=%02x\n",
 	case FLASHTYPE_HYNIX:	
 	case FLASHTYPE_TOSHIBA:
 	case FLASHTYPE_MICRON:
+	case FLASHTYPE_MACRONIX:
 		pageSize = 1024 << (devId4thdByte & SAMSUNG_4THID_PAGESIZE_MASK);
 		blockSize = (64*1024) << ((devId4thdByte & SAMSUNG_4THID_BLKSIZE_MASK) >> 4);
 		//oobSize = devId4thdByte & SAMSUNG_4THID_OOBSIZE_MASK ? 16 : 8;
@@ -8231,6 +8271,7 @@ PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
 		case FLASHTYPE_HYNIX:		
 		case FLASHTYPE_TOSHIBA:
 		case FLASHTYPE_MICRON:
+		case FLASHTYPE_MACRONIX:			
 	PRINTK("5th ID byte = %02x, extID = %08lx\n", devId5thByte, devIdExt);
 
 			switch(devId5thByte & SAMSUNG_5THID_NRPLANE_MASK) {
@@ -8252,6 +8293,7 @@ PRINTK("Updating Config Reg: Block & Page Size: After: %08x\n", nand_config);
 
 		switch(brcmnand_maf_id) {
 		case FLASHTYPE_SAMSUNG:
+		//case FLASHTYPE_MACRONIX:  // Does not have 5th ID byte
 		case FLASHTYPE_MICRON:
 			if (idOptions & BRCMNAND_ID_HAS_MICRON_M68A) {
 				planeSizeMB=128;
@@ -9430,6 +9472,8 @@ static int brcmnand_probe(struct mtd_info *mtd, unsigned int chipSelect)
 				unsigned char devId3rdByte =  (chip->device_id >> 8) & 0xff;
 
 				chip->cellinfo = devId3rdByte & NAND_CI_CELLTYPE_MSK;
+
+PRINTK("chip->cellinfo=%02x\n", chip->cellinfo);
 
 				/* Read 5th ID byte if MLC type */
 				//if (chip->cellinfo) 
@@ -10711,6 +10755,7 @@ PRINTK("%s 42, mtd->oobsize=%d, chip->ecclevel=%d, isMLC=%d, chip->cellinfo=%d\n
 		case 16: /* Small size NAND */
 			if (chip->ecclevel == BRCMNAND_ECC_HAMMING) {
 				chip->ecclayout = &brcmnand_oob_16;
+printk("ECC layout=brcmnand_oob_16\n");
 			}
 			else if (chip->ecclevel == BRCMNAND_ECC_BCH_4) {
 printk("ECC layout=brcmnand_oob_bch4_512\n");
@@ -10751,7 +10796,7 @@ printk("ECC layout=brcmnand_oob_bch8_16_2k\n");
 				}
 			}
 			else if (chip->ecclevel == BRCMNAND_ECC_HAMMING) {
-printk("ECC layout=brcmnand_oob_bch4_4k\n");
+printk("ECC layout=brcmnand_oob_64\n");
 				chip->ecclayout = &brcmnand_oob_64;
 			}
 			else {
