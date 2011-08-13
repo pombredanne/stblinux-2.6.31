@@ -285,8 +285,10 @@
 /* This is the new version of HYNIX_HY27UF081G2M .  The 2M version is EOL */
 #define HYNIX_HY27UF081G2A      0xF1
 
-#define HYNIX_HY27UF082G2A      0xDA		/* 80h, 1Dh, 00h */
-#define HYNIX_HY27UF082G2B      0xDA		/* 10h, 95h, 44h */
+#define HYNIX_HY27UF082G2A      	0xDA	/* 80h, 1Dh, 00h */
+#define HYNIX_HY27UF082G2B      	0xDA	/* 10h, 95h, 44h */
+#define HYNIX_H27U2G8F2C		0xDA	/* 90h, 95h, 44h 3.3V */
+#define HYNIX_H27S2G8F2C      	0xAA	/* 90h, 15h, 44h 1.8V */
 
 // #define HYNIX_HY27UF084G2M     0xDC /* replaced by the next one */
 #define HYNIX_HY27U4G8F2D		0xDC
@@ -540,6 +542,7 @@ typedef enum {
 //#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_0
 /*
  * ECC levels, corresponding to BCHP_NAND_ACC_CONTROL_ECC_LEVEL
+ * When sector size is 1KB, we don't halve the value like the register does.
  */
 typedef enum {
 	BRCMNAND_ECC_DISABLE 	= 0u,
@@ -558,12 +561,13 @@ typedef enum {
 	BRCMNAND_ECC_RESVD_1	= 13u,
 	BRCMNAND_ECC_RESVD_2	= 14u,
 	BRCMNAND_ECC_HAMMING	= 15u,
+	BRCMNAND_ECC_BCH_24		= 24u,
 } brcmnand_ecc_level_t;
 
 /*
- * Number of required ECC bytes per 512B slice
+ * Number of required ECC bytes per 512B sector
  */
-static const unsigned int brcmnand_eccbytes[16] = {
+static const unsigned int brcmnand_eccbytes[] = {
 	[BRCMNAND_ECC_DISABLE]	= 0,
 	[BRCMNAND_ECC_BCH_1]	= 2,
 	[BRCMNAND_ECC_BCH_2]	= 4,
@@ -580,6 +584,7 @@ static const unsigned int brcmnand_eccbytes[16] = {
 	[BRCMNAND_ECC_RESVD_1]	= 0,
 	[BRCMNAND_ECC_RESVD_2]	= 0,
 	[BRCMNAND_ECC_HAMMING]	= 3,
+	[BRCMNAND_ECC_BCH_24] = 20,  /* it's per 512B ecc step*/
 };
 
 

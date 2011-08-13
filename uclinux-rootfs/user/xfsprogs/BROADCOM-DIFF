@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-06-03
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-08-10
 #
 # Original package: xfsprogs-2.5.6.tar.bz2
 #
 diff -ruNp xfsprogs.orig/libxfs/makefile xfsprogs/libxfs/makefile
 --- xfsprogs.orig/libxfs/makefile	2007-02-08 11:57:00.000000000 -0800
-+++ xfsprogs/libxfs/makefile	2011-06-03 12:01:53.000000000 -0700
++++ xfsprogs/libxfs/makefile	2011-08-10 14:37:43.000000000 -0700
 @@ -7,7 +7,8 @@
  LIBXFS = libxfs.so
  BUILD_LIBXFS = build/libxfs.a
@@ -38,7 +38,7 @@ diff -ruNp xfsprogs.orig/libxfs/makefile xfsprogs/libxfs/makefile
  	$(BUILD_CC) $(BUILD_CFLAGS) -c -o $@ $<
 diff -ruNp xfsprogs.orig/makefile xfsprogs/makefile
 --- xfsprogs.orig/makefile	2007-02-08 11:57:00.000000000 -0800
-+++ xfsprogs/makefile	2011-06-03 12:01:54.000000000 -0700
++++ xfsprogs/makefile	2011-08-10 14:37:43.000000000 -0700
 @@ -6,19 +6,21 @@
  TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
  XFSPROGS_DIR=$(shell pwd)
@@ -66,7 +66,7 @@ diff -ruNp xfsprogs.orig/makefile xfsprogs/makefile
  all:
 diff -ruNp xfsprogs.orig/mkfs/makefile xfsprogs/mkfs/makefile
 --- xfsprogs.orig/mkfs/makefile	2007-02-08 11:57:00.000000000 -0800
-+++ xfsprogs/mkfs/makefile	2011-06-03 12:01:54.000000000 -0700
++++ xfsprogs/mkfs/makefile	2011-08-10 14:37:43.000000000 -0700
 @@ -18,8 +18,6 @@ CFLAGS += -I../include -I.. -I. \
  		-DVERSION="\"2.5.6\"" \
  		-fPIC
@@ -87,7 +87,7 @@ diff -ruNp xfsprogs.orig/mkfs/makefile xfsprogs/mkfs/makefile
  # THT: Remove build rule for maxtress.h as some platforms (RHEL) does not have the optional library libuuid installed
 diff -ruNp xfsprogs.orig/repair/makefile xfsprogs/repair/makefile
 --- xfsprogs.orig/repair/makefile	2007-02-08 11:57:00.000000000 -0800
-+++ xfsprogs/repair/makefile	2011-06-03 12:01:53.000000000 -0700
++++ xfsprogs/repair/makefile	2011-08-10 14:37:43.000000000 -0700
 @@ -22,14 +22,12 @@ CFLAGS += -I../include -I.. -I. \
  		-DVERSION="\"2.5.6\"" \
  		-fPIC

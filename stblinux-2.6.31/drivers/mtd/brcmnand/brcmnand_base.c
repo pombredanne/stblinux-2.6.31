@@ -366,6 +366,31 @@ static brcmnand_chip_Id brcmnand_chips[] = {
 		.nbrBlocks = 2048,
 	},
 
+	{	/* 7c Newer generation, 3.3V device */
+		.chipId = HYNIX_H27U2G8F2C,
+		.chipId345 = {0x90, 0x95, 0x44}, 
+		.mafId = FLASHTYPE_HYNIX,
+		.chipIdStr = "Hynix H27U2G8F2C",
+		.options = NAND_USE_FLASH_BBT,
+		.idOptions = BRCMNAND_ID_EXT_BYTES | BRCMNAND_ID_HYNIX_LEGACY,
+		.timing1 = 0, .timing2 = 0,
+		.nop=4,
+		.ctrlVersion = 0,
+		.nbrBlocks = 0,
+	},
+	{	/* 7d Newer generation, 1.8V device */
+		.chipId = HYNIX_H27S2G8F2C,
+		.chipId345 = {0x90, 0x15, 0x44}, 
+		.mafId = FLASHTYPE_HYNIX,
+		.chipIdStr = "Hynix H27S2G8F2C",
+		.options = NAND_USE_FLASH_BBT,
+		.idOptions = BRCMNAND_ID_EXT_BYTES | BRCMNAND_ID_HYNIX_LEGACY,
+		.timing1 = 0, .timing2 = 0,
+		.nop=4,
+		.ctrlVersion = 0,
+		.nbrBlocks = 0,
+	},
+
 #if 0
 /* EOL replaced by the following entry, with reduced NOP */
 
@@ -1129,12 +1154,15 @@ static void
 brcmnand_reset_corr_threshold(struct brcmnand_chip* chip)
 {
 	static int once[NUM_NAND_CS];
+	int ecclevel;
 	
-	if (chip->ecclevel != 0 && chip->ecclevel != BRCMNAND_ECC_HAMMING) {
+	
+	
+	if (ecclevel != 0 && ecclevel != BRCMNAND_ECC_HAMMING) {
 		uint32_t corr_threshold = brcmnand_ctrl_read(BCHP_NAND_CORR_STAT_THRESHOLD);
 		uint32_t seventyfivepc;
 
-		seventyfivepc = (chip->ecclevel*3)/4;
+		seventyfivepc = (ecclevel*3)/4;
 		if (!once[chip->csi]) {
 			once[chip->csi]=1;
 			printk(KERN_INFO "%s: default CORR ERR threshold  %d bits for CS%1d\n", 
@@ -1147,6 +1175,9 @@ PRINTK("ECC level threshold default value is %d bits for CS%1d\n", corr_threshol
 					__FUNCTION__, seventyfivepc, chip->ctrl->CS[chip->csi]);
 			}
 			//seventyfivepc <<= BCHP_NAND_CORR_STAT_THRESHOLD_CORR_STAT_THRESHOLD_SHIFT;
+			if (chip->eccSectorSize == 1024) {
+				seventyfivepc = (seventyfivepc+1) / 2;
+			}
 			brcmnand_ctrl_write(BCHP_NAND_CORR_STAT_THRESHOLD, seventyfivepc);
 		}
 	}
@@ -2434,6 +2465,7 @@ static int brcmnand_handle_false_read_ecc_unc_errors(
 	uint32_t* p32 = (oobarea ?  (uint32_t*) oobarea :  (uint32_t*) &oobbuf[0]);
 	u_char* p8 = (u_char*) p32;
 	int ret = 0;
+	
 
 	/* Flash chip returns errors 
 
@@ -2448,6 +2480,9 @@ static int brcmnand_handle_false_read_ecc_unc_errors(
 	int i;
 	uint32_t acc0;
 	//int valid;
+	
+	
+	
 
 	/*
 	 * First disable Read ECC then re-try read OOB, because some times, the controller
@@ -2498,7 +2533,9 @@ __FUNCTION__, offset, erased, allFF);
 print_oobbuf(p8, 16);
 }
 	}
-	else if (chip->ecclevel >= BRCMNAND_ECC_BCH_1 && chip->ecclevel <= BRCMNAND_ECC_BCH_12) {
+	/* This test also works for ECC=BCH-24 */
+//	else if (chip->ecclevel >= BRCMNAND_ECC_BCH_1 && chip->ecclevel <= BRCMNAND_ECC_BCH_12) {
+	else if (chip->ecclevel != BRCMNAND_ECC_DISABLE) {
 		erased = 1;
 		allFF = 0; // Not sure for BCH.
 		// For BCH-n, the ECC bytes are at the end of the OOB area
@@ -7922,7 +7959,7 @@ brcmnand_set_acccontrol(struct brcmnand_chip * chip , unsigned int chipSelect,
 	uint32_t pageSize, uint16_t oobSizePerPage, int reqEcc, int codeWorkSize, int nbrBitsPerCell)
 {
 	int actualReqEcc = reqEcc;
-	int eccLevel;
+	int eccLevel, encEccLevel; /* encEccLevel is 1/2 of eccLevel when 1KB sector size */
 	uint32_t b1Ksector = 0;
 	uint32_t acc0, acc;
 	int oobPerSector = oobSizePerPage/(pageSize/512);
@@ -7935,13 +7972,17 @@ PRINTK("-->%s(oob=%d, ecc=%d, cw=%d)\n", __FUNCTION__, oobSizePerPage, reqEcc, c
 		oobPerSector = 27; /* Reduce Micron oobsize to match other vendors in order to share codes */
 
 	if (codeWorkSize == 1024) {
-		actualReqEcc = reqEcc/2;
+		//actualReqEcc = reqEcc/2;
 		b1Ksector = 1;
 	}
 	
 	acc = acc0 = chip->ctrl_read(bchp_nand_acc_control(chipSelect));
-	eccLevel = (acc & BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK) 
+	eccLevel = encEccLevel = (acc & BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK) 
 		>> BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+	if (acc & BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_MASK)
+		eccLevel = 2*encEccLevel;
+#endif
 	if (!is_ecc_strong(eccLevel, actualReqEcc)) {
 		eccLevel = actualReqEcc;
 	}
@@ -7954,10 +7995,15 @@ PRINTK("-->%s(oob=%d, ecc=%d, cw=%d)\n", __FUNCTION__, oobSizePerPage, reqEcc, c
 
 printk("eccLevel=%d, 1Ksector=%d, oob=%d\n", eccLevel, b1Ksector, oobPerSector);
 
-	acc |= eccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
+	
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+	if (b1Ksector) {
+		encEccLevel = eccLevel/2;
+	}
 	acc |= b1Ksector << BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_SHIFT;
 #endif
+	
+	acc |= encEccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
 	acc |= oobPerSector << BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
 	
 	if (chipSelect == 0) {
@@ -7966,7 +8012,7 @@ printk("eccLevel=%d, 1Ksector=%d, oob=%d\n", eccLevel, b1Ksector, oobPerSector);
 			|BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_MASK
 #endif
 			|BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_0_MASK);
-		acc |= eccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT;
+		acc |= encEccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT;
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
 		acc |= b1Ksector << BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_0_SHIFT;
 #endif
@@ -8064,6 +8110,14 @@ PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n",
 		oobSize = (nand_acc & BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK) >>
 			BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
 #endif
+
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
+		if (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK) {
+			chip->eccSectorSize = 1024;
+			eccLevel = eccLevel * 2;
+			printk("Sector size changed to 1024\n");
+		}
+#endif
 	
 		chip->ecclevel = eccLevel;
 		printk("ECC level changed to %d\n", eccLevel);
@@ -8077,12 +8131,7 @@ PRINTK("%s: gAccControl[CS=%d]=%08x, ACC=%08lx\n",
 			chip->cellinfo = 0x04; // MLC NAND
 			printk("Flash type changed to MLC\n");
 		}
-#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_4_0
-		if (nand_acc & BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK) {
-			chip->eccSectorSize = 1024;
-			printk("Sector size changed to 1024\n");
-		}
-#endif
+
 	 }
 }
 
@@ -9542,8 +9591,10 @@ PRINTK("chip->cellinfo=%02x\n", chip->cellinfo);
 					chip->ecclevel = BRCMNAND_ECC_BCH_8;
 					break;
 				case 12:
-				case 24:
 					chip->ecclevel = BRCMNAND_ECC_BCH_12;
+					break;
+				case 24:
+					chip->ecclevel = BRCMNAND_ECC_BCH_24;
 					break;
 				}
 	printk("%s: Ecc level set to %d, sectorSize=%d from ID table\n", __FUNCTION__, chip->reqEccLevel, chip->eccSectorSize);
@@ -10186,6 +10237,7 @@ handle_acc_control(struct mtd_info *mtd, struct brcmnand_chip* chip, int cs)
 	volatile unsigned long acc_control, org_acc_control;
 	int csi = chip->csi; // Index into chip->ctrl->CS array
 	unsigned long eccLevel=0, eccLevel_0, eccLevel_n;
+	unsigned long encEccLevel;
 	uint32_t eccOobSize;
 
 	if (gAccControl[csi] != 0) {
@@ -10212,6 +10264,13 @@ PRINTK("100 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip-
 	// ECC level for all other blocks.
 	eccLevel_n = (acc_control & BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK) >>
 		BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT;
+#if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
+	if (acc_control & BCHP_NAND_ACC_CONTROL_SECTOR_SIZE_1K_MASK) {
+		encEccLevel = eccLevel;
+		eccLevel *= 2;
+		eccLevel_n *= 2;
+	}
+#endif
 
 
 	// make sure that block-0 and block-n use the same ECC level.
@@ -10222,8 +10281,8 @@ PRINTK("100 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip-
 		}
 		acc_control &= ~(BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_MASK|
 			BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK);
-		acc_control |= (eccLevel <<  BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT) | 
-			(eccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT);
+		acc_control |= (encEccLevel <<  BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT) | 
+			(encEccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT);
 		brcmnand_ctrl_write(bchp_nand_acc_control(cs), acc_control );
 
 		if (eccLevel == eccLevel_0) {
@@ -10255,12 +10314,13 @@ PRINTK("100 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip-
 	case BRCMNAND_ECC_BCH_4:
 	case BRCMNAND_ECC_BCH_8:
 	case BRCMNAND_ECC_BCH_12:	
+	case BRCMNAND_ECC_BCH_24:	
 		// eccOobSize is initialized to the board strap of ECC-level
 		eccOobSize = (acc_control & BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK) >>
 			BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
 		printk("ACC: %d OOB bytes per 512B ECC step; from ID probe: %d\n", eccOobSize, chip->eccOobSize);
 		//Make sure that the OOB size is >= 27
-		if (eccLevel == BRCMNAND_ECC_BCH_12 && chip->eccOobSize < 27) {
+		if (eccLevel >= BRCMNAND_ECC_BCH_12 && chip->eccOobSize < 27) {
 			printk(KERN_INFO "BCH-12 requires >=27 OOB bytes per ECC step.\n");
 			printk(KERN_INFO "Please fix your board straps. Aborting to avoid file system damage\n");
 			BUG();
@@ -10340,8 +10400,8 @@ PRINTK("100 CS=%d, chip->ctrl->CS[%d]=%d\n", cs, chip->csi, chip->ctrl->CS[chip-
 			}
 			acc_control &= ~(BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_MASK|
 				BCHP_NAND_ACC_CONTROL_ECC_LEVEL_MASK);
-			acc_control |= (eccLevel <<  BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT) | 
-				(eccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT);
+			acc_control |= (encEccLevel <<  BCHP_NAND_ACC_CONTROL_ECC_LEVEL_0_SHIFT) | 
+				(encEccLevel << BCHP_NAND_ACC_CONTROL_ECC_LEVEL_SHIFT);
 			brcmnand_ctrl_write(bchp_nand_acc_control(cs), acc_control );
 
 			if (eccLevel == eccLevel_0) {
@@ -10388,17 +10448,19 @@ chip->ecclevel, brcmnand_ctrl_read(BCHP_NAND_CORR_STAT_THRESHOLD));
 	
 	else {  // CS != 0
 		
-		eccLevel = eccLevel_0 = (acc_control & BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_MASK) >> 
+		eccLevel = eccLevel_0 = encEccLevel = (acc_control & BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_MASK) >> 
 			BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_SHIFT;
-		chip->ecclevel = eccLevel;
+		
 	
 #if CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_5_0
 		acc_control &= ~(BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
 		if (chip->eccSectorSize == 1024) {
+			eccLevel = eccLevel_0 = 2*encEccLevel;
 			acc_control |= (BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK);
 		}
 		brcmnand_ctrl_write(bchp_nand_acc_control(cs), acc_control );
 #endif
+		chip->ecclevel = eccLevel;
 	}
 
 
@@ -10419,14 +10481,15 @@ chip->ecclevel, brcmnand_ctrl_read(BCHP_NAND_CORR_STAT_THRESHOLD));
 	case BRCMNAND_ECC_BCH_4:
 	case BRCMNAND_ECC_BCH_8:
 	case BRCMNAND_ECC_BCH_12:	
+	case BRCMNAND_ECC_BCH_24:	
 		// eccOobSize is initialized to the board strap of ECC-level
 		eccOobSize = (acc_control & BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_MASK) >>
 			BCHP_NAND_ACC_CONTROL_SPARE_AREA_SIZE_SHIFT;
 		printk("ACC: %d OOB bytes per 512B ECC step; from ID probe: %d\n", eccOobSize, chip->eccOobSize);
 		
 		//Make sure that the OOB size is >= 27
-		if (eccLevel == BRCMNAND_ECC_BCH_12 && chip->eccOobSize < 27) {
-			printk(KERN_INFO "BCH-12 requires >=27 OOB bytes per ECC step.\n");
+		if (eccLevel >= BRCMNAND_ECC_BCH_12 && chip->eccOobSize < 27) {
+			printk(KERN_INFO "BCH-12/24 requires >=27 OOB bytes per ECC step.\n");
 			printk(KERN_INFO "Please fix your board straps. Aborting to avoid file system damage\n");
 			BUG();
 		}
@@ -10464,7 +10527,7 @@ PRINTK("reqEccLevel=%d, eccLevel=%d\n", chip->reqEccLevel, chip->ecclevel);
 			; /* Nothing, lowest requirement */
 		}
 		/* BCH */
-		else if (chip->reqEccLevel > 0 && chip->reqEccLevel <= BRCMNAND_ECC_BCH_12) {
+		else if (chip->reqEccLevel > 0 && chip->reqEccLevel <= BRCMNAND_ECC_BCH_24) {
 			if (chip->reqEccLevel  > chip->ecclevel) {
 				printk(KERN_WARNING "******* Insufficient ECC level, required=%d, strapped for %d ********\n", 
 					chip->reqEccLevel ,  chip->ecclevel);
@@ -10893,6 +10956,7 @@ printk(KERN_INFO "ECC layout=brcmnand_oob_bch8_27_4k\n");
 					}
 					break;
 				case BRCMNAND_ECC_BCH_12:
+				case BRCMNAND_ECC_BCH_24:
 printk(KERN_INFO "ECC layout=brcmnand_oob_bch12_27_4k\n");
 					chip->ecclayout = &brcmnand_oob_bch12_27_4k;
 					break;
@@ -10922,6 +10986,7 @@ printk(KERN_INFO "ECC layout=brcmnand_oob_bch8_27_8k\n");
 					}
 					break;
 				case BRCMNAND_ECC_BCH_12:
+				case BRCMNAND_ECC_BCH_24:
 printk(KERN_INFO "ECC layout=brcmnand_oob_bch12_27_8k\n");
 					chip->ecclayout = &brcmnand_oob_bch12_27_8k;
 					break;
@@ -11002,7 +11067,7 @@ printk(KERN_INFO "%s, eccsize=%d, writesize=%d, eccsteps=%d, ecclevel=%d, eccbyt
 	 * -- ONLY IF THE CFE SAYS SO --
 	 * in which case, it is treated as if it is an MLC flash by file system codes
 	 */
-	else if (chip->ecclevel > BRCMNAND_ECC_DISABLE && chip->ecclevel < BRCMNAND_ECC_HAMMING) { 
+	else if (chip->ecclevel > BRCMNAND_ECC_DISABLE && chip->ecclevel != BRCMNAND_ECC_HAMMING) { 
 		// CFE wants BCH codes on SLC Nand
 		mtd->flags = MTD_CAP_MLC_NANDFLASH;
 	}

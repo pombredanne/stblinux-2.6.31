@@ -450,6 +450,7 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 	int dir;
 	struct brcmnand_chip *this = mtd->priv; 
 
+PRINTK("-->%s\n", __FUNCTION__);
 	/*
 	 * THT 8/23/2010 Changed to use low level test.  
 	 * Apparently new Micron chips are SLC, but behaves like an MLC flash (requires BCH-4).
@@ -462,7 +463,7 @@ static int brcmnand_scan_block_fast(struct mtd_info *mtd, struct nand_bbt_descr 
 	// SLC:  or MICRON MLC flashes: Scan First and 2nd page
 //printk("+++++++++++ Scanning first page of MLC flash, NAND_IS_MLC=%d, options=%08x\n", NAND_IS_MLC(this),  this->options);
 	if (!NAND_IS_MLC(this) || (this->options & BRCMNAND_SCAN_BI_MLC_1ST_PAGE)) { 
-if (NAND_IS_MLC(this)) PRINTK("Scanning first page of MLC flash\n");
+if (NAND_IS_MLC(this)) PRINTK("Scanning first page of MLC flash @%llx\n", offs);
 		dir = 1;
 	}
 	else { // MLC: Read last page (and next to last page).
@@ -507,6 +508,7 @@ PRINTK("%s: read_oob returns error %d\n", __FUNCTION__, ret);
 
 		offs += ((int64_t)dir * mtd->writesize);
 	}
+PRINTK("<-- %s\n", __FUNCTION__);
 	return 0;
 }
 
@@ -1381,20 +1383,26 @@ PRINTK("%s: Inc OOB - Allocating %08x byte buffer, oobsize=%d\n", __FUNCTION__, 
 	if (td->options & NAND_BBT_ABSPAGE) {
 		res = brcmnand_read_abs_bbts (mtd, buf, td, md);
 	} else {
+PRINTK("%s: Calling brcmnand_search_read_bbts\n", __FUNCTION__);
 		/* Search the bad block table using a pattern in oob */
 		res = brcmnand_search_read_bbts (mtd, buf, td, md);
 	}
 
 	if (res) {
+PRINTK("%s: Calling brcmnand_check_create\n", __FUNCTION__);
 		res = brcmnand_check_create (mtd, buf, bd);
 	}
 
 	/* Prevent the bbt regions from erasing / writing */
+PRINTK("%s: Calling mark_bbt_region td\n", __FUNCTION__);
 	mark_bbt_region (mtd, td);
-	if (md)
+	if (md) {
+PRINTK("%s: Calling mark_bbt_region md\n", __FUNCTION__);
 		mark_bbt_region (mtd, md);
+	}
 
 	kfree (buf);
+PRINTK("<-- %s\n", __FUNCTION__);
 	return res;
 }
 
@@ -2037,7 +2045,7 @@ int brcmnand_isbad_raw (struct mtd_info *mtd, loff_t offs)
 	uint8_t	isBadBlock = 0;
 	int i;
 
-	unsigned char oobbuf[NAND_MAX_OOBSIZE];
+	static unsigned char oobbuf[NAND_MAX_OOBSIZE];
 	int numpages;
 	/* THT: This __can__ be a 36bit integer (NAND controller address space is 48bit wide, minus
 	 * page size of 2*12, therefore 36bit max
@@ -2046,7 +2054,7 @@ int brcmnand_isbad_raw (struct mtd_info *mtd, loff_t offs)
 	int dir;
 	uint64_t page;
 
-printk("-->%s(offs=%llx\n", __FUNCTION__, offs);
+printk("-->%s(offs=%llx)\n", __FUNCTION__, offs);
 
 	/* How many pages should we scan */
 	if (this->badblock_pattern->options & NAND_BBT_SCAN2NDPAGE) {
@@ -2098,6 +2106,7 @@ PRINTK("%s: 50 calling read_page_oob=%p, offset=%llx\n", __FUNCTION__, this->rea
 				res, page);
 		}
 	}
+PRINTK("<-- %s\n", __FUNCTION__);
 		
 	return isBadBlock;
 }

@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-06-03
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-08-10
 #
 # Original package: ethtool-2.6.37.tar.bz2
 #
 diff -ruNp ethtool.orig/makefile ethtool/makefile
 --- ethtool.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ ethtool/makefile	2011-06-03 12:01:54.000000000 -0700
++++ ethtool/makefile	2011-08-10 14:37:45.000000000 -0700
 @@ -0,0 +1,30 @@
 +include $(ROOTDIR)/config.arch
 +
