@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-08-10
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2012-05-30
 #
 # Original package: mtdutils-20110106.tar.bz2
 #
 diff -ruNp mtdutils.orig/makefile mtdutils/makefile
 --- mtdutils.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ mtdutils/makefile	2011-08-10 14:37:43.000000000 -0700
++++ mtdutils/makefile	2012-05-30 11:13:23.000000000 -0700
 @@ -0,0 +1,69 @@
 +#
 +# General settings

@@ -129,10 +129,15 @@ int DisplayMemDebug(void)
 int EDU_buffer_OK(volatile void* vaddr, int command)
 {
 	unsigned long addr = (unsigned long) vaddr;
+	const void* cvaddr = (const void*) vaddr;
 
+/*
+ * First test: Buffer alignment
+ */
 // Andover architecture do not use SCB protocol.  EDU SCB conformance fixed in 3.3 or later (7420cx)
-#if !(defined(CONFIG_BCM7440) || defined(CONFIG_BCM7601) || defined(CONFIG_BCM7635)\
-	|| (CONFIG_MTD_BRCMNAND_VERSION >= CONFIG_MTD_BRCMNAND_VERS_3_3))
+#if defined(CONFIG_BMIPS4380) && \
+	(!(defined(CONFIG_BCM7440) || defined(CONFIG_BCM7601) || defined(CONFIG_BCM7635)) \
+	&& (CONFIG_MTD_BRCMNAND_VERSION <= CONFIG_MTD_BRCMNAND_VERS_3_3))
       
 // Requires 32byte alignment only of platforms other than 7440 and 7601 (and Dune)
 	if (addr & 0x1f) {
@@ -151,25 +156,40 @@ dump_stack();
 	}
 #endif
 
+/*
+ * 2nd test: is not VM memory?
+ */
+
 	// TBD: Since we only enable block for MEM0, we should make sure that the physical
 	// address falls in MEM0.
 	
-	else if (addr >= VMALLOC_START && addr < VMALLOC_END) {
+	if (is_vmalloc_addr(cvaddr)) {
 		// VM Address
 		return 0;
 	}
 
-	else if ((addr & 0xe0000000) != KSEG0) { 
+/*
+ *	3rd test: buffer must be on MEMC0, since RTS only assign EDU bandwidth on MEMC0
+ */
+
+#if defined( CONFIG_BMIPS4380 )
+	if ((addr & 0xe0000000) != KSEG0) { 
 		// !KSEG 0
 		return 0;
 	}
+#elif defined(CONFIG_BMIPS5000) && \
+   (defined(CONFIG_BRCM_UPPER_256MB) || defined(CONFIG_BRCM_UPPER_768MB ))
+		// Only take addresses below MEMC1
+	{
+		unsigned long pAddr = virt_to_phys(cvaddr);
+		int ret;
 
-
-#if 0 //def CONFIG_BCM7420
-	else if (command == EDU_WRITE && (addr & 0xff)) { // Write must be aligned on 256B
-printk("Write must be aligned on 128B (addr=%08x)\n", addr);
-		return 0;
+		ret = (pAddr < (unsigned long) MEMC1_START);
+//if (cnt < MAX_CNT) printk("Buffer at %p ret=%d, MEMC1_START=%lx\n", vaddr, ret, (unsigned long) MEMC1_START);
+		return ret;
 	}
+    /* #else Only 1 bank, return OK */
+
 #endif
 
 	// OK to proceed with EDU

@@ -636,6 +636,9 @@ static const unsigned int brcmnand_eccbytes[] = {
  */
 struct brcmnand_ctrl {
 	spinlock_t			chip_lock;
+#ifdef CONFIG_MTD_BRCMNAND_GLOBAL_LOCK
+	unsigned long			lockflags;
+#endif
 	//atomic_t			semCount; // Used to lock out NAND access for NOR, TBD
 	wait_queue_head_t		wq;
 	brcmnand_state_t		state;

@@ -30,9 +30,16 @@
 #endif
 
 
+//#define DEBUG_ISR
 #include "brcmnand_priv.h"
+
+#ifdef CONFIG_MTD_BRCMNAND_EDU
 #include "edu.h"
 #include "eduproto.h"
+
+#elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+#include "isrnonedu.h"
+#endif
 
 #include <linux/dma-mapping.h>
 
@@ -59,7 +66,7 @@ static atomic_t v = ATOMIC_INIT(1);
  
 
  // Wakes up the sleeping calling thread.
-static DECLARE_WAIT_QUEUE_HEAD(gEduWaitQ);
+static DECLARE_WAIT_QUEUE_HEAD(gIsrWaitQ);
 
 //eduIsrNode_t gEduIsrData; 
 eduIsrNode_t gEduIsrPool[MAX_JOB_QUEUE_SIZE+2]; /* ReadOp Pool, add 2 for Pushed WAR jobs */
@@ -305,6 +312,7 @@ ISR_isr(int irq, void *devid)
 	//struct list_head* node;
 	uint32_t flashAddr;
 	unsigned long flags;
+	struct brcmnand_chip* chip;
 
 	/*
 	 * Not mine
@@ -313,11 +321,21 @@ ISR_isr(int irq, void *devid)
 		return IRQ_NONE;
 	}
 
+#ifdef CONFIG_MTD_BRCMNAND_EDU
+
 	if (!HIF_TEST_IRQ(EDU_DONE) && !HIF_TEST_IRQ(EDU_ERR))
 		return IRQ_NONE;
 
+#elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+
+	if (!HIF_TEST_IRQ(NAND_CTLRDY) && !HIF_TEST_IRQ(NAND_UNC) && !HIF_TEST_IRQ(NAND_CORR) 
+		&& !HIF_TEST_IRQ(EBI_TIMEOUT) 
+	)
+		return IRQ_NONE;
+#endif
+
 	spin_lock_irqsave(&gJobQ.lock, flags);
-	/* TBD: How to tell Read Request from Write Request */
+	
 	if (list_empty(&gJobQ.jobQ)) { 
 		printk("%s: Impossible no job to process\n", __FUNCTION__);
 		//BUG();
@@ -327,10 +345,15 @@ ISR_isr(int irq, void *devid)
 		spin_unlock_irqrestore(&gJobQ.lock, flags);
 		return IRQ_HANDLED;
 	} 
-	
-	flashAddr = EDU_volatileRead(EDU_EXT_ADDR) - (EDU_LENGTH_VALUE-1);
 
+#ifdef CONFIG_MTD_BRCMNAND_EDU	
+	flashAddr = EDU_volatileRead(EDU_EXT_ADDR) - (EDU_LENGTH_VALUE-1);
 	flashAddr &= ~(EDU_LENGTH_VALUE-1);
+	
+#elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+	flashAddr = ISR_volatileRead(BCHP_NAND_FLASH_READ_ADDR);
+	
+#endif
 	
 	req = ISR_find_request(ISR_OP_SUBMITTED);
 
@@ -379,7 +402,9 @@ PRINTK("==> %s: Awaken rd_data=%08x, intrMask=%08x, cmd=%d, flashAddr=%08x\n", _
 								(req->status & HIF_INTR2_CTRL_READY))
 		{
 			req->opComplete = ISR_OP_COMPLETED;
+#ifdef CONFIG_MTD_BRCMNAND_EDU
 			(void) dma_unmap_single(NULL, req->physAddr, EDU_LENGTH_VALUE, DMA_TO_DEVICE);
+#endif
 		}
 		break;	
 		
@@ -396,7 +421,9 @@ PRINTK("==> %s: Awaken rd_data=%08x, intrMask=%08x, cmd=%d, flashAddr=%08x\n", _
 		// Do we need to do WAR for EDU, since EDU stop dead in its track regardless of the kind of errors.  Bummer!
 		if (req->status & HIF_INTR2_EDU_ERR) {
 
-#if CONFIG_MTD_BRCMNAND_VERSION < CONFIG_MTD_BRCMNAND_VERS_3_3
+#ifdef CONFIG_MTD_BRCMNAND_EDU
+  #if (CONFIG_MTD_BRCMNAND_VERSION < CONFIG_MTD_BRCMNAND_VERS_3_3)
+  
 			/*
 			 * We need to do WAR for EDU, which just stops dead on its tracks if there is any error, correctable or not.
 			 * Problem is, the WAR needs to be done in process context,
@@ -406,12 +433,12 @@ PRINTK("%s: Awaken process context thread for EDU WAR, flashAddr=%08x, status=%0
 __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 			gJobQ.needWakeUp= 1;
 			req->opComplete = ISR_OP_NEED_WAR;
-			wake_up(&gEduWaitQ);
+			wake_up(&gIsrWaitQ);
 			spin_unlock(&req->lock);
 			spin_unlock_irqrestore(&gJobQ.lock, flags);
 			return IRQ_HANDLED;
 
-#else  
+  #else  //EDU v3.3 or later or ISR_NOEDU, no war is needed
 	/* Do nothing on platforms that do not need WAR: v3.3 or later: Just clear the error and bail */
 	// gdebug=4;
 			req->ret = brcmnand_edu_read_completion(req->mtd, req->buffer, req->oobarea, req->offset,
@@ -421,7 +448,16 @@ __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 				req->ret = 0;
 			}
 	// gdebug=0;
-#endif
+  #endif
+ #elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+ 			/* Same as v3.3+ case, no WAR needed */
+ 			req->ret = brcmnand_nedu_read_completion(req->mtd, req->buffer, req->oobarea, req->offset,
+						req->status);
+			if (req->ret == BRCMNAND_CORRECTABLE_ECC_ERROR) {
+				gJobQ.corrected++;  // We only increment mtd->stats.corrected once per page, however.
+				req->ret = 0;
+			}
+ #endif
 		}
 
 		else {
@@ -430,9 +466,15 @@ __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 			 */
 			switch (gJobQ.cmd) {
 			case EDU_READ:
+#ifdef CONFIG_MTD_BRCMNAND_EDU
 				/* All is left to do is to handle the OOB read */
 				req->ret = brcmnand_edu_read_comp_intr(req->mtd, req->buffer, req->oobarea, req->offset,
 							req->status);
+#elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+				/* We need to also copy the data from the NAND controller cache over */
+				req->ret = brcmnand_nedu_read_comp_intr(req->mtd, req->buffer, req->oobarea, req->offset,
+							req->status);
+#endif
 				break;
 
 			case EDU_WRITE:
@@ -444,19 +486,32 @@ __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 					 */
 					struct brcmnand_chip *chip = req->mtd->priv;
 					uint32_t flashStatus = chip->ctrl_read(BCHP_NAND_INTFC_STATUS);
+					int retries=1000;
 
 					req->needBBT=0;
 					/* Just to be dead sure */
+
+					/* 
+					 * Here we already have the CTRL_READY interrupt, but the controller side is slow,
+					 * so we know that the write op has completed with or without errors.
+					 * The error indicator is in the flash status bit, however.
+					 */
+					while (!(flashStatus & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK) && retries > 0) {
+						retries--;
+						udelay(10); /* For a total of 10 ms */
+					}
+/*
 					if (!(flashStatus & BCHP_NAND_INTFC_STATUS_CTLR_READY_MASK)) {
 						printk("%s: Impossible, CTRL-READY already asserted\n", __FUNCTION__);
 						BUG();
 					}
+*/
 					/* Check for flash write error, in which case tell process context thread to handle it */
 					if (flashStatus & 0x1) {
 						req->needBBT = 1;
 						gJobQ.needWakeUp= 1;
 						req->opComplete = ISR_OP_NEED_WAR;
-						wake_up(&gEduWaitQ);
+						wake_up(&gIsrWaitQ);
 						spin_unlock(&req->lock);
 						spin_unlock_irqrestore(&gJobQ.lock, flags);
 						return IRQ_HANDLED;
@@ -480,7 +535,7 @@ __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 		submitted = brcmnand_isr_submit_job();
 
 		if (!submitted) { /* No more job to submit, we are done, wake up process context thread */
-			wake_up(&gEduWaitQ);
+			wake_up(&gIsrWaitQ);
 		}
 
 	}
@@ -489,8 +544,8 @@ __FUNCTION__, req->edu_ldw, req->status, HIF_INTR2_EDU_ERR);
 		/* Ack only the ones that show */
 		uint32_t ack = req->status & req->intr;
 		
-PRINTK("%s: opComp=0, intr=%08x, mask=%08x, expect=%08x, err=%08x, status=%08x, rd_data=%08x, intrMask=%08x, flashAddr=%08x, DRAM=%08x\n", __FUNCTION__, 
-req->intr, req->mask, req->expect, req->error, req->status, rd_data, intrMask, req->flashAddr, req->dramAddr);
+PRINTK("%s: opComp=0, intr=%08x, mask=%08x, expect=%08x, err=%08x, status=%08x, rd_data=%08x, intrMask=%08x, offset=%0llx\n", __FUNCTION__, 
+req->intr, req->mask, req->expect, req->error, req->status, rd_data, intrMask, req->offset);
 
 		// Just disable the ones that are triggered
 		ISR_disable_irq(ack);
@@ -539,7 +594,7 @@ ISR_wait_for_queue_completion(void)
 	
 	/* Loop is for wait_event_interruptible_timeout */
 	do {
-		waitret = wait_event_timeout(gEduWaitQ, list_empty(&gJobQ.jobQ) || gJobQ.needWakeUp, to_jiffies);
+		waitret = wait_event_timeout(gIsrWaitQ, list_empty(&gJobQ.jobQ) || gJobQ.needWakeUp, to_jiffies);
 		if (waitret == 0) { /* TimeOut */
 			ret = BRCMNAND_TIMED_OUT;
 			break;
@@ -570,9 +625,15 @@ ISR_wait_for_queue_completion(void)
 			// req lock held inside ISR_find_request
 			switch (gJobQ.cmd) {
 			case EDU_READ:
+#ifdef CONFIG_MTD_BRCMNAND_EDU
 				ret = brcmnand_edu_read_completion(
 								saveReq.mtd, saveReq.buffer, saveReq.oobarea, saveReq.offset,
 								saveReq.status);
+#elif defined (CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+				ret = brcmnand_nedu_read_completion(
+								saveReq.mtd, saveReq.buffer, saveReq.oobarea, saveReq.offset,
+								saveReq.status);
+#endif
 				if (ret == BRCMNAND_CORRECTABLE_ECC_ERROR) {
 					gJobQ.corrected++;
 					ret = 0;
@@ -640,8 +701,8 @@ uint32_t ISR_wait_for_completion(void)
 		else  {
 			// Recalculate TO, for retries
 			to_jiffies = expired - jiffies;
-			//ret = wait_event_interruptible_timeout(gEduWaitQ, gEduIsrData.opComplete, to_jiffies);
-			ret = wait_event_timeout(gEduWaitQ, gEduIsrData.opComplete, to_jiffies);
+			//ret = wait_event_interruptible_timeout(gIsrWaitQ, gEduIsrData.opComplete, to_jiffies);
+			ret = wait_event_timeout(gIsrWaitQ, gEduIsrData.opComplete, to_jiffies);
 		}
 
 PRINTK3("==>%s\n", __FUNCTION__);
@@ -710,6 +771,8 @@ void ISR_init(void)
 	int i, ret;
 	unsigned long flags;
 
+PRINTK("-->%s\n", __FUNCTION__);
+
 	//init_MUTEX(&gEduIsrData.lock); // Write lock
 	spin_lock_init(&gJobQ.lock);		// Read queue lock
 	
@@ -731,12 +794,37 @@ PRINTK("%s: After\n", __FUNCTION__);
 ISR_print_avail_list();
 //BUG();
 
+#ifdef CONFIG_MTD_BRCMNAND_EDU
+
 	// Mask all L2 interrupts
 	HIF_DISABLE_IRQ(EDU_DONE);
 	HIF_DISABLE_IRQ(EDU_ERR);
+
+#elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+
+
+        // Clear the interrupt for next time
+        ISR_volatileWrite(BCHP_HIF_INTR2_CPU_CLEAR, HIF_INTR2_EDU_CLEAR_MASK); 
+PRINTK("<--%s:\n", __FUNCTION__);
+
+	// Mask all L2 interrupts
+	HIF_DISABLE_IRQ(NAND_CTLRDY);
+	HIF_DISABLE_IRQ(NAND_UNC);
+	HIF_DISABLE_IRQ(NAND_CORR);
+	HIF_DISABLE_IRQ(EBI_TIMEOUT);
+
+
+#endif
+
 	BARRIER;
 
+#ifdef CONFIG_MTD_BRCMNAND_EDU
 	ret = request_irq(BRCM_IRQ_HIF, ISR_isr, IRQF_SHARED, "brcmnand EDU", &gJobQ);
+
+#elif defined(CONFIG_MTD_BRCMNAND_ISR_NOEDU)
+PRINTK("Calling request IRQ for no-EDU\n");
+	ret = request_irq(BRCM_IRQ_HIF, ISR_isr, IRQF_SHARED, "brcmnand ISR", &gJobQ);
+#endif
 	if (ret) {
 		printk(KERN_INFO "%s: request_irq(BRCM_IRQ_HIF) failed ret=%d.  Someone not sharing?\n", 
 			__FUNCTION__, ret);

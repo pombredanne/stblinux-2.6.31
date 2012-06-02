@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-08-10
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2012-05-30
 #
 # Original package: oprofile-0.9.6.tar.bz2
 #
 diff -ruNp oprofile.orig/events/mips/bmips3300/events oprofile/events/mips/bmips3300/events
 --- oprofile.orig/events/mips/bmips3300/events	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/events/mips/bmips3300/events	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/events/mips/bmips3300/events	2012-05-30 11:13:18.000000000 -0700
 @@ -0,0 +1,18 @@
 +#
 +# BMIPS3300 events
@@ -27,7 +27,7 @@ diff -ruNp oprofile.orig/events/mips/bmips3300/events oprofile/events/mips/bmips
 +event:0xb047 counters:0,1,2,3 um:zero minimum:500 name:RAC_BLOCK_REQUEST : Block requests due to prefetch
 diff -ruNp oprofile.orig/events/mips/bmips3300/unit_masks oprofile/events/mips/bmips3300/unit_masks
 --- oprofile.orig/events/mips/bmips3300/unit_masks	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/events/mips/bmips3300/unit_masks	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/events/mips/bmips3300/unit_masks	2012-05-30 11:13:18.000000000 -0700
 @@ -0,0 +1,5 @@
 +#
 +# MIPS bcm3300 possible unit masks
@@ -36,7 +36,7 @@ diff -ruNp oprofile.orig/events/mips/bmips3300/unit_masks oprofile/events/mips/b
 +	0x0 No unit mask
 diff -ruNp oprofile.orig/events/mips/bmips4380/events oprofile/events/mips/bmips4380/events
 --- oprofile.orig/events/mips/bmips4380/events	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/events/mips/bmips4380/events	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/events/mips/bmips4380/events	2012-05-30 11:13:18.000000000 -0700
 @@ -0,0 +1,24 @@
 +#
 +# BMIPS4380 events
@@ -64,7 +64,7 @@ diff -ruNp oprofile.orig/events/mips/bmips4380/events oprofile/events/mips/bmips
 +event:0xd000 counters:0,1,2,3 um:zero minimum:500 name:L2_MISSES : L2 cache misses
 diff -ruNp oprofile.orig/events/mips/bmips4380/unit_masks oprofile/events/mips/bmips4380/unit_masks
 --- oprofile.orig/events/mips/bmips4380/unit_masks	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/events/mips/bmips4380/unit_masks	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/events/mips/bmips4380/unit_masks	2012-05-30 11:13:18.000000000 -0700
 @@ -0,0 +1,5 @@
 +#
 +# MIPS bcm4350 possible unit masks
@@ -73,7 +73,7 @@ diff -ruNp oprofile.orig/events/mips/bmips4380/unit_masks oprofile/events/mips/b
 +	0x0 No unit mask
 diff -ruNp oprofile.orig/events/mips/bmips5000/events oprofile/events/mips/bmips5000/events
 --- oprofile.orig/events/mips/bmips5000/events	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/events/mips/bmips5000/events	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/events/mips/bmips5000/events	2012-05-30 11:13:18.000000000 -0700
 @@ -0,0 +1,119 @@
 +#
 +# BMIPS5000 events
@@ -196,7 +196,7 @@ diff -ruNp oprofile.orig/events/mips/bmips5000/events oprofile/events/mips/bmips
 +event:0x012 counters:1,3 um:tp minimum:500 name:STORE_REPLAYS_STORE_BUFFER_FULL  : Store replays due to store buffer full.
 diff -ruNp oprofile.orig/events/mips/bmips5000/unit_masks oprofile/events/mips/bmips5000/unit_masks
 --- oprofile.orig/events/mips/bmips5000/unit_masks	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/events/mips/bmips5000/unit_masks	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/events/mips/bmips5000/unit_masks	2012-05-30 11:13:18.000000000 -0700
 @@ -0,0 +1,8 @@
 +#
 +# MIPS bmips5000 possible unit masks
@@ -208,7 +208,7 @@ diff -ruNp oprofile.orig/events/mips/bmips5000/unit_masks oprofile/events/mips/b
 +	0x3 TP0 and TP1
 diff -ruNp oprofile.orig/libop/op_cpu_type.c oprofile/libop/op_cpu_type.c
 --- oprofile.orig/libop/op_cpu_type.c	2009-11-24 07:25:17.000000000 -0800
-+++ oprofile/libop/op_cpu_type.c	2011-08-10 14:37:41.000000000 -0700
++++ oprofile/libop/op_cpu_type.c	2012-05-30 11:13:19.000000000 -0700
 @@ -82,6 +82,9 @@ static struct cpu_descr const cpu_descrs
  	{ "ppc64 compat version 1", "ppc64/ibm-compat-v1", CPU_PPC64_IBM_COMPAT_V1, 4 },
     	{ "Intel Core/i7", "i386/core_i7", CPU_CORE_I7, 4 },
@@ -221,7 +221,7 @@ diff -ruNp oprofile.orig/libop/op_cpu_type.c oprofile/libop/op_cpu_type.c
  static size_t const nr_cpu_descrs = sizeof(cpu_descrs) / sizeof(struct cpu_descr);
 diff -ruNp oprofile.orig/libop/op_cpu_type.h oprofile/libop/op_cpu_type.h
 --- oprofile.orig/libop/op_cpu_type.h	2009-11-24 07:25:17.000000000 -0800
-+++ oprofile/libop/op_cpu_type.h	2011-08-10 14:37:41.000000000 -0700
++++ oprofile/libop/op_cpu_type.h	2012-05-30 11:13:18.000000000 -0700
 @@ -79,6 +79,9 @@ typedef enum {
  	CPU_PPC64_IBM_COMPAT_V1, /**< IBM PPC64 processor compat mode version 1 */
     	CPU_CORE_I7, /* Intel Core i7, Nehalem */
@@ -234,7 +234,7 @@ diff -ruNp oprofile.orig/libop/op_cpu_type.h oprofile/libop/op_cpu_type.h
  
 diff -ruNp oprofile.orig/libop/op_events.c oprofile/libop/op_events.c
 --- oprofile.orig/libop/op_events.c	2009-11-24 07:25:17.000000000 -0800
-+++ oprofile/libop/op_events.c	2011-08-10 14:37:41.000000000 -0700
++++ oprofile/libop/op_events.c	2012-05-30 11:13:19.000000000 -0700
 @@ -1066,6 +1066,12 @@ void op_default_event(op_cpu cpu_type, s
  			descr->name = "CPU_CLK";
  			break;
@@ -250,7 +250,7 @@ diff -ruNp oprofile.orig/libop/op_events.c oprofile/libop/op_events.c
  		case CPU_TIMER_INT:
 diff -ruNp oprofile.orig/makefile oprofile/makefile
 --- oprofile.orig/makefile	1969-12-31 16:00:00.000000000 -0800
-+++ oprofile/makefile	2011-08-10 14:37:41.000000000 -0700
++++ oprofile/makefile	2012-05-30 11:13:19.000000000 -0700
 @@ -0,0 +1,60 @@
 +include $(ROOTDIR)/config.arch
 +
@@ -314,7 +314,7 @@ diff -ruNp oprofile.orig/makefile oprofile/makefile
 +	$(MAKE) -f Makefile $@
 diff -ruNp oprofile.orig/utils/opcontrol oprofile/utils/opcontrol
 --- oprofile.orig/utils/opcontrol	2009-11-24 07:25:17.000000000 -0800
-+++ oprofile/utils/opcontrol	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/utils/opcontrol	2012-05-30 11:13:18.000000000 -0700
 @@ -13,6 +13,10 @@
  # NOTE: This script should be as shell independent as possible
  
@@ -337,7 +337,7 @@ diff -ruNp oprofile.orig/utils/opcontrol oprofile/utils/opcontrol
  	if [ "$GRP_NUM_CK_VAL" = "" ] ; then
 diff -ruNp oprofile.orig/utils/ophelp.c oprofile/utils/ophelp.c
 --- oprofile.orig/utils/ophelp.c	2009-11-24 07:25:17.000000000 -0800
-+++ oprofile/utils/ophelp.c	2011-08-10 14:37:40.000000000 -0700
++++ oprofile/utils/ophelp.c	2012-05-30 11:13:17.000000000 -0700
 @@ -638,6 +638,13 @@ int main(int argc, char const * argv[])
  			"Chapter 11: Performance Monitor\n"
  			"Downloadable from http://www.freescale.com\n";

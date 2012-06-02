@@ -887,13 +887,23 @@ config MTD_BRCMNAND_CORRECTABLE_ERR_HANDLING
 
 config MTD_BRCMNAND_EDU
 	bool "Enable Broadcom NAND DMA (EDU)"
-	default y
+	default y 
 	select MTD_BRCMNAND_USE_ISR
 	select MTD_BRCMNAND_ISR_QUEUE
 	depends on MTD_BRCMNAND && BRCM_HAS_EDU
 	help
 	  Say Y to enable the EBI DMA unit for NAND flash transfers.
 	  Say N to use PIO transfers.
+	  
+#config MTD_BRCMNAND_ISR_NOEDU
+#	bool "Enable Broadcom NAND ISR w/o EDU"
+#	default n 
+#	select MTD_BRCMNAND_USE_ISR
+#	select MTD_BRCMNAND_ISR_QUEUE
+#	depends on MTD_BRCMNAND && (!BRCM_HAS_EDU)
+#	help
+#	  Say Y to enable ISR for NAND flash transfers w/o EDU.
+#	  Say N to use polling mode.
 
 
 config SPI_BRCMSTB
@@ -1520,12 +1530,20 @@ config MTD_BRCMNAND_EDU
 
 config MTD_BRCMNAND_ISR_QUEUE
 	bool
+	
+config MTD_BRCMNAND_USE_ISR
+	bool
 
 config BRCM_HAS_NAND
 	bool
 
 config BRCM_HAS_EDU
 	bool
+	
+config MTD_BRCMNAND_GLOBAL_LOCK
+	bool
+	default n
+	depends on !MTD_BRCMNAND_USE_ISR
 
 config BRCM_HAS_SPI
 	bool

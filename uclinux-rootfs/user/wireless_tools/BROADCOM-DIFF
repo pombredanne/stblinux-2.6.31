@@ -1,11 +1,11 @@
 #
-# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2011-08-10
+# THESE FILES WERE MODIFIED BY BROADCOM CORPORATION ON 2012-05-30
 #
 # Original package: wireless_tools.29.tar.bz2
 #
 diff -ruNp wireless_tools.orig/Makefile wireless_tools/Makefile
 --- wireless_tools.orig/Makefile	2007-09-17 16:56:46.000000000 -0700
-+++ wireless_tools/Makefile	2011-08-10 14:37:40.000000000 -0700
++++ wireless_tools/Makefile	2012-05-30 11:13:17.000000000 -0700
 @@ -9,7 +9,7 @@ ifndef PREFIX
  endif
  
